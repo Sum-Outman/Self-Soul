@@ -138,3 +138,4 @@ data/datasets/
 data/knowledge/
 logs/
 config/api_config.json
+node_modules

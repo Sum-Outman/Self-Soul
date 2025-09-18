@@ -345,3 +345,4 @@ Self Soul是由开源社区贡献构建的，并利用了各种AI研究和技术
 
 © 2025 Self Soul Team. All rights reserved.
 © 2025 Self Soul团队。保留所有权利。
+

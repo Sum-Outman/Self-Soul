@@ -179,10 +179,14 @@ Apache License
 
       To apply the Apache License to your work, attach the following
 <<<<<<< HEAD
+<<<<<<< HEAD
       boilerplate notice, with the fields enclosed by brackets "[]"
 =======
       boilerplate notice, with the fields enclosed by brackets "{}"
 >>>>>>> master
+=======
+      boilerplate notice, with the fields enclosed by brackets "[]"
+>>>>>>> 8d114dab5a9573020b96ef9b2dd39a3e7b8df3b9
       replaced with your own identifying information. (Don't include
       the brackets!)  The text should be enclosed in the appropriate
       comment syntax for the file format. We also recommend that a
@@ -191,10 +195,14 @@ Apache License
       identification within third-party archives.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    Copyright [yyyy] [name of copyright owner]
 =======
    Copyright {yyyy} {name of copyright owner}
 >>>>>>> master
+=======
+   Copyright [yyyy] [name of copyright owner]
+>>>>>>> 8d114dab5a9573020b96ef9b2dd39a3e7b8df3b9
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -207,7 +215,11 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
 <<<<<<< HEAD
+<<<<<<< HEAD
    limitations under the License.
 =======
    limitations under the License.
 >>>>>>> master
+=======
+   limitations under the License.
+>>>>>>> 8d114dab5a9573020b96ef9b2dd39a3e7b8df3b9

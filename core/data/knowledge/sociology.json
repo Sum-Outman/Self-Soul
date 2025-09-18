@@ -1,0 +1,160 @@
+{
+  "domain": "sociology",
+  "name": {
+    "en": "Sociology",
+    "zh": "社会学",
+    "de": "Soziologie",
+    "ja": "社会学",
+    "ru": "Социология"
+  },
+  "description": {
+    "en": "Study of human society, social relationships, and social institutions",
+    "zh": "研究人类社会、社会关系和社会制度的学科",
+    "de": "Studium der menschlichen Gesellschaft, sozialer Beziehungen und sozialer Institutionen",
+    "ja": "人間社会、社会的関係、社会制度の研究",
+    "ru": "Изучение человеческого общества, социальных отношений и социальных институтов"
+  },
+  "concepts": [
+    {
+      "id": "social_structure",
+      "name": {
+        "en": "Social Structure",
+        "zh": "社会结构",
+        "de": "Soziale Struktur",
+        "ja": "社会構造",
+        "ru": "Социальная структура"
+      },
+      "description": {
+        "en": "Patterned social arrangements that form societies",
+        "zh": "形成社会的模式化社会安排",
+        "de": "Strukturierte soziale Anordnungen, die Gesellschaften bilden",
+        "ja": "社会を形成するパターン化された社会的配置",
+        "ru": "Узорные социальные устройства, формирующие общества"
+      },
+      "examples": [
+        "Social stratification systems",
+        "Family structures and kinship",
+        "Economic class divisions",
+        "Political organization patterns"
+      ]
+    },
+    {
+      "id": "social_institutions",
+      "name": {
+        "en": "Social Institutions",
+        "zh": "社会制度",
+        "de": "Soziale Institutionen",
+        "ja": "社会制度",
+        "ru": "Социальные институты"
+      },
+      "description": {
+        "en": "Established systems and structures that govern social behavior",
+        "zh": "管理社会行为的既定系统和结构",
+        "de": "Etablierte Systeme und Strukturen, die soziales Verhalten regieren",
+        "ja": "社会的行動を統治する確立されたシステムと構造",
+        "ru": "Установленные системы и структуры, управляющие социальным поведением"
+      },
+      "examples": [
+        "Education systems",
+        "Legal and judicial systems",
+        "Religious organizations",
+        "Healthcare institutions"
+      ]
+    },
+    {
+      "id": "social_change",
+      "name": {
+        "en": "Social Change",
+        "zh": "社会变迁",
+        "de": "Sozialer Wandel",
+        "ja": "社会変動",
+        "ru": "Социальные изменения"
+      },
+      "description": {
+        "en": "Transformation of cultural and social institutions over time",
+        "zh": "文化和社会制度随时间的转变",
+        "de": "Transformation kultureller und sozialer Institutionen im Laufe der Zeit",
+        "ja": "時間の経過に伴う文化的・社会的制度の変容",
+        "ru": "Преобразование культурных и социальных институтов с течением времени"
+      },
+      "examples": [
+        "Technological innovation impacts",
+        "Social movement outcomes",
+        "Demographic shifts",
+        "Globalization effects"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "social_norms",
+      "name": {
+        "en": "Social Norms",
+        "zh": "社会规范",
+        "de": "Soziale Normen",
+        "ja": "社会的規範",
+        "ru": "Социальные нормы"
+      },
+      "description": {
+        "en": "Shared expectations and rules that guide behavior in groups",
+        "zh": "指导群体行为的共享期望和规则",
+        "de": "Gemeinsame Erwartungen und Regeln, die das Verhalten in Gruppen leiten",
+        "ja": "集団内の行動を導く共有された期待と規則",
+        "ru": "Общие ожидания и правила, направляющие поведение в группах"
+      }
+    },
+    {
+      "id": "socialization",
+      "name": {
+        "en": "Socialization",
+        "zh": "社会化",
+        "de": "Sozialisation",
+        "ja": "社会化",
+        "ru": "Социализация"
+      },
+      "description": {
+        "en": "Process through which individuals learn and internalize cultural norms",
+        "zh": "个体学习和内化文化规范的过程",
+        "de": "Prozess, durch den Individuen kulturelle Normen lernen und verinnerlichen",
+        "ja": "個人が文化的規範を学び内面化するプロセス",
+        "ru": "Процесс, посредством которого индивиды изучают и усваивают культурные нормы"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "social_research",
+      "name": {
+        "en": "Social Research",
+        "zh": "社会研究",
+        "de": "Sozialforschung",
+        "ja": "社会研究",
+        "ru": "Социальные исследования"
+      },
+      "description": {
+        "en": "Systematic study of social phenomena using scientific methods",
+        "zh": "使用科学方法对社会现象进行系统研究",
+        "de": "Systematische Untersuchung sozialer Phänomene mit wissenschaftlichen Methoden",
+        "ja": "科学的方法を用いた社会現象の体系的研究",
+        "ru": "Систематическое изучение социальных явлений с использованием научных методов"
+      }
+    },
+    {
+      "id": "social_policy",
+      "name": {
+        "en": "Social Policy Development",
+        "zh": "社会政策制定",
+        "de": "Sozialpolitikentwicklung",
+        "ja": "社会政策開発",
+        "ru": "Разработка социальной политики"
+      },
+      "description": {
+        "en": "Informing and shaping policies that address social issues",
+        "zh": "为应对社会问题的政策提供信息和塑造",
+        "de": "Information und Gestaltung von Politiken, die soziale Probleme angehen",
+        "ja": "社会的問題に対処する政策への情報提供と形成",
+        "ru": "Информирование и формирование политики, направленной на решение социальных проблем"
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "models": {
+    "manager": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "language": {
+      "type": "local",
+      "api_url": "https://api.openai.com/v1",
+      "api_key": "test-key",
+      "name": "测试配置",
+      "endpoint": "https://api.example.com/test",
+      "apiKey": "test-key-123",
+      "modelType": "custom",
+      "source": "external",
+      "model_name": "gpt-3.5-turbo"
+    },
+    "audio": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "image": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "video": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "spatial": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "sensor": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "computer": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "motion": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "knowledge": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    },
+    "programming": {
+      "type": "local",
+      "api_url": "",
+      "api_key": ""
+    }
+  },
+  "system": {
+    "data_retention": 30,
+    "auto_update": true,
+    "log_level": "info",
+    "max_memory_usage": 80,
+    "max_cpu_usage": 90
+  },
+  "additionalProp1": {}
+}

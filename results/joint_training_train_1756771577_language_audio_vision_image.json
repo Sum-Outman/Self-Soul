@@ -1,0 +1,384 @@
+{
+  "job_id": "train_1756771577_language_audio_vision_image",
+  "model_ids": [
+    "language",
+    "audio",
+    "vision_image"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "epochs": 10,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  },
+  "completion_time": 1756771578.3658822,
+  "results": {
+    "language": {
+      "model_id": "language",
+      "status": "success",
+      "metrics": {
+        "loss": 0.4058050840692422,
+        "accuracy": 0.8184755390986954
+      },
+      "training_time": 1.0888490676879883,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.8704349578096378,
+            "accuracy": 0.5515521733596447,
+            "progress": 0.1,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.6462182724071326,
+            "accuracy": 0.5653474048911834,
+            "progress": 0.2,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 1.3179764122181075,
+            "accuracy": 0.6453026945657803,
+            "progress": 0.3,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 1.1682258512987709,
+            "accuracy": 0.6795679177789906,
+            "progress": 0.4,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 0.911450040222871,
+            "accuracy": 0.7049772063942686,
+            "progress": 0.5,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 6,
+          "metrics": {
+            "loss": 0.7903843878369272,
+            "accuracy": 0.7358129306945126,
+            "progress": 0.6,
+            "epoch": 6,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 7,
+          "metrics": {
+            "loss": 0.6169397689087801,
+            "accuracy": 0.764381860047698,
+            "progress": 0.7,
+            "epoch": 7,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 8,
+          "metrics": {
+            "loss": 0.4228720450880118,
+            "accuracy": 0.8253149249431193,
+            "progress": 0.8,
+            "epoch": 8,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 9,
+          "metrics": {
+            "loss": 0.1888292185124924,
+            "accuracy": 0.8472417873625231,
+            "progress": 0.9,
+            "epoch": 9,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 10,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.9196261924456244,
+            "progress": 1.0,
+            "epoch": 10,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "audio": {
+      "model_id": "audio",
+      "status": "success",
+      "metrics": {
+        "loss": 0.4060783880938869,
+        "accuracy": 0.8200061289907872
+      },
+      "training_time": 1.0888490676879883,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.844457629501,
+            "accuracy": 0.5264796934878815,
+            "progress": 0.1,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.7052113094360717,
+            "accuracy": 0.5869586010863911,
+            "progress": 0.2,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 1.3809849394896876,
+            "accuracy": 0.6346087504277185,
+            "progress": 0.3,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 1.208182005941696,
+            "accuracy": 0.6274294801309769,
+            "progress": 0.4,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 1.0091392563276318,
+            "accuracy": 0.7174360894693266,
+            "progress": 0.5,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 6,
+          "metrics": {
+            "loss": 0.8112250874170206,
+            "accuracy": 0.7561965728230384,
+            "progress": 0.6,
+            "epoch": 6,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 7,
+          "metrics": {
+            "loss": 0.6156454846487359,
+            "accuracy": 0.746529816615885,
+            "progress": 0.7,
+            "epoch": 7,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 8,
+          "metrics": {
+            "loss": 0.3836194252400706,
+            "accuracy": 0.8092003358240178,
+            "progress": 0.8,
+            "epoch": 8,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 9,
+          "metrics": {
+            "loss": 0.2099019431636075,
+            "accuracy": 0.8689206852803723,
+            "progress": 0.9,
+            "epoch": 9,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 10,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.9191832344106226,
+            "progress": 1.0,
+            "epoch": 10,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "vision_image": {
+      "model_id": "vision_image",
+      "status": "success",
+      "metrics": {
+        "loss": 0.3860747658704736,
+        "accuracy": 0.8329016303884383
+      },
+      "training_time": 1.0878546237945557,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.7976781541165523,
+            "accuracy": 0.5603456701759372,
+            "progress": 0.1,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.4955726779125031,
+            "accuracy": 0.5529817630343431,
+            "progress": 0.2,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 1.312218268725686,
+            "accuracy": 0.6197324174555806,
+            "progress": 0.3,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 1.170290718172683,
+            "accuracy": 0.6834995715730092,
+            "progress": 0.4,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 0.9564525366876173,
+            "accuracy": 0.7342390766291633,
+            "progress": 0.5,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 6,
+          "metrics": {
+            "loss": 0.753418429976465,
+            "accuracy": 0.7328989042769969,
+            "progress": 0.6,
+            "epoch": 6,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 7,
+          "metrics": {
+            "loss": 0.5812887940364986,
+            "accuracy": 0.805275342948371,
+            "progress": 0.7,
+            "epoch": 7,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 8,
+          "metrics": {
+            "loss": 0.405388621300743,
+            "accuracy": 0.8552661135007013,
+            "progress": 0.8,
+            "epoch": 8,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 9,
+          "metrics": {
+            "loss": 0.18027798403866144,
+            "accuracy": 0.8882709373600497,
+            "progress": 0.9,
+            "epoch": 9,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 10,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.8827968538560731,
+            "progress": 1.0,
+            "epoch": 10,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    }
+  },
+  "metrics": {}
+}

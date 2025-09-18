@@ -1,0 +1,414 @@
+{
+  "main": {
+    "title": "AGI脳システム",
+    "tabs": {
+      "interaction": "対話",
+      "training": "トレーニング",
+      "management": "管理",
+      "settings": "設定",
+      "help": "ヘルプ",
+      "monitor": "モニター"
+    },
+    "combinations": {
+      "basic_interaction": "基本インタラクション組み合わせ",
+      "visual_processing": "視覚処理組み合わせ",
+      "sensor_analysis": "センサー分析組み合わせ",
+      "knowledge_intensive": "知識集約型組み合わせ",
+      "specialized_domains": "専門ドメイン組み合わせ",
+      "emotional_intelligence": "感情的知性組み合わせ",
+      "complete_system": "完全システム組み合わせ",
+      "autonomous_control": "自律制御組み合わせ",
+      "cognitive_processing": "認知処理組み合わせ",
+      "multimodal_perception": "マルチモーダル知覚組み合わせ"
+    },
+    "requiresModels": "必要なモデル: {models}",
+    "missingDependencies": "不足している依存関係: {details}",
+    "websocketConnected": "WebSocket接続が確立されました",
+    "websocketDisconnected": "WebSocket接続が切断されました",
+    "trainingStarted": "トレーニング開始 - モード: {mode}, モデル: {models}, データセット: {dataset}",
+    "epochCompleted": "エポック完了 - エポック: {epoch}, 損失: {loss}, 精度: {accuracy}%",
+    "datasetUploadSuccess": "データセットアップロード成功: {name}",
+    "dropoutRate": "ドロップアウト率",
+    "weightDecay": "重み減衰",
+    "momentum": "モーメンタム",
+    "optimizer": "オプティマイザ",
+    "apiKey": "APIキー",
+    "connecting": "接続中...",
+    "endpoint": "APIエンドポイント",
+    "externalModel": "外部モデル",
+    "jobStarted": "ジョブ開始",
+    "localModel": "ローカルモデル",
+    "missingConfig": "設定が不足しています",
+    "modelName": "モデル名",
+    "modelSource": "モデルソース",
+    "started": "開始しました",
+    "testConnection": "接続テスト"
+  },
+  "models": {
+    "manager": {
+      "title": "マネージャーモデル",
+      "description": "タスク割り当て、感情分析、マルチモデル連携を担当するコア調整モデル",
+      "features": {
+        "emotion": "感情分析",
+        "coordination": "調整能力",
+        "communication": "コミュニケーション管理"
+      }
+    },
+    "language": {
+      "title": "言語モデル",
+      "description": "多言語対話と感情的推論をサポートし、複雑な会話とテキスト生成を可能にします",
+      "features": {
+        "multilingual": "多言語サポート",
+        "reasoning": "推論能力",
+        "generation": "テキスト生成"
+      }
+    },
+    "audio": {
+      "title": "音声モデル",
+      "description": "音声認識、音声合成、音楽処理をサポートし、マルチバンド分析機能を備えています",
+      "features": {
+        "recognition": "音声認識",
+        "synthesis": "音声合成",
+        "processing": "音声処理"
+      }
+    },
+    "vision": {
+      "title": "視覚モデル",
+      "description": "画像認識、コンテンツ修正、生成機能を備え、意味的・感情駆動の視覚処理を実現します",
+      "features": {
+        "recognition": "画像認識",
+        "generation": "画像生成",
+        "editing": "画像編集"
+      }
+    },
+    "video": {
+      "title": "動画モデル",
+      "description": "動画コンテンツ分析、編集、生成機能を備え、リアルタイム動画ストリーム処理をサポートします",
+      "features": {
+        "analysis": "動画分析",
+        "editing": "動画編集",
+        "generation": "動画生成"
+      }
+    },
+    "spatial": {
+      "title": "空間モデル",
+      "description": "空間認識、位置特定、モデリング機能を備え、ステレオ視覚と動作分析をサポートします",
+      "features": {
+        "mapping": "空間マッピング",
+        "localization": "位置特定能力",
+        "navigation": "ナビゲーション機能"
+      }
+    },
+    "sensor": {
+      "title": "センサーモデル",
+      "description": "マルチセンサーデータ融合と分析機能を備え、環境知覚と監視をサポートします",
+      "features": {
+        "data": "データ処理",
+        "fusion": "データ融合",
+        "monitoring": "リアルタイム監視"
+      }
+    },
+    "computer": {
+      "title": "コンピューター制御モデル",
+      "description": "システム制御と自動化機能を備え、マルチプラットフォーム互換性とMCP统合をサポートします",
+      "features": {
+        "control": "システム制御",
+        "automation": "自動化",
+        "integration": "统合能力"
+      }
+    },
+    "motion": {
+      "title": "運動制御モデル",
+      "description": "運動計画と実行制御機能を備え、マルチポート出力と外部デバイス制御をサポートします",
+      "features": {
+        "control": "運動制御",
+        "planning": "経路計画",
+        "execution": "実行能力"
+      }
+    },
+    "knowledge": {
+      "title": "ナレッジモデル",
+      "description": "ナレッジ検索、推論、学習機能を備え、様々な学術分野にわたる専門知識を持っています",
+      "features": {
+        "retrieval": "ナレッジ検索",
+        "reasoning": "推論能力",
+        "learning": "学習能力"
+      }
+    },
+    "programming": {
+      "title": "プログラミングモデル",
+      "description": "コード生成、デバッグ、最適化機能を備え、自律プログラミングとシステム改善をサポートします",
+      "features": {
+        "coding": "コード作成",
+        "debugging": "デバッグ能力",
+        "optimization": "パフォーマンス最適化"
+      }
+    }
+  },
+  "training": {
+    "types": {
+      "title": "トレーニングタイプ",
+      "individual": "個別トレーニング",
+      "individual_desc": "特定の能力を強化するための個別モデルの専門トレーニング",
+      "joint": "共同トレーニング",
+      "joint_desc": "全体的な調整能力を向上させるための複数モデルの協調トレーニング",
+      "continuous": "継続的トレーニング",
+      "continuous_desc": "知能レベルを絶えず向上させるための継続的なシステム学習と最適化"
+    },
+    "best_practices": {
+      "title": "ベストプラクティス",
+      "practice1": "基本的な組み合わせから始め、徐々に複雑さを増やしていく",
+      "practice2": "推論能力を強化するために定期的に知識支援トレーニングを実施する",
+      "practice3": "マルチモーダルデータセットを使用して共同トレーニングを行う",
+      "practice4": "トレーニングプロセスを監視し、パラメータと戦略を適宜調整する"
+    }
+  },
+  "troubleshooting": {
+    "voice_not_working": {
+      "question": "音声入力が機能しない",
+      "answer": "マイクの権限とオーディオ設定を確認し、ブラウザがマイクへのアクセス権を持っていることを確認してください"
+    },
+    "camera_access": {
+      "question": "カメラアクセスが拒否された",
+      "answer": "カメラの権限を確認し、ブラウザがカメラへのアクセス権を持っていること、ハードウェア接続を確認してください"
+    },
+    "model_not_responding": {
+      "question": "モデルが応答しない",
+      "answer": "モデルのステータスと接続を確認し、モデルの再起動やネットワーク接続の確認を試みてください"
+    },
+    "training_failed": {
+      "question": "トレーニングが失敗した",
+      "answer": "データセットの形式とモデルの依存関係を確認し、必要なすべてのモデルが適切に設定されていることを確認してください"
+    },
+    "performance_issues": {
+      "question": "パフォーマンスの問題",
+      "answer": "システムリソースの使用状況を確認し、モデル設定の最極化やハードウェアのアップグレードが必要な場合があります"
+    },
+    "connection_problems": {
+      "question": "接続の問題",
+      "answer": "ネットワーク接続とAPI設定を確認し、エンドポイントアドレスとキーが正しいことを確認してください"
+    }
+  },
+  "advanced": {
+    "realtime": {
+      "title": "リアルタイム処理",
+      "description": "低遅延のマルチモーダル対話を実現するリアルタイム音声・動画ストリーム処理をサポート"
+    },
+    "api": {
+      "title": "API统合",
+      "description": "カスタム统合とサードパーティサービス接続をサポートする豊富なAPIインターフェース"
+    },
+    "monitoring": {
+      "title": "モニタリングダッシュボード",
+      "description": "視覚的なモデルステータス表示を備えたリアルタイムシステム監視とパフォーマンス分析"
+    },
+    "integration": {
+      "title": "システム统合",
+      "description": "MCPプロトコルと様々な外部デバイスをサポートし、完全なインテリジェントエコシステムを実現"
+    }
+  },
+  "links": {
+    "documentation": "完全なドキュメント",
+    "community": "コミュニティサポート",
+    "contact": "お問い合わせ"
+  },
+  "footer": {
+    "license": "Apache 2.0 オープンソースライセンス"
+  },
+  "gettingStarted": "はじめに",
+  "features": "機能",
+  "maintenance": "保守",
+  "usage": "使用方法",
+  "introduction": "システム紹介",
+  "quickstart": "クイックスタート",
+  "advanced": "高度な機能",
+  "modelManagement": {
+    "title": "モデル管理",
+    "totalModels": "総モデル数",
+    "activeModels": "アクティブモデル数",
+    "externalModels": "外部モデル数",
+    "modelMode": "モデルモード",
+    "localMode": "ローカルモード",
+    "externalMode": "外部モード",
+    "modelSource": "モデルソース",
+    "localModel": "ローカルモデル",
+    "externalModel": "外部モデル",
+    "endpoint": "APIエンドポイント",
+    "endpointPlaceholder": "APIエンドポイントを入力してください",
+    "apiKey": "APIキー",
+    "apiKeyPlaceholder": "APIキーを入力してください",
+    "modelName": "モデル名",
+    "modelNamePlaceholder": "モデル名を入力してください",
+    "testConnection": "接続テスト",
+    "saveConfig": "設定を保存",
+    "connecting": "接続中...",
+    "connectionSuccess": "接続成功",
+    "connectionFailed": "接続失敗",
+    "connectionError": "接続エラー",
+    "configSaved": "設定が保存されました",
+    "configSavedMessage": "{model} 設定が保存されました",
+    "start": "開始",
+    "stop": "停止",
+    "restart": "再起動",
+    "modelStarted": "モデル開始",
+    "modelStartedMessage": "{model} が正常に開始されました",
+    "startFailed": "開始失敗",
+    "startFailedMessage": "{model} の開始に失敗しました",
+    "modelStopped": "モデル停止",
+    "modelStoppedMessage": "{model} が正常に停止されました",
+    "stopFailed": "停止失败",
+    "stopFailedMessage": "{model} の停止に失敗しました",
+    "performance": "パフォーマンス指標",
+    "cpuUsage": "CPU使用率",
+    "memoryUsage": "メモリ使用量",
+    "responseTime": "応答時間",
+    "batchOperations": {
+      "startAll": "すべて開始",
+      "stopAll": "すべて停止",
+      "restartAll": "すべて再起動"
+    }
+  },
+  "errors": {
+    "selectAtLeastOneModel": "トレーニングするモデルを少なくとも1つ選択してください",
+    "datasetUploadFailed": "データセットのアップロードに失敗しました: {error}",
+    "trainingStartFailed": "トレーニングの開始に失敗しました: {error}",
+    "noActiveTraining": "停止するアクティブなトレーニングがありません",
+    "trainingStopFailed": "トレーニングの停止に失敗しました: {error}",
+    "websocketError": "WebSocketエラー: {error}",
+    "websocketConnectionFailed": "WebSocket接続に失敗しました: {error}",
+    "backendConnectionFailed": "バックエンド接続に失敗しました",
+    "backendNotConnected": "バックエンドサービスが接続されていません",
+    "fileTooLarge": "ファイルが大きすぎます、5MB以下のファイルを選択してください",
+    "httpConnectionFailed": "HTTP接続に失敗しました",
+    "imageInputNotFound": "画像入力要素が見つかりません",
+    "imageUploadFailed": "画像アップロードに失敗しました",
+    "loadMessagesFailed": "メッセージ履歴の読み込みに失敗しました",
+    "processingFailed": "処理に失敗しました",
+    "voiceRecognitionFailed": "音声認識に失敗しました",
+    "voiceRecognitionNotAvailable": "音声認識が利用できません"
+  },
+  "voice": {
+    "listening": "聞き取り中...",
+    "command_recognized": "音声コマンドを認識しました: {command}",
+    "recognition_error": "音声認識エラー: {error}",
+    "recognition_ended": "音声認識が終了しました"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "back": "戻る"
+  },
+  "home": {
+    "welcomeMessage": "Self Soul  AGIシステムへようこそ！私はあなたのインテリジェントアシスタントで、テキスト、音声、画像、その他のマルチモーダル入力を処理できます。",
+    "backendConnected": "バックエンドサービスが正常に接続され、システムは準備ができています",
+    "voiceRecognitionStarted": "音声認識が開始されました、話し始めてください...",
+    "uploadingImage": "画像をアップロード中",
+    "modelStatus": "モデルステータス",
+    "performance": "パフォーマンス",
+    "conversation": "会話",
+    "typeMessage": "メッセージを入力してください...",
+    "send": "送信",
+    "voiceInput": "音声入力",
+    "recording": "録音中",
+    "imageInput": "画像入力",
+    "showRealtime": "リアルタイム入力を表示",
+    "hideRealtime": "リアルタイム入力を非表示",
+    "quickActions": "クイックアクション"
+  },
+  "mock": {
+    "responsePrefix": "メッセージを受信しました",
+    "imageResponse": "画像を受信しました、分析と処理中...",
+    "defaultResponse": "入力を受信し、処理中です..."
+  },
+  "train": {
+    "requiresModels": "必要なモデル: {models}",
+    "missingDependencies": "不足している依存関係: {details}",
+    "uploadDataset": "データセットをアップロード",
+    "dropoutRate": "ドロップアウト率",
+    "weightDecay": "重み減衰",
+    "momentum": "モーメンタム",
+    "optimizer": "オプティマイザ",
+    "knowledgeAssist": "知識支援",
+    "knowledgeAssistOptions": "知識支援オプション",
+    "domainKnowledge": "ドメイン知識",
+    "commonSense": "常識",
+    "proceduralKnowledge": "手続き的知識",
+    "contextualLearning": "文脈的学習",
+    "knowledgeIntensity": "知識強度",
+    "logs": "ログ",
+    "epochCompleted": "エポック完了 - エポック: {epoch}, 損失: {loss}, 精度: {accuracy}%",
+    "trainingStarted": "トレーニング開始 - モード: {mode}, モデル: {models}, データセット: {dataset}",
+    "trainingCompleted": "トレーニングが正常に完了しました",
+    "trainingStopped": "トレーニングが停止しました",
+    "recommendationsLoaded": "推奨事項が読み込まれました",
+    "foundCombinations": "{count} 個の推奨組み合わせが見つかりました",
+    "loadRecommendations": "推奨事項を読み込む",
+    "loadRecommendationsFailed": "推奨事項の読み込みに失敗しました",
+    "started": "開始しました",
+    "jobStarted": "ジョブ開始 - ジョブID: {jobId}",
+    "startFailed": "開始失敗",
+    "failed": "失敗",
+    "trainingFailed": "トレーニング失敗",
+    "missingConfig": "設定が不足しています",
+    "websocketConnected": "WebSocket接続が確立されました",
+    "websocketDisconnected": "WebSocket接続が切断されました",
+    "evaluation": "評価",
+    "accuracy": "精度",
+    "loss": "損失",
+    "precision": "適合率",
+    "recall": "再現率",
+    "confusionMatrix": "混同行列",
+    "history": "履歴",
+    "date": "日付",
+    "models": "モデル",
+    "duration": "期間",
+    "actions": "操作",
+    "view": "表示",
+    "compare": "比較",
+    "dependencies": "モデル依存関係",
+    "strategy": "戦略",
+    "strategyAdaptive": "適応戦略",
+    "strategyKnowledge": "知識戦略",
+    "strategyProgressive": "段階的戦略",
+    "strategyStandard": "標準戦略",
+    "trainingOptions": "トレーニングオプション",
+    "trainingTime": "トレーニング時間",
+    "performanceMetrics": "パフォーマンス指標"
+  },
+  "knowledge": {
+    "title": "ナレッジ管理",
+    "importTitle": "ナレッジファイルのインポート",
+    "importTab": "インポート",
+    "browseTab": "閲覧",
+    "statsTab": "統計",
+    "selectFiles": "ファイルを選択",
+    "supportedFormats": "サポート形式",
+    "formatsJSON": "JSON",
+    "formatsTXT": "テキスト",
+    "formatsPDF": "PDF",
+    "formatsDOCX": "Word DOCX"
+  },
+  "management": {
+    "notLoaded": "未読み込み",
+    "initialized": "初期化済み",
+    "yes": "はい",
+    "no": "いいえ",
+    "trainingStatus": "トレーニングステータス",
+    "training": "トレーニング中",
+    "idle": "アイドル",
+    "running": "実行中",
+    "stopped": "停止",
+    "starting": "開始中",
+    "stopping": "停止中",
+    "memoryUsage": "メモリ使用量",
+    "cpuUsage": "CPU使用率",
+    "lastActivityTime": "最終活動時間",
+    "loadTime": "読み込み時間",
+    "detailedStatus": "詳細ステータス"
+  }
+}

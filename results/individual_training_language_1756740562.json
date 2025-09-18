@@ -1,0 +1,9 @@
+{
+  "model_id": "language",
+  "completion_time": 1756740562.1173317,
+  "result": {
+    "success": false,
+    "error": "'list' object has no attribute 'get'"
+  },
+  "metrics": {}
+}

@@ -1,0 +1,86 @@
+{
+  "job_id": "train_1756740367_language_knowledge",
+  "model_ids": [
+    "language",
+    "knowledge"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "epochs": 2,
+    "batch_size": 16,
+    "data_size": 50,
+    "joint_training_strategy": "federated"
+  },
+  "completion_time": 1756740368.0920358,
+  "results": {
+    "language": {
+      "model_id": "language",
+      "status": "success",
+      "metrics": {
+        "loss": 0.48289043243798574,
+        "accuracy": 0.796237176243926
+      },
+      "training_time": 0.20979619026184082,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 0.9557808648759715,
+            "accuracy": 0.688262525414833,
+            "progress": 0.5,
+            "epoch": 1,
+            "batch_size": 16
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.904211827073019,
+            "progress": 1.0,
+            "epoch": 2,
+            "batch_size": 16
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "knowledge": {
+      "model_id": "knowledge",
+      "status": "success",
+      "metrics": {
+        "loss": 0.5016245377312024,
+        "accuracy": 0.8122127791650828
+      },
+      "training_time": 0.21079516410827637,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 0.9932490754624049,
+            "accuracy": 0.7018297761732029,
+            "progress": 0.5,
+            "epoch": 1,
+            "batch_size": 16
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.9225957821569628,
+            "progress": 1.0,
+            "epoch": 2,
+            "batch_size": 16
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    }
+  },
+  "metrics": {}
+}

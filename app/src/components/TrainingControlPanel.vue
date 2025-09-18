@@ -1,0 +1,874 @@
+<template>
+  <div class="training-control-panel">
+    <h2>{{ $t('training.title') }}</h2>
+    
+    <div class="model-selection">
+      <h3>{{ $t('training.selectModels') }}</h3>
+      <div v-for="model in availableModels" :key="model.id" class="model-item">
+        <input type="checkbox" :id="model.id" v-model="selectedModels" :value="model.id">
+        <label :for="model.id">{{ $t(`models.${model.id}`) }}</label>
+        
+        <div class="model-config" v-if="selectedModels.includes(model.id)">
+          <div class="config-option">
+            <label>{{ $t('training.modelSource') }}:</label>
+            <select v-model="modelSources[model.id]">
+              <option value="local">{{ $t('training.localModel') }}</option>
+              <option value="external">{{ $t('training.externalModel') }}</option>
+            </select>
+          </div>
+          
+          <div v-if="modelSources[model.id] === 'external'" class="external-config">
+            <div class="config-input">
+              <label>{{ $t('training.endpoint') }}:</label>
+              <input type="text" v-model="externalConfigs[model.id].endpoint" placeholder="https://api.example.com">
+            </div>
+            <div class="config-input">
+              <label>{{ $t('training.apiKey') }}:</label>
+              <input type="password" v-model="externalConfigs[model.id].apiKey" placeholder="API Key">
+            </div>
+            <div class="config-input">
+              <label>{{ $t('training.modelName') }}:</label>
+              <input type="text" v-model="externalConfigs[model.id].modelName" placeholder="Model Name">
+            </div>
+            <button @click="testConnection(model.id)" class="test-btn">
+              {{ $t('training.testConnection') }}
+            </button>
+            <span v-if="connectionStatus[model.id]" :class="['status', connectionStatus[model.id].status]">
+              {{ connectionStatus[model.id].message }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="training-options">
+      <h3>{{ $t('training.trainingOptions') }}</h3>
+      <div class="option">
+        <label>{{ $t('training.trainingMode') }}:</label>
+        <select v-model="trainingMode" @change="onTrainingModeChange">
+          <option value="individual">{{ $t('training.individual') }}</option>
+          <option value="joint">{{ $t('training.joint') }}</option>
+        </select>
+      </div>
+
+      <!-- 联合训练特定选项 -->
+      <div v-if="trainingMode === 'joint'" class="joint-training-options">
+        <div class="option">
+          <label>{{ $t('training.strategy') }}:</label>
+          <select v-model="trainingStrategy">
+            <option value="standard">{{ $t('training.strategyStandard') }}</option>
+            <option value="knowledge_assisted">{{ $t('training.strategyKnowledge') }}</option>
+            <option value="progressive">{{ $t('training.strategyProgressive') }}</option>
+            <option value="adaptive">{{ $t('training.strategyAdaptive') }}</option>
+          </select>
+        </div>
+
+        <div class="option">
+          <label>{{ $t('training.knowledgeAssist') }}:</label>
+          <input type="checkbox" v-model="knowledgeAssist">
+        </div>
+
+        <div class="option">
+          <button @click="loadRecommendedCombinations" class="recommend-btn">
+            {{ $t('training.loadRecommendations') }}
+          </button>
+        </div>
+
+        <!-- 推荐组合显示 -->
+        <div v-if="recommendedCombinations.length > 0" class="recommended-combinations">
+          <h4>{{ $t('training.recommendedCombinations') }}</h4>
+          <div v-for="(combo, index) in recommendedCombinations" :key="index" class="combo-item">
+            <input type="radio" :id="'combo-' + index" :value="combo.models" v-model="selectedCombination">
+            <label :for="'combo-' + index">
+              {{ combo.name }} ({{ combo.models.join(', ') }})
+              <span class="combo-score">得分: {{ combo.score.toFixed(2) }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="option">
+        <label>{{ $t('training.epochs') }}:</label>
+        <input type="number" v-model.number="epochs" min="1" max="1000">
+      </div>
+
+      <div class="option">
+        <label>{{ $t('training.learningRate') }}:</label>
+        <input type="number" v-model.number="learningRate" step="0.001" min="0.0001" max="1">
+      </div>
+
+      <div class="option">
+        <label>{{ $t('training.batchSize') }}:</label>
+        <input type="number" v-model.number="batchSize" min="1" max="1024">
+      </div>
+
+      <div class="option">
+        <label>{{ $t('training.validationSplit') }}:</label>
+        <input type="number" v-model.number="validationSplit" step="0.01" min="0" max="0.5">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button @click="startTraining" :disabled="isTraining">
+        {{ isTraining ? $t('training.trainingInProgress') : $t('training.startTraining') }}
+      </button>
+      <button @click="stopTraining" :disabled="!isTraining">{{ $t('training.stopTraining') }}</button>
+    </div>
+
+    <div class="training-progress" v-if="isTraining">
+      <h3>{{ $t('training.progress') }}</h3>
+      <div v-for="model in trainingProgress" :key="model.id" class="progress-item">
+        <div class="model-name">{{ $t(`models.${model.id}`) }}</div>
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: `${model.progress}%` }"></div>
+          <span>{{ model.progress }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="performance-metrics" v-if="trainingMetrics.length > 0">
+      <h3>{{ $t('training.performanceMetrics') }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>{{ $t('training.model') }}</th>
+            <th>{{ $t('training.loss') }}</th>
+            <th>{{ $t('training.accuracy') }}</th>
+            <th>{{ $t('training.trainingTime') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="metric in trainingMetrics" :key="metric.model">
+            <td>{{ $t(`models.${metric.model}`) }}</td>
+            <td>{{ metric.loss.toFixed(4) }}</td>
+            <td>{{ metric.accuracy.toFixed(2) }}%</td>
+            <td>{{ formatTime(metric.trainingTime) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'TrainingControlPanel',
+  data() {
+    return {
+      availableModels: [
+        { id: 'manager', name: 'Manager Model' },
+        { id: 'language', name: 'Language Model' },
+        { id: 'audio', name: 'Audio Model' },
+        { id: 'vision_image', name: 'Image Model' },
+        { id: 'vision_video', name: 'Video Model' },
+        { id: 'spatial', name: 'Spatial Model' },
+        { id: 'sensor', name: 'Sensor Model' },
+        { id: 'computer', name: 'Computer Control Model' },
+        { id: 'motion', name: 'Motion Model' },
+        { id: 'knowledge', name: 'Knowledge Model' },
+        { id: 'programming', name: 'Programming Model' },
+        { id: 'emotion', name: 'Emotion Model' },
+        { id: 'finance', name: 'Finance Model' },
+        { id: 'medical', name: 'Medical Model' },
+        { id: 'planning', name: 'Planning Model' },
+        { id: 'prediction', name: 'Prediction Model' },
+        { id: 'collaboration', name: 'Collaboration Model' },
+        { id: 'optimization', name: 'Optimization Model' },
+        { id: 'autonomous', name: 'Autonomous Model' }
+      ],
+      selectedModels: ['manager', 'language', 'audio', 'vision_image', 'vision_video', 'spatial', 'sensor', 'computer', 'motion', 'knowledge', 'programming'],
+      modelSources: {}, // 存储每个模型的来源 (local/external)
+      externalConfigs: {}, // 存储外部模型配置
+      connectionStatus: {}, // 存储连接测试状态
+      trainingMode: 'joint',
+      // 联合训练特定变量 | Joint training specific variables
+      trainingStrategy: 'standard',
+      knowledgeAssist: false,
+      recommendedCombinations: [],
+      selectedCombination: null,
+      epochs: 50,
+      learningRate: 0.001,
+      batchSize: 32,
+      validationSplit: 0.2,
+      isTraining: false,
+      trainingProgress: [],
+      trainingMetrics: [],
+      trainingInterval: null,
+      jobId: null,
+      pollingInterval: null
+    };
+  },
+
+  async mounted() {
+    // 组件挂载时加载已保存的模型配置 | Load saved model configurations when component mounts
+    await this.loadSavedConfigs();
+  },
+  methods: {
+    onTrainingModeChange() {
+      // 当训练模式改变时重置联合训练相关选项
+      if (this.trainingMode !== 'joint') {
+        this.trainingStrategy = 'standard';
+        this.knowledgeAssist = false;
+        this.recommendedCombinations = [];
+        this.selectedCombination = null;
+      }
+    },
+
+    async loadRecommendedCombinations() {
+      try {
+        // 构建查询参数
+        const params = new URLSearchParams({
+          models: this.selectedModels.join(','),
+          strategy: this.trainingStrategy,
+          knowledgeAssist: this.knowledgeAssist.toString()
+        });
+        
+        // 调用后端API获取推荐的联合训练组合 (GET方法)
+        const response = await fetch(`/api/joint-training/recommendations?${params}`);
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          this.recommendedCombinations = result.data.recommendations || result.data;
+          if (this.recommendedCombinations && this.recommendedCombinations.length > 0) {
+            this.selectedCombination = this.recommendedCombinations[0].models;
+          }
+          this.$notify({
+            title: this.$t('training.recommendationsLoaded'),
+            message: this.$t('training.foundCombinations', { count: this.recommendedCombinations ? this.recommendedCombinations.length : 0 }),
+            type: 'success'
+          });
+        } else {
+          throw new Error(result.detail || this.$t('training.loadRecommendationsFailed'));
+        }
+      } catch (error) {
+        console.error('加载推荐组合失败:', error);
+        this.$notify({
+          title: this.$t('training.error'),
+          message: error.message || this.$t('training.loadRecommendationsFailed'),
+          type: 'error'
+        });
+      }
+    },
+    
+    async startTraining() {
+      try {
+        this.isTraining = true;
+        
+        // 构建训练配置
+        const trainingConfig = {
+          mode: this.trainingMode,
+          models: this.selectedModels,
+          parameters: {
+            epochs: this.epochs,
+            learningRate: this.learningRate,
+            batchSize: this.batchSize,
+            validationSplit: this.validationSplit
+          }
+        };
+        
+        // 如果是联合训练，添加联合训练特定配置
+        if (this.trainingMode === 'joint') {
+          trainingConfig.jointTraining = {
+            strategy: this.trainingStrategy,
+            knowledgeAssist: this.knowledgeAssist,
+            selectedCombination: this.selectedCombination
+          };
+        }
+        
+        // 确定API端点
+        const apiEndpoint = this.trainingMode === 'joint' 
+          ? '/api/joint-training/start' 
+          : '/api/train';
+        
+        // 调用后端API启动训练
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(trainingConfig)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          this.jobId = result.job_id;
+          this.$notify({
+            title: this.$t('training.started'),
+            message: this.$t('training.jobStarted', { jobId: this.jobId }),
+            type: 'success'
+          });
+          
+          // 开始轮询训练状态
+          this.startPollingTrainingStatus();
+        } else {
+          throw new Error(result.detail || this.$t('training.startFailed'));
+        }
+      } catch (error) {
+        console.error('启动训练失败:', error);
+        this.$notify({
+          title: this.$t('training.error'),
+          message: error.message || this.$t('training.startFailed'),
+          type: 'error'
+        });
+        this.isTraining = false;
+      }
+    },
+    
+    async startPollingTrainingStatus() {
+      if (!this.jobId) return;
+      
+      this.pollingInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/training/status/${this.jobId}`);
+          const result = await response.json();
+          
+          if (result.status === 'success') {
+            const status = result.data;
+            
+            // 更新训练进度
+            if (status.progress !== undefined) {
+              this.trainingProgress = this.selectedModels.map(modelId => ({
+                id: modelId,
+                progress: status.progress
+              }));
+            }
+            
+            // 检查训练是否完成
+            if (status.status === 'completed' || status.status === 'failed') {
+              this.stopTraining();
+              
+              if (status.status === 'completed') {
+                this.$notify({
+                  title: this.$t('training.completed'),
+                  message: this.$t('training.trainingCompleted'),
+                  type: 'success'
+                });
+                
+                // 获取训练结果
+                await this.loadTrainingResults();
+              } else {
+                this.$notify({
+                  title: this.$t('training.failed'),
+                  message: status.error || this.$t('training.trainingFailed'),
+                  type: 'error'
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error('获取训练状态失败:', error);
+        }
+      }, 2000); // 每2秒轮询一次
+    },
+    
+    async loadTrainingResults() {
+      try {
+        const response = await fetch('/api/training/history');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          // 查找当前任务的训练结果
+          const currentJob = result.data.find(job => job.job_id === this.jobId);
+          if (currentJob && currentJob.metrics) {
+            this.trainingMetrics = Object.entries(currentJob.metrics).map(([modelId, metrics]) => ({
+              model: modelId,
+              loss: metrics.loss || 0,
+              accuracy: metrics.accuracy || 0,
+              trainingTime: metrics.training_time || 0
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('加载训练结果失败:', error);
+      }
+    },
+    
+    stopTraining() {
+      this.isTraining = false;
+      clearInterval(this.trainingInterval);
+      clearInterval(this.pollingInterval);
+    },
+    
+    generateTrainingMetrics() {
+      this.trainingMetrics = this.selectedModels.map(modelId => ({
+        model: modelId,
+        loss: Math.random() * 0.5,
+        accuracy: 80 + Math.random() * 20,
+        trainingTime: 30 + Math.random() * 120 // 30-150秒
+      }));
+    },
+    
+    formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}m ${secs}s`;
+    },
+    
+    async testConnection(modelId) {
+      // 设置连接状态为测试中 | Set connection status to testing
+      this.$set(this.connectionStatus, modelId, {
+        status: 'testing',
+        message: this.$t('training.connecting')
+      });
+      
+      try {
+        // 获取外部配置 | Get external configuration
+        const config = this.externalConfigs[modelId];
+        if (!config.endpoint || !config.apiKey) {
+          throw new Error(this.$t('training.missingConfig'));
+        }
+        
+        // 调用后端API进行真实连接测试 | Call backend API for real connection test
+        const response = await fetch('/api/test-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            modelId: modelId,
+            endpoint: config.endpoint,
+            apiKey: config.apiKey,
+            modelName: config.modelName
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          this.$set(this.connectionStatus, modelId, {
+            status: 'success',
+            message: this.$t('training.connectionSuccess')
+          });
+          
+          // 保存成功的配置到系统设置 | Save successful configuration to system settings
+          await this.saveModelConfig(modelId, config);
+        } else {
+          this.$set(this.connectionStatus, modelId, {
+            status: 'error',
+            message: result.message || this.$t('training.connectionFailed')
+          });
+        }
+      } catch (error) {
+        this.$set(this.connectionStatus, modelId, {
+          status: 'error',
+          message: error.message || this.$t('training.connectionError')
+        });
+      }
+    },
+    
+    async saveModelConfig(modelId, config) {
+      try {
+        // 保存模型配置到后端 | Save model configuration to backend
+        await fetch('/api/save-model-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            modelId: modelId,
+            config: config,
+            source: 'external'
+          })
+        });
+      } catch (error) {
+        console.error('保存配置失败 | Failed to save configuration:', error);
+      }
+    },
+    
+    async loadSavedConfigs() {
+      try {
+        // 为每个模型加载已保存的配置 | Load saved configuration for each model
+        for (const model of this.availableModels) {
+          const response = await fetch(`/api/model-config/${model.id}`);
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            const config = result.data;
+            
+            // 设置模型来源 | Set model source
+            if (config.source === 'external' || config.type === 'api') {
+              this.$set(this.modelSources, model.id, 'external');
+              
+              // 设置外部配置 | Set external configuration
+              this.$set(this.externalConfigs, model.id, {
+                endpoint: config.api_url || config.endpoint || '',
+                apiKey: config.api_key || '',
+                modelName: config.model_name || ''
+              });
+            } else {
+              this.$set(this.modelSources, model.id, 'local');
+              this.$set(this.externalConfigs, model.id, {
+                endpoint: '',
+                apiKey: '',
+                modelName: ''
+              });
+            }
+          } else {
+            // 默认设置 | Default settings
+            this.$set(this.modelSources, model.id, 'local');
+            this.$set(this.externalConfigs, model.id, {
+              endpoint: '',
+              apiKey: '',
+              modelName: ''
+            });
+          }
+        }
+      } catch (error) {
+        console.error('加载配置失败 | Failed to load configurations:', error);
+        // 初始化默认配置 | Initialize default configurations
+        for (const model of this.availableModels) {
+          this.$set(this.modelSources, model.id, 'local');
+          this.$set(this.externalConfigs, model.id, {
+            endpoint: '',
+            apiKey: '',
+            modelName: ''
+          });
+        }
+      }
+    }
+  },
+  beforeUnmount() {
+    clearInterval(this.trainingInterval);
+    clearInterval(this.pollingInterval);
+  }
+};
+</script>
+
+<style scoped>
+.training-control-panel {
+  padding: 20px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.model-selection, .training-options, .training-progress, .performance-metrics {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.model-item {
+  margin: 8px 0;
+}
+
+.model-config {
+  margin-left: 25px;
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #f9fafc;
+  border-radius: 4px;
+  border-left: 3px solid #409eff;
+}
+
+.config-option {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.config-option label {
+  width: 120px;
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.external-config {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: #f0f4f8;
+  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+}
+
+.config-input {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.config-input label {
+  width: 100px;
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.config-input input {
+  padding: 6px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.test-btn {
+  padding: 6px 12px;
+  background-color: #67c23a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.test-btn:hover {
+  background-color: #5daf34;
+}
+
+.status {
+  margin-left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.status.success {
+  background-color: #f0f9eb;
+  color: #67c23a;
+  border: 1px solid #e1f3d8;
+}
+
+.status.error {
+  background-color: #fef0f0;
+  color: #f56c6c;
+  border: 1px solid #fde2e2;
+}
+
+.status.testing {
+  background-color: #f4f4f5;
+  color: #909399;
+  border: 1px solid #e9e9eb;
+}
+
+.option {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.option label {
+  width: 150px;
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.option input, .option select {
+  padding: 6px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+}
+
+.option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.joint-training-options {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f0f9ff;
+  border-radius: 6px;
+  border-left: 4px solid #409eff;
+}
+
+.recommend-btn {
+  padding: 8px 16px;
+  background-color: #e6a23c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.recommend-btn:hover {
+  background-color: #d48806;
+}
+
+.recommended-combinations {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f9fafc;
+  border-radius: 6px;
+  border: 1px solid #e4e7ed;
+}
+
+.recommended-combinations h4 {
+  margin: 0 0 12px 0;
+  color: #303133;
+  font-size: 16px;
+}
+
+.combo-item {
+  margin: 8px 0;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #ebeef5;
+  transition: all 0.3s;
+}
+
+.combo-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+}
+
+.combo-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.combo-score {
+  margin-left: 8px;
+  padding: 2px 6px;
+  background-color: #67c23a;
+  color: white;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.actions button {
+  padding: 10px 20px;
+  background-color: #409eff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.actions button:hover:not(:disabled) {
+  background-color: #66b1ff;
+}
+
+.actions button:disabled {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+}
+
+.actions button:last-child {
+  background-color: #f56c6c;
+}
+
+.actions button:last-child:hover:not(:disabled) {
+  background-color: #f78989;
+}
+
+.training-progress {
+  margin-top: 20px;
+}
+
+.progress-item {
+  margin: 12px 0;
+}
+
+.model-name {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #303133;
+}
+
+.progress-bar {
+  height: 24px;
+  background-color: #ebeef5;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #67c23a, #85ce61);
+  border-radius: 12px;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-bar span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.performance-metrics {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ebeef5;
+}
+
+th {
+  background-color: #f5f7fa;
+  font-weight: 600;
+  color: #303133;
+}
+
+tr:hover {
+  background-color: #f5f7fa;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .training-control-panel {
+    padding: 15px;
+  }
+  
+  .option {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .option label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .config-option, .config-input {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .config-option label, .config-input label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+</style>

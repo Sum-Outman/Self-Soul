@@ -1,0 +1,160 @@
+{
+  "domain": "electrical_engineering",
+  "name": {
+    "en": "Electrical Engineering",
+    "zh": "电子工程",
+    "de": "Elektrotechnik",
+    "ja": "電気工学",
+    "ru": "Электротехника"
+  },
+  "description": {
+    "en": "Design, development, and application of electrical and electronic systems",
+    "zh": "电气和电子系统的设计、开发和应用",
+    "de": "Design, Entwicklung und Anwendung elektrischer und elektronischer Systeme",
+    "ja": "電気および電子システムの設計、開発、応用",
+    "ru": "Проектирование, разработка и применение электрических и электронных систем"
+  },
+  "concepts": [
+    {
+      "id": "circuit_analysis",
+      "name": {
+        "en": "Circuit Analysis",
+        "zh": "电路分析",
+        "de": "Schaltungsanalyse",
+        "ja": "回路解析",
+        "ru": "Анализ цепей"
+      },
+      "description": {
+        "en": "Study of electrical circuits and their behavior",
+        "zh": "研究电路及其行为的学科",
+        "de": "Studium elektrischer Schaltungen und ihres Verhaltens",
+        "ja": "電気回路とその挙動の研究",
+        "ru": "Изучение электрических цепей и их поведения"
+      },
+      "examples": [
+        "Ohm's law applications",
+        "Kirchhoff's laws implementation",
+        "AC and DC circuit analysis",
+        "Network theorems application"
+      ]
+    },
+    {
+      "id": "electronics",
+      "name": {
+        "en": "Electronics",
+        "zh": "电子学",
+        "de": "Elektronik",
+        "ja": "電子工学",
+        "ru": "Электроника"
+      },
+      "description": {
+        "en": "Design and application of electronic devices and systems",
+        "zh": "电子设备和系统的设计与应用",
+        "de": "Design und Anwendung elektronischer Geräte und Systeme",
+        "ja": "電子デバイスとシステムの設計と応用",
+        "ru": "Проектирование и применение электронных устройств и систем"
+      },
+      "examples": [
+        "Semiconductor device operation",
+        "Amplifier circuit design",
+        "Digital logic circuits",
+        "Microcontroller programming"
+      ]
+    },
+    {
+      "id": "power_systems",
+      "name": {
+        "en": "Power Systems",
+        "zh": "电力系统",
+        "de": "Energiesysteme",
+        "ja": "電力システム",
+        "ru": "Энергетические системы"
+      },
+      "description": {
+        "en": "Generation, transmission, and distribution of electrical power",
+        "zh": "电力的发电、传输和分配",
+        "de": "Erzeugung, Übertragung und Verteilung elektrischer Energie",
+        "ja": "電力の発電、送電、配電",
+        "ru": "Генерация, передача и распределение электроэнергии"
+      },
+      "examples": [
+        "Transformer operation principles",
+        "Power grid stability analysis",
+        "Renewable energy integration",
+        "Electrical machine design"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "electromagnetic_theory",
+      "name": {
+        "en": "Electromagnetic Theory",
+        "zh": "电磁理论",
+        "de": "Elektromagnetische Theorie",
+        "ja": "電磁気理論",
+        "ru": "Электромагнитная теория"
+      },
+      "description": {
+        "en": "Fundamental principles governing electric and magnetic fields",
+        "zh": "支配电场和磁场的基本原理",
+        "de": "Grundlegende Prinzipien, die elektrische und magnetische Felder regieren",
+        "ja": "電場と磁場を支配する基本原理",
+        "ru": "Фундаментальные принципы, управляющие электрическими и магнитными полями"
+      }
+    },
+    {
+      "id": "signal_processing",
+      "name": {
+        "en": "Signal Processing",
+        "zh": "信号处理",
+        "de": "Signalverarbeitung",
+        "ja": "信号処理",
+        "ru": "Обработка сигналов"
+      },
+      "description": {
+        "en": "Analysis, modification, and synthesis of signals",
+        "zh": "信号的分析、修改和合成",
+        "de": "Analyse, Modifikation und Synthese von Signalen",
+        "ja": "信号の分析、変更、合成",
+        "ru": "Анализ, модификация и синтез сигналов"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "communication_systems",
+      "name": {
+        "en": "Communication Systems",
+        "zh": "通信系统",
+        "de": "Kommunikationssysteme",
+        "ja": "通信システム",
+        "ru": "Системы связи"
+      },
+      "description": {
+        "en": "Design and implementation of information transmission systems",
+        "zh": "信息传输系统的设计和实现",
+        "de": "Design und Implementierung von Informationsübertragungssystemen",
+        "ja": "情報伝送システムの設計と実装",
+        "ru": "Проектирование и реализация систем передачи информации"
+      }
+    },
+    {
+      "id": "control_systems",
+      "name": {
+        "en": "Control Systems",
+        "zh": "控制系统",
+        "de": "Regelungssysteme",
+        "ja": "制御システム",
+        "ru": "Системы управления"
+      },
+      "description": {
+        "en": "Regulation and automation of dynamic systems",
+        "zh": "动态系统的调节和自动化",
+        "de": "Regulierung und Automatisierung dynamischer Systeme",
+        "ja": "動的システムの調整と自動化",
+        "ru": "Регулирование и автоматизация динамических систем"
+      }
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "knowledge_base": {
+    "domain": "chemical_engineering",
+    "name": {
+      "en": "Chemical Engineering",
+      "zh": "化学工程",
+      "de": "Chemieingenieurwesen",
+      "ja": "化学工学",
+      "ru": "Химическая инженерия"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for chemical engineering principles, processes, and applications",
+      "zh": "化学工程原理、工艺和应用的全面知识库",
+      "de": "Umfassende Wissensdatenbank für chemieingenieurwissenschaftliche Prinzipien, Prozesse und Anwendungen",
+      "ja": "化学工学の原理、プロセス、応用に関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по принципам, процессам и применениям химической инженерии"
+    },
+    "categories": [
+      {
+        "id": "process_principles",
+        "name": {
+          "en": "Process Principles",
+          "zh": "工艺原理",
+          "de": "Prozessprinzipien",
+          "ja": "プロセス原理",
+          "ru": "Принципы процессов"
+        },
+        "concepts": [
+          {
+            "id": "mass_balance",
+            "name": {
+              "en": "Mass Balance",
+              "zh": "质量平衡",
+              "de": "Massenbilanz",
+              "ja": "物質収支",
+              "ru": "Массовый баланс"
+            },
+            "description": {
+              "en": "Fundamental principle of conservation of mass in chemical processes",
+              "zh": "化学过程中质量守恒的基本原理",
+              "de": "Grundlegendes Prinzip der Massenerhaltung in chemischen Prozessen",
+              "ja": "化学プロセスにおける質量保存の基本原理",
+              "ru": "Фундаментальный принцип сохранения массы в химических процессах"
+            },
+            "formula": "Σm_in = Σm_out + Σm_accumulated",
+            "applications": ["Reactor design", "Separation processes", "Process optimization"]
+          },
+          {
+            "id": "energy_balance",
+            "name": {
+              "en": "Energy Balance",
+              "zh": "能量平衡",
+              "de": "Energiebilanz",
+              "ja": "エネルギー収支",
+              "ru": "Энергетический баланс"
+            },
+            "description": {
+              "en": "Conservation of energy principle applied to chemical systems",
+              "zh": "应用于化学系统的能量守恒原理",
+              "de": "Energieerhaltungsprinzip auf chemische Systeme angewendet",
+              "ja": "化学システムに適用されるエネルギー保存の原理",
+              "ru": "Принцип сохранения энергии, применяемый к химическим системам"
+            },
+            "formula": "ΣE_in = ΣE_out + ΣE_accumulated",
+            "applications": ["Heat exchanger design", "Reactor thermal management", "Process energy optimization"]
+          }
+        ]
+      },
+      {
+        "id": "unit_operations",
+        "name": {
+          "en": "Unit Operations",
+          "zh": "单元操作",
+          "de": "Einheitsoperationen",
+          "ja": "単位操作",
+          "ru": "Единичные операции"
+        },
+        "concepts": [
+          {
+            "id": "distillation",
+            "name": {
+              "en": "Distillation",
+              "zh": "蒸馏",
+              "de": "Destillation",
+              "ja": "蒸留",
+              "ru": "Дистилляция"
+            },
+            "description": {
+              "en": "Separation process based on differences in boiling points",
+              "zh": "基于沸点差异的分离过程",
+              "de": "Trennprozess basierend auf Unterschieden in Siedepunkten",
+              "ja": "沸点の違いに基づく分離プロセス",
+              "ru": "Процесс разделения, основанный на различиях в температурах кипения"
+            },
+            "principles": ["Vapor-liquid equilibrium", "Relative volatility", "Theoretical plates"],
+            "equipment": ["Distillation column", "Reboiler", "Condenser"]
+          },
+          {
+            "id": "absorption",
+            "name": {
+              "en": "Absorption",
+              "zh": "吸收",
+              "de": "Absorption",
+              "ja": "吸収",
+              "ru": "Абсорбция"
+            },
+            "description": {
+              "en": "Mass transfer process where a component is transferred from gas to liquid phase",
+              "zh": "组分从气相转移到液相的传质过程",
+              "de": "Stofftransportprozess, bei dem eine Komponente von der Gas- in die Flüssigphase übertragen wird",
+              "ja": "成分が気相から液相に移動する物質移動プロセス",
+              "ru": "Процесс массопереноса, при котором компонент переходит из газовой фазы в жидкую"
+            },
+            "applications": ["Gas purification", "CO2 capture", "Air pollution control"]
+          }
+        ]
+      },
+      {
+        "id": "reactor_design",
+        "name": {
+          "en": "Reactor Design",
+          "zh": "反应器设计",
+          "de": "Reaktordesign",
+          "ja": "反応器設計",
+          "ru": "Проектирование реакторов"
+        },
+        "concepts": [
+          {
+            "id": "batch_reactor",
+            "name": {
+              "en": "Batch Reactor",
+              "zh": "间歇反应器",
+              "de": "Batch-Reaktor",
+              "ja": "バッチ反応器",
+              "ru": "Периодический реактор"
+            },
+            "description": {
+              "en": "Closed system where reactants are loaded, reaction occurs, and products are removed",
+              "zh": "封闭系统，反应物装入，反应发生，产物移除",
+              "de": "Geschlossenes System, in dem Edukte geladen werden, die Reaktion stattfindet und Produkte entfernt werden",
+              "ja": "反応物を装入し、反応が起こり、生成物が除去される閉鎖系",
+              "ru": "Закрытая система, в которой загружаются реагенты, происходит реакция и удаляются продукты"
+            },
+            "advantages": ["Flexibility", "Easy cleaning", "Suitable for small batches"],
+            "disadvantages": ["Low productivity", "High labor costs", "Batch-to-batch variation"]
+          },
+          {
+            "id": "cstr",
+            "name": {
+              "en": "Continuous Stirred-Tank Reactor (CSTR)",
+              "zh": "连续搅拌釜式反应器 (CSTR)",
+              "de": "Kontinuierlicher Rührkesselreaktor (CSTR)",
+              "ja": "連続撹拌槽型反応器 (CSTR)",
+              "ru": "Непрерывный реактор с мешалкой (CSTR)"
+            },
+            "description": {
+              "en": "Continuous flow reactor with perfect mixing and steady-state operation",
+              "zh": "具有完美混合和稳态操作的连续流动反应器",
+              "de": "Kontinuierlicher Durchflussreaktor mit perfekter Durchmischung und stationärem Betrieb",
+              "ja": "完全混合と定常状態操作を備えた連続流れ反応器",
+              "ru": "Реактор непрерывного потока с идеальным перемешиванием и стационарной работой"
+            },
+            "design_equations": ["Material balance", "Energy balance", "Reaction kinetics"],
+            "applications": ["Polymerization", "Fermentation", "Chemical synthesis"]
+          }
+        ]
+      },
+      {
+        "id": "process_control",
+        "name": {
+          "en": "Process Control",
+          "zh": "过程控制",
+          "de": "Prozesssteuerung",
+          "ja": "プロセス制御",
+          "ru": "Управление процессами"
+        },
+        "concepts": [
+          {
+            "id": "pid_control",
+            "name": {
+              "en": "PID Control",
+              "zh": "PID控制",
+              "de": "PID-Regelung",
+              "ja": "PID制御",
+              "ru": "ПИД-регулирование"
+            },
+            "description": {
+              "en": "Proportional-Integral-Derivative control algorithm for process regulation",
+              "zh": "用于过程调节的比例-积分-微分控制算法",
+              "de": "Proportional-Integral-Derivative-Regelalgorithmus für die Prozessregelung",
+              "ja": "プロセス制御のための比例-積分-微分制御アルゴリズム",
+              "ru": "Алгоритм пропорционально-интегрально-дифференциального регулирования для управления процессами"
+            },
+            "components": ["Proportional term", "Integral term", "Derivative term"],
+            "tuning_methods": ["Ziegler-Nichols", "Cohen-Coon", "Internal Model Control"]
+          },
+          {
+            "id": "process_simulation",
+            "name": {
+              "en": "Process Simulation",
+              "zh": "过程模拟",
+              "de": "Prozesssimulation",
+              "ja": "プロセスシミュレーション",
+              "ru": "Моделирование процессов"
+            },
+            "description": {
+              "en": "Computer-based modeling of chemical processes for design and optimization",
+              "zh": "基于计算机的化学过程建模，用于设计和优化",
+              "de": "Computergestützte Modellierung chemischer Prozesse für Design und Optimierung",
+              "ja": "設計と最適化のための化学プロセスのコンピュータベースのモデリング",
+              "ru": "Компьютерное моделирование химических процессов для проектирования и оптимизации"
+            },
+            "software_tools": ["Aspen Plus", "ChemCAD", "HYSYS", "PRO/II"],
+            "applications": ["Process design", "Equipment sizing", "Economic evaluation", "Safety analysis"]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-09-04T10:35:00Z",
+    "version": "1.0.0"
+  }
+}

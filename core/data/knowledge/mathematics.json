@@ -1,0 +1,131 @@
+{
+  "domain": "mathematics",
+  "name": {
+    "zh": "数学",
+    "en": "Mathematics",
+    "de": "Mathematik",
+    "ja": "数学",
+    "ru": "Математика"
+  },
+  "description": {
+    "zh": "研究数量、结构、空间和变化等概念的抽象科学",
+    "en": "The abstract science of number, quantity, space, and change",
+    "de": "Die abstrakte Wissenschaft von Zahl, Menge, Raum und Veränderung",
+    "ja": "数、量、空間、変化などの概念を研究する抽象科学",
+    "ru": "Абстрактная наука о числе, количестве, пространстве и изменении"
+  },
+  "subdomains": [
+    {
+      "name": {
+        "zh": "代数",
+        "en": "Algebra",
+        "de": "Algebra",
+        "ja": "代数",
+        "ru": "Алгебра"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "线性方程",
+            "en": "Linear Equation",
+            "de": "Lineare Gleichung",
+            "ja": "一次方程式",
+            "ru": "Линейное уравнение"
+          },
+          "definition": {
+            "zh": "未知数的最高次数为一次的方程",
+            "en": "An equation where the highest power of the unknown is one",
+            "de": "Eine Gleichung, bei der die höchste Potenz der Unbekannten eins ist",
+            "ja": "未知数の最高次数が1である方程式",
+            "ru": "Уравнение, в котором наивысшая степень неизвестного равна единице"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "zh": "几何",
+        "en": "Geometry",
+        "de": "Geometrie",
+        "ja": "幾何学",
+        "ru": "Геометрия"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "勾股定理",
+            "en": "Pythagorean Theorem",
+            "de": "Satz des Pythagoras",
+            "ja": "ピタゴラスの定理",
+            "ru": "Теорема Пифагора"
+          },
+          "definition": {
+            "zh": "直角三角形斜边平方等于两直角边平方和",
+            "en": "In a right triangle, the square of the hypotenuse equals the sum of the squares of the other two sides",
+            "de": "In einem rechtwinkligen Dreieck ist das Quadrat der Hypotenuse gleich der Summe der Quadrate der beiden anderen Seiten",
+            "ja": "直角三角形において、斜辺の二乗は他の二辺の二乗の和に等しい",
+            "ru": "В прямоугольном треугольнике квадрат гипотенузы равен сумме квадратов катетов"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "zh": "微积分",
+        "en": "Calculus",
+        "de": "Infinitesimalrechnung",
+        "ja": "微積分学",
+        "ru": "Математический анализ"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "导数",
+            "en": "Derivative",
+            "de": "Ableitung",
+            "ja": "微分",
+            "ru": "Производная"
+          },
+          "definition": {
+            "zh": "函数在某一点的变化率",
+            "en": "The rate of change of a function at a particular point",
+            "de": "Die Änderungsrate einer Funktion an einem bestimmten Punkt",
+            "ja": "関数のある点における変化率",
+            "ru": "Скорость изменения функции в определенной точке"
+          }
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "name": {
+        "zh": "二次方程求根公式",
+        "en": "Quadratic Formula",
+        "de": "Quadratische Formel",
+        "ja": "二次方程式の解の公式",
+        "ru": "Формула корней квадратного уравнения"
+      },
+      "formula": "x = [-b ± √(b² - 4ac)] / 2a",
+      "variables": {
+        "a": {"zh": "二次项系数", "en": "Coefficient of x²", "de": "Koeffizient von x²", "ja": "x²の係数", "ru": "Коэффициент при x²"},
+        "b": {"zh": "一次项系数", "en": "Coefficient of x", "de": "Koeffizient von x", "ja": "xの係数", "ru": "Коэффициент при x"},
+        "c": {"zh": "常数项", "en": "Constant term", "de": "Konstante", "ja": "定数項", "ru": "Свободный член"}
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": {
+        "zh": "圆周率",
+        "en": "Pi",
+        "de": "Pi",
+        "ja": "円周率",
+        "ru": "Пи"
+      },
+      "symbol": "π",
+      "value": 3.141592653589793,
+      "unit": {"zh": "无量纲", "en": "Dimensionless", "de": "Dimensionslos", "ja": "無次元", "ru": "Безразмерная"}
+    }
+  ]
+}

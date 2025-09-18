@@ -1,0 +1,15 @@
+{
+  "job_id": "train_1756714703_language_vision_image",
+  "model_ids": [
+    "language",
+    "vision_image"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "epochs": 1,
+    "batch_size": 1,
+    "data_size": 10
+  },
+  "completion_time": 1756714707.713724,
+  "results": {
+    "language": 

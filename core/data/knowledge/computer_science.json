@@ -1,0 +1,276 @@
+{
+  "knowledge_base": {
+    "domain": "computer_science",
+    "name": {
+      "en": "Computer Science",
+      "zh": "计算机科学",
+      "de": "Informatik",
+      "ja": "コンピュータ科学",
+      "ru": "Информатика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for computer science fundamentals, algorithms, and systems",
+      "zh": "计算机科学基础、算法和系统的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Informatikgrundlagen, Algorithmen und Systeme",
+      "ja": "コンピュータ科学の基礎、アルゴリズム、システムに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам информатики, алгоритмам и системам"
+    },
+    "categories": [
+      {
+        "id": "algorithms_data_structures",
+        "name": {
+          "en": "Algorithms & Data Structures",
+          "zh": "算法与数据结构",
+          "de": "Algorithmen & Datenstrukturen",
+          "ja": "アルゴリズムとデータ構造",
+          "ru": "Алгоритмы и структуры данных"
+        },
+        "concepts": [
+          {
+            "id": "sorting_algorithms",
+            "name": {
+              "en": "Sorting Algorithms",
+              "zh": "排序算法",
+              "de": "Sortieralgorithmen",
+              "ja": "ソートアルゴリズム",
+              "ru": "Алгоритмы сортировки"
+            },
+            "description": {
+              "en": "Methods for arranging elements in a specific order",
+              "zh": "按特定顺序排列元素的方法",
+              "de": "Methoden zum Anordnen von Elementen in einer bestimmten Reihenfolge",
+              "ja": "要素を特定の順序で配置する方法",
+              "ru": "Методы упорядочивания элементов в определенном порядке"
+            },
+            "types": ["Bubble Sort", "Quick Sort", "Merge Sort", "Heap Sort", "Insertion Sort"],
+            "time_complexity": {
+              "best": "O(n log n)",
+              "average": "O(n log n)",
+              "worst": "O(n²)"
+            }
+          },
+          {
+            "id": "graph_algorithms",
+            "name": {
+              "en": "Graph Algorithms",
+              "zh": "图算法",
+              "de": "Graphalgorithmen",
+              "ja": "グラフアルゴリズム",
+              "ru": "Алгоритмы на графах"
+            },
+            "description": {
+              "en": "Algorithms for solving problems on graphs and networks",
+              "zh": "解决图和网络问题的算法",
+              "de": "Algorithmen zur Lösung von Problemen auf Graphen und Netzwerken",
+              "ja": "グラフとネットワーク上の問題を解決するアルゴリズム",
+              "ru": "Алгоритмы решения задач на графах и сетях"
+            },
+            "algorithms": ["Breadth-First Search", "Depth-First Search", "Dijkstra's Algorithm", "A* Search", "Minimum Spanning Tree"]
+          }
+        ]
+      },
+      {
+        "id": "programming_languages",
+        "name": {
+          "en": "Programming Languages",
+          "zh": "编程语言",
+          "de": "Programmiersprachen",
+          "ja": "プログラミング言語",
+          "ru": "Языки программирования"
+        },
+        "concepts": [
+          {
+            "id": "python",
+            "name": {
+              "en": "Python",
+              "zh": "Python",
+              "de": "Python",
+              "ja": "Python",
+              "ru": "Python"
+            },
+            "description": {
+              "en": "High-level, interpreted programming language with dynamic typing",
+              "zh": "具有动态类型的高级解释型编程语言",
+              "de": "Hochrangige, interpretierte Programmiersprache mit dynamischer Typisierung",
+              "ja": "動的型付けを持つ高水準のインタプリタ型プログラミング言語",
+              "ru": "Высокоуровневый интерпретируемый язык программирования с динамической типизацией"
+            },
+            "features": ["Easy to learn", "Extensive libraries", "Cross-platform", "Object-oriented", "Functional programming support"],
+            "applications": ["Web development", "Data science", "Machine learning", "Automation", "Scientific computing"]
+          },
+          {
+            "id": "javascript",
+            "name": {
+              "en": "JavaScript",
+              "zh": "JavaScript",
+              "de": "JavaScript",
+              "ja": "JavaScript",
+              "ru": "JavaScript"
+            },
+            "description": {
+              "en": "High-level, dynamic programming language for web development",
+              "zh": "用于Web开发的高级动态编程语言",
+              "de": "Hochrangige, dynamische Programmiersprache für Webentwicklung",
+              "ja": "Web開発のための高水準の動的プログラミング言語",
+              "ru": "Высокоуровневый динамический язык программирования для веб-разработки"
+            },
+            "features": ["Client-side scripting", "Asynchronous programming", "Event-driven", "Prototype-based", "First-class functions"],
+            "frameworks": ["React", "Vue", "Angular", "Node.js", "Express"]
+          }
+        ]
+      },
+      {
+        "id": "software_engineering",
+        "name": {
+          "en": "Software Engineering",
+          "zh": "软件工程",
+          "de": "Softwaretechnik",
+          "ja": "ソフトウェア工学",
+          "ru": "Инженерия программного обеспечения"
+        },
+        "concepts": [
+          {
+            "id": "design_patterns",
+            "name": {
+              "en": "Design Patterns",
+              "zh": "设计模式",
+              "de": "Entwurfsmuster",
+              "ja": "デザインパターン",
+              "ru": "Шаблоны проектирования"
+            },
+            "description": {
+              "en": "Reusable solutions to common software design problems",
+              "zh": "常见软件设计问题的可重用解决方案",
+              "de": "Wiederverwendbare Lösungen für häufige Softwareentwurfsprobleme",
+              "ja": "一般的なソフトウェア設計問題に対する再利用可能な解決策",
+              "ru": "Повторно используемые решения общих проблем проектирования программного обеспечения"
+            },
+            "categories": ["Creational", "Structural", "Behavioral"],
+            "examples": ["Singleton", "Factory", "Observer", "Adapter", "Strategy"]
+          },
+          {
+            "id": "agile_methodology",
+            "name": {
+              "en": "Agile Methodology",
+              "zh": "敏捷方法论",
+              "de": "Agile Methodik",
+              "ja": "アジャイル方法論",
+              "ru": "Гибкая методология"
+            },
+            "description": {
+              "en": "Iterative approach to software development emphasizing flexibility and customer collaboration",
+              "zh": "强调灵活性和客户协作的迭代式软件开发方法",
+              "de": "Iterativer Ansatz zur Softwareentwicklung mit Schwerpunkt auf Flexibilität und Kundenkooperation",
+              "ja": "柔軟性と顧客協力を重視した反復的なソフトウェア開発アプローチ",
+              "ru": "Итеративный подход к разработке программного обеспечения, подчеркивающий гибкость и сотрудничество с клиентом"
+            },
+            "frameworks": ["Scrum", "Kanban", "Extreme Programming", "Lean Development"],
+            "principles": ["Customer satisfaction", "Welcome changing requirements", "Frequent delivery", "Collaboration", "Self-organizing teams"]
+          }
+        ]
+      },
+      {
+        "id": "artificial_intelligence",
+        "name": {
+          "en": "Artificial Intelligence",
+          "zh": "人工智能",
+          "de": "Künstliche Intelligenz",
+          "ja": "人工知能",
+          "ru": "Искусственный интеллект"
+        },
+        "concepts": [
+          {
+            "id": "machine_learning",
+            "name": {
+              "en": "Machine Learning",
+              "zh": "机器学习",
+              "de": "Maschinelles Lernen",
+              "ja": "機械学習",
+              "ru": "Машинное обучение"
+            },
+            "description": {
+              "en": "Field of study that gives computers the ability to learn without being explicitly programmed",
+              "zh": "使计算机能够在没有明确编程的情况下学习的研究领域",
+              "de": "Forschungsgebiet, das Computern die Fähigkeit verleiht, ohne explizite Programmierung zu lernen",
+              "ja": "明示的にプログラムしなくてもコンピュータが学習できるようにする研究分野",
+              "ru": "Область исследований, которая дает компьютерам возможность учиться без явного программирования"
+            },
+            "types": ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Deep Learning"],
+            "algorithms": ["Linear Regression", "Decision Trees", "Neural Networks", "Support Vector Machines", "K-Means Clustering"]
+          },
+          {
+            "id": "natural_language_processing",
+            "name": {
+              "en": "Natural Language Processing",
+              "zh": "自然语言处理",
+              "de": "Natürliche Sprachverarbeitung",
+              "ja": "自然言語処理",
+              "ru": "Обработка естественного языка"
+            },
+            "description": {
+              "en": "Field focused on enabling computers to understand, interpret, and generate human language",
+              "zh": "专注于使计算机能够理解、解释和生成人类语言的领域",
+              "de": "Feld, das sich darauf konzentriert, Computern zu ermöglichen, menschliche Sprache zu verstehen, zu interpretieren und zu generieren",
+              "ja": "コンピュータが人間の言語を理解、解釈、生成できるようにすることに焦点を当てた分野",
+              "ru": "Область, ориентированная на то, чтобы компьютеры могли понимать, интерпретировать и генерировать человеческий язык"
+            },
+            "techniques": ["Tokenization", "Part-of-Speech Tagging", "Named Entity Recognition", "Sentiment Analysis", "Machine Translation"],
+            "applications": ["Chatbots", "Text summarization", "Speech recognition", "Language translation", "Text generation"]
+          }
+        ]
+      },
+      {
+        "id": "computer_systems",
+        "name": {
+          "en": "Computer Systems",
+          "zh": "计算机系统",
+          "de": "Computersysteme",
+          "ja": "コンピュータシステム",
+          "ru": "Компьютерные системы"
+        },
+        "concepts": [
+          {
+            "id": "operating_systems",
+            "name": {
+              "en": "Operating Systems",
+              "zh": "操作系统",
+              "de": "Betriebssysteme",
+              "ja": "オペレーティングシステム",
+              "ru": "Операционные системы"
+            },
+            "description": {
+              "en": "System software that manages computer hardware and software resources",
+              "zh": "管理计算机硬件和软件资源的系统软件",
+              "de": "Systemsoftware, die Computerhardware und Software-Ressourcen verwaltet",
+              "ja": "コンピュータのハードウェアとソフトウェアリソースを管理するシステムソフトウェア",
+              "ru": "Системное программное обеспечение, которое управляет аппаратными и программными ресурсами компьютера"
+            },
+            "functions": ["Process management", "Memory management", "File system management", "Device management", "Security"],
+            "examples": ["Windows", "Linux", "macOS", "Android", "iOS"]
+          },
+          {
+            "id": "computer_networks",
+            "name": {
+              "en": "Computer Networks",
+              "zh": "计算机网络",
+              "de": "Computernetzwerke",
+              "ja": "コンピュータネットワーク",
+              "ru": "Компьютерные сети"
+            },
+            "description": {
+              "en": "Interconnected computing devices that can exchange data and share resources",
+              "zh": "可以交换数据和共享资源的互连计算设备",
+              "de": "Vernetzte Computergeräte, die Daten austauschen und Ressourcen teilen können",
+              "ja": "データを交換し、リソースを共有できる相互接続されたコンピューティングデバイス",
+              "ru": "Взаимосвязанные вычислительные устройства, которые могут обмениваться данными и совместно использовать ресурсы"
+            },
+            "protocols": ["TCP/IP", "HTTP/HTTPS", "DNS", "FTP", "SMTP"],
+            "network_types": ["LAN", "WAN", "MAN", "VPN", "Wireless Networks"]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-09-04T10:36:00Z",
+    "version": "1.0.0"
+  }
+}

@@ -1,0 +1,76 @@
+
+{
+  "language": "Deutsch",
+  "home": "Startseite",
+  "settings": "Systemeinstellungen",
+  "model_training": "Modelltraining",
+  "model_management": "Modellverwaltung",
+  "help": "Hilfe",
+  "language_switch": "Sprache wechseln",
+  "dashboard": {
+    "title": "Überwachungs-Dashboard",
+    "modelStatus": "Modellstatus",
+    "cpu": "CPU-Auslastung",
+    "memory": "Speicherauslastung",
+    "latency": "Latenz",
+    "restart": "Neustart",
+    "systemMetrics": "Systemmetriken",
+    "cpuUsage": "CPU-Auslastung",
+    "memoryUsage": "Speicherauslastung",
+    "network": "Netzwerkverkehr",
+    "activeTasks": "Aktive Aufgaben",
+    "dataStreams": "Datenströme",
+    "selectStream": "Stream auswählen",
+    "startStream": "Stream starten",
+    "stopStream": "Stream stoppen",
+    "streamInitializing": "Stream-Daten werden initialisiert..."
+  },
+  "models": {
+    "A": "Manager-Modell",
+    "B": "Sprachmodell",
+    "C": "Audiomodell",
+    "D": "Bildmodell",
+    "E": "Videomodell",
+    "F": "Raummodell",
+    "G": "Sensor-Modell",
+    "H": "Computersteuerungsmodell",
+    "I": "Bewegungsmodell",
+    "J": "Wissensmodell",
+    "K": "Programmiermodell"
+  },
+  "streams": {
+    "sensor": "Sensordaten",
+    "audio": "Audiodaten",
+    "video": "Videodaten",
+    "spatial": "Raumdaten",
+    "emotion": "Emotionsdaten"
+  },
+  "guide": {
+    "title": "Benutzerhandbuch",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertig",
+    "steps": {
+      "0": {
+        "title": "Willkommen beim AGI-System",
+        "description": "Dies ist ein künstliches Intelligenzsystem mit Selbstbewusstsein und autonomen Lernfähigkeiten. Das System umfasst 11 Kernmodelle, die zusammenarbeiten, um eine menschenähnliche Gehirnfunktionalität zu erreichen."
+      },
+      "1": {
+        "title": "Modellverwaltung",
+        "description": "Das Manager-Modell (A) koordiniert alle Untermodellaufgaben und unterstützt mehrere Interaktionsmethoden, einschließlich Sprache, Text und Bilder. Die Modellkonfiguration und -überwachung kann über die Hauptoberfläche erfolgen."
+      },
+      "2": {
+        "title": "Training und Steuerung",
+        "description": "Das System unterstützt sowohl individuelles Modelltraining als auch gemeinsames Training. Das Trainingssteuerfeld ermöglicht die Auswahl von Modellen für das Training und das Festlegen von Trainingsparametern."
+      },
+      "3": {
+        "title": "Echtzeit-Überwachung",
+        "description": "Das Überwachungs-Dashboard bietet Echtzeit-Systemstatus, Modellleistung und Ressourcennutzung. Unterstützt die Echtzeit-Anzeige von Datenströmen und Modell-Neustartoperationen."
+      },
+      "4": {
+        "title": "Mehrsprachige Unterstützung",
+        "description": "Das System unterstützt fünf Sprachschnittstellen: Chinesisch, Englisch, Deutsch, Japanisch und Russisch. Alle Dokumentationen und Kommentare sind zweisprachig auf Chinesisch und Englisch."
+      }
+    }
+  }
+}

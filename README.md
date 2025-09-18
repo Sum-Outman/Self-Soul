@@ -1,17 +1,14 @@
-# Self Soul
 # Self Soul - 通用人工智能大脑系统
 
 **Developed by**: Self Soul Team
 **开发者邮箱**: silencecrowtom@qq.com
 
-## Project Overview
 ## 项目概述
 
 Self Soul is a comprehensive Artificial General Intelligence (AGI) system designed to integrate multiple advanced AI capabilities into a unified architecture. This system combines language processing, visual recognition, audio analysis, emotional understanding, and autonomous learning into a cohesive platform.
 
 Self Soul是一个全面的通用人工智能(AGI)系统，旨在将多种先进的AI能力整合到一个统一的架构中。该系统将语言处理、视觉识别、音频分析、情感理解和自主学习等能力整合到一个协调的平台中。
 
-### Key Features
 ### 核心功能
 
 - **Multi-Modal Integration**: Seamlessly combines text, image, audio, and video processing
@@ -30,14 +27,12 @@ Self Soul是一个全面的通用人工智能(AGI)系统，旨在将多种先进
 - **可扩展架构**：易于添加新模型和功能
 - **知识管理**：组织和利用结构化和非结构化知识
 
-## System Architecture
 ## 系统架构
 
 Self Soul employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment.
 
 Self Soul采用分层架构，将核心AI能力与用户界面分离，实现模块化开发和部署。
 
-### Architecture Diagram
 ### 架构图
 
 ```

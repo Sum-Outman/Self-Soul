@@ -1,0 +1,21 @@
+#!/bin/bash
+# Self Soul 系统通用启动脚本
+echo "正在启动开发服务器..."
+cd app
+npm run dev &
+
+echo "等待服务启动..."
+sleep 10
+
+echo "正在打开主界面..."
+if command -v xdg-open > /dev/null; then
+  xdg-open "http://localhost:5174/"
+elif command -v open > /dev/null; then
+  open "http://localhost:5174/"
+else
+  start "" "http://localhost:5174/"
+fi
+
+echo "启动完成！请访问 http://localhost:5174/"
+echo "按Ctrl+C停止服务"
+wait

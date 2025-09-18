@@ -8,6 +8,7 @@ __pycache__/
 venv/
 ENV/
 env/
+agi_env_311/
 .env
 .env.local
 .env.development.local
@@ -97,6 +98,32 @@ jspm_packages/
 # Nuxt.js build / generate output
 .nuxt
 dist
+
+# Self-Soul specific files
+RUN-AGI
+RUN-AGI-SMART.bat
+Start-AGI.ps1
+launch_agi.bat
+get-pip.py
+six.py
+restructure_project.py
+run.sh
+start.bat
+start.sh
+start_agi.py
+start_agi.sh
+start_agi_gitbash.sh
+start_agi_smart.sh
+start_app.bat
+start_complete.bat
+start_fixed.bat
+dir.txt
+
+# Self-Soul specific directories
+.trae/
+results/
+cmd
+
 
 # Storybook build outputs
 .out

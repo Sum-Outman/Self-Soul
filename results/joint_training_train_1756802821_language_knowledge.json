@@ -1,0 +1,151 @@
+{
+  "job_id": "train_1756802821_language_knowledge",
+  "model_ids": [
+    "language",
+    "knowledge"
+  ],
+  "parameters": {
+    "epochs": 5,
+    "batch_size": 32,
+    "training_mode": "joint",
+    "strategy": "standard"
+  },
+  "completion_time": 1756802821.866197,
+  "results": {
+    "language": {
+      "model_id": "language",
+      "status": "success",
+      "metrics": {
+        "loss": 0.7948379072618391,
+        "accuracy": 0.7287736272320255
+      },
+      "training_time": 0.5388321876525879,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.6083471162580096,
+            "accuracy": 0.5718684840822232,
+            "progress": 0.2,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.1784468885714778,
+            "accuracy": 0.6590907584455181,
+            "progress": 0.4,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 0.7402268434139478,
+            "accuracy": 0.7389336211995087,
+            "progress": 0.6,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 0.43716868806576065,
+            "accuracy": 0.7893927874640683,
+            "progress": 0.8,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.8845824849688101,
+            "progress": 1.0,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "knowledge": {
+      "model_id": "knowledge",
+      "status": "success",
+      "metrics": {
+        "loss": 0.7953558125953933,
+        "accuracy": 0.7426831548843881
+      },
+      "training_time": 0.5388321876525879,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.6735558070535153,
+            "accuracy": 0.566767991772215,
+            "progress": 0.2,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.1265613410184838,
+            "accuracy": 0.6791893426490798,
+            "progress": 0.4,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 0.7873618647135727,
+            "accuracy": 0.7127002038093612,
+            "progress": 0.6,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 0.37930005019139534,
+            "accuracy": 0.8135931428407934,
+            "progress": 0.8,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.9411650933504908,
+            "progress": 1.0,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    }
+  },
+  "metrics": {}
+}

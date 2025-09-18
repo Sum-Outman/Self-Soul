@@ -1,0 +1,160 @@
+{
+  "domain": "economics",
+  "name": {
+    "en": "Economics",
+    "zh": "经济学",
+    "de": "Wirtschaftswissenschaften",
+    "ja": "経済学",
+    "ru": "Экономика"
+  },
+  "description": {
+    "en": "Study of production, distribution, and consumption of goods and services",
+    "zh": "研究商品和服务的生产、分配和消费的学科",
+    "de": "Studium der Produktion, Verteilung und des Konsums von Gütern und Dienstleistungen",
+    "ja": "財とサービスの生産、分配、消費の研究",
+    "ru": "Изучение производства, распределения и потребления товаров и услуг"
+  },
+  "concepts": [
+    {
+      "id": "market_mechanisms",
+      "name": {
+        "en": "Market Mechanisms",
+        "zh": "市场机制",
+        "de": "Marktmechanismen",
+        "ja": "市場メカニズム",
+        "ru": "Рыночные механизмы"
+      },
+      "description": {
+        "en": "Forces of supply and demand that determine prices and allocation",
+        "zh": "决定价格和资源配置的供需力量",
+        "de": "Kräfte von Angebot und Nachfrage, die Preise und Allokation bestimmen",
+        "ja": "価格と配分を決定する需要と供給の力",
+        "ru": "Силы спроса и предложения, определяющие цены и распределение"
+      },
+      "examples": [
+        "Price elasticity analysis",
+        "Market equilibrium determination",
+        "Competition and monopoly structures",
+        "Resource allocation efficiency"
+      ]
+    },
+    {
+      "id": "macroeconomic_indicators",
+      "name": {
+        "en": "Macroeconomic Indicators",
+        "zh": "宏观经济指标",
+        "de": "Makroökonomische Indikatoren",
+        "ja": "マクロ経済指標",
+        "ru": "Макроэкономические показатели"
+      },
+      "description": {
+        "en": "Key metrics that measure overall economic performance",
+        "zh": "衡量整体经济表现的关键指标",
+        "de": "Wichtige Kennzahlen, die die gesamtwirtschaftliche Leistung messen",
+        "ja": "経済全体のパフォーマンスを測定する主要指標",
+        "ru": "Ключевые показатели, измеряющие общую экономическую эффективность"
+      },
+      "examples": [
+        "Gross Domestic Product (GDP)",
+        "Inflation rate measurements",
+        "Unemployment statistics",
+        "Balance of trade calculations"
+      ]
+    },
+    {
+      "id": "economic_systems",
+      "name": {
+        "en": "Economic Systems",
+        "zh": "经济体系",
+        "de": "Wirtschaftssysteme",
+        "ja": "経済システム",
+        "ru": "Экономические системы"
+      },
+      "description": {
+        "en": "Different approaches to organizing economic activity",
+        "zh": "组织经济活动的不同方法",
+        "de": "Verschiedene Ansätze zur Organisation wirtschaftlicher Aktivität",
+        "ja": "経済活動を組織化するさまざまなアプローチ",
+        "ru": "Различные подходы к организации экономической деятельности"
+      },
+      "examples": [
+        "Capitalist market economies",
+        "Socialist planned economies",
+        "Mixed economic models",
+        "Traditional economic systems"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "scarcity_choice",
+      "name": {
+        "en": "Scarcity and Choice",
+        "zh": "稀缺性与选择",
+        "de": "Knappheit und Wahl",
+        "ja": "希少性と選択",
+        "ru": "Дефицит и выбор"
+      },
+      "description": {
+        "en": "Fundamental economic problem of limited resources and unlimited wants",
+        "zh": "有限资源和无限需求的根本经济问题",
+        "de": "Grundlegendes wirtschaftliches Problem begrenzter Ressourcen und unbegrenzter Bedürfnisse",
+        "ja": "限られた資源と無限の欲求という根本的な経済問題",
+        "ru": "Фундаментальная экономическая проблема ограниченных ресурсов и неограниченных потребностей"
+      }
+    },
+    {
+      "id": "opportunity_cost",
+      "name": {
+        "en": "Opportunity Cost",
+        "zh": "机会成本",
+        "de": "Opportunitätskosten",
+        "ja": "機会費用",
+        "ru": "Альтернативные издержки"
+      },
+      "description": {
+        "en": "Value of the next best alternative forgone when making a decision",
+        "zh": "做出决策时放弃的次优选择的价值",
+        "de": "Wert der nächstbesten Alternative, die bei einer Entscheidung aufgegeben wird",
+        "ja": "意思決定を行う際に放棄される次善の選択肢の価値",
+        "ru": "Стоимость следующей лучшей альтернативы, от которой отказываются при принятии решения"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "economic_policy",
+      "name": {
+        "en": "Economic Policy Analysis",
+        "zh": "经济政策分析",
+        "de": "Wirtschaftspolitikanalyse",
+        "ja": "経済政策分析",
+        "ru": "Анализ экономической политики"
+      },
+      "description": {
+        "en": "Evaluating the effects and effectiveness of government economic policies",
+        "zh": "评估政府经济政策的效果和有效性",
+        "de": "Bewertung der Auswirkungen und Wirksamkeit staatlicher Wirtschaftspolitik",
+        "ja": "政府の経済政策の効果と有効性の評価",
+        "ru": "Оценка эффектов и эффективности государственной экономической политики"
+      }
+    },
+    {
+      "id": "financial_analysis",
+      "name": {
+        "en": "Financial Analysis",
+        "zh": "财务分析",
+        "de": "Finanzanalyse",
+        "ja": "財務分析",
+        "ru": "Финансовый анализ"
+      },
+      "description": {
+        "en": "Assessing financial health and performance of organizations and economies",
+        "zh": "评估组织和经济的财务健康状况和表现",
+        "de": "Bewertung der finanziellen Gesundheit und Leistung von Organisationen und Volkswirtschaften",
+        "ja": "組織と経済の財務的健康状態とパフォーマンスの評価",
+        "ru": "Оценка финансового здоровья и эффективности организаций и экономик"
+      }
+    }
+  ]
+}

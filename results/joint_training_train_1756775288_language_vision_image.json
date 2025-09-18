@@ -1,0 +1,259 @@
+{
+  "job_id": "train_1756775288_language_vision_image",
+  "model_ids": [
+    "language",
+    "vision_image"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "strategy": "standard"
+  },
+  "completion_time": 1756775289.2467628,
+  "results": {
+    "language": {
+      "model_id": "language",
+      "status": "success",
+      "metrics": {
+        "loss": 0.39153505385896065,
+        "accuracy": 0.8322470683855098
+      },
+      "training_time": 1.0954926013946533,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.6524565264075244,
+            "accuracy": 0.5629282625467762,
+            "progress": 0.1,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.6180892083922622,
+            "accuracy": 0.5861590333134067,
+            "progress": 0.2,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 1.467817397981202,
+            "accuracy": 0.6111834268641788,
+            "progress": 0.3,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 1.1109120345504102,
+            "accuracy": 0.6371350295449272,
+            "progress": 0.4,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 0.9235235265811716,
+            "accuracy": 0.7097585117378281,
+            "progress": 0.5,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 6,
+          "metrics": {
+            "loss": 0.7439388349360625,
+            "accuracy": 0.7658334410969665,
+            "progress": 0.6,
+            "epoch": 6,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 7,
+          "metrics": {
+            "loss": 0.6436216629959999,
+            "accuracy": 0.7931313239370738,
+            "progress": 0.7,
+            "epoch": 7,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 8,
+          "metrics": {
+            "loss": 0.36781024726460987,
+            "accuracy": 0.7805259227991914,
+            "progress": 0.8,
+            "epoch": 8,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 9,
+          "metrics": {
+            "loss": 0.19230452409813095,
+            "accuracy": 0.8840574131052065,
+            "progress": 0.9,
+            "epoch": 9,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 10,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.9376872409891106,
+            "progress": 1.0,
+            "epoch": 10,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "vision_image": {
+      "model_id": "vision_image",
+      "status": "success",
+      "metrics": {
+        "loss": 0.4068728021127678,
+        "accuracy": 0.8028380220795247
+      },
+      "training_time": 1.0954926013946533,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.8348828869704863,
+            "accuracy": 0.523038312725117,
+            "progress": 0.1,
+            "epoch": 1,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 1.64387526616859,
+            "accuracy": 0.5664583694718571,
+            "progress": 0.2,
+            "epoch": 2,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 3,
+          "metrics": {
+            "loss": 1.473695086902642,
+            "accuracy": 0.6113213869366778,
+            "progress": 0.3,
+            "epoch": 3,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 4,
+          "metrics": {
+            "loss": 1.2683131823712308,
+            "accuracy": 0.636862868467039,
+            "progress": 0.4,
+            "epoch": 4,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 5,
+          "metrics": {
+            "loss": 1.092843139890544,
+            "accuracy": 0.6652920801717165,
+            "progress": 0.5,
+            "epoch": 5,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 6,
+          "metrics": {
+            "loss": 0.8088909446023318,
+            "accuracy": 0.7419105270672011,
+            "progress": 0.6,
+            "epoch": 6,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 7,
+          "metrics": {
+            "loss": 0.6061602534154004,
+            "accuracy": 0.7664230287763757,
+            "progress": 0.7,
+            "epoch": 7,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 8,
+          "metrics": {
+            "loss": 0.4247026093260037,
+            "accuracy": 0.7980637611328633,
+            "progress": 0.8,
+            "epoch": 8,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 9,
+          "metrics": {
+            "loss": 0.18461020322010324,
+            "accuracy": 0.8467653647967125,
+            "progress": 0.9,
+            "epoch": 9,
+            "batch_size": 32
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 10,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.8610274286244711,
+            "progress": 1.0,
+            "epoch": 10,
+            "batch_size": 32
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    }
+  },
+  "metrics": {}
+}

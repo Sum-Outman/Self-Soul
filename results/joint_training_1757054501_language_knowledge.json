@@ -1,0 +1,31 @@
+{
+  "job_id": "train_1757054501_language_knowledge",
+  "model_ids": [
+    "language",
+    "knowledge"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "epochs": 5,
+    "batch_size": 16,
+    "learning_rate": 0.001
+  },
+  "completion_time": 1757054501.0776188,
+  "results": {
+    "language": {
+      "status": "completed",
+      "accuracy": 0.85,
+      "loss": 0.15,
+      "training_time": 120.5,
+      "epochs_completed": 5
+    },
+    "knowledge": {
+      "status": "completed",
+      "accuracy": 0.92,
+      "loss": 0.08,
+      "training_time": 180.2,
+      "epochs_completed": 5
+    }
+  },
+  "metrics": {}
+}

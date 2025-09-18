@@ -1,0 +1,534 @@
+"""
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+"""
+import time
+import json
+import os
+import random
+import numpy as np
+from datetime import datetime
+from core.model_registry import ModelRegistry
+from core.error_handling import error_handler
+from core.fusion.multimodal import MultimodalFusion
+from core.training_manager import TrainingManager
+from core.unified_self_learning import SelfLearningSystem
+from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
+from core.enhanced_meta_cognition import EnhancedMetaCognition
+from core.structured_knowledge_base import StructuredKnowledgeBase
+from core.intrinsic_motivation_system import IntrinsicMotivationSystem
+from core.explainable_ai import ExplainableAI
+from core.value_alignment import ValueAlignment
+
+
+"""
+AGICoordinator类 - AGI系统核心协调器
+AGICoordinator Class - Core AGI System Coordinator
+"""
+class AGICoordinator:
+    """Self Soul  AGI中央协调器，管理和协调所有认知组件"""
+    
+    def __init__(self):
+        # 初始化统一认知架构
+        self.cognitive_architecture = UnifiedCognitiveArchitecture()
+        
+        # 初始化模型注册表
+        self.model_registry = ModelRegistry()
+        # 加载所有模型
+        self.model_registry.load_all_models()
+        
+        # 初始化多模态融合模块
+        self.fusion_engine = MultimodalFusion()
+        # 初始化训练管理器
+        self.training_manager = TrainingManager(self.model_registry)
+        # 初始化自主学习系统
+        self.self_learning = SelfLearningSystem(self.model_registry, self.training_manager)
+        
+        # 初始化增强的AGI组件
+        self.enhanced_meta_cognition = EnhancedMetaCognition()
+        self.structured_knowledge = StructuredKnowledgeBase()
+        self.intrinsic_motivation = IntrinsicMotivationSystem()
+        self.explainable_ai = ExplainableAI()
+        self.value_alignment = ValueAlignment()
+        
+        # 系统状态
+        self.system_state = {
+            'status': 'initializing',
+            'start_time': time.time(),
+            'active_models': [],
+            'performance_metrics': {},
+            'agi_level': 0.3,  # 当前AGI水平评估
+            'autonomy_level': 0.2,  # 自主性水平
+            'generalization_score': 0.4  # 泛化能力评分
+        }
+        
+        # 更新系统状态
+        self._update_system_state()
+        
+        # 加载长期记忆
+        self.load_long_term_memory()
+        
+        # 启动自主学习循环
+        self._start_autonomous_learning_loop()
+        
+        error_handler.log_info("AGI协调器初始化完成，统一认知架构已就绪", "AGICoordinator")
+    
+    
+    """
+    _update_system_state函数 - 中文函数描述
+    _update_system_state Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _update_system_state(self):
+        """更新系统状态"""
+        active_models = list(self.model_registry.get_all_models().keys())
+        self.system_state.update({
+            'status': 'running' if active_models else 'idle',
+            'active_models': active_models,
+            'last_updated': time.time()
+        })
+    
+    
+    """
+    process_user_input函数 - 中文函数描述
+    process_user_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def process_user_input(self, input_data, input_type='text', lang='zh'):
+        """处理用户输入，支持文本、音频、图像等多种输入类型"""
+        try:
+            start_time = time.time()
+            error_handler.log_info(f"接收到用户输入，类型: {input_type}", "AGICoordinator")
+            
+            # 根据输入类型选择合适的模型进行处理
+            if input_type == 'text':
+                result = self._process_text_input(input_data, lang)
+            elif input_type == 'audio':
+                result = self._process_audio_input(input_data, lang)
+            elif input_type == 'image':
+                result = self._process_image_input(input_data)
+            elif input_type == 'video':
+                result = self._process_video_input(input_data)
+            elif input_type == 'sensor':
+                result = self._process_sensor_input(input_data)
+            else:
+                raise ValueError(f"不支持的输入类型: {input_type}")
+            
+            # 记录处理时间
+            processing_time = time.time() - start_time
+            self.system_state['performance_metrics'][input_type] = {
+                'processing_time': processing_time,
+                'timestamp': time.time()
+            }
+            
+            # 更新自主学习系统的性能指标
+            if input_type in ['text', 'audio', 'image']:
+                model_id = input_type
+                if input_type == 'image' and 'video' in result:
+                    model_id = 'video'
+                
+                # 提取性能指标
+                performance_metrics = {
+                    'processing_time': processing_time,
+                    'input_length': len(str(input_data)),
+                    'output_length': len(str(result))
+                }
+                
+                # 更新自主学习系统
+                self.self_learning.update_performance(model_id, performance_metrics)
+            
+            error_handler.log_info(f"输入处理完成，耗时: {processing_time:.2f}秒", "AGICoordinator")
+            return result
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "处理用户输入失败")
+            return {"error": str(e)}
+    
+    
+    """
+    _process_text_input函数 - 中文函数描述
+    _process_text_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _process_text_input(self, text, lang):
+        """处理文本输入"""
+        language_model = self.model_registry.get_model('language')
+        if not language_model:
+            raise RuntimeError("语言模型未加载")
+        
+        # 使用语言模型处理文本，构建正确的输入格式
+        input_data = {
+            "text": text,
+            "context": {"language": lang}
+        }
+        return language_model.process(input_data)
+    
+    
+    """
+    _process_audio_input函数 - 中文函数描述
+    _process_audio_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _process_audio_input(self, audio_data, lang):
+        """处理音频输入"""
+        audio_model = self.model_registry.get_model('audio')
+        if not audio_model:
+            raise RuntimeError("音频模型未加载")
+        
+        # 使用音频模型处理音频数据
+        return audio_model.process_audio(audio_data, lang)
+    
+    
+    """
+    _process_image_input函数 - 中文函数描述
+    _process_image_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _process_image_input(self, image_data):
+        """处理图像输入"""
+        image_model = self.model_registry.get_model('image_vision')
+        if not image_model:
+            raise RuntimeError("图像模型未加载")
+        
+        # 使用图像模型处理图像数据
+        return image_model.process_image(image_data)
+    
+    
+    """
+    _process_video_input函数 - 中文函数描述
+    _process_video_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _process_video_input(self, video_data):
+        """处理视频输入"""
+        video_model = self.model_registry.get_model('video_vision')
+        if not video_model:
+            raise RuntimeError("视频模型未加载")
+        
+        # 使用视频模型处理视频数据
+        return video_model.process_video(video_data)
+    
+    
+    """
+    _process_sensor_input函数 - 中文函数描述
+    _process_sensor_input Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _process_sensor_input(self, sensor_data):
+        """处理传感器输入"""
+        sensor_model = self.model_registry.get_model('sensor')
+        if not sensor_model:
+            raise RuntimeError("传感器模型未加载")
+        
+        # 使用传感器模型处理传感器数据
+        return sensor_model.process_sensor_data(sensor_data)
+    
+    
+    """
+    coordinate_task函数 - 中文函数描述
+    coordinate_task Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def coordinate_task(self, task_description, context=None):
+        """协调多模型完成复杂任务"""
+        try:
+            start_time = time.time()
+            error_handler.log_info(f"开始协调任务", "AGICoordinator")
+            
+            # 获取管理模型
+            manager_model = self.model_registry.get_model('manager')
+            if not manager_model:
+                raise RuntimeError("管理模型未加载")
+            
+            # 使用管理模型进行任务协调
+            result = manager_model.coordinate_task(task_description, context)
+            
+            # 记录处理时间
+            processing_time = time.time() - start_time
+            error_handler.log_info(f"任务协调完成，耗时: {processing_time:.2f}秒", "AGICoordinator")
+            
+            # 检查是否需要进行系统优化
+            if random.random() < 0.1:  # 10%的概率检查优化
+                self.self_learning.run_optimization()
+            
+            return result
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "任务协调失败")
+            return {"error": str(e)}
+    
+    
+    """
+    train_models函数 - 中文函数描述
+    train_models Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def train_models(self, model_ids=None, parameters=None):
+        """训练指定的模型"""
+        try:
+            start_time = time.time()
+            error_handler.log_info(f"开始模型训练", "AGICoordinator")
+            
+            # 如果未指定模型ID，则训练所有模型
+            if model_ids is None:
+                model_ids = list(self.model_registry.get_all_models().keys())
+            
+            # 使用训练管理器启动训练任务
+            job_id = self.training_manager.start_training(model_ids, parameters or {})
+            
+            return {"job_id": job_id, "message": "训练任务已启动"}
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "启动训练任务失败")
+            return {"error": str(e)}
+    
+    
+    """
+    get_system_status函数 - 中文函数描述
+    get_system_status Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def get_system_status(self):
+        """获取系统状态"""
+        self._update_system_state()
+        # 获取所有模型的状态
+        models_status = self.model_registry.get_all_models_status()
+        # 获取自主学习系统状态
+        learning_status = self.self_learning.get_learning_status()
+        
+        return {
+            **self.system_state,
+            'models_status': models_status,
+            'meta_cognition': self.meta_cognition,
+            'memory_size': len(self.long_term_memory),
+            'learning_status': learning_status
+        }
+    
+    
+    """
+    shutdown函数 - 中文函数描述
+    shutdown Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def shutdown(self):
+        """关闭系统"""
+        error_handler.log_info("开始关闭系统", "AGICoordinator")
+        # 保存长期记忆
+        self.save_long_term_memory()
+        
+        # 卸载所有模型
+        for model_id in list(self.model_registry.get_all_models().keys()):
+            self.model_registry.unload_model(model_id)
+        
+        self.system_state['status'] = 'shutdown'
+        self.system_state['shutdown_time'] = time.time()
+        
+        error_handler.log_info("系统已成功关闭", "AGICoordinator")
+    
+    # 新增：自主规划能力
+    
+    """
+    autonomous_planning函数 - 中文函数描述
+    autonomous_planning Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def autonomous_planning(self, goal, constraints=None):
+        """根据目标自主规划任务序列"""
+        try:
+            manager_model = self.model_registry.get_model('manager')
+            if not manager_model:
+                raise RuntimeError("管理模型未加载")
+                
+            # 获取相关模型和能力信息
+            available_models = self.get_system_status()['models_status']
+            
+            # 制定计划
+            plan = manager_model.create_plan(goal, available_models, constraints)
+            
+            # 执行计划
+            results = self.execute_plan(plan)
+            
+            # 评估结果并更新元认知
+            self._evaluate_performance(goal, results)
+            
+            return results
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "自主规划执行失败")
+            return {"error": str(e)}
+    
+    # 新增：执行计划
+    
+    """
+    execute_plan函数 - 中文函数描述
+    execute_plan Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def execute_plan(self, plan):
+        """执行自主规划的任务序列"""
+        results = {}
+        for step in plan.get('steps', []):
+            if step.get('action') == 'process_input':
+                result = self.process_user_input(
+                    step['input_data'],
+                    step.get('input_type', 'text'),
+                    step.get('lang', 'zh')
+                )
+            elif step.get('action') == 'coordinate_task':
+                result = self.coordinate_task(step['task_description'], step.get('context', {}))
+            elif step.get('action') == 'train_model':
+                result = self.train_models([step['model_id']], step.get('parameters', {}))
+            else:
+                result = {"error": f"未知操作: {step.get('action')}"}
+            
+            results[step['id']] = result
+            # 如果步骤失败且计划中指定了停止条件，则终止执行
+            if 'error' in result and plan.get('stop_on_error', True):
+                break
+        
+        return results
+    
+    # 新增：性能评估和自我改进
+    
+    """
+    _evaluate_performance函数 - 中文函数描述
+    _evaluate_performance Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _evaluate_performance(self, goal, results):
+        """评估系统性能并更新元认知状态"""
+        # 简单实现：统计成功率
+        success_count = sum(1 for r in results.values() if 'error' not in r) if results else 0
+        total_count = len(results) if results else 0
+        
+        if total_count > 0:
+            success_rate = success_count / total_count
+            
+            # 更新元认知
+            self.meta_cognition['confidence_level'] = min(max(success_rate, 0), 1)
+            
+            # 记录知识缺口
+            if success_rate < 0.7:
+                self.meta_cognition['knowledge_gaps'].append({
+                    'goal': goal,
+                    'success_rate': success_rate,
+                    'timestamp': time.time()
+                })
+    
+    # 新增：保存和加载长期记忆
+    
+    """
+    save_long_term_memory函数 - 中文函数描述
+    save_long_term_memory Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def save_long_term_memory(self):
+        """保存长期记忆到持久化存储"""
+        memory_file = os.path.join(os.path.dirname(__file__), 'data', 'long_term_memory.json')
+        try:
+            os.makedirs(os.path.dirname(memory_file), exist_ok=True)
+            with open(memory_file, 'w', encoding='utf-8') as f:
+                json.dump(self.long_term_memory, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "保存长期记忆失败")
+    
+    
+    """
+    load_long_term_memory函数 - 中文函数描述
+    load_long_term_memory Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def load_long_term_memory(self):
+        """从持久化存储加载长期记忆"""
+        memory_file = os.path.join(os.path.dirname(__file__), 'data', 'long_term_memory.json')
+        try:
+            if os.path.exists(memory_file):
+                with open(memory_file, 'r', encoding='utf-8') as f:
+                    self.long_term_memory = json.load(f)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "加载长期记忆失败")

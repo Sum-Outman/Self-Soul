@@ -1,0 +1,12 @@
+{
+  "model_id": "language",
+  "completion_time": 1757054501.078622,
+  "result": {
+    "status": "completed",
+    "accuracy": 0.88,
+    "loss": 0.12,
+    "training_time": 95.3,
+    "epochs_completed": 10
+  },
+  "metrics": {}
+}

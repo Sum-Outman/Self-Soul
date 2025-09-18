@@ -1,0 +1,86 @@
+{
+  "job_id": "train_1756740562_language_knowledge",
+  "model_ids": [
+    "language",
+    "knowledge"
+  ],
+  "parameters": {
+    "training_mode": "joint",
+    "epochs": 2,
+    "batch_size": 16,
+    "data_size": 50,
+    "joint_training_strategy": "federated"
+  },
+  "completion_time": 1756740563.1624405,
+  "results": {
+    "language": {
+      "model_id": "language",
+      "status": "success",
+      "metrics": {
+        "loss": 0.5477500053149976,
+        "accuracy": 0.7811658180365738
+      },
+      "training_time": 0.2147352695465088,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.0855000106299952,
+            "accuracy": 0.6808091256997632,
+            "progress": 0.5,
+            "epoch": 1,
+            "batch_size": 16
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.8815225103733845,
+            "progress": 1.0,
+            "epoch": 2,
+            "batch_size": 16
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    },
+    "knowledge": {
+      "model_id": "knowledge",
+      "status": "success",
+      "metrics": {
+        "loss": 0.531421443659937,
+        "accuracy": 0.7736874360406696
+      },
+      "training_time": 0.2147352695465088,
+      "epoch_results": [
+        {
+          "epoch": 1,
+          "metrics": {
+            "loss": 1.052842887319874,
+            "accuracy": 0.6836758565519271,
+            "progress": 0.5,
+            "epoch": 1,
+            "batch_size": 16
+          },
+          "time": 0.0
+        },
+        {
+          "epoch": 2,
+          "metrics": {
+            "loss": 0.01,
+            "accuracy": 0.863699015529412,
+            "progress": 1.0,
+            "epoch": 2,
+            "batch_size": 16
+          },
+          "time": 0.0
+        }
+      ],
+      "final_weights": null
+    }
+  },
+  "metrics": {}
+}

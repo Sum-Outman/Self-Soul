@@ -1,0 +1,176 @@
+{
+  "domain": "chemistry",
+  "name": {
+    "zh": "化学",
+    "en": "Chemistry",
+    "de": "Chemie",
+    "ja": "化学",
+    "ru": "Химия"
+  },
+  "description": {
+    "zh": "化学是研究物质的组成、结构、性质、变化规律以及能量变化的科学",
+    "en": "Chemistry is the science that studies the composition, structure, properties, changes, and energy transformations of matter",
+    "de": "Chemie ist die Wissenschaft, die die Zusammensetzung, Struktur, Eigenschaften, Veränderungen und Energieumwandlungen von Materie untersucht",
+    "ja": "化学は物質の組成、構造、性質、変化の法則およびエネルギー変化を研究する科学です",
+    "ru": "Химия - это наука, изучающая состав, структуру, свойства, закономерности изменений и энергетические превращения вещества"
+  },
+  "concepts": [
+    {
+      "concept": "atom",
+      "name": {
+        "zh": "原子",
+        "en": "Atom",
+        "de": "Atom",
+        "ja": "原子",
+        "ru": "Атом"
+      },
+      "description": {
+        "zh": "物质的最小单位，由原子核和电子组成",
+        "en": "The smallest unit of matter, consisting of a nucleus and electrons",
+        "de": "Die kleinste Einheit der Materie, bestehend aus einem Kern und Elektronen",
+        "ja": "原子核と電子からなる物質の最小単位",
+        "ru": "Наименьшая единица вещества, состоящая из ядра и электронов"
+      }
+    },
+    {
+      "concept": "molecule",
+      "name": {
+        "zh": "分子",
+        "en": "Molecule",
+        "de": "Molekül",
+        "ja": "分子",
+        "ru": "Молекула"
+      },
+      "description": {
+        "zh": "由两个或多个原子通过化学键结合形成的粒子",
+        "en": "A particle formed by two or more atoms bonded together",
+        "de": "Ein Teilchen, das aus zwei oder mehr Atomen besteht, die durch chemische Bindungen verbunden sind",
+        "ja": "2つ以上の原子が化学結合で結合して形成される粒子",
+        "ru": "Частица, образованная двумя или более атомами, связанными химическими связями"
+      }
+    },
+    {
+      "concept": "chemical_reaction",
+      "name": {
+        "zh": "化学反应",
+        "en": "Chemical Reaction",
+        "de": "Chemische Reaktion",
+        "ja": "化学反応",
+        "ru": "Химическая реакция"
+      },
+      "description": {
+        "zh": "物质之间发生化学变化，生成新物质的过程",
+        "en": "A process where substances undergo chemical changes to form new substances",
+        "de": "Ein Prozess, bei dem Substanzen chemische Veränderungen durchlaufen, um neue Substanzen zu bilden",
+        "ja": "物質が化学変化を起こし、新しい物質を生成する過程",
+        "ru": "Процесс, при котором вещества претерпевают химические изменения с образованием новых веществ"
+      }
+    },
+    {
+      "concept": "periodic_table",
+      "name": {
+        "zh": "元素周期表",
+        "en": "Periodic Table",
+        "de": "Periodensystem",
+        "ja": "周期表",
+        "ru": "Периодическая таблица"
+      },
+      "description": {
+        "zh": "将所有已知化学元素按照原子序数排列的表格",
+        "en": "A table that arranges all known chemical elements by atomic number",
+        "de": "Eine Tabelle, die alle bekannten chemischen Elemente nach Ordnungszahl anordnet",
+        "ja": "既知のすべての化学元素を原子番号順に並べた表",
+        "ru": "Таблица, в которой все известные химические элементы расположены в порядке возрастания атомного номера"
+      }
+    },
+    {
+      "concept": "acid_base",
+      "name": {
+        "zh": "酸碱理论",
+        "en": "Acid-Base Theory",
+        "de": "Säure-Base-Theorie",
+        "ja": "酸塩基理論",
+        "ru": "Теория кислот и оснований"
+      },
+      "description": {
+        "zh": "描述酸和碱性质及其相互作用的化学理论",
+        "en": "Chemical theories describing the properties of acids and bases and their interactions",
+        "de": "Chemische Theorien, die die Eigenschaften von Säuren und Basen sowie ihre Wechselwirkungen beschreiben",
+        "ja": "酸と塩基の性質およびそれらの相互作用を説明する化学理論",
+        "ru": "Химические теории, описывающие свойства кислот и оснований и их взаимодействия"
+      }
+    }
+  ],
+  "principles": [
+    {
+      "principle": "conservation_of_mass",
+      "name": {
+        "zh": "质量守恒定律",
+        "en": "Law of Conservation of Mass",
+        "de": "Gesetz der Massenerhaltung",
+        "ja": "質量保存の法則",
+        "ru": "Закон сохранения массы"
+      },
+      "description": {
+        "zh": "在封闭系统中，物质的质量在化学反应前后保持不变",
+        "en": "In a closed system, the mass of substances remains constant before and after a chemical reaction",
+        "de": "In einem geschlossenen System bleibt die Masse der Substanzen vor und nach einer chemischen Reaktion konstant",
+        "ja": "閉鎖系では、化学反応の前後で物質の質量は変化しない",
+        "ru": "В закрытой системе масса веществ остается постоянной до и после химической реакции"
+      }
+    },
+    {
+      "principle": "chemical_equilibrium",
+      "name": {
+        "zh": "化学平衡",
+        "en": "Chemical Equilibrium",
+        "de": "Chemisches Gleichgewicht",
+        "ja": "化学平衡",
+        "ru": "Химическое равновесие"
+      },
+      "description": {
+        "zh": "在可逆反应中，正反应和逆反应速率相等时的状态",
+        "en": "The state in a reversible reaction where the rates of forward and reverse reactions are equal",
+        "de": "Der Zustand in einer reversiblen Reaktion, in dem die Geschwindigkeiten der Hin- und Rückreaktion gleich sind",
+        "ja": "可逆反応において、正反応と逆反応の速度が等しい状態",
+        "ru": "Состояние в обратимой реакции, когда скорости прямой и обратной реакций равны"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "application": "pharmaceutical_chemistry",
+      "name": {
+        "zh": "药物化学",
+        "en": "Pharmaceutical Chemistry",
+        "de": "Pharmazeutische Chemie",
+        "ja": "医薬品化学",
+        "ru": "Фармацевтическая химия"
+      },
+      "description": {
+        "zh": "应用化学原理设计和合成药物的学科",
+        "en": "The discipline that applies chemical principles to design and synthesize drugs",
+        "de": "Die Disziplin, die chemische Prinzipien zur Entwicklung und Synthese von Arzneimitteln anwendet",
+        "ja": "化学的原理を応用して薬物を設計・合成する学問",
+        "ru": "Дисциплина, применяющая химические принципы для проектирования и синтеза лекарственных средств"
+      }
+    },
+    {
+      "application": "materials_science",
+      "name": {
+        "zh": "材料科学",
+        "en": "Materials Science",
+        "de": "Materialwissenschaft",
+        "ja": "材料科学",
+        "ru": "Материаловедение"
+      },
+      "description": {
+        "zh": "研究材料的结构、性质、制备和应用的跨学科领域",
+        "en": "An interdisciplinary field that studies the structure, properties, preparation, and applications of materials",
+        "de": "Ein interdisziplinäres Feld, das die Struktur, Eigenschaften, Herstellung und Anwendungen von Materialien untersucht",
+        "ja": "材料の構造、性質、調製、応用を研究する学際的分野",
+        "ru": "Междисциплинарная область, изучающая структуру, свойства,制备 и применение материалов"
+      }
+    }
+  ]
+}

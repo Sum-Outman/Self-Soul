@@ -1,0 +1,160 @@
+{
+  "domain": "history",
+  "name": {
+    "en": "History",
+    "zh": "历史学",
+    "de": "Geschichte",
+    "ja": "歴史学",
+    "ru": "История"
+  },
+  "description": {
+    "en": "Comprehensive historical knowledge covering world civilizations, major events, and historical analysis",
+    "zh": "全面的历史知识，涵盖世界文明、重大事件和历史分析",
+    "de": "Umfassendes historisches Wissen über Weltzivilisationen, bedeutende Ereignisse und historische Analyse",
+    "ja": "世界の文明、主要な出来事、歴史的分析を網羅する包括的な歴史知識",
+    "ru": "Всесторонние исторические знания, охватывающие мировые цивилизации, основные события и исторический анализ"
+  },
+  "concepts": [
+    {
+      "id": "ancient_civilizations",
+      "name": {
+        "en": "Ancient Civilizations",
+        "zh": "古代文明",
+        "de": "Antike Zivilisationen",
+        "ja": "古代文明",
+        "ru": "Древние цивилизации"
+      },
+      "description": {
+        "en": "Early human civilizations including Mesopotamia, Egypt, Indus Valley, and China",
+        "zh": "早期人类文明，包括美索不达米亚、埃及、印度河流域和中国",
+        "de": "Frühe menschliche Zivilisationen einschließlich Mesopotamien, Ägypten, Indus-Tal und China",
+        "ja": "メソポタミア、エジプト、インダス文明、中国を含む初期人類文明",
+        "ru": "Ранние человеческие цивилизации, включая Месопотамию, Египет, долину Инда и Китай"
+      },
+      "examples": [
+        "Sumerian cuneiform writing",
+        "Egyptian pyramids construction",
+        "Indus Valley urban planning",
+        "Chinese bronze age technology"
+      ]
+    },
+    {
+      "id": "world_wars",
+      "name": {
+        "en": "World Wars",
+        "zh": "世界大战",
+        "de": "Weltkriege",
+        "ja": "世界大戦",
+        "ru": "Мировые войны"
+      },
+      "description": {
+        "en": "Major global conflicts of the 20th century with profound impacts on world order",
+        "zh": "20世纪的主要全球冲突，对世界秩序产生深远影响",
+        "de": "Große globale Konflikte des 20. Jahrhunderts mit tiefgreifenden Auswirkungen auf die Weltordnung",
+        "ja": "世界秩序に深遠な影響を与えた20世紀の主要な世界的紛争",
+        "ru": "Крупные глобальные конфликты XX века с глубоким влиянием на мировой порядок"
+      },
+      "examples": [
+        "Treaty of Versailles consequences",
+        "Technological advancements in warfare",
+        "Geopolitical realignment post-war",
+        "Formation of United Nations"
+      ]
+    },
+    {
+      "id": "historical_methodology",
+      "name": {
+        "en": "Historical Methodology",
+        "zh": "历史方法论",
+        "de": "Historische Methodik",
+        "ja": "歴史的方法論",
+        "ru": "Историческая методология"
+      },
+      "description": {
+        "en": "Techniques and principles for historical research and analysis",
+        "zh": "历史研究和分析的技术与原则",
+        "de": "Techniken und Prinzipien für historische Forschung und Analyse",
+        "ja": "歴史的研究と分析のための技術と原則",
+        "ru": "Техники и принципы исторического исследования и анализа"
+      },
+      "examples": [
+        "Primary source analysis",
+        "Archaeological dating methods",
+        "Oral history techniques",
+        "Historical interpretation frameworks"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "historical_causality",
+      "name": {
+        "en": "Historical Causality",
+        "zh": "历史因果关系",
+        "de": "Historische Kausalität",
+        "ja": "歴史的因果関係",
+        "ru": "Историческая причинность"
+      },
+      "description": {
+        "en": "Understanding cause and effect relationships in historical events",
+        "zh": "理解历史事件中的因果关系",
+        "de": "Verständnis von Ursache-Wirkungs-Beziehungen in historischen Ereignissen",
+        "ja": "歴史的出来事における因果関係の理解",
+        "ru": "Понимание причинно-следственных связей в исторических событиях"
+      }
+    },
+    {
+      "id": "historical_context",
+      "name": {
+        "en": "Historical Context",
+        "zh": "历史背景",
+        "de": "Historischer Kontext",
+        "ja": "歴史的文脈",
+        "ru": "Исторический контекст"
+      },
+      "description": {
+        "en": "Importance of understanding events within their proper historical setting",
+        "zh": "在适当的历史背景下理解事件的重要性",
+        "de": "Bedeutung des Verständnisses von Ereignissen in ihrem richtigen historischen Rahmen",
+        "ja": "適切な歴史的背景の中で出来事を理解する重要性",
+        "ru": "Важность понимания событий в их надлежащем историческом контексте"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "historical_analysis",
+      "name": {
+        "en": "Historical Analysis",
+        "zh": "历史分析",
+        "de": "Historische Analyse",
+        "ja": "歴史的分析",
+        "ru": "Исторический анализ"
+      },
+      "description": {
+        "en": "Applying historical knowledge to understand current events and trends",
+        "zh": "应用历史知识理解当前事件和趋势",
+        "de": "Anwendung historischen Wissens zum Verständnis aktueller Ereignisse und Trends",
+        "ja": "現在の出来事や傾向を理解するための歴史的知識の応用",
+        "ru": "Применение исторических знаний для понимания текущих событий и тенденций"
+      }
+    },
+    {
+      "id": "cultural_heritage",
+      "name": {
+        "en": "Cultural Heritage Preservation",
+        "zh": "文化遗产保护",
+        "de": "Bewahrung des kulturellen Erbes",
+        "ja": "文化遺産の保存",
+        "ru": "Сохранение культурного наследия"
+      },
+      "description": {
+        "en": "Protecting and preserving historical artifacts and cultural traditions",
+        "zh": "保护和保存历史文物和文化传统",
+        "de": "Schutz und Erhaltung historischer Artefakte und kultureller Traditionen",
+        "ja": "歴史的遺物と文化的伝統の保護と保存",
+        "ru": "Защита и сохранение исторических артефактов и культурных традиций"
+      }
+    }
+  ]
+}

@@ -33,16 +33,19 @@
   --secondary-hover: #666666;
   --accent-color: #888888;
   --accent-hover: #777777;
-  --success-color: #666666;
-  --warning-color: #888888;
-  --error-color: #999999;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --error-color: #f44336;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
   --border-radius-sm: 4px;
   --border-radius: 8px;
+  --border-radius-md: 8px;
   --border-radius-lg: 12px;
   --transition: all 0.2s ease-in-out;
+  --transition-fast: all 0.1s ease-in-out;
+  --font-family: 'Noto Sans SC', 'Segoe UI', sans-serif;
 }
 
 /* 强制使用浅色模式，移除深色模式支持 */

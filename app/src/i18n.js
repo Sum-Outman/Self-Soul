@@ -26,7 +26,7 @@ const messages = {
 // 统一的多语言词典管理系统
 const i18n = createI18n({
   legacy: false,  // 修改为false，支持composition API
-  locale: localStorage.getItem('user-language') || 'zh', // 默认使用中文
+  locale: localStorage.getItem('user-language') || 'en', // 默认使用英文
   fallbackLocale: 'en',
   messages
 })

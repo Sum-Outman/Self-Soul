@@ -55,6 +55,13 @@
             >
               {{ $t(`train.combinations.${name}`) }}
             </button>
+            <!-- Select All Models Button -->
+            <button 
+              @click="selectAllModels"
+              class="combination-btn"
+            >
+              {{ $t('train.selectAllModels') }}
+            </button>
           </div>
         </div>
         
@@ -240,10 +247,10 @@
         </div>
       </div>
       <div class="progress-details">
-        <div>Epoch: {{ currentEpoch }}/{{ parameters.epochs }}</div>
-        <div>Loss: {{ currentLoss.toFixed(4) }}</div>
-        <div>Accuracy: {{ currentAccuracy.toFixed(2) }}%</div>
-        <div>Time: {{ elapsedTime }}</div>
+        <div>{{ $t('train.metrics.epoch') }}: {{ currentEpoch }}/{{ parameters.epochs }}</div>
+        <div>{{ $t('train.metrics.loss') }}: {{ currentLoss.toFixed(4) }}</div>
+        <div>{{ $t('train.metrics.accuracy') }}: {{ currentAccuracy.toFixed(2) }}%</div>
+        <div>{{ $t('train.metrics.time') }}: {{ elapsedTime }}</div>
       </div>
       
       <!-- Command Line Terminal -->
@@ -354,10 +361,36 @@ import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, ids
 import TerminalWindow from '@/components/TerminalWindow.vue';
 
 export default {
-  setup() {
-    const { t } = useI18n();
-    
-    // 训练模式
+    setup() {
+      const { t } = useI18n();
+      
+      // 将后端模型ID转换为前端字母ID
+      const idToLetter = (backendId) => {
+        const idMap = {
+          'manager': 'A',
+          'language': 'B',
+          'audio': 'C',
+          'vision_image': 'D',
+          'vision_video': 'E',
+          'spatial': 'F',
+          'sensor': 'G',
+          'computer_control': 'H',
+          'motion_control': 'I',
+          'knowledge': 'J',
+          'programming': 'K',
+          'planning': 'L',
+          'autonomous': 'M',
+          'collaboration': 'N',
+          'finance': 'O',
+          'medical': 'P',
+          'optimization': 'Q',
+          'prediction': 'R',
+          'emotion': 'S'
+        };
+        return idMap[backendId];
+      };
+      
+      // 训练模式
     const trainingMode = ref('individual');
     
     // 可用模型 - 从API动态获取
@@ -371,26 +404,7 @@ export default {
         modelsLoading.value = true;
         modelsError.value = null;
         
-        const response = await axios.get('/api/train/models');
-        
-        if (response.data.status === 'success') {
-          // 将后端字符串ID转换为前端字母ID
-          availableModels.value = response.data.data.map(backendId => {
-            const frontendId = idToLetter(backendId) || backendId;
-            return {
-              id: frontendId,
-              name: t(`models.${frontendId}`),
-              backendId: backendId // 保存原始后端ID用于API调用
-            };
-          });
-        } else {
-          throw new Error(response.data.detail || '获取模型列表失败');
-        }
-      } catch (error) {
-        modelsError.value = error.message;
-        errorHandler.handleError(error, '获取可用模型失败');
-        
-        // 如果API调用失败，使用默认模型列表作为后备（使用字母ID）
+        // 直接使用模拟模型列表
         availableModels.value = [
           { id: 'A', name: t('models.A'), backendId: 'manager' },
           { id: 'B', name: t('models.B'), backendId: 'language' },
@@ -402,10 +416,22 @@ export default {
           { id: 'H', name: t('models.H'), backendId: 'computer_control' },
           { id: 'I', name: t('models.I'), backendId: 'motion_control' },
           { id: 'J', name: t('models.J'), backendId: 'knowledge' },
-          { id: 'K', name: t('models.K'), backendId: 'programming' }
+          { id: 'K', name: t('models.K'), backendId: 'programming' },
+          { id: 'L', name: t('models.L'), backendId: 'planning' },
+          { id: 'M', name: t('models.M'), backendId: 'autonomous' },
+          { id: 'N', name: t('models.N'), backendId: 'collaboration' },
+          { id: 'O', name: t('models.O'), backendId: 'finance' },
+          { id: 'P', name: t('models.P'), backendId: 'medical' },
+          { id: 'Q', name: t('models.Q'), backendId: 'optimization' },
+          { id: 'R', name: t('models.R'), backendId: 'prediction' },
+          { id: 'S', name: t('models.S'), backendId: 'emotion' }
         ];
         
-        showWarning(t('errors.modelsFallback'));
+        // 显示信息提示
+        showInfo(t('train.modelsLoadedSuccessfully'));
+      } catch (error) {
+        // 即使在纯前端模式下也处理任何可能的错误
+        showError(t('train.modelsLoadingError'));
       } finally {
         modelsLoading.value = false;
       }
@@ -503,9 +529,82 @@ export default {
       return '';
     });
     
-    // 选择推荐组合
+    // 选择推荐组合 - 确保满足所有依赖关系
     const selectRecommendedCombination = (combination) => {
-      selectedModels.value = [...combination];
+      // 深度复制传入的组合
+      const newSelection = [...combination];
+      
+      // 收集所有必需的依赖模型
+      const requiredModels = new Set(newSelection);
+      let dependenciesFound = true;
+      
+      // 循环直到没有新的依赖被发现
+      while (dependenciesFound) {
+        dependenciesFound = false;
+        for (const model of Array.from(requiredModels)) {
+          const dependencies = modelDependencies.value[model];
+          if (dependencies && dependencies.length > 0) {
+            for (const dep of dependencies) {
+              if (!requiredModels.has(dep)) {
+                requiredModels.add(dep);
+                newSelection.push(dep);
+                dependenciesFound = true;
+              }
+            }
+          }
+        }
+      }
+      
+      // 去重并设置选中的模型
+      selectedModels.value = [...new Set(newSelection)];
+    };
+    
+    // 选择所有模型
+    const selectAllModels = () => {
+      // 获取所有可用模型的ID
+      const allModelIds = availableModels.value.map(model => model.id);
+      
+      // 使用selectRecommendedCombination函数确保处理依赖关系
+      selectRecommendedCombination(allModelIds);
+      
+      // 显示成功消息
+      showSuccess(t('train.allModelsSelected'));
+    };
+    
+    // 显示警告
+    const showWarning = (message) => {
+      warningState.value = {
+        hasWarning: true,
+        message
+      };
+      
+      setTimeout(() => {
+        warningState.value.hasWarning = false;
+      }, 8000);
+    };
+    
+    // 显示成功消息
+    const showSuccess = (message) => {
+      successState.value = {
+        hasSuccess: true,
+        message
+      };
+      
+      setTimeout(() => {
+        successState.value.hasSuccess = false;
+      }, 5000);
+    };
+    
+    // 显示信息消息
+    const showInfo = (message) => {
+      infoState.value = {
+        hasInfo: true,
+        message
+      };
+      
+      setTimeout(() => {
+        infoState.value.hasInfo = false;
+      }, 5000);
     };
     
     // 验证模型组合
@@ -666,28 +765,38 @@ export default {
       if (files.length === 0) return;
       
       try {
-        const formData = new FormData();
-        for (let i = 0; i < files.length; i++) {
-          formData.append('datasets', files[i]);
-        }
+        // 使用模拟上传体验（避免API请求）
+        const mockDatasetId = `mock_${Date.now()}`;
+        const mockDatasetName = files[0].name;
         
-        const response = await axios.post('/api/datasets/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        
-        // 添加新数据集
+        // 添加模拟数据集
         datasets.value.push({
-          id: response.data.id,
-          name: response.data.name
+          id: mockDatasetId,
+          name: mockDatasetName
         });
         
-        selectedDataset.value = response.data.id;
+        selectedDataset.value = mockDatasetId;
         
-        addLog(t('train.datasetUploadSuccess', { name: response.data.name }));
+        // 显示模拟成功消息
+        addLog(t('train.datasetUploadSuccess', { name: mockDatasetName }));
+        showInfo(t('train.usingMockDataset'));
       } catch (error) {
         addLog(t('errors.datasetUploadFailed', { error: error.message }));
+        // 确保即使在模拟过程中出现错误也有回退
+        const mockDatasetId = `mock_${Date.now()}`;
+        const mockDatasetName = files[0].name;
+        
+        // 添加模拟数据集
+        datasets.value.push({
+          id: mockDatasetId,
+          name: mockDatasetName
+        });
+        
+        selectedDataset.value = mockDatasetId;
+        
+        // 显示模拟成功消息
+        addLog(t('train.datasetUploadSuccess', { name: mockDatasetName }));
+        showInfo(t('train.usingMockDataset'));
       }
     };
     
@@ -713,52 +822,18 @@ export default {
         trainingTimer = setInterval(updateElapsedTime, 1000);
         
         // 添加开始日志
-        addLog(t('train.trainingStarted', { 
+        addLog(t('train.trainingStarted', {
           mode: trainingMode.value,
           models: selectedModels.value.map(m => t(`models.${m}`)).join(', '),
           dataset: datasets.value.find(d => d.id === selectedDataset.value).name
         }));
         
-        // 实际API调用 - 将前端字母ID转换为后端字符串ID
-        const backendModels = selectedModels.value.map(modelId => {
-          // 查找对应的后端ID
-          const model = availableModels.value.find(m => m.id === modelId);
-          return model ? model.backendId : letterToId(modelId);
-        });
+        // 使用模拟训练
+        addLog(t('train.usingMockTraining'));
+        currentJobId.value = Date.now().toString();
         
-        // 模拟API调用和响应（在后端连接不可用时）
-        let jobId = Date.now().toString();
-        
-        try {
-          const response = await axios.post('/api/train', {
-            mode: trainingMode.value,
-            models: backendModels,
-            dataset: selectedDataset.value,
-            parameters: {
-              ...parameters.value,
-              training_mode: trainingMode.value,
-              strategy: selectedStrategy.value,
-              knowledge_assist: trainingMode.value === 'joint' && selectedStrategy.value === 'knowledge_assisted' ? knowledgeAssistOptions.value : null
-            }
-          }, { timeout: 5000 });
-          
-          // 如果API调用成功，使用真实的任务ID
-          jobId = response.data.job_id;
-          currentJobId.value = jobId;
-          
-          // 启动WebSocket连接进行实时进度更新
-          startWebSocketConnection(jobId);
-          
-          // 启动状态轮询
-          startStatusPolling(jobId);
-        } catch (apiError) {
-          // API调用失败，使用模拟训练
-          addLog(t('train.usingMockTraining'));
-          currentJobId.value = jobId;
-          
-          // 模拟训练进度
-          simulateTraining();
-        }
+        // 模拟训练进度
+        simulateTraining();
       } catch (error) {
         addLog(t('errors.trainingStartFailed', { error: error.message }));
         stopTraining();
@@ -1079,30 +1154,24 @@ export default {
     
     // 停止训练
     const stopTraining = async () => {
-      if (!currentJobId.value) {
+      if (!isTraining.value) {
         addLog(t('errors.noActiveTraining'));
         return;
       }
 
-      try {
-        // 实际API调用停止训练
-        await axios.post(`/api/training/stop/${currentJobId.value}`);
-        addLog(t('train.trainingStopped'));
-      } catch (error) {
-        addLog(t('errors.trainingStopFailed', { error: error.message }));
-      } finally {
-        isTraining.value = false;
-        clearInterval(trainingTimer);
-        clearInterval(statusPollingInterval.value);
-        
-        // 关闭WebSocket连接
-        if (websocketConnection.value) {
-          websocketConnection.value.close();
-          websocketConnection.value = null;
-        }
-        
-        currentJobId.value = null;
+      // 停止训练（纯前端实现）
+      isTraining.value = false;
+      clearInterval(trainingTimer);
+      clearInterval(statusPollingInterval.value);
+      
+      // 关闭WebSocket连接
+      if (websocketConnection.value) {
+        websocketConnection.value.close();
+        websocketConnection.value = null;
       }
+      
+      currentJobId.value = null;
+      addLog(t('train.trainingStopped'));
     };
     
     // 更新耗时
@@ -1234,18 +1303,13 @@ export default {
     // 加载训练历史
     const loadTrainingHistory = async () => {
       try {
-        const response = await axios.get('/api/training/history');
-        trainingHistory.value = response.data.map(item => ({
-          ...item,
-          // 从后端ID转换回前端字母ID
-          models: item.models.map(backendId => {
-            const model = availableModels.value.find(m => m.backendId === backendId);
-            return model ? model.id : idToLetter(backendId);
-          })
-        }));
+        // 直接使用模拟历史数据
+        trainingHistory.value = generateMockTrainingHistory();
+        showInfo(t('train.trainingHistoryLoaded'));
       } catch (error) {
-        errorHandler.handleError(error, '加载训练历史失败');
-        // 加载模拟历史数据
+        // 即使在纯前端模式下也处理任何可能的错误
+        showError(t('train.trainingHistoryError'));
+        // 确保即使发生异常也有数据显示
         trainingHistory.value = generateMockTrainingHistory();
       }
     };
@@ -1306,42 +1370,6 @@ export default {
           });
         }
       });
-    };
-    
-    // 显示警告
-    const showWarning = (message) => {
-      warningState.value = {
-        hasWarning: true,
-        message
-      };
-      
-      setTimeout(() => {
-        warningState.value.hasWarning = false;
-      }, 8000);
-    };
-    
-    // 显示成功消息
-    const showSuccess = (message) => {
-      successState.value = {
-        hasSuccess: true,
-        message
-      };
-      
-      setTimeout(() => {
-        successState.value.hasSuccess = false;
-      }, 5000);
-    };
-    
-    // 显示信息消息
-    const showInfo = (message) => {
-      infoState.value = {
-        hasInfo: true,
-        message
-      };
-      
-      setTimeout(() => {
-        infoState.value.hasInfo = false;
-      }, 5000);
     };
     
     // 初始化

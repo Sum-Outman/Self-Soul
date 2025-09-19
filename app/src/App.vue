@@ -16,15 +16,11 @@
         </select>
         
         <!-- Function Buttons -->
-        <router-link to="/" class="menu-link">
-          {{ $t('main.tabs.interaction') || '交互对话' }}
-        </router-link>
+        <router-link to="/" class="menu-link">          {{ $t('main.tabs.interaction') }}        </router-link>
         <router-link to="/training" class="menu-link">
           {{ $t('main.tabs.training') }}
         </router-link>
-        <router-link to="/knowledge" class="menu-link">
-          {{ $t('main.tabs.knowledge') || '知识管理' }}
-        </router-link>
+        <router-link to="/knowledge" class="menu-link">          {{ $t('main.tabs.knowledge') }}        </router-link>
         <router-link to="/settings" class="menu-link">
           {{ $t('main.tabs.settings') }}
         </router-link>
@@ -48,9 +44,7 @@
         <span v-if="!recognitionInProgress">🎤</span>
         <span v-else class="pulse-animation">🎤</span>
       </button>
-      <div class="voice-status" v-if="recognitionInProgress">
-        {{ $t('voice.listening') || '正在聆听...' }}
-      </div>
+      <div class="voice-status" v-if="recognitionInProgress">          {{ $t('voice.listening') || 'Listening...' }}        </div>
     </div>
   </div>
 </template>
@@ -107,18 +101,18 @@ export default {
         } else {
           // 自动检测浏览器语言
           detectAndSetBrowserLanguage()
-          // 设置当前语言为检测到的语言或默认中文
-          currentLanguage.value = i18n.global.locale.value || 'zh'
+          // 设置当前语言为检测到的语言或默认英文
+          currentLanguage.value = i18n.global.locale.value || 'en'
           switchLanguage(currentLanguage.value)
         }
         
         errorHandler.logInfo('语言设置已初始化:', currentLanguage.value)
       } catch (error) {
         errorHandler.handleWarning('初始化语言设置时出错:', error)
-        // 出错时默认使用中文
-        currentLanguage.value = 'zh'
-        switchLanguage('zh')
-        localStorage.setItem('user-language', 'zh')
+        // 出错时默认使用英文
+        currentLanguage.value = 'en'
+        switchLanguage('en')
+        localStorage.setItem('user-language', 'en')
       }
     }
     

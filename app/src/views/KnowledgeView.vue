@@ -287,12 +287,12 @@ export default {
         }
         searchPerformed.value = true;
       } catch (error) {
-        errorHandler.handleError('搜索知识库失败:', error);
+        errorHandler.handleError(t('knowledge.searchKnowledgeFailed'), error);
         // 使用模拟搜索结果作为回退
         searchResults.value = getMockSearchResults(searchQuery.value, searchDomain.value);
         searchPerformed.value = true;
         isRealAPI.value = false;
-        showSystemMessage('使用模拟搜索结果，API连接异常。');
+        showSystemMessage(t('knowledge.usingMockSearch'));
       }
     };
 
@@ -301,17 +301,17 @@ export default {
       const mockResults = [
         {
           domain: 'computer_science',
-          content: `关于"${query}"的搜索结果：人工智能是计算机科学的一个分支，致力于创建能够执行通常需要人类智能的任务的系统。`,
+          content: t('knowledge.mockResult1', { query }),
           source: '人工智能导论.pdf'
         },
         {
           domain: 'computer_science',
-          content: `"${query}"相关技术：机器学习是人工智能的核心，使计算机能够从数据中学习并做出预测。`,
+          content: t('knowledge.mockResult2', { query }),
           source: '机器学习基础.docx'
         },
         {
           domain: 'computer_science', 
-          content: `深度学习和"${query}"：深度学习是机器学习的一个子领域，使用神经网络来模拟人脑的工作方式。`,
+          content: t('knowledge.mockResult3', { query }),
           source: '深度学习技术.pptx'
         }
       ];
@@ -332,15 +332,49 @@ export default {
           knowledgeStats.value = response.data;
         }
       } catch (error) {
-        errorHandler.handleError('Failed to load knowledge statistics:', error);
+        errorHandler.handleError(t('knowledge.loadStatsFailed'), error);
+        // 使用模拟统计数据作为回退
+        knowledgeStats.value = getMockKnowledgeStats();
+        showSystemMessage(t('knowledge.usingMockStats'));
       }
       statsLoading.value = false;
+    };
+
+    // 模拟知识统计数据
+    const getMockKnowledgeStats = () => {
+      return {
+        total_domains: 9,
+        total_items: 50,
+        total_size: 15000000,
+        domains: {
+          computer_science: {
+            item_count: 20,
+            last_updated: new Date().toISOString()
+          },
+          mathematics: {
+            item_count: 8,
+            last_updated: new Date().toISOString()
+          },
+          physics: {
+            item_count: 7,
+            last_updated: new Date().toISOString()
+          },
+          chemistry: {
+            item_count: 5,
+            last_updated: new Date().toISOString()
+          },
+          biology: {
+            item_count: 10,
+            last_updated: new Date().toISOString()
+          }
+        }
+      };
     };
 
     const formatFileSize = (bytes) => {
       if (bytes === 0) return '0 B';
       const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const sizes = [t('knowledge.sizeB'), t('knowledge.sizeKB'), t('knowledge.sizeMB'), t('knowledge.sizeGB')];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
@@ -472,11 +506,11 @@ export default {
           showSystemMessage('文件列表为空');
         }
       } catch (error) {
-        errorHandler.handleError('加载文件列表失败:', error);
+        errorHandler.handleError(t('knowledge.loadFilesFailed'), error);
         // 使用模拟数据作为回退
         files.value = getMockFiles();
         filterFiles();
-        showSystemMessage('使用本地模拟文件列表，API连接异常。');
+        showSystemMessage(t('knowledge.usingMockFiles'));
         isRealAPI.value = false;
       }
       filesLoading.value = false;
@@ -522,7 +556,7 @@ export default {
         // In a real app, this would use a notification system
         console.log('[System]', message);
         // Simple alert as fallback
-        setTimeout(() => alert(`System: ${message}`), 100);
+        setTimeout(() => alert(`${t('knowledge.systemPrefix')}${message}`), 100);
       }
     };
 
@@ -548,7 +582,7 @@ export default {
           openPreview(file);
         }
       } catch (error) {
-        errorHandler.handleError('查看文件失败:', error);
+        errorHandler.handleError(t('knowledge.viewFileFailed'), error);
         showSystemMessage(`无法查看文件: ${file.name}`);
         // Fallback to preview modal
         openPreview(file);
@@ -611,7 +645,7 @@ export default {
           throw new Error('Failed to load file content');
         }
       } catch (error) {
-        errorHandler.handleError('加载文件预览失败:', error);
+          errorHandler.handleError(t('knowledge.previewLoadFailed'), error);
         previewError.value = true;
         // For mock files or when API fails, show simulated content
         if (isTextFile(file)) {
@@ -634,10 +668,10 @@ export default {
     const copyText = async () => {
       try {
         await navigator.clipboard.writeText(currentFileContent.value);
-        showSystemMessage('文本已复制到剪贴板');
-      } catch (error) {
-        errorHandler.handleError('复制文本失败:', error);
-        showSystemMessage('复制文本失败');
+          showSystemMessage(t('knowledge.textCopied'));
+        } catch (error) {
+          errorHandler.handleError(t('knowledge.copyTextFailed'), error);
+          showSystemMessage(t('knowledge.copyTextFailedMessage'));
       }
     };
 
@@ -671,7 +705,7 @@ export default {
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`下载失败: ${response.status}`);
+          throw new Error(`${t('knowledge.downloadFailed')} ${response.status}`);
         }
         
         const blob = await response.blob();
@@ -684,12 +718,12 @@ export default {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
-        showSystemMessage(`文件下载成功: ${file.name}`);
+        showSystemMessage(`${t('knowledge.downloadSuccess')} ${file.name}`);
       } catch (error) {
-        errorHandler.handleError('下载文件失败:', error);
+        errorHandler.handleError(t('knowledge.downloadError'), error);
         // If timeout or other error, try to simulate download
         if (error.name === 'AbortError' || !error.response) {
-          showSystemMessage(`模拟下载文件: ${file.name}`);
+          showSystemMessage(`${t('knowledge.mockDownload')} ${file.name}`);
           // Create a dummy blob for simulation
           const blob = new Blob(['This is a simulated file content.'], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
@@ -701,7 +735,7 @@ export default {
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
         } else {
-          showSystemMessage(`无法下载文件: ${file.name}`);
+          showSystemMessage(`${t('knowledge.cannotDownload')} ${file.name}`);
         }
       }
     };
@@ -727,7 +761,7 @@ export default {
         if (fileToDelete.value.id && fileToDelete.value.id.startsWith('mock_')) {
           files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
           filterFiles();
-          showSystemMessage(`模拟删除文件: ${fileToDelete.value.name}`);
+          showSystemMessage(`${t('knowledge.mockDelete')} ${fileToDelete.value.name}`);
           showDeleteModal.value = false;
           fileToDelete.value = null;
           return;
@@ -740,16 +774,16 @@ export default {
           // Remove file from list
           files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
           filterFiles();
-          showSystemMessage(`文件删除成功: ${fileToDelete.value.name}`);
+          showSystemMessage(`${t('knowledge.deleteSuccess')} ${fileToDelete.value.name}`);
         } else {
-          showSystemMessage(`文件删除失败: ${fileToDelete.value.name}`);
+          showSystemMessage(`${t('knowledge.deleteFailed')} ${fileToDelete.value.name}`);
         }
       } catch (error) {
-        errorHandler.handleError('删除文件失败:', error);
+        errorHandler.handleError(t('knowledge.deleteError'), error);
         // Even if server fails, remove from local list for better UX
         files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
         filterFiles();
-        showSystemMessage(`本地删除文件: ${fileToDelete.value.name}`);
+        showSystemMessage(`${t('knowledge.localDelete')} ${fileToDelete.value.name}`);
       }
       showDeleteModal.value = false;
       fileToDelete.value = null;
@@ -822,16 +856,16 @@ export default {
             });
             
             if (response.data.success) {
-              showSystemMessage(`文件上传成功: ${file.name}`);
+              showSystemMessage(`${t('knowledge.uploadSuccess')} ${file.name}`);
               // Refresh file list
               loadFiles();
             } else {
-              showSystemMessage(`文件上传失败: ${file.name}`);
+              showSystemMessage(`${t('knowledge.uploadFailed')} ${file.name}`);
             }
           } catch (error) {
-            errorHandler.handleError('上传文件失败:', error);
+            errorHandler.handleError(t('knowledge.uploadError'), error);
             // Simulate successful upload for demo purposes
-            showSystemMessage(`模拟上传成功: ${file.name}`);
+            showSystemMessage(`${t('knowledge.mockUploadSuccess')} ${file.name}`);
             // Add mock file to list
             const mockFile = {
               id: 'mock_' + Date.now(),
@@ -847,8 +881,8 @@ export default {
           clearInterval(progressInterval);
           uploadProgress.value = 100;
         } catch (error) {
-          errorHandler.handleError('处理文件时出错:', error);
-          showSystemMessage(`处理文件时出错: ${file.name}`);
+          errorHandler.handleError(t('knowledge.processFileError'), error);
+          showSystemMessage(`${t('knowledge.processFileErrorMessage')} ${file.name}`);
         } finally {
           // Reset upload state after a short delay to show 100% progress
           setTimeout(() => {

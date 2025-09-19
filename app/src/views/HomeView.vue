@@ -5,24 +5,14 @@
     
     <!-- 页面内容区域 -->
     
-    <!-- 模型连接状态区域 -->
-    <div class="model-status-area">
-      <h3>{{ $t('home.modelConnectionStatus') }}</h3>
-      <div class="connected-models">
-        <div class="main-model-status">
+    <div class="input-area">
+      <div class="conversation-header">
+        <h2>{{ $t('home.conversation') }}</h2>
+        <div class="main-model-status inline-status">
           <span class="model-name">{{ $t('home.managementModel') }}</span>
           <span class="status-indicator" :class="modelConnectionStatus"></span>
           <span class="status-text">{{ modelConnectionStatus === 'connected' ? $t('home.connectedText') : modelConnectionStatus === 'connecting' ? $t('home.connectingText') : $t('home.disconnectedText') }}</span>
         </div>
-        <div class="active-models">
-          <span>{{ $t('home.activeModels') }}: {{ activeModelsCount }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-area">
-      <div class="conversation-header">
-        <h2>{{ $t('home.conversation') }}</h2>
         <button @click="clearAllMessages" class="clear-btn" :disabled="messages.length === 0">
           {{ $t('home.clearAllMessages') }}
         </button>
@@ -41,8 +31,8 @@
                :placeholder="$t('home.typeMessage')">
         <button @click="sendMessage">{{ $t('home.send') }}</button>
         <div class="input-options">
-          <button disabled title="请使用右上角的全局语音输入">
-            {{ $t('home.voiceInput') }}
+          <button @click="startVoiceRecognition" :disabled="isVoiceInputActive">
+            {{ isVoiceInputActive ? $t('home.stopVoiceInput') : $t('home.voiceInput') }}
           </button>
           <button @click="selectImage">{{ $t('home.imageInput') }}</button>
           <input type="file" ref="imageInput" style="display: none"
@@ -109,7 +99,29 @@ export default {
         { id: 'knowledge', status: 'active', performance: 89 },
         { id: 'programming', status: 'active', performance: 91 }
       ],
-      modelConnectionStatus: 'connected'
+      // models数组与modelPerformanceData保持同步
+      models: [
+        { id: 'manager', status: 'active', performance: 95 },
+        { id: 'language', status: 'active', performance: 92 },
+        { id: 'audio', status: 'active', performance: 88 },
+        { id: 'vision_image', status: 'active', performance: 90 },
+        { id: 'vision_video', status: 'active', performance: 85 },
+        { id: 'spatial', status: 'active', performance: 82 },
+        { id: 'sensor', status: 'active', performance: 87 },
+        { id: 'computer', status: 'active', performance: 93 },
+        { id: 'motion', status: 'active', performance: 80 },
+        { id: 'knowledge', status: 'active', performance: 89 },
+        { id: 'programming', status: 'active', performance: 91 }
+      ],
+      modelConnectionStatus: 'unknown',
+      // 添加缺失的状态
+      managementModel: {
+        name: 'A Management Model',
+        status: 'inactive',
+        lastActive: null
+      },
+      connectedText: '',
+      activeModels: 0
     };
   },
   mounted() {
@@ -132,17 +144,129 @@ export default {
     // 组件卸载时移除事件监听
     window.removeEventListener('voice-input', this.handleVoiceInputEvent);
   },
-      computed: {
-        // 计算活跃模型数量
-        activeModelsCount() {
-          return this.modelPerformanceData.filter(model => model.status === 'active').length;
-        }
+    computed: {
+      // 计算活跃模型数量
+      activeModelsCount() {
+        const count = this.modelPerformanceData.filter(model => model.status === 'active').length;
+        // 同步更新activeModels属性
+        this.activeModels = count;
+        return count;
       },
+      // 管理模型状态文本
+      managementModelStatusText() {
+        return this.managementModel.status === 'active' ? 
+          this.$t('home.connectedText') : 
+          this.$t('home.disconnectedText');
+      },
+      // 整体模型连接状态
+      overallModelConnectionStatus() {
+        if (this.backendConnected && this.managementModel.status === 'active') {
+          return this.$t('home.connectedText');
+        } else if (this.backendStatus === 'connecting') {
+          return this.$t('home.connectingText');
+        } else {
+          return this.$t('home.disconnectedText');
+        }
+      }
+    },
     methods: {
       // 初始化系统
-      initializeSystem() {
-        errorHandler.logInfo('AGI大脑系统初始化中...');
-      },
+    initializeSystem() {
+      errorHandler.logInfo('AGI大脑系统初始化中...');
+      // 显示欢迎消息
+      this.addSystemMessage(this.$t('home.welcomeMessage'));
+      // 初始化模拟数据
+      this.useMockData();
+    },
+    
+    // 使用模拟数据的方法
+    useMockData() {
+      // 模拟连接成功
+      setTimeout(() => {
+        this.backendConnected = true;
+        this.backendStatus = 'connected';
+        this.modelConnectionStatus = 'connected';
+        
+        // 设置管理模型为活跃状态
+        this.managementModel = {
+          name: 'A Management Model',
+          status: 'active',
+          lastActive: new Date().toISOString()
+        };
+        
+        // 更新connectedText
+        this.connectedText = this.$t('home.connectedText');
+        
+        // 设置所有模型为活跃状态
+        this.models.forEach(model => {
+          model.status = 'active';
+          model.lastActive = new Date().toISOString();
+        });
+        
+        // 更新活跃模型数量
+        this.activeModels = this.activeModelsCount;
+        
+        // 添加系统消息
+        this.addSystemMessage(this.$t('home.allModelsActivated'));
+        
+        // 模拟实时数据更新
+        // 定期随机更新一些模型的状态，模拟真实系统的数据变化
+        this.startRealTimeDataSimulation();
+      }, 1500);
+    },
+    
+    // 启动实时数据模拟
+    startRealTimeDataSimulation() {
+      // 每5-10秒随机更新一些模型的状态和性能
+      setInterval(() => {
+        // 随机选择1-3个模型进行状态或性能更新
+        const updateCount = Math.floor(Math.random() * 3) + 1;
+        const modelIndices = [...Array(this.models.length).keys()];
+        
+        // 随机打乱模型索引
+        for (let i = modelIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [modelIndices[i], modelIndices[j]] = [modelIndices[j], modelIndices[i]];
+        }
+        
+        // 更新选中的模型
+        for (let i = 0; i < updateCount; i++) {
+          const index = modelIndices[i];
+          const model = this.models[index];
+          
+          // 有30%的概率切换模型状态（如果当前不是管理模型）
+          if (model.id !== 'manager' && Math.random() < 0.3) {
+            model.status = model.status === 'active' ? 'inactive' : 'active';
+            model.lastActive = model.status === 'active' ? new Date().toISOString() : model.lastActive;
+            
+            // 添加系统消息提示模型状态变化
+            if (model.status === 'active') {
+              this.addSystemMessage(`${this.$t('home.modelActivated')}: ${model.id}`);
+            } else {
+              this.addSystemMessage(`${this.$t('home.modelDeactivated')}: ${model.id}`);
+            }
+          }
+          
+          // 有70%的概率更新模型性能值（±2范围内）
+          if (model.status === 'active' && Math.random() < 0.7) {
+            const change = (Math.random() - 0.5) * 4; // -2到+2的变化
+            model.performance = Math.max(50, Math.min(100, model.performance + change));
+          }
+        }
+        
+        // 确保管理模型始终保持活跃状态
+        const managerModel = this.models.find(m => m.id === 'manager');
+        if (managerModel) {
+          managerModel.status = 'active';
+        }
+        
+        // 同步更新modelPerformanceData
+        this.modelPerformanceData = [...this.models];
+        
+        // 手动触发activeModelsCount的重新计算
+        this.activeModels = this.activeModelsCount;
+      }, 5000 + Math.random() * 5000); // 5-10秒的随机间隔
+    },
     
     // 导航方法 - 使用Vue Router的正确方式
     navigateToTraining() {
@@ -237,6 +361,7 @@ export default {
       try {
         // 设置后端API的基础URL
         this.backendStatus = 'connecting';
+        this.modelConnectionStatus = 'connecting';
         errorHandler.logInfo('连接到后端服务...');
         
         // 模拟WebSocket连接成功（在实际环境中会连接真实后端）
@@ -244,6 +369,17 @@ export default {
           errorHandler.logInfo('WebSocket连接成功');
           this.backendConnected = true;
           this.backendStatus = 'connected';
+          this.modelConnectionStatus = 'connected';
+          
+          // 设置管理模型为活跃状态
+          this.managementModel = {
+            name: 'A Management Model',
+            status: 'active',
+            lastActive: new Date().toISOString()
+          };
+          
+          // 更新connectedText
+          this.connectedText = this.$t('home.connectedText');
           
           // 更新所有模型状态为已连接
           this.models.forEach(model => {
@@ -251,20 +387,38 @@ export default {
             model.lastActive = new Date().toISOString();
           });
           
+          // 更新活跃模型数量
+          this.activeModels = this.activeModelsCount;
+          
           // 添加连接成功的系统消息
           this.addSystemMessage(this.$t('home.backendConnected'));
         }, 1000);
       } catch (error) {
         errorHandler.handleError('Connection test failed:', error);
+        this.modelConnectionStatus = 'error';
         // 即使出错也模拟连接成功，确保界面可以正常使用
         setTimeout(() => {
           this.backendConnected = true;
           this.backendStatus = 'connected';
+          this.modelConnectionStatus = 'connected';
+          
+          // 设置管理模型为活跃状态
+          this.managementModel = {
+            name: 'A Management Model',
+            status: 'active',
+            lastActive: new Date().toISOString()
+          };
+          
+          // 更新connectedText
+          this.connectedText = this.$t('home.connectedText');
           
           this.models.forEach(model => {
             model.status = 'active';
             model.lastActive = new Date().toISOString();
           });
+          
+          // 更新活跃模型数量
+          this.activeModels = this.activeModelsCount;
           
           this.addSystemMessage(this.$t('home.backendConnected'));
         }, 1500);
@@ -278,11 +432,25 @@ export default {
           errorHandler.logInfo('HTTP connection established');
           this.backendConnected = true;
           this.backendStatus = 'connected';
+          this.modelConnectionStatus = 'connected';
+          
+          // 设置管理模型为活跃状态
+          this.managementModel = {
+            name: 'A Management Model',
+            status: 'active',
+            lastActive: new Date().toISOString()
+          };
+          
+          // 更新connectedText
+          this.connectedText = this.$t('home.connectedText');
           
           this.models.forEach(model => {
             model.status = 'active';
             model.lastActive = new Date().toISOString();
           });
+          
+          // 更新活跃模型数量
+          this.activeModels = this.activeModelsCount;
           
           this.addSystemMessage(this.$t('home.backendConnected'));
         }, 1000);
@@ -290,6 +458,7 @@ export default {
         errorHandler.handleError('HTTP connection failed:', error);
         this.backendConnected = false;
         this.backendStatus = 'error';
+        this.modelConnectionStatus = 'error';
       }
     },
     
@@ -1049,16 +1218,16 @@ How else can I help you?`;
 }
 
 .status-indicator.connected {
-    background-color: var(--text-primary); /* 深灰色 - 已连接 */
-    box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
+    background-color: #4caf50; /* 绿色 - 已连接 */
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
   }
 
   .status-indicator.connecting {
-    background-color: var(--text-secondary);
+    background-color: #ff9800; /* 橙色 - 连接中 */
   }
 
   .status-indicator.disconnected {
-    background-color: var(--text-tertiary);
+    background-color: #f44336; /* 红色 - 断开连接 */
   }
 
 .status-text {
@@ -1209,17 +1378,17 @@ How else can I help you?`;
   }
 
   .model-status-indicator.connected {
-    background-color: #4caf50;
+    background-color: var(--text-primary);
     animation: pulse 2s infinite;
   }
 
   .model-status-indicator.connecting {
-    background-color: #ff9800;
+    background-color: var(--text-secondary);
     animation: pulse 1s infinite;
   }
 
   .model-status-indicator.disconnected {
-    background-color: #f44336;
+    background-color: var(--text-tertiary);
   }
 
   @keyframes pulse {
@@ -1525,6 +1694,34 @@ How else can I help you?`;
   background: var(--bg-tertiary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+}
+
+/* 管理模型状态显示样式 */
+.conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.conversation-header > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.main-model-status.inline-status {
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.9em;
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: normal;
+  color: #333;
+  line-height: 1.2;
+  letter-spacing: normal;
 }
 
 /* 响应式设计 */

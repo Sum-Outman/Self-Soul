@@ -114,6 +114,10 @@ intrinsic_motivation_system = IntrinsicMotivationSystem()
 explainable_ai = ExplainableAI()
 value_alignment = ValueAlignment()
 
+# AGI系统协调器实例
+# AGI system coordinator instance
+agi_coordinator = AGICoordinator()
+
 # 模型模式管理相关全局变量
 # Global variables for model mode management
 _model_modes = {}

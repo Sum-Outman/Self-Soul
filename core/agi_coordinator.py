@@ -60,15 +60,34 @@ class AGICoordinator:
         self.explainable_ai = ExplainableAI()
         self.value_alignment = ValueAlignment()
         
-        # 系统状态
+        # 系统状态 - 动态评估而非硬编码
         self.system_state = {
             'status': 'initializing',
             'start_time': time.time(),
             'active_models': [],
             'performance_metrics': {},
-            'agi_level': 0.3,  # 当前AGI水平评估
-            'autonomy_level': 0.2,  # 自主性水平
-            'generalization_score': 0.4  # 泛化能力评分
+            'agi_level': self._calculate_initial_agi_level(),  # 动态计算AGI水平
+            'autonomy_level': 0.1,  # 初始自主性水平
+            'generalization_score': 0.2,  # 初始泛化能力
+            'learning_progress': 0.0,
+            'task_success_rate': 0.0,
+            'knowledge_coverage': 0.0
+        }
+        
+        # 长期记忆存储
+        self.long_term_memory = {
+            'experiences': [],
+            'learned_patterns': [],
+            'optimization_history': [],
+            'performance_history': []
+        }
+        
+        # 元认知状态
+        self.meta_cognition = {
+            'confidence_level': 0.3,
+            'knowledge_gaps': [],
+            'learning_strategies': [],
+            'self_assessment': {}
         }
         
         # 更新系统状态
@@ -82,6 +101,70 @@ class AGICoordinator:
         
         error_handler.log_info("AGI协调器初始化完成，统一认知架构已就绪", "AGICoordinator")
     
+    def _calculate_initial_agi_level(self):
+        """基于可用模型和能力动态计算初始AGI水平"""
+        try:
+            # 获取所有模型状态
+            models_status = self.model_registry.get_all_models_status()
+            if not models_status:
+                return 0.1  # 最低水平，如果没有模型
+            
+            # 计算模型覆盖率和能力分数
+            model_coverage = len(models_status) / 20  # 假设最多20种模型类型
+            capability_score = 0.0
+            
+            # 根据模型类型和能力加权计算
+            model_weights = {
+                'language': 0.15, 'audio': 0.10, 'image_vision': 0.12,
+                'video_vision': 0.08, 'sensor': 0.05, 'manager': 0.20,
+                'planning': 0.10, 'reasoning': 0.15, 'learning': 0.05
+            }
+            
+            for model_id, status in models_status.items():
+                weight = model_weights.get(model_id, 0.02)
+                # 基于模型状态调整权重（如果模型已加载且可用）
+                if status.get('loaded', False) and status.get('status') == 'active':
+                    capability_score += weight
+            
+            # 综合评分：模型覆盖率(30%) + 能力分数(50%) + 基础分(20%)
+            agi_level = (model_coverage * 0.3) + (capability_score * 0.5) + 0.2
+            return min(max(agi_level, 0.1), 1.0)  # 保持在0.1-1.0范围内
+            
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算AGI水平失败")
+            return 0.1  # 失败时返回最低水平
+    
+    def _start_autonomous_learning_loop(self):
+        """启动自主学习的后台循环"""
+        import threading
+        
+        def learning_loop():
+            while self.system_state['status'] != 'shutdown':
+                try:
+                    # 基于系统状态决定学习强度
+                    learning_intensity = max(0.1, self.system_state['agi_level'])
+                    
+                    # 运行自主学习
+                    self.self_learning.autonomous_learn(learning_intensity)
+                    
+                    # 基于性能动态调整学习间隔
+                    avg_processing_time = np.mean([
+                        metrics.get('processing_time', 1.0) 
+                        for metrics in self.system_state['performance_metrics'].values()
+                    ]) if self.system_state['performance_metrics'] else 1.0
+                    
+                    sleep_time = max(5.0, min(30.0, avg_processing_time * 2))
+                    time.sleep(sleep_time)
+                    
+                except Exception as e:
+                    error_handler.handle_error(e, "AGICoordinator", "自主学习循环异常")
+                    time.sleep(10)  # 异常时等待10秒
+        
+        # 启动后台线程
+        learning_thread = threading.Thread(target=learning_loop, daemon=True)
+        learning_thread.start()
+        error_handler.log_info("自主学习循环已启动", "AGICoordinator")
+    
     
     """
     _update_system_state函数 - 中文函数描述
@@ -94,13 +177,146 @@ class AGICoordinator:
         返回值描述 (Return value description)
     """
     def _update_system_state(self):
-        """更新系统状态"""
+        """更新系统状态，包括动态计算AGI水平、自主性和泛化能力"""
         active_models = list(self.model_registry.get_all_models().keys())
+        
+        # 计算性能指标
+        performance_metrics = self._calculate_performance_metrics()
+        
+        # 动态更新AGI水平
+        current_agi_level = self._calculate_current_agi_level(performance_metrics)
+        
+        # 更新系统状态
         self.system_state.update({
             'status': 'running' if active_models else 'idle',
             'active_models': active_models,
-            'last_updated': time.time()
+            'last_updated': time.time(),
+            'agi_level': current_agi_level,
+            'autonomy_level': self._calculate_autonomy_level(performance_metrics),
+            'generalization_score': self._calculate_generalization_score(performance_metrics),
+            'learning_progress': self.self_learning.get_learning_progress(),
+            'task_success_rate': performance_metrics.get('success_rate', 0.0),
+            'knowledge_coverage': self._calculate_knowledge_coverage()
         })
+    
+    def _calculate_performance_metrics(self):
+        """计算系统性能指标"""
+        metrics = {
+            'success_rate': 0.0,
+            'avg_processing_time': 0.0,
+            'throughput': 0.0,
+            'error_rate': 0.0
+        }
+        
+        # 从长期记忆中获取历史性能数据
+        if self.long_term_memory.get('performance_history'):
+            history = self.long_term_memory['performance_history']
+            success_count = sum(1 for entry in history if entry.get('success', False))
+            total_count = len(history)
+            metrics['success_rate'] = success_count / total_count if total_count > 0 else 0.0
+            
+            processing_times = [entry.get('processing_time', 0) for entry in history]
+            metrics['avg_processing_time'] = np.mean(processing_times) if processing_times else 0.0
+            
+            metrics['throughput'] = total_count / (time.time() - self.system_state['start_time']) if total_count > 0 else 0.0
+            metrics['error_rate'] = 1 - metrics['success_rate']
+        
+        return metrics
+    
+    def _calculate_current_agi_level(self, performance_metrics):
+        """基于当前性能动态计算AGI水平"""
+        try:
+            # 获取模型状态
+            models_status = self.model_registry.get_all_models_status()
+            if not models_status:
+                return 0.1
+            
+            # 基础能力分数（基于模型覆盖率和性能）
+            base_score = self.system_state['agi_level']  # 初始值
+            
+            # 性能加权因子
+            performance_factor = performance_metrics['success_rate'] * 0.4 + \
+                                (1 - performance_metrics['error_rate']) * 0.3 + \
+                                (1 / (1 + performance_metrics['avg_processing_time'])) * 0.3
+            
+            # 学习进度因子
+            learning_factor = self.system_state['learning_progress'] * 0.2
+            
+            # 元认知信心因子
+            meta_cognition_factor = self.meta_cognition['confidence_level'] * 0.1
+            
+            # 综合计算新AGI水平
+            new_agi_level = base_score * 0.6 + performance_factor * 0.2 + learning_factor * 0.1 + meta_cognition_factor * 0.1
+            
+            # 平滑过渡，避免剧烈变化
+            smoothed_agi_level = 0.8 * self.system_state['agi_level'] + 0.2 * new_agi_level
+            
+            return min(max(smoothed_agi_level, 0.1), 1.0)
+            
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算当前AGI水平失败")
+            return self.system_state['agi_level']  # 保持原值
+    
+    def _calculate_autonomy_level(self, performance_metrics):
+        """计算自主性水平"""
+        try:
+            # 基于任务成功率和学习进度
+            autonomy = performance_metrics['success_rate'] * 0.6 + \
+                      self.system_state['learning_progress'] * 0.4
+            
+            return min(max(autonomy, 0.1), 1.0)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算自主性水平失败")
+            return 0.1
+    
+    def _calculate_generalization_score(self, performance_metrics):
+        """计算泛化能力评分"""
+        try:
+            # 基于知识覆盖率和任务多样性
+            knowledge_coverage = self._calculate_knowledge_coverage()
+            task_diversity = self._calculate_task_diversity()
+            
+            generalization = knowledge_coverage * 0.5 + task_diversity * 0.5
+            return min(max(generalization, 0.1), 1.0)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算泛化能力失败")
+            return 0.1
+    
+    def _calculate_knowledge_coverage(self):
+        """计算知识覆盖率"""
+        try:
+            # 基于长期记忆中的经验数量和模式
+            experience_count = len(self.long_term_memory.get('experiences', []))
+            pattern_count = len(self.long_term_memory.get('learned_patterns', []))
+            
+            # 归一化处理
+            max_experiences = 1000  # 假设最大经验数
+            max_patterns = 500     # 假设最大模式数
+            
+            coverage = (min(experience_count / max_experiences, 1.0) * 0.6 + 
+                       min(pattern_count / max_patterns, 1.0) * 0.4)
+            
+            return min(max(coverage, 0.0), 1.0)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算知识覆盖率失败")
+            return 0.0
+    
+    def _calculate_task_diversity(self):
+        """计算任务多样性"""
+        try:
+            # 基于性能历史中的任务类型多样性
+            history = self.long_term_memory.get('performance_history', [])
+            if not history:
+                return 0.1
+            
+            # 统计不同任务类型的数量
+            task_types = set(entry.get('task_type', 'unknown') for entry in history)
+            diversity = len(task_types) / 10  # 假设最多10种任务类型
+            
+            return min(max(diversity, 0.1), 1.0)
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "计算任务多样性失败")
+            return 0.1
     
     
     """
@@ -278,31 +494,181 @@ class AGICoordinator:
         返回值描述 (Return value description)
     """
     def coordinate_task(self, task_description, context=None):
-        """协调多模型完成复杂任务"""
+        """协调多模型完成复杂任务，基于系统状态智能决策"""
         try:
             start_time = time.time()
-            error_handler.log_info(f"开始协调任务", "AGICoordinator")
+            error_handler.log_info(f"开始协调任务: {task_description[:50]}...", "AGICoordinator")
+            
+            # 记录任务开始信息
+            task_id = f"task_{int(time.time() * 1000)}_{hash(task_description) % 10000}"
+            task_context = context or {}
+            task_context['task_id'] = task_id
             
             # 获取管理模型
             manager_model = self.model_registry.get_model('manager')
             if not manager_model:
                 raise RuntimeError("管理模型未加载")
             
-            # 使用管理模型进行任务协调
-            result = manager_model.coordinate_task(task_description, context)
+            # 基于系统状态选择最优协调策略
+            coordination_strategy = self._select_coordination_strategy(task_description)
+            
+            # 使用管理模型进行任务协调，传递策略信息
+            result = manager_model.coordinate_task(task_description, {
+                **task_context,
+                'strategy': coordination_strategy,
+                'agi_level': self.system_state['agi_level'],
+                'available_models': self.system_state['active_models']
+            })
             
             # 记录处理时间
             processing_time = time.time() - start_time
-            error_handler.log_info(f"任务协调完成，耗时: {processing_time:.2f}秒", "AGICoordinator")
             
-            # 检查是否需要进行系统优化
-            if random.random() < 0.1:  # 10%的概率检查优化
-                self.self_learning.run_optimization()
+            # 记录性能历史
+            self._record_performance_history({
+                'task_id': task_id,
+                'task_type': coordination_strategy.get('type', 'general'),
+                'task_description': task_description,
+                'processing_time': processing_time,
+                'success': 'error' not in result,
+                'timestamp': time.time(),
+                'agi_level': self.system_state['agi_level'],
+                'strategy_used': coordination_strategy
+            })
+            
+            error_handler.log_info(f"任务协调完成，耗时: {processing_time:.2f}秒，成功率: {self.system_state['task_success_rate']:.2%}", "AGICoordinator")
+            
+            # 基于性能智能决定是否进行优化
+            self._intelligent_optimization_decision(processing_time, result)
+            
+            # 如果任务失败，尝试使用备用策略
+            if 'error' in result and coordination_strategy.get('fallback_strategy'):
+                error_handler.log_warning(f"主策略失败，尝试备用策略", "AGICoordinator")
+                fallback_result = self._execute_fallback_strategy(task_description, task_context, coordination_strategy)
+                if 'error' not in fallback_result:
+                    result = fallback_result
             
             return result
         except Exception as e:
             error_handler.handle_error(e, "AGICoordinator", "任务协调失败")
             return {"error": str(e)}
+    
+    def _select_coordination_strategy(self, task_description):
+        """基于任务描述和系统状态选择最优协调策略"""
+        strategy = {
+            'type': 'general',
+            'priority': 'normal',
+            'model_selection': 'auto',
+            'fallback_strategy': None
+        }
+        
+        # 基于AGI水平调整策略复杂度
+        if self.system_state['agi_level'] > 0.7:
+            strategy['complexity'] = 'high'
+            strategy['parallel_processing'] = True
+        elif self.system_state['agi_level'] > 0.4:
+            strategy['complexity'] = 'medium'
+            strategy['parallel_processing'] = False
+        else:
+            strategy['complexity'] = 'low'
+            strategy['parallel_processing'] = False
+        
+        # 基于任务关键词识别任务类型
+        task_lower = task_description.lower()
+        if any(keyword in task_lower for keyword in ['学习', '训练', '教育']):
+            strategy['type'] = 'learning'
+            strategy['priority'] = 'medium'
+            strategy['fallback_strategy'] = 'basic_learning'
+        elif any(keyword in task_lower for keyword in ['分析', '处理', '计算']):
+            strategy['type'] = 'analysis'
+            strategy['priority'] = 'high'
+            strategy['fallback_strategy'] = 'simple_analysis'
+        elif any(keyword in task_lower for keyword in ['创作', '生成', '写作']):
+            strategy['type'] = 'creative'
+            strategy['priority'] = 'normal'
+            strategy['fallback_strategy'] = 'template_based'
+        
+        # 基于系统负载调整优先级
+        if len(self.system_state['performance_metrics']) > 5:
+            strategy['priority'] = 'low'
+        
+        return strategy
+    
+    def _intelligent_optimization_decision(self, processing_time, result):
+        """基于性能指标智能决定是否进行系统优化"""
+        try:
+            # 计算性能指标
+            success = 'error' not in result
+            recent_success_rate = self.system_state['task_success_rate']
+            
+            # 决定是否优化的条件
+            needs_optimization = (
+                processing_time > 2.0 or  # 处理时间过长
+                not success or  # 任务失败
+                recent_success_rate < 0.6 or  # 近期成功率低
+                self.system_state['agi_level'] < 0.5  # AGI水平较低
+            )
+            
+            if needs_optimization:
+                # 基于问题的严重程度决定优化强度
+                optimization_intensity = min(1.0, max(0.1, 
+                    (2.0 - min(processing_time, 2.0)) / 2.0 * 0.5 +  # 时间因子
+                    (0.0 if success else 0.3) +  # 失败因子
+                    (0.6 - min(recent_success_rate, 0.6)) / 0.6 * 0.2  # 成功率因子
+                ))
+                
+                error_handler.log_info(f"触发系统优化，强度: {optimization_intensity:.2f}", "AGICoordinator")
+                self.self_learning.run_optimization(optimization_intensity)
+                
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "优化决策失败")
+    
+    def _execute_fallback_strategy(self, task_description, context, original_strategy):
+        """执行备用协调策略"""
+        try:
+            fallback_strategy = original_strategy.get('fallback_strategy')
+            if not fallback_strategy:
+                return {"error": "无备用策略可用"}
+            
+            error_handler.log_info(f"执行备用策略: {fallback_strategy}", "AGICoordinator")
+            
+            # 根据备用策略类型选择不同的处理方法
+            if fallback_strategy == 'basic_learning':
+                # 简化学习任务
+                simplified_task = f"基础学习: {task_description}"
+                return self.coordinate_task(simplified_task, {**context, 'fallback': True})
+            
+            elif fallback_strategy == 'simple_analysis':
+                # 简化分析任务
+                simplified_task = f"简单分析: {task_description}"
+                return self.coordinate_task(simplified_task, {**context, 'fallback': True})
+            
+            elif fallback_strategy == 'template_based':
+                # 使用模板基础的创作
+                template_task = f"使用模板: {task_description}"
+                return self.coordinate_task(template_task, {**context, 'fallback': True})
+            
+            return {"error": f"未知备用策略: {fallback_strategy}"}
+            
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "执行备用策略失败")
+            return {"error": str(e)}
+    
+    def _record_performance_history(self, performance_data):
+        """记录任务性能历史"""
+        try:
+            # 添加到长期记忆
+            self.long_term_memory['performance_history'].append(performance_data)
+            
+            # 保持历史记录数量合理（最近1000条）
+            if len(self.long_term_memory['performance_history']) > 1000:
+                self.long_term_memory['performance_history'] = self.long_term_memory['performance_history'][-1000:]
+                
+            # 定期保存记忆
+            if len(self.long_term_memory['performance_history']) % 10 == 0:
+                self.save_long_term_memory()
+                
+        except Exception as e:
+            error_handler.handle_error(e, "AGICoordinator", "记录性能历史失败")
     
     
     """

@@ -31,6 +31,15 @@ class ErrorHandler {
       console.error(`[${context}]`, errorObj);
     }
 
+    // 显示错误通知给用户
+    if (window && window.$app && window.$app.config.globalProperties.$notify) {
+      window.$app.config.globalProperties.$notify({
+        title: '错误',
+        message: `[${context}] ${errorObj.message}`,
+        type: 'error'
+      });
+    }
+
     // 添加到错误日志
     this.addToLogs(errorData);
 
@@ -56,6 +65,15 @@ class ErrorHandler {
     // 在开发环境下显示console.warn
     if (this.isDevelopment) {
       console.warn(`[${context}]`, message);
+    }
+
+    // 显示警告通知给用户
+    if (window && window.$app && window.$app.config.globalProperties.$notify) {
+      window.$app.config.globalProperties.$notify({
+        title: '警告',
+        message: `[${context}] ${message}`,
+        type: 'warning'
+      });
     }
 
     // 添加到日志

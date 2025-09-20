@@ -7,6 +7,8 @@
 
 Self Soul is a comprehensive Artificial General Intelligence (AGI) system designed to integrate multiple advanced AI capabilities into a unified architecture. This system combines language processing, visual recognition, audio analysis, emotional understanding, and autonomous learning into a cohesive platform.
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ### Core Features
 
 - **Multi-Modal Integration**: Seamlessly combines text, image, audio, and video processing
@@ -78,8 +80,8 @@ Self Soul includes 15+ specialized AI models working together to provide compreh
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Sum-Outman/Self-Soul-A
-   cd self-soul
+   git clone https://github.com/Sum-Outman/Self-Soul
+   cd Self-Soul
    ```
 
 2. **Set up Python virtual environment**

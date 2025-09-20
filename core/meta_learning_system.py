@@ -14,7 +14,7 @@ from pathlib import Path
 import torch
 
 # 导入AGI核心系统
-from .agi_core import agi_core
+from .agi_core import AGI_SYSTEM
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

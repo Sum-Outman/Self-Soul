@@ -934,17 +934,24 @@ class ValueSystem:
             'helpfulness': 0.95,
             'safety': 0.99
         }
-        self.value_weights = {k: 1.0 for k in self.core_values.keys()}
+        # 添加类型检查，确保core_values是字典
+        if isinstance(self.core_values, dict):
+            self.value_weights = {k: 1.0 for k in self.core_values.keys()}
+        else:
+            self.value_weights = {}
     
     def evaluate_decision(self, decision: Dict[str, Any]) -> float:
         """评估决策的价值一致性"""
         alignment_scores = []
         
-        for value, importance in self.core_values.items():
-            if value in decision.get('value_impacts', {}):
-                impact = decision['value_impacts'][value]
-                alignment = 1.0 - abs(impact - importance)
-                alignment_scores.append(alignment * self.value_weights[value])
+        # 添加类型检查，确保core_values是字典
+        if isinstance(self.core_values, dict):
+            for value, importance in self.core_values.items():
+                if isinstance(decision, dict) and value in decision.get('value_impacts', {}):
+                    impact = decision['value_impacts'][value]
+                    alignment = 1.0 - abs(impact - importance)
+                    if value in self.value_weights:
+                        alignment_scores.append(alignment * self.value_weights[value])
         
         return sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
     
@@ -986,12 +993,52 @@ class SelfKnowledgeBase:
     
     def get_stats(self) -> Dict[str, Any]:
         """获取统计信息"""
-        return {
-            'capability_count': len(self.knowledge['capabilities']),
-            'limitation_count': len(self.knowledge['limitations']),
-            'learning_pattern_count': len(self.knowledge['learning_patterns']),
-            'adaptation_history_count': len(self.knowledge['adaptation_history'])
-        }
+        try:
+            # 确保knowledge是字典类型
+            if not isinstance(self.knowledge, dict):
+                error_handler.log_warning("knowledge is not a dictionary type", "SelfKnowledgeBase")
+                return {
+                    'capability_count': 0,
+                    'limitation_count': 0,
+                    'learning_pattern_count': 0,
+                    'adaptation_history_count': 0
+                }
+            
+            stats = {}
+            # 安全地获取各项统计数据
+            if isinstance(self.knowledge.get('capabilities'), (dict, list, set)):
+                stats['capability_count'] = len(self.knowledge['capabilities'])
+            else:
+                stats['capability_count'] = 0
+                error_handler.log_warning("capabilities is not countable", "SelfKnowledgeBase")
+            
+            if isinstance(self.knowledge.get('limitations'), (dict, list, set)):
+                stats['limitation_count'] = len(self.knowledge['limitations'])
+            else:
+                stats['limitation_count'] = 0
+                error_handler.log_warning("limitations is not countable", "SelfKnowledgeBase")
+            
+            if isinstance(self.knowledge.get('learning_patterns'), (dict, list, set)):
+                stats['learning_pattern_count'] = len(self.knowledge['learning_patterns'])
+            else:
+                stats['learning_pattern_count'] = 0
+                error_handler.log_warning("learning_patterns is not countable", "SelfKnowledgeBase")
+            
+            if isinstance(self.knowledge.get('adaptation_history'), (dict, list, set)):
+                stats['adaptation_history_count'] = len(self.knowledge['adaptation_history'])
+            else:
+                stats['adaptation_history_count'] = 0
+                error_handler.log_warning("adaptation_history is not countable", "SelfKnowledgeBase")
+            
+            return stats
+        except Exception as e:
+            error_handler.handle_error(e, "SelfKnowledgeBase", "Failed to get statistics")
+            return {
+                'capability_count': 0,
+                'limitation_count': 0,
+                'learning_pattern_count': 0,
+                'adaptation_history_count': 0
+            }
 
 # 模型版本管理器
 class ModelVersionManager:

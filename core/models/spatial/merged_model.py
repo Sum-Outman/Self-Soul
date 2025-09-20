@@ -25,7 +25,7 @@ import cv2
 from typing import Dict, Any, Callable, Optional, Tuple, List
 from ..base_model import BaseModel
 from core.data_processor import preprocess_stereo_images
-from core.i18n_manager import gettext
+
 from datetime import datetime
 
 

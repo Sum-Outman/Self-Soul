@@ -27,7 +27,7 @@ import torchaudio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from ..base_model import BaseModel
-from core.i18n_manager import gettext
+
 from core.data_processor import DataProcessor
 from core.self_learning import SelfLearningModule
 from core.emotion_awareness import EmotionAwarenessModule
@@ -105,9 +105,9 @@ class AudioProcessingModel(BaseModel):
             result = {}
             
             if action == "speech_to_text":
-                # 语音转文本 | Speech to text
+                # Speech to text
                 audio_data = input_data.get("audio_data")
-                language = input_data.get("language", "zh")
+                language = input_data.get("language", "en")
                 if audio_data is not None:
                     # AGI增强：深度情感分析
                     emotion_state = self._analyze_emotion_with_agi(audio_data, context)
@@ -126,10 +126,10 @@ class AudioProcessingModel(BaseModel):
                     
                     result = {"success": True, "text": final_response}
                 else:
-                    result = {"success": False, "error": "缺少音频数据 | Missing audio data"}
+                    result = {"success": False, "error": "Missing audio data"}
             
             elif action == "synthesize_speech":
-                # 文本转语音 | Text to speech
+                # Text to speech
                 text = input_data.get("text", "")
                 emotion = input_data.get("emotion", {})
                 if text:
@@ -144,10 +144,10 @@ class AudioProcessingModel(BaseModel):
                     
                     result = {"success": True, "audio_data": audio_data.tolist() if hasattr(audio_data, 'tolist') else audio_data}
                 else:
-                    result = {"success": False, "error": "缺少文本 | Missing text"}
+                    result = {"success": False, "error": "Missing text"}
             
             elif action == "analyze_intonation":
-                # 语调分析 | Intonation analysis
+                # Intonation analysis
                 audio_data = input_data.get("audio_data")
                 if audio_data is not None:
                     # AGI增强：深度情感分析

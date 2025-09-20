@@ -27,18 +27,7 @@ class MedicalModel:
        Medical professional model providing health consultation and symptom analysis
     """
     
-    
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self):
+    def __init__(self):
         # 初始化医学知识库
         # Initialize medical knowledge base
         self.medical_knowledge = {
@@ -59,75 +48,41 @@ def __init__(self):
                     'description': '由病毒引起的上呼吸道感染，通常具有自限性',
                     'recommendations': ['休息', '多喝水', '保持室内空气流通', '对症治疗']
                 },
-                '流感': {
-                    'description': '由流感病毒引起的急性呼吸道传染病，传染性强',
-                    'recommendations': ['及时就医', '休息', '多喝水', '避免前往人群密集场所']
+                'influenza': {
+                    'description': 'Acute respiratory infection caused by influenza virus, highly contagious',
+                    'recommendations': ['Seek medical attention promptly', 'Rest', 'Drink plenty of water', 'Avoid crowded places']
                 },
-                '肺炎': {
-                    'description': '肺部的炎症，可由细菌、病毒或真菌引起',
-                    'recommendations': ['立即就医', '按医嘱使用抗生素', '充足休息']
+                'pneumonia': {
+                    'description': 'Inflammation of the lungs, which can be caused by bacteria, viruses, or fungi',
+                    'recommendations': ['Seek immediate medical attention', 'Use antibiotics as prescribed', 'Get plenty of rest']
                 },
-                '肠胃炎': {
-                    'description': '胃肠道的炎症，常见症状包括腹泻、呕吐和腹痛',
-                    'recommendations': ['补充水分和电解质', '饮食清淡', '避免刺激性食物']
+                'gastroenteritis': {
+                    'description': 'Inflammation of the gastrointestinal tract, common symptoms include diarrhea, vomiting and abdominal pain',
+                    'recommendations': ['Replenish fluids and electrolytes', 'Eat light diet', 'Avoid irritating foods']
                 }
             },
             
-            # 健康生活建议
             # Healthy lifestyle advice
             'health_advice': {
-                '饮食': ['均衡饮食', '多吃蔬果', '控制油盐摄入', '规律进餐'],
-                '运动': ['每周至少150分钟中等强度有氧运动', '每周2-3次力量训练', '避免久坐'],
-                '睡眠': ['保持7-9小时充足睡眠', '建立规律的睡眠习惯', '睡前避免使用电子设备'],
-                '心理': ['保持积极心态', '学会压力管理', '建立良好的社会支持网络']
-            }
-        }
-        
-        # 支持的语言
-        # Supported languages
-        self.supported_languages = ['zh', 'en']
-        
-        # 多语言医疗术语映射
-        # Multilingual medical term mapping
-        self.medical_terms_translation = {
-            'zh': {
-                'symptoms': '症状',
-                'diseases': '疾病',
-                'recommendations': '建议',
-                'description': '描述'
-            },
-            'en': {
-                'symptoms': 'symptoms',
-                'diseases': 'diseases',
-                'recommendations': 'recommendations',
-                'description': 'description'
+                'diet': ['Balanced diet', 'Eat more fruits and vegetables', 'Control oil and salt intake', 'Regular meals'],
+                'exercise': ['At least 150 minutes of moderate-intensity aerobic exercise per week', '2-3 strength training sessions per week', 'Avoid prolonged sitting'],
+                'sleep': ['Maintain 7-9 hours of sufficient sleep', 'Establish regular sleep habits', 'Avoid using electronic devices before bed'],
+                'mental': ['Maintain a positive attitude', 'Learn stress management', 'Build a good social support network']
             }
         }
     
-    
-"""
-analyze_symptoms函数 - 中文函数描述
-analyze_symptoms Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def analyze_symptoms(self, symptoms, lang='zh'):
-        """分析症状并提供可能的健康问题和建议
-           Analyze symptoms and provide possible health issues and recommendations
+    def analyze_symptoms(self, symptoms, lang='en'):
+        """Analyze symptoms and provide possible health issues and recommendations
         
         Args:
-            symptoms (list): 症状列表
-            lang (str): 语言代码
+            symptoms (list): List of symptoms
+            lang (str): Language code
         
         Returns:
-            dict: 分析结果
+            dict: Analysis result
         """
         if not symptoms:
-            return {self._translate('symptoms', lang): "请提供症状信息以获得分析"}
+            return {'symptoms': "Please provide symptom information for analysis"}
         
         # 找出可能的疾病
         # Find possible diseases
@@ -139,8 +94,8 @@ def analyze_symptoms(self, symptoms, lang='zh'):
         # 构建结果
         # Build result
         result = {
-            self._translate('symptoms', lang): symptoms,
-            self._translate('diseases', lang): []
+            'symptoms': symptoms,
+            'diseases': []
         }
         
         # 添加每种疾病的信息
@@ -148,46 +103,34 @@ def analyze_symptoms(self, symptoms, lang='zh'):
         for disease in possible_diseases:
             if disease in self.medical_knowledge['disease_info']:
                 disease_info = self.medical_knowledge['disease_info'][disease]
-                result[self._translate('diseases', lang)].append({
+                result['diseases'].append({
                     'name': disease,
-                    self._translate('description', lang): disease_info['description'],
-                    self._translate('recommendations', lang): disease_info['recommendations']
+                    'description': disease_info['description'],
+                    'recommendations': disease_info['recommendations']
                 })
             else:
-                result[self._translate('diseases', lang)].append({
+                result['diseases'].append({
                     'name': disease,
-                    self._translate('description', lang): "暂无详细信息",
-                    self._translate('recommendations', lang): ["建议咨询专业医生"]
+                    'description': "No detailed information available",
+                    'recommendations': ["Recommend consulting a professional doctor"]
                 })
         
-        # 如果没有找到匹配的疾病，提供一般建议
         # If no matching diseases found, provide general advice
-        if not result[self._translate('diseases', lang)]:
-            result['general_advice'] = ["建议记录详细症状并咨询专业医生", "密切关注症状变化"]
+        if not result['diseases']:
+            result['general_advice'] = ["Recommend recording detailed symptoms and consulting a professional doctor", "Closely monitor symptom changes"]
         
         return result
     
     
-"""
-get_health_advice函数 - 中文函数描述
-get_health_advice Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def get_health_advice(self, category=None, lang='zh'):
-        """提供健康生活建议
-           Provide health lifestyle advice
+    def get_health_advice(self, category=None, lang='en'):
+        """Provide health lifestyle advice
         
         Args:
-            category (str): 建议类别
-            lang (str): 语言代码
+            category (str): Advice category
+            lang (str): Language code
         
         Returns:
-            dict: 健康建议
+            dict: Health advice
         """
         result = {}
         
@@ -199,23 +142,7 @@ def get_health_advice(self, category=None, lang='zh'):
         return result
     
     
-"""
-_translate函数 - 中文函数描述
-_translate Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _translate(self, term, lang):
-        """翻译医学术语
-           Translate medical terms
-        """
-        if lang in self.medical_terms_translation and term in self.medical_terms_translation[lang]:
-            return self.medical_terms_translation[lang][term]
-        return term
     
     
 """
@@ -276,17 +203,6 @@ def train(self, training_data, callback=None):
             }
         }
     
-    
-"""
-process函数 - 中文函数描述
-process Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
 def process(self, input_data):
         """处理输入数据
            Process input data

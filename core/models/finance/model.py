@@ -29,18 +29,7 @@ class FinanceModel:
        Financial analysis professional model providing market analysis and investment advice
     """
     
-    
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self):
+    def __init__(self):
         # 支持的金融市场
         # Supported financial markets
         self.supported_markets = ['stock', 'forex', 'crypto', 'bond', 'commodity']
@@ -54,51 +43,15 @@ def __init__(self):
             'bollinger_bands': self._calculate_bollinger_bands
         }
         
-        # 投资组合优化参数
         # Portfolio optimization parameters
         self.portfolio_params = {
-            'risk_free_rate': 0.02,  # 无风险收益率
-            'max_portfolio_size': 20,  # 最大投资组合大小
-            'min_diversification': 5   # 最小多样化程度
-        }
-        
-        # 支持的语言
-        # Supported languages
-        self.supported_languages = ['zh', 'en']
-        
-        # 多语言金融术语映射
-        # Multilingual financial term mapping
-        self.finance_terms_translation = {
-            'zh': {
-                'analysis': '分析',
-                'recommendation': '建议',
-                'risk': '风险',
-                'return': '回报',
-                'portfolio': '投资组合'
-            },
-            'en': {
-                'analysis': 'analysis',
-                'recommendation': 'recommendation',
-                'risk': 'risk',
-                'return': 'return',
-                'portfolio': 'portfolio'
-            }
+            'risk_free_rate': 0.02,  # Risk-free rate of return
+            'max_portfolio_size': 20,  # Maximum portfolio size
+            'min_diversification': 5   # Minimum diversification level
         }
     
-    
-"""
-_calculate_moving_average函数 - 中文函数描述
-_calculate_moving_average Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _calculate_moving_average(self, data, window=20):
-        """计算移动平均线
-           Calculate moving average
+    def _calculate_moving_average(self, data, window=20):
+        """Calculate moving average
         """
         if len(data) < window:
             return None
@@ -114,19 +67,8 @@ def _calculate_moving_average(self, data, window=20):
         return result
     
     
-"""
-_calculate_rsi函数 - 中文函数描述
-_calculate_rsi Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _calculate_rsi(self, data, period=14):
-        """计算相对强弱指标
-           Calculate Relative Strength Index
+    def _calculate_rsi(self, data, period=14):
+        """Calculate Relative Strength Index
         """
         if len(data) < period + 1:
             return None
@@ -150,18 +92,8 @@ def _calculate_rsi(self, data, period=14):
         
         return rsi
     
-    
-"""
-_calculate_macd函数 - 中文函数描述
-_calculate_macd Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _calculate_macd(self, data, fast_period=12, slow_period=26, signal_period=9):
+        
+    def _calculate_macd(self, data, fast_period=12, slow_period=26, signal_period=9):
         """计算MACD指标
            Calculate MACD indicator
         """
@@ -189,20 +121,9 @@ def _calculate_macd(self, data, fast_period=12, slow_period=26, signal_period=9)
         
         return macd_line, signal_line
     
-    
-"""
-_calculate_bollinger_bands函数 - 中文函数描述
-_calculate_bollinger_bands Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _calculate_bollinger_bands(self, data, window=20, num_std=2):
-        """计算布林带
-           Calculate Bollinger Bands
+        
+    def _calculate_bollinger_bands(self, data, window=20, num_std=2):
+        """Calculate Bollinger Bands
         """
         if len(data) < window:
             return None, None, None
@@ -225,31 +146,21 @@ def _calculate_bollinger_bands(self, data, window=20, num_std=2):
         return upper_band, middle_band, lower_band
     
     
-"""
-analyze_market函数 - 中文函数描述
-analyze_market Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def analyze_market(self, market_type, symbol, historical_data=None, lang='zh'):
-        """分析金融市场
-           Analyze financial market
+    def analyze_market(self, market_type, symbol, historical_data=None, lang='en'):
+        """Analyze financial market
         
         Args:
-            market_type (str): 市场类型
-            symbol (str): 交易品种代码
-            historical_data (list): 历史价格数据
-            lang (str): 语言代码
+            market_type (str): Market type
+            symbol (str): Trading symbol
+            historical_data (list): Historical price data
+            lang (str): Language code
         
         Returns:
-            dict: 分析结果
+            dict: Analysis result
         """
         if market_type not in self.supported_markets:
-            return {"error": f"不支持的市场类型: {market_type}"}
+            return {"error": f"Unsupported market type: {market_type}"}
         
         # 如果没有提供历史数据，生成模拟数据
         # If no historical data provided, generate sample data
@@ -268,7 +179,7 @@ def analyze_market(self, market_type, symbol, historical_data=None, lang='zh'):
         result = {
             'market_type': market_type,
             'symbol': symbol,
-            self._translate('analysis', lang): {
+            'analysis': {
                 'current_price': historical_data[-1] if historical_data else 0,
                 'technical_indicators': {
                     'moving_average_20': ma20[-1] if ma20 else None,
@@ -282,27 +193,16 @@ def analyze_market(self, market_type, symbol, historical_data=None, lang='zh'):
             }
         }
         
-        # 生成投资建议
         # Generate investment recommendations
         recommendation = self._generate_recommendation(result, lang)
-        result[self._translate('recommendation', lang)] = recommendation
+        result['recommendation'] = recommendation
         
         return result
     
     
-"""
-_generate_sample_data函数 - 中文函数描述
-_generate_sample_data Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _generate_sample_data(self, days=30):
-        """生成样本价格数据
-           Generate sample price data
+    def _generate_sample_data(self, days=30):
+        """Generate sample price data
         """
         # 生成模拟的价格数据
         # Generate simulated price data
@@ -320,84 +220,59 @@ def _generate_sample_data(self, days=30):
         return prices
     
     
-"""
-_generate_recommendation函数 - 中文函数描述
-_generate_recommendation Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _generate_recommendation(self, analysis_result, lang='zh'):
-        """基于分析结果生成投资建议
-           Generate investment recommendation based on analysis
+    def _generate_recommendation(self, analysis_result, lang='en'):
+        """Generate investment recommendation based on analysis
         """
-        indicators = analysis_result[self._translate('analysis', lang)]['technical_indicators']
-        current_price = analysis_result[self._translate('analysis', lang)]['current_price']
+        indicators = analysis_result['analysis']['technical_indicators']
+        current_price = analysis_result['analysis']['current_price']
         
-        # 简单的建议逻辑
         # Simple recommendation logic
         recommendation = {}
         
-        # 基于RSI的建议
         # RSI-based recommendation
         if indicators['rsi'] is not None:
             if indicators['rsi'] > 70:
-                recommendation['rsi_based'] = "超买，考虑卖出" if lang == 'zh' else "Overbought, consider selling"
+                recommendation['rsi_based'] = "Overbought, consider selling"
             elif indicators['rsi'] < 30:
-                recommendation['rsi_based'] = "超卖，考虑买入" if lang == 'zh' else "Oversold, consider buying"
+                recommendation['rsi_based'] = "Oversold, consider buying"
             else:
-                recommendation['rsi_based'] = "中性" if lang == 'zh' else "Neutral"
+                recommendation['rsi_based'] = "Neutral"
         
-        # 基于MACD的建议
         # MACD-based recommendation
         if indicators['macd'] is not None and indicators['signal_line'] is not None:
             if indicators['macd'] > indicators['signal_line']:
-                recommendation['macd_based'] = "看涨交叉，考虑买入" if lang == 'zh' else "Bullish crossover, consider buying"
+                recommendation['macd_based'] = "Bullish crossover, consider buying"
             else:
-                recommendation['macd_based'] = "看跌交叉，考虑卖出" if lang == 'zh' else "Bearish crossover, consider selling"
+                recommendation['macd_based'] = "Bearish crossover, consider selling"
         
-        # 基于布林带的建议
         # Bollinger Bands-based recommendation
         if (indicators['bollinger_upper'] is not None and 
             indicators['bollinger_lower'] is not None):
             if current_price > indicators['bollinger_upper']:
-                recommendation['bollinger_based'] = "突破上轨，可能超买" if lang == 'zh' else "Above upper band, possibly overbought"
+                recommendation['bollinger_based'] = "Above upper band, possibly overbought"
             elif current_price < indicators['bollinger_lower']:
-                recommendation['bollinger_based'] = "跌破下轨，可能超卖" if lang == 'zh' else "Below lower band, possibly oversold"
+                recommendation['bollinger_based'] = "Below lower band, possibly oversold"
             else:
-                recommendation['bollinger_based'] = "在轨道内，震荡行情" if lang == 'zh' else "Within bands, ranging market"
+                recommendation['bollinger_based'] = "Within bands, ranging market"
         
-        # 添加风险提示
         # Add risk disclaimer
-        recommendation['risk_disclaimer'] = "以上建议仅供参考，不构成投资建议" if lang == 'zh' else "The above recommendations are for reference only and do not constitute investment advice"
+        recommendation['risk_disclaimer'] = "The above recommendations are for reference only and do not constitute investment advice"
         
         return recommendation
     
     
-"""
-optimize_portfolio函数 - 中文函数描述
-optimize_portfolio Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def optimize_portfolio(self, assets, risk_preference='moderate', lang='zh'):
-        """优化投资组合
-           Optimize investment portfolio
+    def optimize_portfolio(self, assets, risk_preference='moderate', lang='en'):
+        """Optimize investment portfolio
         
         Args:
-            assets (list): 资产列表
-            risk_preference (str): 风险偏好 ('conservative', 'moderate', 'aggressive')
-            lang (str): 语言代码
+            assets (list): List of assets
+            risk_preference (str): Risk preference ('conservative', 'moderate', 'aggressive')
+            lang (str): Language code
         
         Returns:
-            dict: 优化后的投资组合
+            dict: Optimized portfolio
         """
         # 简化版投资组合优化
         # Simplified portfolio optimization
@@ -431,17 +306,16 @@ def optimize_portfolio(self, assets, risk_preference='moderate', lang='zh'):
         weight_sum = sum(weights)
         weights = [w / weight_sum for w in weights]
         
-        # 构建优化后的投资组合
         # Build optimized portfolio
         portfolio = {
-            self._translate('portfolio', lang): [],
+            'portfolio': [],
             'risk_preference': risk_preference
         }
         
         for i, asset in enumerate(assets):
-            portfolio[self._translate('portfolio', lang)].append({
+            portfolio['portfolio'].append({
                 'asset': asset,
-                'weight': round(weights[i] * 100, 2)  # 转换为百分比
+                'weight': round(weights[i] * 100, 2)  # Convert to percentage
             })
         
         # 添加投资组合建议
@@ -451,18 +325,8 @@ def optimize_portfolio(self, assets, risk_preference='moderate', lang='zh'):
         
         return portfolio
     
-    
-"""
-_get_portfolio_advice函数 - 中文函数描述
-_get_portfolio_advice Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _get_portfolio_advice(self, risk_preference, lang='zh'):
+        
+    def _get_portfolio_advice(self, risk_preference, lang='zh'):
         """获取投资组合建议
            Get portfolio advice
         """
@@ -484,38 +348,12 @@ def _get_portfolio_advice(self, risk_preference, lang='zh'):
         return advice_map.get(risk_preference, advice_map['moderate']).get(lang, [])
     
     
-"""
-_translate函数 - 中文函数描述
-_translate Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _translate(self, term, lang):
-        """翻译金融术语
-           Translate financial terms
-        """
-        if lang in self.finance_terms_translation and term in self.finance_terms_translation[lang]:
-            return self.finance_terms_translation[lang][term]
-        return term
     
     
-"""
-train函数 - 中文函数描述
-train Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def train(self, training_data, callback=None):
-        """训练金融模型
-           Train the finance model
+    def train(self, training_data, callback=None):
+        """Train the finance model
         
         Args:
             training_data: 训练数据
@@ -556,18 +394,8 @@ def train(self, training_data, callback=None):
             }
         }
     
-    
-"""
-process函数 - 中文函数描述
-process Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def process(self, input_data):
+        
+    def process(self, input_data):
         """处理输入数据
            Process input data
         

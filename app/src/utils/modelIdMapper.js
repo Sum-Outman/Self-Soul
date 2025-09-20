@@ -1,27 +1,23 @@
 /**
- * 模型ID映射工具 - 解决前端字母ID和后端字符串ID不一致的问题
  * Model ID Mapping Utility - Resolves inconsistency between frontend letter IDs and backend string IDs
  * 
- * 前端使用字母ID (A-K) 用于界面显示和用户交互
  * Frontend uses letter IDs (A-K) for UI display and user interaction
- * 
- * 后端使用字符串ID ('manager', 'language', etc.) 用于API调用和模型管理
  * Backend uses string IDs ('manager', 'language', etc.) for API calls and model management
  */
 
-// 字母ID到字符串ID的映射
+// Mapping from letter IDs to string IDs
 export const letterToIdMap = {
-  'A': 'manager',           // 管理模型 | Manager Model
-  'B': 'language',          // 大语言模型 | Language Model
-  'C': 'audio',             // 音频处理模型 | Audio Processing Model
-  'D': 'vision_image',      // 图片视觉处理模型 | Image Vision Model
-  'E': 'vision_video',      // 视频流视觉处理模型 | Video Vision Model
-  'F': 'spatial',           // 双目空间定位感知模型 | Spatial Perception Model
-  'G': 'sensor',            // 传感器感知模型 | Sensor Perception Model
-  'H': 'computer',          // 计算机控制模型 | Computer Control Model
-  'I': 'motion',            // 运动和执行器控制模型 | Motion and Actuator Model
-  'J': 'knowledge',         // 知识库专家模型 | Knowledge Expert Model
-  'K': 'programming'        // 编程模型 | Programming Model
+  'A': 'manager',           // Manager Model
+  'B': 'language',          // Language Model
+  'C': 'audio',             // Audio Processing Model
+  'D': 'vision_image',      // Image Vision Model
+  'E': 'vision_video',      // Video Vision Model
+  'F': 'spatial',           // Spatial Perception Model
+  'G': 'sensor',            // Sensor Perception Model
+  'H': 'computer',          // Computer Control Model
+  'I': 'motion',            // Motion and Actuator Model
+  'J': 'knowledge',         // Knowledge Expert Model
+  'K': 'programming'        // Programming Model
 };
 
 // 字符串ID到字母ID的映射
@@ -124,27 +120,49 @@ export function getAllCoreStringIds() {
 }
 
 /**
- * 获取模型显示名称（使用字母ID）
  * Get model display name (using letter ID)
- * @param {string} id - 字母ID或字符串ID
- * @param {object} t - i18n翻译函数
- * @returns {string} 显示名称
+ * @param {string} id - Letter ID or string ID
+ * @returns {string} Display name
  */
-export function getModelDisplayName(id, t) {
+export function getModelDisplayName(id) {
   const letterId = idToLetterMap[id] || id;
-  return t(`models.${letterId}`);
+  const displayNames = {
+    'A': 'Manager Model',
+    'B': 'Language Model',
+    'C': 'Audio Model',
+    'D': 'Image Vision Model',
+    'E': 'Video Vision Model',
+    'F': 'Spatial Perception Model',
+    'G': 'Sensor Perception Model',
+    'H': 'Computer Control Model',
+    'I': 'Motion and Actuator Model',
+    'J': 'Knowledge Expert Model',
+    'K': 'Programming Model'
+  };
+  return displayNames[letterId] || letterId;
 }
 
 /**
- * 获取模型详细描述
  * Get model detailed description
- * @param {string} id - 字母ID或字符串ID
- * @param {object} t - i18n翻译函数
- * @returns {string} 详细描述
+ * @param {string} id - Letter ID or string ID
+ * @returns {string} Detailed description
  */
-export function getModelDescription(id, t) {
+export function getModelDescription(id) {
   const letterId = idToLetterMap[id] || id;
-  return t(`models.description.${letterId}`);
+  const descriptions = {
+    'A': 'Core management model responsible for coordinating all other models',
+    'B': 'Advanced language processing and understanding model',
+    'C': 'Audio processing and voice recognition model',
+    'D': 'Image vision processing and analysis model',
+    'E': 'Video stream processing and analysis model',
+    'F': 'Spatial awareness and positioning model',
+    'G': 'Sensor data processing and perception model',
+    'H': 'Computer control and interface model',
+    'I': 'Motion control and actuator management model',
+    'J': 'Knowledge base and expert system model',
+    'K': 'Programming and code generation model'
+  };
+  return descriptions[letterId] || 'Unknown model';
 }
 
 export default {

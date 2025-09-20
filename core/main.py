@@ -27,12 +27,8 @@ from datetime import datetime
 # Add the root directory to sys.path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import six compatibility fix before other imports
-try:
-    import six_compat
-    print("Six compatibility fix imported successfully")
-except ImportError as e:
-    print(f"Warning: Could not import six compatibility fix: {e}")
+# Skip six compatibility fix import as it's not available
+print("Skipping six compatibility fix import as it's not available")
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,7 +41,7 @@ from core.autonomous_learning_manager import AutonomousLearningManager
 from core.system_settings_manager import SystemSettingsManager
 from core.api_model_connector import api_model_connector
 from core.monitoring_enhanced import EnhancedSystemMonitor
-from core.i18n_manager import set_language, get_supported_languages, _i18n_instance
+
 from core.dataset_manager import dataset_manager
 
 # 导入新的AGI组件
@@ -200,7 +196,7 @@ def switch_model_to_external(model_id: str, api_config: dict) -> str:
             try:
                 _external_model_connectors[model_id].disconnect()
             except Exception as e:
-                error_handler.handle_error(e, "Model Mode", f"断开模型 {model_id} 的旧外部连接失败")
+                error_handler.handle_error(e, "Model Mode", f"Failed to disconnect old external connection for model {model_id}")
         
         # 创建新的外部模型连接器
         # Create new external model connector
@@ -219,7 +215,7 @@ def switch_model_to_external(model_id: str, api_config: dict) -> str:
         success = connector.connect(connection_params)
         
         if not success:
-            raise Exception(f"连接到外部API失败: {model_id}")
+            raise Exception(f"Failed to connect to external API: {model_id}")
         
         # 保存连接器实例
         # Save connector instance
@@ -236,9 +232,9 @@ def switch_model_to_external(model_id: str, api_config: dict) -> str:
             "api_config": api_config
         })
         
-        return f"模型 {model_id} 已成功切换到外部API模式"
+        return f"Model {model_id} successfully switched to external API mode"
     except Exception as e:
-        error_handler.handle_error(e, "Model Mode", f"切换模型 {model_id} 到外部API模式失败")
+        error_handler.handle_error(e, "Model Mode", f"Failed to switch model {model_id} to external API mode")
         raise
 
 def switch_model_to_local(model_id: str) -> str:
@@ -260,7 +256,7 @@ def switch_model_to_local(model_id: str) -> str:
                 _external_model_connectors[model_id].disconnect()
                 del _external_model_connectors[model_id]
             except Exception as e:
-                error_handler.handle_error(e, "Model Mode", f"断开模型 {model_id} 的外部连接失败")
+                error_handler.handle_error(e, "Model Mode", f"Failed to disconnect external connection for model {model_id}")
         
         # 加载本地模型
         # Load local model
@@ -276,9 +272,9 @@ def switch_model_to_local(model_id: str) -> str:
             "source": "local"
         })
         
-        return f"模型 {model_id} 已成功切换到本地模式"
+        return f"Model {model_id} successfully switched to local mode"
     except Exception as e:
-        error_handler.handle_error(e, "Model Mode", f"切换模型 {model_id} 到本地模式失败")
+        error_handler.handle_error(e, "Model Mode", f"Failed to switch model {model_id} to local mode")
         raise
 
 def batch_switch_model_modes(models_data: list) -> list:
@@ -304,7 +300,7 @@ def batch_switch_model_modes(models_data: list) -> list:
             results.append({
                 "id": None,
                 "success": False,
-                "message": "模型ID不能为空"
+                "message": "Model ID cannot be empty"
             })
             continue
         
@@ -335,7 +331,7 @@ def batch_switch_model_modes(models_data: list) -> list:
         results.append({
             "id": "batch_info",
             "success": True,
-            "message": f"由于批量处理限制，仅处理了{len(models_to_process)}个模型（共{len(models_data)}个）"
+            "message": f"Due to batch processing limit, only {len(models_to_process)} models were processed (total {len(models_data)})"
         })
     
     return results
@@ -410,6 +406,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url=None
 )
+
+# 导入模型服务管理器
+from core.model_service_manager import model_service_manager
 
 # WebSocket端点
 # WebSocket endpoints
@@ -544,6 +543,29 @@ async def startup_event():
                     error_handler.handle_error(e, "System", f"模型 {model_id} 初始化失败")
         
         error_handler.log_info(f"成功初始化 {initialized_count}/{len(loaded_models)} 个模型", "System")
+        
+        # 启动所有模型的独立服务
+        error_handler.log_info("正在启动所有模型的独立服务...", "System")
+        try:
+            startup_results = model_service_manager.start_all_model_services()
+            
+            # 统计启动成功的模型服务
+            success_count = sum(1 for success in startup_results.values() if success)
+            error_handler.log_info(
+                f"成功启动 {success_count}/{len(startup_results)} 个模型服务", 
+                "System"
+            )
+            
+            # 记录启动失败的模型服务
+            failed_models = [model_id for model_id, success in startup_results.items() if not success]
+            if failed_models:
+                error_handler.log_warning(
+                    f"以下模型服务启动失败: {', '.join(failed_models)}", 
+                    "System"
+                )
+                
+        except Exception as e:
+            error_handler.handle_error(e, "System", "启动模型服务失败")
         
     except Exception as e:
         error_handler.handle_error(e, "System", "加载模型失败")
@@ -1310,49 +1332,26 @@ async def get_dataset_stats():
         error_handler.handle_error(e, "API", "获取数据集统计失败")
         raise HTTPException(status_code=500, detail="获取数据集统计失败")
 
-# 语言设置端点
-# Language settings endpoints
-
-# 设置系统语言
-# Set system language
+# Language settings endpoints have been removed as this is now a monolingual English system
 @app.post("/api/language/set")
 async def set_language_endpoint(language_data: dict):
     """
-    set_language_endpoint函数 - 设置系统语言
-    set_language_endpoint Function - Set system language
-    
-    Args:
-        language_data: 语言设置数据 | Language setting data
-            - language: 语言代码 (zh, en, de, ja, ru) | Language code
-        
-    Returns:
-        设置结果 | Setting result
+    This endpoint has been removed as the system is now English-only.
     """
-    try:
-        language = language_data.get("language", "zh")
-        result = set_language(language)
-        return {"status": "success", "data": result}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "设置语言失败")
-        raise HTTPException(status_code=500, detail="设置语言失败")
+    return JSONResponse(
+        status_code=410,  # Gone
+        content={"error": "This system is now English-only and language settings have been removed"}
+    )
 
-# 获取支持的语言列表
-# Get supported languages list
 @app.get("/api/language/supported")
 async def get_supported_languages_endpoint():
     """
-    get_supported_languages_endpoint函数 - 获取支持的语言列表
-    get_supported_languages_endpoint Function - Get supported languages list
-    
-    Returns:
-        支持的语言列表 | Supported languages list
+    This endpoint has been removed as the system is now English-only.
     """
-    try:
-        languages = get_supported_languages()
-        return {"status": "success", "data": languages}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "获取支持语言失败")
-        raise HTTPException(status_code=500, detail="获取支持语言失败")
+    return JSONResponse(
+        status_code=410,  # Gone
+        content={"error": "This system is now English-only and language settings have been removed"}
+    )
 
 # 系统监控端点
 # System monitoring endpoints
@@ -2297,4 +2296,9 @@ async def error_handling_middleware(request: Request, call_next):
 # Main function
 if __name__ == "__main__":
     import uvicorn
+    
+    error_handler.log_info("Self Soul 系统已启动，主API运行在 http://0.0.0.0:8000", "System")
+    error_handler.log_info("所有模型服务将在各自的独立端口上运行", "System")
+    
+    # 启动主API服务
     uvicorn.run(app, host="0.0.0.0", port=8000)

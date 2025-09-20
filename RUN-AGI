@@ -9,13 +9,13 @@ sleep 10
 
 echo "正在打开主界面..."
 if command -v xdg-open > /dev/null; then
-  xdg-open "http://localhost:5174/"
+  xdg-open "http://localhost:5175/"
 elif command -v open > /dev/null; then
-  open "http://localhost:5174/"
+  open "http://localhost:5175/"
 else
-  start "" "http://localhost:5174/"
+  start "" "http://localhost:5175/"
 fi
 
-echo "启动完成！请访问 http://localhost:5174/"
+echo "启动完成！请访问 http://localhost:5175/"
 echo "按Ctrl+C停止服务"
 wait

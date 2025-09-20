@@ -36,7 +36,6 @@
 
 <script>
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import i18n from '../i18n'
 
 export default {
   name: 'TerminalWindow',
@@ -77,19 +76,14 @@ export default {
     const commandHistory = ref([])
     const historyIndex = ref(-1)
 
-    // 使用计算属性来处理prompt的国际化
+    // 直接返回prompt属性值或默认提示符
     const displayPrompt = computed(() => {
       // 优先使用传入的prompt属性值
       if (props.prompt && props.prompt !== '$') {
         return props.prompt
       }
-      try {
-        // 如果使用默认的$提示符，则尝试从i18n获取翻译
-        return i18n.global.t('terminal.prompt') || '$'
-      } catch (error) {
-        // 翻译失败时回退到默认值
-        return '$'
-      }
+      // 直接返回默认值
+      return '$'
     })
 
     const filteredLogs = computed(() => {

@@ -1,8 +1,7 @@
 """
-统一自主学习系统：实现AGI级别的自我优化和持续进化能力
 Unified Self-Learning System: Implements AGI-level self-optimization and continuous evolution capabilities
 
-版权所有 2025 AGI Brain System
+Copyright 2025 AGI Brain System
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -35,25 +34,23 @@ from core.training.joint_training import JointTrainingManager
 
 @dataclass
 class AutonomousConfig:
-    """自主学习配置"""
-    training_interval: int = 3600  # 训练间隔（秒）
-    optimization_interval: int = 1800  # 优化间隔（秒）
-    monitoring_interval: int = 300  # 监控间隔（秒）
-    min_improvement_threshold: float = 0.1  # 最小改进阈值
-    max_training_iterations: int = 10  # 最大训练迭代次数
-    enable_continuous_learning: bool = True  # 启用持续学习
-    exploration_rate: float = 0.15  # 探索新策略的概率
-    knowledge_transfer_rate: float = 0.25  # 知识迁移概率
-    meta_learning_update_interval: int = 100  # 元学习更新间隔
-    performance_window_size: int = 20  # 性能分析窗口大小
-    trend_analysis_period: int = 10  # 趋势分析周期
+    """Autonomous learning configuration"""
+    training_interval: int = 3600  # Training interval (seconds)
+    optimization_interval: int = 1800  # Optimization interval (seconds)
+    monitoring_interval: int = 300  # Monitoring interval (seconds)
+    min_improvement_threshold: float = 0.1  # Minimum improvement threshold
+    max_training_iterations: int = 10  # Maximum training iterations
+    enable_continuous_learning: bool = True  # Enable continuous learning
+    exploration_rate: float = 0.15  # Probability of exploring new strategies
+    knowledge_transfer_rate: float = 0.25  # Knowledge transfer probability
+    meta_learning_update_interval: int = 100  # Meta-learning update interval
+    performance_window_size: int = 20  # Performance analysis window size
+    trend_analysis_period: int = 10  # Trend analysis period
 
 
 class UnifiedSelfLearningSystem:
-    """AGI统一自主学习与优化系统
-    AGI Unified Self-Learning and Optimization System
+    """AGI Unified Self-Learning and Optimization System
     
-    功能：集成所有自主学习功能，实现复杂的AGI级别自我优化能力
     Function: Integrates all self-learning functionalities, implements complex AGI-level self-optimization capabilities
     """
     
@@ -103,10 +100,10 @@ class UnifiedSelfLearningSystem:
         self._initialize_meta_learning()
         
         self.logger = logging.getLogger(__name__)
-        self.logger.info("统一自主学习系统初始化完成 | Unified self-learning system initialized")
+        self.logger.info("Unified self-learning system initialized")
     
     def _initialize_model_references(self):
-        """初始化对其他模型的引用"""
+        """Initialize references to other models"""
         # 获取关键模型的引用
         self.knowledge_model = self.model_registry.get_model('knowledge')
         self.language_model = self.model_registry.get_model('language')
@@ -122,52 +119,52 @@ class UnifiedSelfLearningSystem:
             self.model_status_tracking[model_id]['model_type'] = model_type
     
     def _initialize_optimization_strategies(self) -> Dict[str, Any]:
-        """初始化优化策略库"""
+        """Initialize optimization strategy library"""
         return {
             'parameter_tuning': {
-                'description': '调整学习率、批次大小等基础参数',
+                'description': 'Adjust learning rate, batch size and other basic parameters',
                 'complexity': 'low',
                 'applicable_models': ['all'],
                 'success_rate': 0.7,
-                'execution_time': 300  # 秒
+                'execution_time': 300  # seconds
             },
             'architecture_optimization': {
-                'description': '优化模型架构层数、神经元数量等',
+                'description': 'Optimize model architecture layers, neuron counts, etc.',
                 'complexity': 'high',
                 'applicable_models': ['language', 'image', 'video', 'knowledge'],
                 'success_rate': 0.5,
                 'execution_time': 1800
             },
             'regularization_tuning': {
-                'description': '调整dropout、权重衰减等正则化参数',
+                'description': 'Adjust dropout, weight decay and other regularization parameters',
                 'complexity': 'medium',
                 'applicable_models': ['all'],
                 'success_rate': 0.65,
                 'execution_time': 600
             },
             'data_augmentation': {
-                'description': '优化数据增强策略和参数',
+                'description': 'Optimize data augmentation strategies and parameters',
                 'complexity': 'medium',
                 'applicable_models': ['image', 'video', 'audio'],
                 'success_rate': 0.6,
                 'execution_time': 900
             },
             'ensemble_learning': {
-                'description': '创建模型集成提高性能',
+                'description': 'Create model ensembles to improve performance',
                 'complexity': 'high',
                 'applicable_models': ['language', 'image', 'knowledge'],
                 'success_rate': 0.55,
                 'execution_time': 1200
             },
             'transfer_learning': {
-                'description': '应用迁移学习从其他模型获取知识',
+                'description': 'Apply transfer learning to acquire knowledge from other models',
                 'complexity': 'high',
                 'applicable_models': ['all'],
                 'success_rate': 0.7,
                 'execution_time': 1500
             },
             'meta_learning': {
-                'description': '基于历史学习经验优化学习策略',
+                'description': 'Optimize learning strategies based on historical learning experience',
                 'complexity': 'very_high',
                 'applicable_models': ['all'],
                 'success_rate': 0.8,
@@ -176,7 +173,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _initialize_meta_learning(self):
-        """初始化元学习规则"""
+        """Initialize meta-learning rules"""
         self.meta_learning_rules = {
             'performance_degradation': {
                 'conditions': ['accuracy_drop_rapid', 'loss_increase_rapid', 'consecutive_failures'],
@@ -201,7 +198,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _load_learning_history(self):
-        """加载历史学习数据"""
+        """Load historical learning data"""
         history_file = os.path.join(os.path.dirname(__file__), 'data', 'unified_learning_history.json')
         knowledge_file = os.path.join(os.path.dirname(__file__), 'data', 'knowledge_base.json')
         
@@ -216,10 +213,10 @@ class UnifiedSelfLearningSystem:
                     
         except Exception as e:
             error_handler.handle_error(e, "UnifiedSelfLearningSystem", 
-                                     "加载学习历史或知识库失败 | Failed to load learning history or knowledge base")
+                                     "Failed to load learning history or knowledge base")
     
     def _save_learning_data(self):
-        """保存学习数据"""
+        """Save learning data"""
         history_file = os.path.join(os.path.dirname(__file__), 'data', 'unified_learning_history.json')
         knowledge_file = os.path.join(os.path.dirname(__file__), 'data', 'knowledge_base.json')
         
@@ -235,12 +232,12 @@ class UnifiedSelfLearningSystem:
                 
         except Exception as e:
             error_handler.handle_error(e, "UnifiedSelfLearningSystem", 
-                                     "保存学习数据失败 | Failed to save learning data")
+                                     "Failed to save learning data")
     
     def start_autonomous_learning_cycle(self):
-        """启动自主学习循环"""
+        """Start autonomous learning cycle"""
         if self.running:
-            self.logger.info("自主学习循环已在运行中 | Autonomous learning cycle already running")
+            self.logger.info("Autonomous learning cycle already running")
             return False
         
         self.running = True
@@ -248,20 +245,20 @@ class UnifiedSelfLearningSystem:
         self.learning_thread.daemon = True
         self.learning_thread.start()
         
-        self.logger.info("自主学习循环已启动 | Autonomous learning cycle started")
+        self.logger.info("Autonomous learning cycle started")
         return True
     
     def stop_autonomous_learning_cycle(self):
-        """停止自主学习循环"""
+        """Stop autonomous learning cycle"""
         self.running = False
         if self.learning_thread and self.learning_thread.is_alive():
             self.learning_thread.join(timeout=5.0)
             
-        self.logger.info("自主学习循环已停止 | Autonomous learning cycle stopped")
+        self.logger.info("Autonomous learning cycle stopped")
         return True
     
     def _learning_cycle(self):
-        """自主学习循环的内部实现"""
+        """Internal implementation of autonomous learning cycle"""
         while self.running:
             try:
                 # 评估所有模型的性能
@@ -287,11 +284,11 @@ class UnifiedSelfLearningSystem:
                     time.sleep(1)
                     
             except Exception as e:
-                self.logger.error(f"自主学习循环出错: {e} | Autonomous learning cycle error: {e}")
+                self.logger.error(f"Autonomous learning cycle error: {e}")
                 time.sleep(5)
     
     def _evaluate_all_models(self):
-        """评估所有模型的性能"""
+        """Evaluate performance of all models"""
         for model_id, model in self.model_references.items():
             try:
                 # 评估模型性能
@@ -313,10 +310,10 @@ class UnifiedSelfLearningSystem:
                 self._update_model_status(model_id, performance)
                 
             except Exception as e:
-                self.logger.warning(f"评估模型 {model_id} 性能时出错: {e} | Error evaluating model {model_id} performance: {e}")
+                self.logger.warning(f"Error evaluating model {model_id} performance: {e}")
     
     def _evaluate_model_performance(self, model_id: str) -> float:
-        """评估单个模型的性能"""
+        """Evaluate performance of a single model"""
         model = self.model_references.get(model_id)
         if not model:
             return 0.0
@@ -331,11 +328,11 @@ class UnifiedSelfLearningSystem:
                 return self._default_performance_evaluation(model_id)
                 
         except Exception as e:
-            self.logger.error(f"模型性能评估错误: {model_id} - {e} | Model performance evaluation error: {model_id} - {e}")
+            self.logger.error(f"Model performance evaluation error: {model_id} - {e}")
             return 0.0
     
     def _default_performance_evaluation(self, model_id: str) -> float:
-        """默认性能评估方法"""
+        """Default performance evaluation method"""
         # 基于历史性能和模型类型的启发式评估
         if model_id in self.performance_metrics and self.performance_metrics[model_id]:
             recent_performance = [m['score'] for m in self.performance_metrics[model_id][-5:]]
@@ -351,7 +348,7 @@ class UnifiedSelfLearningSystem:
         return base_scores.get(model_type, 0.5)
     
     def _update_model_status(self, model_id: str, performance: float):
-        """更新模型状态"""
+        """Update model status"""
         improvement_rate = self._calculate_improvement_rate(model_id)
         training_priority = self._calculate_training_priority(model_id, performance, improvement_rate)
         
@@ -363,7 +360,7 @@ class UnifiedSelfLearningSystem:
         })
     
     def _calculate_improvement_rate(self, model_id: str) -> float:
-        """计算改进率"""
+        """Calculate improvement rate"""
         history = self.performance_metrics.get(model_id, [])
         if len(history) < 2:
             return 0.0
@@ -383,7 +380,7 @@ class UnifiedSelfLearningSystem:
         return sum(improvements) / len(improvements) if improvements else 0.0
     
     def _calculate_training_priority(self, model_id: str, performance: float, improvement_rate: float) -> float:
-        """计算训练优先级"""
+        """Calculate training priority"""
         # 性能越低，优先级越高
         # 改进率越低，优先级越高
         priority = (1.0 - performance) * 0.7 + (1.0 - max(improvement_rate, 0.0)) * 0.3
@@ -399,7 +396,7 @@ class UnifiedSelfLearningSystem:
         return priority * type_weights.get(model_type, 1.0)
     
     def _process_intelligent_optimization(self):
-        """处理智能优化"""
+        """Process intelligent optimization"""
         # 检查所有模型是否需要优化
         for model_id in self.model_references.keys():
             optimization_needed, reason = self._intelligent_optimization_check(model_id)
@@ -843,7 +840,7 @@ class UnifiedSelfLearningSystem:
             }
             
             self.optimization_queue.append(optimization_task)
-            self.logger.info(f"优化任务已排队: {model_id} - {reason} - {strategy}")
+            self.logger.info(f"Optimization task queued: {model_id} - {reason} - {strategy}")
             
             if len(self.optimization_queue) == 1:
                 self._process_optimization_queue()
@@ -912,23 +909,23 @@ class UnifiedSelfLearningSystem:
         strategy = task['strategy']
         
         try:
-            self.logger.info(f"开始执行优化: {model_id} - {strategy}")
+            self.logger.info(f"Starting optimization: {model_id} - {strategy}")
             
             success = self._execute_optimization_strategy(model_id, strategy)
             
             if success:
                 task['status'] = 'completed'
                 task['completion_time'] = time.time()
-                self.logger.info(f"优化完成: {model_id} - {strategy}")
+                self.logger.info(f"Optimization completed: {model_id} - {strategy}")
             else:
                 task['status'] = 'failed'
                 task['failure_reason'] = 'strategy_execution_failed'
-                self.logger.warning(f"优化失败: {model_id} - {strategy}")
+                self.logger.warning(f"Optimization failed: {model_id} - {strategy}")
                 
         except Exception as e:
             task['status'] = 'failed'
             task['failure_reason'] = str(e)
-            self.logger.error(f"优化执行错误: {model_id} - {strategy} - {e}")
+            self.logger.error(f"Optimization execution error: {model_id} - {strategy} - {e}")
         
         finally:
             self.optimization_queue = [t for t in self.optimization_queue if t['status'] not in ['completed', 'failed']]
@@ -954,7 +951,7 @@ class UnifiedSelfLearningSystem:
         try:
             model = self.model_registry.get_model(model_id)
             if not model:
-                self.logger.warning(f"模型未找到: {model_id}")
+                self.logger.warning(f"Model not found: {model_id}")
                 return False
             
             if strategy == 'parameter_tuning':
@@ -972,7 +969,7 @@ class UnifiedSelfLearningSystem:
             elif strategy == 'meta_learning':
                 return self._apply_meta_learning(model)
             else:
-                self.logger.warning(f"未知优化策略: {strategy}")
+                self.logger.warning(f"Unknown optimization strategy: {strategy}")
                 return False
                 
         except Exception as e:
@@ -993,7 +990,7 @@ class UnifiedSelfLearningSystem:
             return True
             
         except Exception as e:
-            self.logger.error(f"参数优化错误: {e}")
+            self.logger.error(f"Parameter optimization error: {e}")
             return False
     
     def _optimize_architecture(self, model) -> bool:
@@ -1003,7 +1000,7 @@ class UnifiedSelfLearningSystem:
             return True
             
         except Exception as e:
-            self.logger.error(f"架构优化错误: {e}")
+            self.logger.error(f"Architecture optimization error: {e}")
             return False
     
     def _optimize_regularization(self, model) -> bool:
@@ -1015,7 +1012,7 @@ class UnifiedSelfLearningSystem:
             return True
             
         except Exception as e:
-            self.logger.error(f"正则化优化错误: {e}")
+            self.logger.error(f"Regularization optimization error: {e}")
             return False
     
     def _optimize_data_augmentation(self, model) -> bool:
@@ -1028,7 +1025,7 @@ class UnifiedSelfLearningSystem:
             return True
             
         except Exception as e:
-            self.logger.error(f"数据增强优化错误: {e}")
+            self.logger.error(f"Data augmentation optimization error: {e}")
             return False
     
     def _create_ensemble(self, model) -> bool:
@@ -1038,7 +1035,7 @@ class UnifiedSelfLearningSystem:
             return True
             
         except Exception as e:
-            self.logger.error(f"模型集成错误: {e}")
+            self.logger.error(f"Model ensemble error: {e}")
             return False
     
     def _apply_transfer_learning(self, model) -> bool:
@@ -1054,7 +1051,7 @@ class UnifiedSelfLearningSystem:
             return False
             
         except Exception as e:
-            self.logger.error(f"迁移学习错误: {e}")
+            self.logger.error(f"Transfer learning error: {e}")
             return False
     
     def _find_best_source_model(self, target_model_id: str) -> Optional[str]:
@@ -1092,7 +1089,7 @@ class UnifiedSelfLearningSystem:
             return False
             
         except Exception as e:
-            self.logger.error(f"元学习错误: {e}")
+            self.logger.error(f"Meta-learning error: {e}")
             return False
     
     def _update_meta_learning_rules(self):
@@ -1154,7 +1151,7 @@ class UnifiedSelfLearningSystem:
             with open(report_file, 'w', encoding='utf-8') as f:
                 json.dump(report, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            self.logger.error(f"保存学习报告失败: {e}")
+            self.logger.error(f"Failed to save learning report: {e}")
     
     def get_status(self) -> Dict[str, Any]:
         """获取系统状态"""
@@ -1180,7 +1177,7 @@ class UnifiedSelfLearningSystem:
             if hasattr(self.config, key):
                 setattr(self.config, key, value)
         
-        self.logger.info(f"更新自主学习配置: {config}")
+        self.logger.info(f"Updated autonomous learning configuration: {config}")
     
     def reset_learning(self):
         """重置学习过程"""
@@ -1195,4 +1192,4 @@ class UnifiedSelfLearningSystem:
             'model_type': 'unknown'
         })
         
-        self.logger.info("重置自主学习过程")
+        self.logger.info("Reset autonomous learning process")

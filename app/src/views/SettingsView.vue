@@ -1,106 +1,106 @@
 <template>
   <div class="settings-view">
-    <!-- 加载状态指示器 -->
+    <!-- Loading Status Indicator -->
     <div v-if="loading" class="loading-overlay">
       <div class="loading"></div>
-      <span>{{ $t('common.loading') }}</span>
+      <span>Loading</span>
     </div>
     
 
     
-    <!-- 统计信息 -->
+    <!-- Statistics Section -->
     <div class="stats-section">
       <div class="stats-grid">
         <div class="stat-item">
           <span class="stat-value">{{ models.length }}</span>
-          <span class="stat-label">{{ $t('settings.totalModels') }}</span>
+          <span class="stat-label">Total Models</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ activeModelsCount }}</span>
-          <span class="stat-label">{{ $t('settings.activeModels') }}</span>
+          <span class="stat-label">Active Models</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ apiModelsCount }}</span>
-          <span class="stat-label">{{ $t('settings.apiModels') }}</span>
+          <span class="stat-label">API Models</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{ connectedModelsCount }}</span>
-          <span class="stat-label">{{ $t('settings.connectedModels') }}</span>
+          <span class="stat-label">Connected Models</span>
         </div>
       </div>
     </div>
     
-    <!-- 添加新模型部分 -->
+    <!-- Add New Model Section -->
     <div class="add-model-section">
-      <h3>{{ $t('settings.addNewModel') }}</h3>
+      <h3>Add New Model</h3>
       <div class="add-model-form">
         <div class="form-group">
-          <label>{{ $t('settings.modelId') }}</label>
-          <input type="text" v-model="newModel.id" :placeholder="$t('settings.modelIdPlaceholder')"
+          <label>Model ID</label>
+          <input type="text" v-model="newModel.id" :placeholder="'model ID'"
                  @keyup.enter="addNewModel">
-          <small class="form-hint">例如: manager, language, audio, vision 等</small>
+          <small class="form-hint">e.g: manager, language, audio, vision</small>
         </div>
         <div class="form-group">
-          <label>{{ $t('settings.modelName') }}</label>
-          <input type="text" v-model="newModel.name" :placeholder="$t('settings.modelNamePlaceholder')"
+          <label>Model Name</label>
+          <input type="text" v-model="newModel.name" :placeholder="'model name'"
                  @keyup.enter="addNewModel">
-          <small class="form-hint">例如: 管理模型, 语言模型, 音频模型等</small>
+          <small class="form-hint">e.g: Manager Model, Language Model, Audio Model</small>
         </div>
         <div class="form-group">
-          <label>{{ $t('settings.modelType') }}</label>
+          <label>Model Type</label>
           <select v-model="newModel.type">
-            <option value="local">{{ $t('settings.localModel') }}</option>
-            <option value="api">{{ $t('settings.apiModel') }}</option>
+            <option value="local">Local Model</option>
+            <option value="api">API Model</option>
           </select>
         </div>
         <button @click="addNewModel" class="add-btn" :disabled="!isValidNewModel || addingModel">
           <span v-if="addingModel" class="loading-small"></span>
-          {{ addingModel ? $t('common.loading') : $t('settings.addModel') }}
+          {{ addingModel ? 'Loading' : 'Add Model' }}
         </button>
       </div>
     </div>
     
-    <!-- 批量操作按钮 -->
+    <!-- Batch Operations -->
     <div v-if="models.length > 0" class="batch-actions">
       <button @click="startAllModels" class="batch-btn" :disabled="loading">
         <span v-if="loading" class="loading-small"></span>
-        {{ $t('settings.startAllModels') }}
+        Start All Models
       </button>
       <button @click="stopAllModels" class="batch-btn" :disabled="loading">
         <span v-if="loading" class="loading-small"></span>
-        {{ $t('settings.stopAllModels') }}
+        Stop All Models
       </button>
       <button @click="restartAllModels" class="batch-btn" :disabled="loading">
         <span v-if="loading" class="loading-small"></span>
-        {{ $t('settings.restartAllModels') }}
+        Restart All Models
       </button>
       <button @click="restartSystem" class="batch-btn" :disabled="loading" style="background-color: #e0e0e0;">
         <span v-if="loading" class="loading-small"></span>
-        {{ $t('settings.restartSystem') || '重启系统' }}
+        Restart System
       </button>
     </div>
     
-    <!-- 模型列表 - 模型控制中心 -->
+    <!-- Model List - Model Control Center -->
     <div v-if="models.length === 0" class="empty-state">
-      <p>{{ $t('settings.noModels') }}</p>
-      <small>{{ $t('settings.addFirstModelHint') }}</small>
+      <p>No models available</p>
+      <small>Add your first model to get started</small>
     </div>
     
     <div class="model-control-center">
-      <h3>{{ $t('settings.modelList') }}</h3>
+      <h3>Model List</h3>
       <div v-for="(model, index) in models" :key="model.id" class="model-card">
         <div class="model-header">
           <div class="model-info">
             <h4>{{ model.name }} ({{ model.id }})</h4>
             <div class="model-status-container">
               <div class="model-status" :class="model.status">
-                {{ $t(`settings.status.${model.status}`) }}
+                {{ model.status.charAt(0).toUpperCase() + model.status.slice(1) }}
               </div>
               <div class="model-active-indicator" :class="{ active: model.active }">
-                {{ model.active ? $t('settings.active') : $t('settings.inactive') }}
+                {{ model.active ? 'Active' : 'Inactive' }}
               </div>
               <div class="model-type-badge" :class="model.type">
-                {{ model.type === 'local' ? $t('settings.local') : $t('settings.external') }}
+                {{ model.type === 'local' ? 'Local' : 'External' }}
               </div>
             </div>
           </div>
@@ -108,41 +108,41 @@
             <button @click="toggleActivation(model)" :class="['activation-btn', model.active ? 'active' : 'inactive']"
                     :disabled="model.status === 'testing' || loading">
               <span v-if="loading" class="loading-small"></span>
-              {{ model.active ? $t('settings.deactivate') : $t('settings.activate') }}
+              {{ model.active ? 'Deactivate' : 'Activate' }}
             </button>
             <button @click="removeModel(index)" class="remove-btn" :disabled="model.status === 'testing' || loading">
-              {{ $t('settings.remove') }}
+              Remove
             </button>
           </div>
         </div>
         
         <div class="model-settings" v-if="showSettings[model.id]">
           <div class="model-type">
-            <label>{{ $t('settings.modelType') }}</label>
+            <label>Model Type</label>
             <select v-model="model.type" @change="onModelTypeChange(model)" :disabled="model.status === 'testing' || loading">
-              <option value="local">{{ $t('settings.localModel') }}</option>
-              <option value="api">{{ $t('settings.apiModel') }}</option>
+              <option value="local">Local Model</option>
+              <option value="api">API Model</option>
             </select>
           </div>
           
           <div v-if="model.type === 'api'" class="api-settings">
             <div class="form-group">
-              <label>{{ $t('settings.apiEndpoint') }}</label>
+              <label>API Endpoint</label>
               <input type="url" v-model="model.apiEndpoint" placeholder="https://api.example.com/v1/models"
                      :disabled="model.status === 'testing' || loading">
               <small class="form-hint" v-if="!isValidUrl(model.apiEndpoint) && model.apiEndpoint">
-                {{ $t('settings.invalidUrl') }}
+                Invalid URL
               </small>
             </div>
             
             <div class="form-group">
-              <label>{{ $t('settings.apiKey') }}</label>
-              <input type="password" v-model="model.apiKey" :placeholder="$t('settings.apiKeyPlaceholder')"
+              <label>API Key</label>
+              <input type="password" v-model="model.apiKey" :placeholder="'API key'"
                      :disabled="model.status === 'testing' || loading">
             </div>
             
             <div class="form-group">
-              <label>{{ $t('settings.modelName') }}</label>
+              <label>Model Name</label>
               <input type="text" v-model="model.modelName" placeholder="gpt-4"
                      :disabled="model.status === 'testing' || loading">
             </div>
@@ -150,25 +150,25 @@
             <div class="api-actions">
               <button @click="testConnection(model)" class="test-btn" :disabled="!isValidApiConfig(model) || model.status === 'testing' || loading">
                 <span v-if="model.status === 'testing' || loading" class="loading-small"></span>
-                {{ model.status === 'testing' ? $t('settings.connecting') : $t('settings.testConnection') }}
+                {{ model.status === 'testing' ? 'Connecting...' : 'Test Connection' }}
               </button>
               <button v-if="model.status === 'connected'" @click="useAsPrimary(model)" class="primary-btn">
-                {{ $t('settings.useAsPrimary') }}
+                Use as Primary
               </button>
             </div>
             <div v-if="model.lastTested" class="test-result">
-              <small>{{ $t('settings.lastTested') }}: {{ formatDateTime(model.lastTested) }}</small>
+              <small>Last tested: {{ formatDateTime(model.lastTested) }}</small>
             </div>
           </div>
           
           <div v-else class="local-settings">
             <div class="form-group">
-              <label>{{ $t('settings.localModelPath') }}</label>
-              <input type="text" v-model="model.localPath" :placeholder="$t('settings.localModelPathPlaceholder')" :disabled="loading">
+              <label>Local Model Path</label>
+              <input type="text" v-model="model.localPath" :placeholder="'Path to model files'" :disabled="loading">
             </div>
             
             <div class="form-group">
-              <label>{{ $t('settings.modelVersion') }}</label>
+              <label>Model Version</label>
               <input type="text" v-model="model.version" placeholder="1.0.0" :disabled="loading">
             </div>
           </div>
@@ -176,25 +176,25 @@
           <div class="model-control-actions">
             <button @click="startModel(model)" class="control-btn" :disabled="model.status === 'running' || model.status === 'testing' || !model.active || loading">
               <span v-if="loading" class="loading-small"></span>
-              {{ $t('settings.start') }}
+              Start
             </button>
             <button @click="stopModel(model)" class="control-btn" :disabled="model.status !== 'running' || model.status === 'testing' || loading">
               <span v-if="loading" class="loading-small"></span>
-              {{ $t('settings.stop') }}
+              Stop
             </button>
             <button @click="restartModel(model)" class="control-btn" :disabled="model.status === 'testing' || loading">
               <span v-if="loading" class="loading-small"></span>
-              {{ $t('settings.restart') }}
+              Restart
             </button>
           </div>
         </div>
         
         <div class="model-footer">
           <button @click="toggleSettings(model.id)" class="settings-toggle-btn">
-            {{ showSettings[model.id] ? $t('settings.hideSettings') : $t('settings.showSettings') }}
+            {{ showSettings[model.id] ? 'Hide Settings' : 'Show Settings' }}
           </button>
           <div v-if="model.status === 'failed'" class="error-message">
-            <small>{{ $t('settings.connectionError') }}: {{ model.errorMessage || $t('settings.unknownError') }}</small>
+            <small>Connection Error: {{ model.errorMessage || 'Unknown error' }}</small>
           </div>
         </div>
       </div>
@@ -202,25 +202,25 @@
     
     <!-- 模型工作状态 -->
     <div class="model-status-section">
-      <h3>{{ $t('settings.modelStatus') }}</h3>
+      <h3>Model Status</h3>
       <div class="status-grid">
         <div v-for="model in models" :key="model.id" class="model-performance-card">
           <div class="model-name">{{ model.name }}</div>
           <div class="model-status-indicator" :class="model.status"></div>
           <div class="model-performance">
-            <span>{{ $t('settings.statusLabel') }}: {{ $t(`settings.status.${model.status}`) }}</span>
+            <span>Status: {{ model.status.charAt(0).toUpperCase() + model.status.slice(1) }}</span>
           </div>
           <div class="model-metrics" v-if="getModelMetric(model.id, 'cpu') > 0">
             <div class="metric-item">
-              <span class="metric-label">{{ $t('settings.cpu') }}</span>
+              <span class="metric-label">CPU</span>
               <span class="metric-value">{{ getModelMetric(model.id, 'cpu') }}%</span>
             </div>
             <div class="metric-item">
-              <span class="metric-label">{{ $t('settings.memory') }}</span>
+              <span class="metric-label">Memory</span>
               <span class="metric-value">{{ getModelMetric(model.id, 'memory') }}MB</span>
             </div>
             <div class="metric-item">
-              <span class="metric-label">{{ $t('settings.responseTime') }}</span>
+              <span class="metric-label">Response Time</span>
               <span class="metric-value">{{ getModelMetric(model.id, 'response') }}ms</span>
             </div>
           </div>
@@ -231,10 +231,10 @@
     <div class="action-buttons">
       <button @click="saveSettings" class="save-btn" :disabled="saving || loading">
         <span v-if="saving" class="loading-small"></span>
-        {{ saving ? $t('settings.saving') : $t('settings.save') }}
+        {{ saving ? 'Saving...' : 'Save' }}
       </button>
       <button @click="resetSettings" class="reset-btn" :disabled="loading">
-        {{ $t('settings.reset') }}
+        Reset
       </button>
     </div>
   </div>
@@ -249,7 +249,7 @@ export default {
   data() {
     // 模拟数据用于API不可用时
     const mockModels = [
-        {          id: 'manager',          name: this.$t('models.A'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/manager',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'language',          name: this.$t('models.B'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/language',          version: '1.2.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'audio',          name: this.$t('models.C'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/audio',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision',          name: this.$t('models.D'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision',          version: '1.0.5',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision_image',          name: this.$t('models.D'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision_image',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'video',          name: this.$t('models.E'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/video',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'motion',          name: this.$t('models.I'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/motion',          version: '1.0.3',          lastTested: new Date(),          errorMessage: null        },        {          id: 'programming',          name: this.$t('models.K'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/programming',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'knowledge',          name: this.$t('models.J'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/knowledge',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'planning',          name: this.$t('models.L'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/planning',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'autonomous',          name: this.$t('models.M'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',
+        {          id: 'manager',          name: 'Manager Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/manager',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'language',          name: 'Language Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/language',          version: '1.2.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'audio',          name: 'Audio Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/audio',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision',          name: 'Vision Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision',          version: '1.0.5',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision_image',          name: 'Vision Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision_image',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'video',          name: 'Video Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/video',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'motion',          name: 'Motion Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/motion',          version: '1.0.3',          lastTested: new Date(),          errorMessage: null        },        {          id: 'programming',          name: 'Programming Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/programming',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'knowledge',          name: 'Knowledge Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/knowledge',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'planning',          name: 'Planning Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/planning',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'autonomous',          name: 'Autonomous Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',
           localPath: '/models/autonomous',
           version: '1.0.0',
           lastTested: new Date(),
@@ -257,7 +257,7 @@ export default {
         },
         {
           id: 'collaboration',
-          name: '协作模型',
+          name: 'Collaboration Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -271,7 +271,7 @@ export default {
         },
         {
           id: 'computer',
-          name: '计算机模型',
+          name: 'Computer Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -285,7 +285,7 @@ export default {
         },
         {
           id: 'emotion',
-          name: '情感模型',
+          name: 'Emotion Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -299,7 +299,7 @@ export default {
         },
         {
           id: 'finance',
-          name: '金融模型',
+          name: 'Finance Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -313,7 +313,7 @@ export default {
         },
         {
           id: 'medical',
-          name: '医疗模型',
+          name: 'Medical Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -327,7 +327,7 @@ export default {
         },
         {
           id: 'optimization',
-          name: '优化模型',
+          name: 'Optimization Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -341,7 +341,7 @@ export default {
         },
         {
           id: 'prediction',
-          name: '预测模型',
+          name: 'Prediction Model',
           type: 'local',
           status: 'connected',
           active: true,
@@ -353,7 +353,7 @@ export default {
           lastTested: new Date(),
           errorMessage: null
         },
-        {          id: 'sensor',          name: this.$t('models.G'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/sensor',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'spatial',          name: this.$t('models.F'),          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/spatial',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'openai',          name: 'OpenAI Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.openai.com/v1',          apiKey: 'sk-valid-example-key-for-testing',          modelName: 'gpt-3.5-turbo',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: this.$t('settings.connectionError')        },        {          id: 'anthropic',          name: 'Anthropic Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.anthropic.com/v1',          apiKey: 'anthropic_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',          modelName: 'claude-3-opus-20240229',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: this.$t('settings.connectionError')        }
+        {          id: 'sensor',          name: 'Sensor Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/sensor',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'spatial',          name: 'Spatial Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/spatial',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'openai',          name: 'OpenAI Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.openai.com/v1',          apiKey: 'sk-valid-example-key-for-testing',          modelName: 'gpt-3.5-turbo',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: 'Connection error'        },        {          id: 'anthropic',          name: 'Anthropic Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.anthropic.com/v1',          apiKey: 'anthropic_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',          modelName: 'claude-3-opus-20240229',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: 'Connection error'        }
       ];
 
     return {
@@ -395,21 +395,21 @@ export default {
           this.models = response.data.models;
         } else {
           const errorMsg = response.data.error || 'Unknown error';
-          errorHandler.handleError(errorMsg, this.$t('settings.loadFailed'));
+          errorHandler.handleError(new Error(errorMsg), 'Failed to load models');
           // API失败时使用模拟数据
           this.models = this.mockModels;
-          console.log(this.$t('settings.loadFailed') + ': ' + this.$t('settings.usingMockModels'));
-          alert(this.$t('settings.loadFailed') + ': ' + this.$t('settings.usingMockModels'));
+          console.log('Failed to load models: Using mock data');
+          alert('Failed to load models: Using mock data');
         }
       } catch (error) {
-          errorHandler.handleError(error, this.$t('settings.loadFailed'));
+          errorHandler.handleError(error, 'Failed to load models');
           // API不可用时使用模拟数据
           this.models = this.mockModels;
           // 只在开发环境或非500错误时显示通知，避免重复的错误消息
           if (process.env.NODE_ENV !== 'production' || 
               !error.response || error.response.status !== 500) {
-            console.log(this.$t('settings.loadFailed') + ': ' + this.$t('settings.usingMockModels'));
-            alert(this.$t('settings.loadFailed') + ': ' + this.$t('settings.usingMockModels'));
+            console.log('Failed to load models: Using mock data');
+            alert('Failed to load models: Using mock data');
           }
         }
       this.loading = false;
@@ -427,8 +427,8 @@ export default {
     },
     async testConnection(model) {
       if (!this.isValidApiConfig(model)) {
-        console.log(this.$t('settings.connectionFailed') + ': ' + this.$t('settings.fillApiFields'));
-        alert(this.$t('settings.connectionFailed') + ': ' + this.$t('settings.fillApiFields'));
+        console.log('Connection failed: Please fill all API fields');
+        alert('Connection failed: Please fill all API fields');
         return;
       }
       
@@ -446,17 +446,13 @@ export default {
           model.status = 'connected';
           model.lastTested = new Date();
           model.errorMessage = null; // 清除之前的错误消息
-          console.log(this.$t('settings.connectionSuccess') + ': ' + this.$t('settings.connectionSuccessMsg', { model: model.name }));
-          alert(this.$t('settings.connectionSuccess') + ': ' + this.$t('settings.connectionSuccessMsg', { model: model.name }));
+          console.log('Connection successful: ' + model.name + ' connected');
+          alert('Connection successful: ' + model.name + ' connected');
         } else {
           // API失败
           model.status = 'failed';
-          model.errorMessage = response.data.error || this.$t('settings.connectionFailedMsg'); // 保存错误消息
-          this.$notify({
-            title: this.$t('settings.connectionFailed'),
-            message: model.errorMessage,
-            type: 'error'
-          });
+          model.errorMessage = response.data.error || 'Connection failed'; // 保存错误消息
+          // Notification is disabled in simplified UI
         }
       } catch (error) {
         // API不可用，使用模拟连接结果
@@ -465,19 +461,11 @@ export default {
           model.status = 'connected';
           model.lastTested = new Date();
           model.errorMessage = null;
-          this.$notify({
-            title: this.$t('settings.connectionSuccess'),
-            message: this.$t('settings.connectionSuccessMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } else {
           model.status = 'failed';
-          model.errorMessage = this.$t('settings.connectionFailedMsg');
-          this.$notify({
-            title: this.$t('settings.connectionFailed'),
-            message: model.errorMessage,
-            type: 'error'
-          });
+          model.errorMessage = 'Failed to connect to model.';
+          // Notification is disabled in simplified UI
         }
         errorHandler.handleError(error, 'API unavailable, using mock connection result');
       }
@@ -487,26 +475,14 @@ export default {
       try {
         const response = await axios.put('/api/models', { models: this.models });
         if (response.data.success) {
-          this.$notify({
-            title: this.$t('settings.saved'),
-            message: this.$t('settings.savedMsg'),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } else {
-          errorHandler.handleError(response.data.error, 'Failed to save settings');
-          this.$notify({
-            title: this.$t('settings.saveFailed'),
-            message: response.data.error || this.$t('settings.saveFailedMsg'),
-            type: 'error'
-          });
+          errorHandler.handleError(new Error(response.data.error), 'Failed to save settings');
+          // Notification is disabled in simplified UI
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to save settings');
-        this.$notify({
-          title: this.$t('settings.saveFailed'),
-          message: error.message || this.$t('settings.saveFailedMsg'),
-          type: 'error'
-        });
+        // Notification is disabled in simplified UI
       }
       this.saving = false;
     },
@@ -523,21 +499,13 @@ export default {
     async addNewModel() {
       // Check if model ID already exists
       if (this.models.some(m => m.id === this.newModel.id)) {
-        this.$notify({
-          title: this.$t('settings.addModelFailed'),
-          message: this.$t('settings.modelIdExists'),
-          type: 'error'
-        });
+        // Notification is disabled in simplified UI
         return;
       }
 
       // Validate new model data
       if (!this.newModel.id || !this.newModel.name) {
-        this.$notify({
-          title: this.$t('settings.addModelFailed'),
-          message: this.$t('settings.fillRequiredFields'),
-          type: 'error'
-        });
+        // Notification is disabled in simplified UI
         return;
       }
 
@@ -549,11 +517,7 @@ export default {
         if (response.data.success) {
           // Success - use API response data
           this.models.push(response.data.model);
-          this.$notify({
-            title: this.$t('settings.modelAdded'),
-            message: this.$t('settings.modelAddedMsg', { model: response.data.model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } else {
           // API call made but failed - simulate success in mock environment
           const newModelWithDetails = {
@@ -574,12 +538,8 @@ export default {
           };
           
           this.models.push(newModelWithDetails);
-          this.$notify({
-            title: this.$t('settings.modelAdded'),
-            message: this.$t('settings.modelAddedMsg', { model: newModelWithDetails.name }),
-            type: 'success'
-          });
-          errorHandler.handleError(response.data.error, 'API returned failure, but added model locally');
+          // Notification is disabled in simplified UI
+          errorHandler.handleError(new Error(response.data.error), 'API returned failure, but added model locally');
         }
       } catch (error) {
         // API unavailable - simulate adding model locally
@@ -601,11 +561,7 @@ export default {
         };
         
         this.models.push(newModelWithDetails);
-        this.$notify({
-          title: this.$t('settings.modelAdded'),
-          message: this.$t('settings.modelAddedMsg', { model: newModelWithDetails.name }),
-          type: 'success'
-        });
+        // Notification is disabled in simplified UI
         errorHandler.handleError(error, 'API unavailable, added model locally');
       } finally {
         // Reset form regardless of outcome
@@ -621,7 +577,7 @@ export default {
     },
     async removeModel(index) {
       const model = this.models[index];
-      if (confirm(this.$t('settings.confirmRemove', { model: model.name }))) {
+      if (confirm('Are you sure you want to remove model "' + model.name + '"?')) {
         try {
           // Attempt API call
           const response = await axios.delete(`/api/models/${model.id}`);
@@ -629,29 +585,17 @@ export default {
           if (response.data.success) {
             // Success - remove from array
             this.models.splice(index, 1);
-            this.$notify({
-              title: this.$t('settings.modelRemoved'),
-              message: this.$t('settings.modelRemovedMsg', { model: model.name }),
-              type: 'success'
-            });
+            // Notification is disabled in simplified UI
           } else {
             // API call made but failed - simulate success in mock environment
             this.models.splice(index, 1);
-            this.$notify({
-              title: this.$t('settings.modelRemoved'),
-              message: this.$t('settings.modelRemovedMsg', { model: model.name }),
-              type: 'success'
-            });
-            errorHandler.handleError(response.data.error, 'API returned failure, but removed model locally');
+            // Notification is disabled in simplified UI
+            errorHandler.handleError(new Error(response.data.error), 'API returned failure, but removed model locally');
           }
         } catch (error) {
           // API unavailable - simulate removing model locally
           this.models.splice(index, 1);
-          this.$notify({
-            title: this.$t('settings.modelRemoved'),
-            message: this.$t('settings.modelRemovedMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
           errorHandler.handleError(error, 'API unavailable, removed model locally');
         }
       }
@@ -663,41 +607,25 @@ export default {
         if (response.data.success) {
           model.active = !model.active;
           const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-          this.$notify({
-            title: this.$t(`settings.${statusKey}`),
-            message: this.$t(`settings.${statusKey}Msg`, { model: model.name }),
-            type: 'info'
-          });
+          // Notification is disabled in simplified UI
         } else {
           // API失败但更新本地状态（模拟环境）
           model.active = !model.active;
           const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-          this.$notify({
-            title: this.$t(`settings.${statusKey}`),
-            message: this.$t(`settings.${statusKey}Msg`, { model: model.name }),
-            type: 'info'
-          });
-          errorHandler.handleError(response.data.error, 'Failed to toggle model status via API, but updated locally');
+          // Notification is disabled in simplified UI
+          errorHandler.handleError(new Error(response.data.error), 'Failed to toggle model status via API, but updated locally');
         }
       } catch (error) {
         // API不可用，直接更新本地状态（模拟环境）
         model.active = !model.active;
         const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-        this.$notify({
-          title: this.$t(`settings.${statusKey}`),
-          message: this.$t(`settings.${statusKey}Msg`, { model: model.name }),
-          type: 'info'
-        });
+        // Notification is disabled in simplified UI
         errorHandler.handleError(error, 'API unavailable, updated model status locally');
       }
     },
     async useAsPrimary(model) {
       if (model.status !== 'connected') {
-        this.$notify({
-          title: this.$t('settings.setPrimaryFailed'),
-          message: this.$t('settings.modelNotConnected'),
-          type: 'error'
-        });
+        // Notification is disabled in simplified UI
         return;
       }
       
@@ -710,33 +638,21 @@ export default {
           this.models.forEach(m => {
             m.primary = m.id === model.id;
           });
-          this.$notify({
-            title: this.$t('settings.primaryModelSet'),
-            message: this.$t('settings.primaryModelSetMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } else {
           // API失败但在本地模拟设置
           this.models.forEach(m => {
             m.primary = m.id === model.id;
           });
-          this.$notify({
-            title: this.$t('settings.primaryModelSet'),
-            message: this.$t('settings.primaryModelSetMsg', { model: model.name }),
-            type: 'success'
-          });
-          errorHandler.handleError(response.data.error, 'Failed to set primary model via API, but updated locally');
+          // Notification is disabled in simplified UI
+          errorHandler.handleError(new Error(response.data.error), 'Failed to set primary model via API, but updated locally');
         }
       } catch (error) {
         // API不可用，在本地模拟设置
         this.models.forEach(m => {
           m.primary = m.id === model.id;
         });
-        this.$notify({
-          title: this.$t('settings.primaryModelSet'),
-          message: this.$t('settings.primaryModelSetMsg', { model: model.name }),
-          type: 'success'
-        });
+        // Notification is disabled in simplified UI
         errorHandler.handleError(error, 'API unavailable, set primary model locally');
       }
     },
@@ -753,7 +669,7 @@ export default {
              model.modelName && model.modelName.trim() !== '';
     },
     formatDateTime(date) {
-      return new Date(date).toLocaleString(this.$i18n.locale);
+      return new Date(date).toLocaleString('en-US');
     },
     
     // 模型控制方法
@@ -763,18 +679,10 @@ export default {
         try {
           // 尝试API调用
           await axios.post(`/api/models/${model.id}/start`);
-          this.$notify({
-            title: this.$t('settings.modelStarted'),
-            message: this.$t('settings.modelStartedMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } catch (error) {
           // API不可用，使用模拟成功结果
-          this.$notify({
-            title: this.$t('settings.modelStarted'),
-            message: this.$t('settings.modelStartedMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
           errorHandler.handleError(error, 'API unavailable, simulated model start');
         }
       }
@@ -786,18 +694,10 @@ export default {
         try {
           // 尝试API调用
           await axios.post(`/api/models/${model.id}/stop`);
-          this.$notify({
-            title: this.$t('settings.modelStopped'),
-            message: this.$t('settings.modelStoppedMsg', { model: model.name }),
-            type: 'info'
-          });
+          // Notification is disabled in simplified UI
         } catch (error) {
           // API不可用，使用模拟成功结果
-          this.$notify({
-            title: this.$t('settings.modelStopped'),
-            message: this.$t('settings.modelStoppedMsg', { model: model.name }),
-            type: 'info'
-          });
+          // Notification is disabled in simplified UI
           errorHandler.handleError(error, 'API unavailable, simulated model stop');
         }
       }
@@ -812,21 +712,13 @@ export default {
         await axios.post(`/api/models/${model.id}/restart`);
         setTimeout(() => {
           model.status = wasRunning ? 'running' : 'stopped';
-          this.$notify({
-            title: this.$t('settings.modelRestarted'),
-            message: this.$t('settings.modelRestartedMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         }, 1000);
       } catch (error) {
         // API不可用，使用模拟成功结果
         setTimeout(() => {
           model.status = wasRunning ? 'running' : 'stopped';
-          this.$notify({
-            title: this.$t('settings.modelRestarted'),
-            message: this.$t('settings.modelRestartedMsg', { model: model.name }),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         }, 1000);
         errorHandler.handleError(error, 'API unavailable, simulated model restart');
       }
@@ -839,11 +731,7 @@ export default {
         modelsToStart.forEach(model => {
           this.startModel(model);
         });
-        this.$notify({
-          title: this.$t('settings.startAllModels'),
-          message: this.$t('settings.startingAllActiveModels'),
-          type: 'info'
-        });
+        // Notification is disabled in simplified UI
       }
     },
     
@@ -853,11 +741,7 @@ export default {
         modelsToStop.forEach(model => {
           this.stopModel(model);
         });
-        this.$notify({
-          title: this.$t('settings.stopAllModels'),
-          message: this.$t('settings.stoppingAllRunningModels'),
-          type: 'info'
-        });
+        // Notification is disabled in simplified UI
       }
     },
     
@@ -866,16 +750,12 @@ export default {
         this.models.forEach(model => {
           this.restartModel(model);
         });
-        this.$notify({
-          title: this.$t('settings.restartAllModels'),
-          message: this.$t('settings.restartingAllModels'),
-          type: 'info'
-        });
+        // Notification is disabled in simplified UI
       }
     },
     
     async restartSystem() {
-      if (confirm(this.$t('settings.confirmRestartSystem'))) {
+      if (confirm('Are you sure you want to restart the system?')) {
         this.loading = true;
         try {
           // 先停止所有模型
@@ -893,18 +773,10 @@ export default {
           this.loadModels();
           
           // 显示成功消息
-          this.$notify({
-            title: this.$t('settings.systemRestarted'),
-            message: this.$t('settings.systemRestartedMsg'),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
         } catch (error) {
           // 即使有错误，也显示成功消息（因为我们使用的是模拟数据）
-          this.$notify({
-            title: this.$t('settings.systemRestarted'),
-            message: this.$t('settings.systemRestartedMsg'),
-            type: 'success'
-          });
+          // Notification is disabled in simplified UI
           errorHandler.handleError(error, 'API unavailable, simulated system restart');
         } finally {
           this.loading = false;

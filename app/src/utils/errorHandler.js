@@ -34,7 +34,7 @@ class ErrorHandler {
     // 显示错误通知给用户
     if (window && window.$app && window.$app.config.globalProperties.$notify) {
       window.$app.config.globalProperties.$notify({
-        title: '错误',
+        title: 'Error',
         message: `[${context}] ${errorObj.message}`,
         type: 'error'
       });
@@ -70,7 +70,7 @@ class ErrorHandler {
     // 显示警告通知给用户
     if (window && window.$app && window.$app.config.globalProperties.$notify) {
       window.$app.config.globalProperties.$notify({
-        title: '警告',
+        title: 'Warning',
         message: `[${context}] ${message}`,
         type: 'warning'
       });

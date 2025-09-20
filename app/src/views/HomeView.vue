@@ -3,18 +3,18 @@
     <!-- User Guide Component -->
     <UserGuide v-if="showUserGuide" @close="showUserGuide = false" />
     
-    <!-- 页面内容区域 -->
+    <!-- Page Content Area -->
     
     <div class="input-area">
       <div class="conversation-header">
-        <h2>{{ $t('home.conversation') }}</h2>
+        <h2>Conversation</h2>
         <div class="main-model-status inline-status">
-          <span class="model-name">{{ $t('home.managementModel') }}</span>
+          <span class="model-name">Management Model</span>
           <span class="status-indicator" :class="modelConnectionStatus"></span>
-          <span class="status-text">{{ modelConnectionStatus === 'connected' ? $t('home.connectedText') : modelConnectionStatus === 'connecting' ? $t('home.connectingText') : $t('home.disconnectedText') }}</span>
+          <span class="status-text">{{ modelConnectionStatus === 'connected' ? 'Connected' : modelConnectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected' }}</span>
         </div>
         <button @click="clearAllMessages" class="clear-btn" :disabled="messages.length === 0">
-          {{ $t('home.clearAllMessages') }}
+          Clear All Messages
         </button>
       </div>
       <div class="chat-container">
@@ -28,25 +28,25 @@
         <input type="text"
                v-model="inputText"
                @keyup.enter="sendMessage"
-               :placeholder="$t('home.typeMessage')">
-        <button @click="sendMessage">{{ $t('home.send') }}</button>
+               placeholder="Type your message...">
+        <button @click="sendMessage">Send</button>
         <div class="input-options">
           <button @click="startVoiceRecognition" :disabled="isVoiceInputActive">
-            {{ isVoiceInputActive ? $t('home.stopVoiceInput') : $t('home.voiceInput') }}
+            {{ isVoiceInputActive ? 'Stop Voice Input' : 'Voice Input' }}
           </button>
-          <button @click="selectImage">{{ $t('home.imageInput') }}</button>
+          <button @click="selectImage">Image Input</button>
           <input type="file" ref="imageInput" style="display: none"
                  accept="image/*" @change="handleImageUpload">
-          <button @click="selectVideo">{{ $t('home.videoInput') }}</button>
+          <button @click="selectVideo">Video Input</button>
           <input type="file" ref="videoInput" style="display: none"
                  accept="video/*" @change="handleVideoUpload">
           <button @click="toggleRealTimeInput">
-            {{ showRealTimeInput ? $t('home.hideRealtime') : $t('home.showRealtime') }}
+            {{ showRealTimeInput ? 'Hide Realtime' : 'Show Realtime' }}
           </button>
         </div>
       </div>
       
-      <!-- 实时输入接口 -->
+      <!-- Real-time Input Interface -->
       <div v-if="showRealTimeInput" class="real-time-section">
         <RealTimeInput 
           @real-time-audio-data="handleRealTimeAudioData"
@@ -62,7 +62,6 @@
 </template>
 
 <script>
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import RealTimeInput from '@/components/RealTimeInput.vue';
 import UserGuide from '@/components/UserGuide.vue';
 import axios from 'axios';
@@ -71,7 +70,6 @@ import errorHandler from '@/utils/errorHandler';
 export default {
   name: 'HomeView',
   components: {
-    LanguageSwitcher,
     RealTimeInput,
     UserGuide
   },
@@ -99,7 +97,7 @@ export default {
         { id: 'knowledge', status: 'active', performance: 89 },
         { id: 'programming', status: 'active', performance: 91 }
       ],
-      // models数组与modelPerformanceData保持同步
+      // models array synchronized with modelPerformanceData
       models: [
         { id: 'manager', status: 'active', performance: 95 },
         { id: 'language', status: 'active', performance: 92 },
@@ -145,130 +143,130 @@ export default {
     window.removeEventListener('voice-input', this.handleVoiceInputEvent);
   },
     computed: {
-      // 计算活跃模型数量
+      // Calculate active model count
       activeModelsCount() {
         const count = this.modelPerformanceData.filter(model => model.status === 'active').length;
-        // 同步更新activeModels属性
+        // Synchronously update activeModels property
         this.activeModels = count;
         return count;
       },
-      // 管理模型状态文本
+      // Management model status text
       managementModelStatusText() {
         return this.managementModel.status === 'active' ? 
-          this.$t('home.connectedText') : 
-          this.$t('home.disconnectedText');
+          'Connected' : 
+          'Disconnected';
       },
-      // 整体模型连接状态
+      // Overall model connection status
       overallModelConnectionStatus() {
         if (this.backendConnected && this.managementModel.status === 'active') {
-          return this.$t('home.connectedText');
+          return 'Connected';
         } else if (this.backendStatus === 'connecting') {
-          return this.$t('home.connectingText');
+          return 'Connecting...';
         } else {
-          return this.$t('home.disconnectedText');
+          return 'Disconnected';
         }
       }
     },
     methods: {
-      // 初始化系统
+      // Initialize system
     initializeSystem() {
-      errorHandler.logInfo('AGI大脑系统初始化中...');
-      // 显示欢迎消息
-      this.addSystemMessage(this.$t('home.welcomeMessage'));
-      // 初始化模拟数据
+      errorHandler.logInfo('AGI Brain System initializing...');
+      // Show welcome message
+      this.addSystemMessage('Welcome to the AGI Brain System!');
+      // Initialize mock data
       this.useMockData();
     },
     
-    // 使用模拟数据的方法
+    // Use mock data method
     useMockData() {
-      // 模拟连接成功
+      // Simulate successful connection
       setTimeout(() => {
         this.backendConnected = true;
         this.backendStatus = 'connected';
         this.modelConnectionStatus = 'connected';
         
-        // 设置管理模型为活跃状态
+        // Set management model to active status
         this.managementModel = {
           name: 'A Management Model',
           status: 'active',
           lastActive: new Date().toISOString()
         };
         
-        // 更新connectedText
-        this.connectedText = this.$t('home.connectedText');
+        // Update connectedText
+        this.connectedText = 'Connected';
         
-        // 设置所有模型为活跃状态
+        // Set all models to active state
         this.models.forEach(model => {
           model.status = 'active';
           model.lastActive = new Date().toISOString();
         });
         
-        // 更新活跃模型数量
+        // Update active model count
         this.activeModels = this.activeModelsCount;
         
-        // 添加系统消息
-        this.addSystemMessage(this.$t('home.allModelsActivated'));
+        // Add system message
+        this.addSystemMessage('All models activated');
         
-        // 模拟实时数据更新
-        // 定期随机更新一些模型的状态，模拟真实系统的数据变化
+        // Simulate real-time data updates
+        // Periodically update some models' status randomly to simulate real system data changes
         this.startRealTimeDataSimulation();
       }, 1500);
     },
     
-    // 启动实时数据模拟
+    // Start real-time data simulation
     startRealTimeDataSimulation() {
-      // 每5-10秒随机更新一些模型的状态和性能
+      // Randomly update some models' status and performance every 5-10 seconds
       setInterval(() => {
-        // 随机选择1-3个模型进行状态或性能更新
+        // Randomly select 1-3 models for status or performance update
         const updateCount = Math.floor(Math.random() * 3) + 1;
         const modelIndices = [...Array(this.models.length).keys()];
         
-        // 随机打乱模型索引
+        // Randomly shuffle model indices
         for (let i = modelIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [modelIndices[i], modelIndices[j]] = [modelIndices[j], modelIndices[i]];
         }
         
-        // 更新选中的模型
+        // Update selected models
         for (let i = 0; i < updateCount; i++) {
           const index = modelIndices[i];
           const model = this.models[index];
           
-          // 有30%的概率切换模型状态（如果当前不是管理模型）
+          // 30% probability to switch model status (if not the management model)
           if (model.id !== 'manager' && Math.random() < 0.3) {
             model.status = model.status === 'active' ? 'inactive' : 'active';
             model.lastActive = model.status === 'active' ? new Date().toISOString() : model.lastActive;
             
-            // 添加系统消息提示模型状态变化
+            // Add system message to indicate model status change
             if (model.status === 'active') {
-              this.addSystemMessage(`${this.$t('home.modelActivated')}: ${model.id}`);
+              this.addSystemMessage(`Model activated: ${model.id}`);
             } else {
-              this.addSystemMessage(`${this.$t('home.modelDeactivated')}: ${model.id}`);
+              this.addSystemMessage(`Model deactivated: ${model.id}`);
             }
           }
           
-          // 有70%的概率更新模型性能值（±2范围内）
+          // 70% probability to update model performance value (within ±2 range)
           if (model.status === 'active' && Math.random() < 0.7) {
-            const change = (Math.random() - 0.5) * 4; // -2到+2的变化
+            const change = (Math.random() - 0.5) * 4; // -2 to +2 change
             model.performance = Math.max(50, Math.min(100, model.performance + change));
           }
         }
         
-        // 确保管理模型始终保持活跃状态
+        // Ensure management model remains active
         const managerModel = this.models.find(m => m.id === 'manager');
         if (managerModel) {
           managerModel.status = 'active';
         }
         
-        // 同步更新modelPerformanceData
+        // Synchronously update modelPerformanceData
         this.modelPerformanceData = [...this.models];
         
-        // 手动触发activeModelsCount的重新计算
+        // Manually trigger recalculation of activeModelsCount
         this.activeModels = this.activeModelsCount;
-      }, 5000 + Math.random() * 5000); // 5-10秒的随机间隔
+      }, 5000 + Math.random() * 5000); // Random interval of 5-10 seconds
     },
     
-    // 导航方法 - 使用Vue Router的正确方式
+    // Navigation methods - Using Vue Router the correct way
     navigateToTraining() {
       this.$router.push('/training');
     },
@@ -285,35 +283,35 @@ export default {
       this.$router.push('/help');
     },
     
-    // 导航到监控仪表盘
+    // Navigate to monitoring dashboard
     navigateToMonitor() {
       this.$router.push('/dashboard');
     },
     
-    // 切换实时输入界面
+    // Toggle real-time input interface
     toggleRealTimeInput() {
       this.showRealTimeInput = !this.showRealTimeInput;
     },
     
     loadHistoryMessages() {
       try {
-        // 从本地存储加载历史消息
+        // Load history messages from local storage
         const history = localStorage.getItem('agi_messages');
         if (history) {
           this.messages = JSON.parse(history);
         } else {
-          // 添加欢迎消息
+          // Add welcome message
           this.messages.push({
             id: Date.now(),
             type: 'system',
-            content: this.$t('home.welcomeMessage'),
+            content: 'Welcome to the AGI Brain System!',
             time: new Date().toLocaleTimeString()
           });
         }
       } catch (error) {
-        errorHandler.handleError('加载历史消息失败:', error);
-        // 添加错误消息到界面
-        this.addSystemMessage(this.$t('error.loadMessagesFailed'));
+        errorHandler.handleError(error, 'Failed to load history messages');
+        // Add error message to interface
+        this.addSystemMessage('Failed to load history messages');
       }
     },
     
@@ -334,93 +332,93 @@ export default {
         try {
           localStorage.setItem('agi_messages', JSON.stringify(this.messages));
         } catch (error) {
-          errorHandler.handleError('Failed to save messages:', error);
+          errorHandler.handleError(error, 'Failed to save messages');
           // Can choose whether to display error message here
         }
       },
       
-      // 清除所有对话消息
+      // Clear all conversation messages
       clearAllMessages() {
-        if (confirm(this.$t('home.confirmClearMessages'))) {
+        if (confirm('Are you sure you want to clear all messages?')) {
           this.messages = [{
             id: Date.now(),
             type: 'system',
-            content: this.$t('home.welcomeMessage'),
+            content: 'Welcome to the AGI Brain System!',
             time: new Date().toLocaleTimeString()
           }];
-          // 清空本地存储
+          // Clear local storage
           try {
             localStorage.removeItem('agi_messages');
           } catch (error) {
-            errorHandler.handleError('Failed to clear messages:', error);
+            errorHandler.handleError(error, 'Failed to clear messages');
           }
         }
       },
     
     async connectToBackend() {
-      try {
-        // 设置后端API的基础URL
-        this.backendStatus = 'connecting';
-        this.modelConnectionStatus = 'connecting';
-        errorHandler.logInfo('连接到后端服务...');
-        
-        // 模拟WebSocket连接成功（在实际环境中会连接真实后端）
-        setTimeout(() => {
-          errorHandler.logInfo('WebSocket连接成功');
-          this.backendConnected = true;
-          this.backendStatus = 'connected';
+        try {
+          // Set backend API base URL
+          this.backendStatus = 'connecting';
+          this.modelConnectionStatus = 'connecting';
+          errorHandler.logInfo('Connecting to backend service...');
+          
+          // Simulate WebSocket connection success (in real environment would connect to actual backend)
+          setTimeout(() => {
+            errorHandler.logInfo('WebSocket connection successful');
+            this.backendConnected = true;
+            this.backendStatus = 'connected';
+            this.modelConnectionStatus = 'connected';
+            
+            // Set management model to active status
+            this.managementModel = {
+              name: 'A Management Model',
+              status: 'active',
+              lastActive: new Date().toISOString()
+            };
+            
+            // Update connectedText
+            this.connectedText = 'Connected';
+            
+            // Update all models status to connected
+            this.models.forEach(model => {
+              model.status = 'active';
+              model.lastActive = new Date().toISOString();
+            });
+            
+            // Update active model count
+            this.activeModels = this.activeModelsCount;
+            
+            // Add connection success system message
+            this.addSystemMessage('Backend service connected successfully');
+          }, 1000);
+        } catch (error) {
+          errorHandler.handleError(error, 'Connection test failed');
+          this.modelConnectionStatus = 'error';
+          // Even if there's an error, simulate successful connection to ensure interface can be used normally
+          setTimeout(() => {
+            this.backendConnected = true;
+            this.backendStatus = 'connected';
           this.modelConnectionStatus = 'connected';
           
-          // 设置管理模型为活跃状态
+          // Set management model to active status
           this.managementModel = {
             name: 'A Management Model',
             status: 'active',
             lastActive: new Date().toISOString()
           };
           
-          // 更新connectedText
-          this.connectedText = this.$t('home.connectedText');
-          
-          // 更新所有模型状态为已连接
-          this.models.forEach(model => {
-            model.status = 'active';
-            model.lastActive = new Date().toISOString();
-          });
-          
-          // 更新活跃模型数量
-          this.activeModels = this.activeModelsCount;
-          
-          // 添加连接成功的系统消息
-          this.addSystemMessage(this.$t('home.backendConnected'));
-        }, 1000);
-      } catch (error) {
-        errorHandler.handleError('Connection test failed:', error);
-        this.modelConnectionStatus = 'error';
-        // 即使出错也模拟连接成功，确保界面可以正常使用
-        setTimeout(() => {
-          this.backendConnected = true;
-          this.backendStatus = 'connected';
-          this.modelConnectionStatus = 'connected';
-          
-          // 设置管理模型为活跃状态
-          this.managementModel = {
-            name: 'A Management Model',
-            status: 'active',
-            lastActive: new Date().toISOString()
-          };
-          
-          // 更新connectedText
-          this.connectedText = this.$t('home.connectedText');
+          // Update connectedText
+          this.connectedText = 'Connected';
           
           this.models.forEach(model => {
             model.status = 'active';
             model.lastActive = new Date().toISOString();
           });
           
-          // 更新活跃模型数量
+          // Update active model count
           this.activeModels = this.activeModelsCount;
           
-          this.addSystemMessage(this.$t('home.backendConnected'));
+          this.addSystemMessage('Backend service connected successfully');
         }, 1500);
       }
     },
@@ -442,7 +440,7 @@ export default {
           };
           
           // 更新connectedText
-          this.connectedText = this.$t('home.connectedText');
+          this.connectedText = 'Connected';
           
           this.models.forEach(model => {
             model.status = 'active';
@@ -452,10 +450,10 @@ export default {
           // 更新活跃模型数量
           this.activeModels = this.activeModelsCount;
           
-          this.addSystemMessage(this.$t('home.backendConnected'));
+          this.addSystemMessage('Backend service connected successfully');
         }, 1000);
       } catch (error) {
-        errorHandler.handleError('HTTP connection failed:', error);
+        errorHandler.handleError(error, 'HTTP connection failed');
         this.backendConnected = false;
         this.backendStatus = 'error';
         this.modelConnectionStatus = 'error';
@@ -481,7 +479,7 @@ export default {
       const loadingMessage = {
         id: loadingMessageId,
         type: 'loading',
-        content: this.$t('home.processingMessage'),
+        content: 'Processing message...',
         time: new Date().toLocaleTimeString()
       };
       this.messages.push(loadingMessage);
@@ -505,11 +503,11 @@ export default {
         // 保存到本地存储
         this.saveMessages();
       } catch (error) {
-        errorHandler.handleError('处理消息失败:', error);
-        // 移除加载状态消息
+        errorHandler.handleError(error, 'Failed to process message');
+        // Remove loading status message
         this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
-        // 添加错误消息到界面
-        this.addSystemMessage(this.$t('error.processingFailed'));
+        // Add error message to interface
+        this.addSystemMessage('Failed to process your message');
       }
     },
     
@@ -522,10 +520,10 @@ export default {
         
         let response;
         if (type === 'text') {
-          // 使用A Management Model处理文本输入 - 真实API调用
+          // Use A Management Model to process text input - real API call
           response = await axios.post('/api/manager/process', {
             message: input,
-            language: 'zh-CN', // 保持中文对话
+            language: 'en-US', // Set to English
             input_type: 'text',
             timestamp: new Date().toISOString(),
             session_id: this.getSessionId()
@@ -546,12 +544,12 @@ export default {
         if (response && response.data && response.data.success) {
           return response.data.response;
         } else {
-          throw new Error(response?.data?.error || this.$t('error.processingFailed'));
+          throw new Error(response?.data?.error || 'Failed to process your request');
         }
       } catch (error) {
-        errorHandler.handleError('处理用户输入失败:', error);
-        // 错误时提供有意义的模拟响应
-        this.addSystemMessage(this.$t('home.fallbackToMock'));
+        errorHandler.handleError(error, 'Failed to process user input');
+        // Provide meaningful mock response when there's an error
+        this.addSystemMessage('Falling back to mock response due to connection issues');
         return this.getEnhancedMockResponse(input, type);
       }
     },
@@ -571,7 +569,7 @@ export default {
       try {
         const response = await axios.post('/api/vision/process', {
           image: imageData,
-          language: 'zh-CN',
+          language: 'en-US',
           session_id: this.getSessionId()
         }, {
           timeout: 60000
@@ -580,11 +578,11 @@ export default {
         if (response.data.success) {
           return response.data.analysis;
         } else {
-          throw new Error(response.data.error || this.$t('error.imageProcessingFailed'));
+          throw new Error(response.data.error || 'Failed to process image');
         }
       } catch (error) {
-        errorHandler.handleError('图像处理失败:', error);
-        return this.$t('mock.imageAnalysisFailed');
+        errorHandler.handleError(error, 'Failed to process image');
+        return 'Image analysis failed due to connection issues';
       }
     },
     
@@ -593,7 +591,7 @@ export default {
       try {
         const response = await axios.post('/api/vision/process-video', {
           video: videoData,
-          language: 'zh-CN',
+          language: 'en-US',
           session_id: this.getSessionId()
         }, {
           timeout: 120000
@@ -602,20 +600,20 @@ export default {
         if (response.data.success) {
           return response.data.analysis;
         } else {
-          throw new Error(response.data.error || this.$t('error.videoProcessingFailed'));
+          throw new Error(response.data.error || 'Failed to process video');
         }
       } catch (error) {
-        errorHandler.handleError('视频处理失败:', error);
-        return this.$t('mock.videoAnalysisFailed');
+        errorHandler.handleError(error, 'Failed to process video');
+        return 'Video analysis failed due to connection issues';
       }
     },
     
-    // 处理音频输入
+    // Process audio input
     async processAudioInput(audioData) {
       try {
         const response = await axios.post('/api/audio/process', {
           audio: audioData,
-          language: 'zh-CN',
+          language: 'en-US',
           session_id: this.getSessionId()
         }, {
           timeout: 45000
@@ -624,80 +622,78 @@ export default {
         if (response.data.success) {
           return response.data.transcription;
         } else {
-          throw new Error(response.data.error || this.$t('error.audioProcessingFailed'));
+          throw new Error(response.data.error || 'Failed to process audio');
         }
       } catch (error) {
-        errorHandler.handleError('音频处理失败:', error);
-        return this.$t('mock.audioProcessingFailed');
+        errorHandler.handleError(error, 'Failed to process audio');
+        return 'Audio processing failed due to connection issues';
       }
     },
     
-    // 增强的智能模拟响应
+    // Enhanced intelligent mock response
     getEnhancedMockResponse(input, type) {
       if (type === 'text') {
         const lowerInput = input.toLowerCase();
         
-        // A Management Model特定回复
-        if (lowerInput.includes('management model') || lowerInput.includes('管理模型')) {
-          return this.$t('train.managementModelDesc');
+        // A Management Model specific response
+        if (lowerInput.includes('management model')) {
+          return 'The Management Model is the core component that coordinates all other models in the AGI Brain System. It handles task distribution, resource allocation, and ensures seamless communication between different models.';
         }
         
-        // 模型列表和激活状态检测
-        if (lowerInput.includes('模型列表') || lowerInput.includes('models list')) {
-          let modelList = this.$t('train.activeModelsList');
+        // Model list and activation status detection
+        if (lowerInput.includes('models list')) {
+          let modelList = 'Active Models List:\n';
           this.models.forEach((model, index) => {
-            modelList += `${index + 1}. ${this.$t(`models.${model.id}`)} - ${model.performance}% 性能\n`;
+            // Map model IDs to their English names
+            const modelName = this.getModelDisplayName(model.id);
+            modelList += `${index + 1}. ${modelName} - ${model.performance.toFixed(1)}% performance\n`;
           });
-          modelList += this.$t('train.activeModelsFooter');
+          modelList += '\nTotal active models: ' + this.activeModels;
           return modelList;
         }
         
-        // 问题类型识别与专业回答
-        if (lowerInput.includes('训练') || lowerInput.includes('train')) {
-          return this.$t('train.trainingStepsDesc');
-        } else if (lowerInput.includes('知识') || lowerInput.includes('knowledge')) {
-          return this.$t('train.knowledgeManagementDesc');
-        } else if (lowerInput.includes('连接') || lowerInput.includes('connection')) {
-          return this.$t('train.connectionStatusDesc', {
-            status: this.backendConnected ? this.$t('home.connectedText') : this.$t('home.disconnectedText'),
-            backendStatus: this.backendStatus,
-            modelStatus: this.modelConnectionStatus || '未知'
-          });
+        // Question type recognition and professional answers
+        if (lowerInput.includes('train')) {
+          return 'Training process involves several steps: 1) Data preparation, 2) Model configuration, 3) Training execution, 4) Evaluation, and 5) Deployment. You can access the training interface through the navigation menu.';
+        } else if (lowerInput.includes('knowledge')) {
+          return 'Knowledge management system handles information storage, retrieval, and organization. It supports document upload, semantic search, and knowledge graph visualization.';
+        } else if (lowerInput.includes('connection')) {
+          return `Connection Status:\n- Overall Status: ${this.backendConnected ? 'Connected' : 'Disconnected'}\n- Backend Status: ${this.backendStatus}\n- Model Status: ${this.modelConnectionStatus || 'Unknown'}`;
         }
         
-        // 技术支持相关
-        if (lowerInput.includes('问题') || lowerInput.includes('错误') || lowerInput.includes('help') || lowerInput.includes('support')) {
-          return this.$t('train.techSupportDesc');
+        // Technical support related
+        if (lowerInput.includes('help') || lowerInput.includes('support') || lowerInput.includes('problem') || lowerInput.includes('error')) {
+          return 'For technical support, please check the Help section or contact your system administrator. Common issues include connection problems, model performance issues, and configuration errors.';
         }
       }
       
-      // 通用智能响应
+      // General intelligent responses
       const responses = {
         text: [
-          this.$t('home.mockResponse1', { input: input }),
-          this.$t('home.mockResponse2', { input: input }),
-          this.$t('home.mockResponse3'),
-          this.$t('home.mockResponse4'),
-          this.$t('home.mockResponse5'),
-          this.$t('home.mockResponse6'),
-          this.$t('home.mockResponse7'),
-          this.$t('home.mockResponse8'),
-          this.$t('home.mockResponse9')
+          `I'm processing your request about "${input}". The AGI Brain System is designed to handle various types of inputs and provide intelligent responses.`,
+          `Your message "${input}" is being analyzed. The system is leveraging multiple AI models to generate the most accurate response.`,
+          'The AGI Brain System consists of multiple specialized models working together to provide comprehensive intelligence capabilities.',
+          'This is a mock response due to connection limitations. In a production environment, this would be processed by the actual backend services.',
+          'I can help you with a variety of tasks including text analysis, image recognition, audio processing, and more.',
+          'The system is currently in demo mode. Please explore the different features available in the navigation menu.',
+          'Thank you for using the AGI Brain System. How can I assist you further?',
+          'To get the most out of the system, try asking specific questions or providing clear instructions.',
+          'The system supports multiple input types including text, images, audio, and video. Try uploading different types of media.'
         ],
         image: [
-          this.$t('home.imageAnalysis1'),
-          this.$t('home.imageAnalysis2'),
-          this.$t('home.imageAnalysis3')
+          'This is a mock image analysis result. In a real environment, the Vision Model would analyze the image content and provide detailed insights.',
+          'Image processing completed. The system has detected key elements in the image and is preparing a comprehensive analysis.',
+          'The Vision Model is designed to recognize objects, scenes, text, and other visual elements in images.'
         ],
         video: [
-          this.$t('home.videoAnalysis1'),
-          this.$t('home.videoAnalysis2'),
-          this.$t('home.videoAnalysis3')
+          'Video processing is in progress. The system is analyzing key frames and extracting meaningful information from the video content.',
+          'This is a mock video analysis result. In a production environment, the system would provide detailed temporal analysis of the video.',
+          'The Video Analysis Model can detect motion, recognize objects over time, and identify patterns in video content.'
         ],
         audio: [
-          this.$t('home.audioAnalysis1'),
-          this.$t('home.audioAnalysis2'),
-          this.$t('home.audioAnalysis3')
+          'Audio transcription completed. The system has converted the speech to text and is preparing additional analysis.',
+          'This is a mock audio processing result. In a real environment, the Audio Model would provide accurate transcription and analysis.',
+          'The Audio Model can recognize speech, identify speakers, and extract key information from audio content.'
         ]
       };
       
@@ -705,7 +701,7 @@ export default {
       return typeResponses[Math.floor(Math.random() * typeResponses.length)];
     },
     
-    // 生成模拟响应（增强版）
+    // Generate mock response (enhanced version)
     generateMockResponse(input) {
       // 更智能的响应生成逻辑，基于输入关键词和内容
       const lowerInput = input.toLowerCase();
@@ -739,7 +735,7 @@ How else can I help you?`;
       }
     },
     
-    // 初始化语音识别（禁用，使用全局语音识别）
+    // Initialize voice recognition (disabled, using global voice recognition)
     initSpeechRecognition() {
       try {
         // 检查浏览器是否支持语音识别
@@ -748,44 +744,44 @@ How else can I help you?`;
           this.recognition = new SpeechRecognition();
         }
       } catch (error) {
-        errorHandler.handleError('初始化语音识别失败:', error);
+        errorHandler.handleError(error, 'Failed to initialize voice recognition');
       }
     },
     
-    // 处理来自App.vue的全局语音输入事件
+    // Handle global voice input events from App.vue
     handleVoiceInputEvent(event) {
       const text = event.detail;
       if (text && text.trim()) {
         this.inputText = text;
-        this.addSystemMessage(`${this.$t('home.voiceInputReceived')}: ${text}`);
-        // 自动发送消息
+        this.addSystemMessage(`Voice input received: ${text}`);
+        // Auto send message
         setTimeout(() => {
           this.sendMessage();
         }, 500);
       }
     },
 
-    // 处理实时音频数据
+    // Handle real-time audio data
     async handleRealTimeAudioData(audioData) {
       try {
-        errorHandler.logInfo('收到实时音频数据');
-        this.addSystemMessage(this.$t('home.realTimeAudioReceived'));
+        errorHandler.logInfo('Received real-time audio data');
+        this.addSystemMessage('Real-time audio data received');
         
-        // 添加加载状态消息
+        // Add loading status message
         const loadingMessageId = Date.now() + 0.5;
         const loadingMessage = {
           id: loadingMessageId,
           type: 'loading',
-          content: this.$t('home.processingAudio'),
+          content: 'Processing audio...',
           time: new Date().toLocaleTimeString()
         };
         this.messages.push(loadingMessage);
         this.saveMessages();
         
-        // 处理音频输入
+        // Process audio input
         const responseText = await this.processUserInput(audioData, 'audio');
         
-        // 移除加载状态消息
+        // Remove loading status message
         this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
         
         const botMessage = {
@@ -798,32 +794,50 @@ How else can I help you?`;
         this.messages.push(botMessage);
         this.saveMessages();
       } catch (error) {
-        errorHandler.handleError('处理实时音频数据失败:', error);
-        this.addSystemMessage(this.$t('error.audioProcessingFailed'));
+        errorHandler.handleError(error, 'Failed to process real-time audio data');
+        this.addSystemMessage('Failed to process audio');
       }
     },
 
-    // 处理实时视频数据
+    // Get model display name
+    getModelDisplayName(modelId) {
+      const modelNames = {
+        '8001': 'Management Model',
+        '8002': 'Language Model',
+        '8003': 'Knowledge Model',
+        '8004': 'Vision Model',
+        '8005': 'Audio Model',
+        '8006': 'Autonomous Model',
+        '8007': 'Programming Model',
+        '8008': 'Planning Model',
+        '8009': 'Emotion Model',
+        '8010': 'Spatial Model',
+        '8011': 'Computer Vision Model'
+      };
+      return modelNames[modelId] || `Model ${modelId}`;
+    },
+
+    // Handle real-time video data
     async handleRealTimeVideoData(videoData) {
       try {
-        errorHandler.logInfo('收到实时视频数据');
-        this.addSystemMessage(this.$t('home.realTimeVideoReceived'));
+        errorHandler.logInfo('Received real-time video data');
+        this.addSystemMessage('Real-time video data received');
         
-        // 添加加载状态消息
+        // Add loading status message
         const loadingMessageId = Date.now() + 0.5;
         const loadingMessage = {
           id: loadingMessageId,
           type: 'loading',
-          content: this.$t('home.processingVideo'),
+          content: 'Processing video...',
           time: new Date().toLocaleTimeString()
         };
         this.messages.push(loadingMessage);
         this.saveMessages();
         
-        // 处理视频输入
+        // Process video input
         const responseText = await this.processUserInput(videoData, 'video');
         
-        // 移除加载状态消息
+        // Remove loading status message
         this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
         
         const botMessage = {
@@ -836,33 +850,33 @@ How else can I help you?`;
         this.messages.push(botMessage);
         this.saveMessages();
       } catch (error) {
-        errorHandler.handleError('处理实时视频数据失败:', error);
-        this.addSystemMessage(this.$t('error.videoProcessingFailed'));
+        errorHandler.handleError(error, 'Failed to process real-time video data');
+        this.addSystemMessage('Failed to process video');
       }
     },
 
-    // 处理实时文本数据
+    // Handle real-time text data
     async handleRealTimeTextData(textData) {
       try {
-        errorHandler.logInfo('收到实时文本数据');
-        this.addSystemMessage(`${this.$t('home.realTimeTextReceived')}: ${textData}`);
+        errorHandler.logInfo('Received real-time text data');
+        this.addSystemMessage(`Real-time text received: ${textData}`);
         
-        // 直接使用文本数据发送消息
+        // Directly send message using text data
         this.inputText = textData;
         await this.sendMessage();
       } catch (error) {
-        errorHandler.handleError('处理实时文本数据失败:', error);
-        this.addSystemMessage(this.$t('error.textProcessingFailed'));
+        errorHandler.handleError(error, 'Failed to process real-time text data');
+        this.addSystemMessage('Failed to process text');
       }
     },
 
-    // 处理实时文件数据
+    // Handle real-time file data
     async handleRealTimeFileData(fileData) {
       try {
-        errorHandler.logInfo('收到实时文件数据');
-        this.addSystemMessage(`${this.$t('home.realTimeFileReceived')}: ${fileData.name || '文件'}`);
+        errorHandler.logInfo('Received real-time file data');
+        this.addSystemMessage(`Real-time file received: ${fileData.name || 'File'}`);
         
-        // 根据文件类型处理
+        // Process according to file type
         if (fileData.type.includes('image')) {
           await this.handleImageUpload({ target: { files: [fileData] } });
         } else if (fileData.type.includes('video')) {
@@ -870,18 +884,18 @@ How else can I help you?`;
         } else if (fileData.type.includes('audio')) {
           await this.handleRealTimeAudioData(fileData);
         } else {
-          // 其他文件类型
+          // Other file types
           const fileMessage = {
             id: Date.now(),
             type: 'user',
-            content: `[文件: ${fileData.name}]`,
+            content: `[File: ${fileData.name}]`,
             time: new Date().toLocaleTimeString()
           };
           
           const botMessage = {
             id: Date.now() + 1,
             type: 'bot',
-            content: this.$t('mock.fileReceived'),
+            content: 'File received. Processing...',
             time: new Date().toLocaleTimeString()
           };
           
@@ -889,43 +903,43 @@ How else can I help you?`;
           this.saveMessages();
         }
       } catch (error) {
-        errorHandler.handleError('处理实时文件数据失败:', error);
-        this.addSystemMessage(this.$t('error.fileProcessingFailed'));
+        errorHandler.handleError(error, 'Failed to process real-time file data');
+        this.addSystemMessage('Failed to process file');
       }
     },
 
-    // 设置实时输入监听器
+    // Set up real-time input listeners
     setupRealTimeInputListeners() {
-      errorHandler.logInfo('设置实时输入事件监听器');
-      // 事件监听器已在模板中通过@绑定，这里可以添加额外的初始化逻辑
+      errorHandler.logInfo('Setting up real-time input event listeners');
+      // Event listeners are already bound via @ in the template, additional initialization logic can be added here
     },
     
     async startVoiceInput() {
       this.isVoiceInputActive = !this.isVoiceInputActive;
       if (this.isVoiceInputActive) {
         try {
-          // 检查是否初始化了语音识别
+          // Check if speech recognition is initialized
           if (this.recognition) {
-            // 启动语音识别
+            // Start speech recognition
             this.recognition.start();
-            errorHandler.logInfo('启动语音识别...');
+            errorHandler.logInfo('Starting speech recognition...');
             
-            // 添加语音识别开始的系统消息
-            this.addSystemMessage(this.$t('home.voiceRecognitionStarted'));
+            // Add system message for speech recognition start
+            this.addSystemMessage('Speech recognition started');
           } else {
-            // 如果语音识别不可用，提示用户
-            errorHandler.logWarning('语音识别功能不可用');
-            this.addSystemMessage(this.$t('error.voiceRecognitionNotAvailable'));
+            // If speech recognition is not available, notify user
+            errorHandler.logWarning('Speech recognition feature is not available');
+            this.addSystemMessage('Speech recognition is not available');
             this.isVoiceInputActive = false;
           }
         } catch (error) {
-          errorHandler.handleError('启动语音识别失败:', error);
+          errorHandler.handleError(error, 'Failed to start speech recognition');
           this.isVoiceInputActive = false;
-          // 添加错误消息
-          this.addSystemMessage(`${this.$t('error.voiceRecognitionFailed')}: ${error.message || error}`);
+          // Add error message
+          this.addSystemMessage(`Speech recognition failed: ${error.message || error}`);
         }
       } else {
-        // 如果正在识别，停止语音识别
+        // If recognizing, stop speech recognition
         if (this.recognition && this.recognition.stop) {
           this.recognition.stop();
         }
@@ -937,9 +951,9 @@ How else can I help you?`;
       if (imageInput) {
         imageInput.click();
       } else {
-        errorHandler.handleError('图片输入元素未找到');
-        this.addSystemMessage(this.$t('error.imageInputNotFound'));
-      }
+          errorHandler.handleError(new Error('Image input element not found'), 'UI Element Error');
+          this.addSystemMessage('Image input element not found');
+        }
     },
 
     selectVideo() {
@@ -947,64 +961,64 @@ How else can I help you?`;
       if (videoInput) {
         videoInput.click();
       } else {
-        errorHandler.handleError('视频输入元素未找到');
-        this.addSystemMessage(this.$t('error.videoInputNotFound'));
-      }
+          errorHandler.handleError(new Error('Video input element not found'), 'UI Element Error');
+          this.addSystemMessage('Video input element not found');
+        }
     },
 
     async handleVideoUpload(event) {
       const file = event.target.files[0];
       if (file) {
         try {
-          // 实际上传视频到后端
-          errorHandler.logInfo(`上传视频: ${file.name}`);
-          // 添加上传开始的系统消息
-          this.addSystemMessage(`${this.$t('home.uploadingVideo')}: ${file.name}`);
+          // Actually upload video to backend
+          errorHandler.logInfo(`Uploading video: ${file.name}`);
+          // Add system message for upload start
+          this.addSystemMessage(`Uploading video: ${file.name}`);
           
-          // 检查文件大小（视频文件通常更大）
+          // Check file size (video files are usually larger)
           const maxSize = 50 * 1024 * 1024; // 50MB
           if (file.size > maxSize) {
-            throw new Error(this.$t('error.fileTooLarge'));
+            throw new Error('File is too large');
           }
           
-          // 检查文件类型
+          // Check file type
           const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
           if (!validVideoTypes.includes(file.type)) {
-            throw new Error(this.$t('error.invalidVideoFormat'));
+            throw new Error('Invalid video format');
           }
           
-          // 创建FormData对象
+          // Create FormData object
           const formData = new FormData();
           formData.append('video', file);
-          formData.append('lang', document.documentElement.lang || 'zh');
+          formData.append('lang', document.documentElement.lang || 'en');
           
-          // 添加加载状态消息
+          // Add loading status message
           const loadingMessageId = Date.now() + 0.5;
           const loadingMessage = {
             id: loadingMessageId,
             type: 'loading',
-            content: this.$t('home.processingVideo'),
+            content: 'Processing video...',
             time: new Date().toLocaleTimeString()
           };
           this.messages.push(loadingMessage);
           this.saveMessages();
           
-          // 发送到后端API处理视频
+          // Send to backend API for video processing
           const response = await axios.post('/api/process/video', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },
-            timeout: 300000 // 5分钟超时，视频处理可能需要更长时间
+            timeout: 300000 // 5 minutes timeout, video processing may take longer
           });
           
-          // 移除加载状态消息
+          // Remove loading status message
           this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
           
           if (response.data.status === 'success') {
             const videoMessage = {
               id: Date.now(),
               type: 'user',
-              content: `[视频: ${file.name}]`,
+              content: `[Video: ${file.name}]`,
               time: new Date().toLocaleTimeString()
             };
             
@@ -1016,25 +1030,25 @@ How else can I help you?`;
             };
             
             this.messages.push(videoMessage, botMessage);
-            // 保存到本地存储
+            // Save to local storage
             this.saveMessages();
           } else {
-            throw new Error(response.data.detail || this.$t('error.videoProcessingFailed'));
+            throw new Error(response.data.detail || 'Failed to process video');
           }
           
-          // 清空文件输入
+          // Clear file input
           event.target.value = '';
         } catch (error) {
-          errorHandler.handleError('上传视频失败:', error);
-          // 添加错误消息
-          this.addSystemMessage(`${this.$t('error.videoUploadFailed')}: ${error.message || error}`);
+          errorHandler.handleError(error, 'Failed to upload video');
+          // Add error message
+          this.addSystemMessage(`Failed to upload video: ${error.message || error}`);
           
-          // 如果后端未连接或超时，提供模拟响应
+          // If backend is not connected or timeout, provide mock response
           if (!this.backendConnected || error.message.includes('timeout')) {
             const videoMessage = {
               id: Date.now(),
               type: 'user',
-              content: `[视频: ${file.name}]`,
+              content: `[Video: ${file.name}]`,
               time: new Date().toLocaleTimeString()
             };
             
@@ -1057,55 +1071,55 @@ How else can I help you?`;
       const file = event.target.files[0];
       if (file) {
         try {
-          // 实际上传图片到后端
-          errorHandler.logInfo(`上传图片: ${file.name}`);
-          // 添加上传开始的系统消息
-          this.addSystemMessage(`${this.$t('home.uploadingImage')}: ${file.name}`);
+          // Actually upload image to backend
+          errorHandler.logInfo(`Uploading image: ${file.name}`);
+          // Add system message for upload start
+          this.addSystemMessage(`Uploading image: ${file.name}`);
           
-          // 检查文件大小
+          // Check file size
           const maxSize = 5 * 1024 * 1024; // 5MB
           if (file.size > maxSize) {
-            throw new Error(this.$t('error.fileTooLarge'));
+            throw new Error('File is too large');
           }
           
-          // 检查文件类型
+          // Check file type
           const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
           if (!validImageTypes.includes(file.type)) {
-            throw new Error(this.$t('error.invalidImageFormat'));
+            throw new Error('Invalid image format');
           }
           
-          // 创建FormData对象
+          // Create FormData object
           const formData = new FormData();
           formData.append('image', file);
-          formData.append('lang', document.documentElement.lang || 'zh');
+          formData.append('lang', document.documentElement.lang || 'en');
           
-          // 添加加载状态消息
+          // Add loading status message
           const loadingMessageId = Date.now() + 0.5;
           const loadingMessage = {
             id: loadingMessageId,
             type: 'loading',
-            content: this.$t('home.processingImage'),
+            content: 'Processing image...',
             time: new Date().toLocaleTimeString()
           };
           this.messages.push(loadingMessage);
           this.saveMessages();
           
-          // 发送到后端API处理图片
+          // Send to backend API for image processing
           const response = await axios.post('/api/process/image', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },
-            timeout: 60000 // 1分钟超时
+            timeout: 60000 // 1 minute timeout
           });
           
-          // 移除加载状态消息
+          // Remove loading status message
           this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
           
           if (response.data.status === 'success') {
             const imageMessage = {
               id: Date.now(),
               type: 'user',
-              content: `[图片: ${file.name}]`,
+              content: `[Image: ${file.name}]`,
               time: new Date().toLocaleTimeString()
             };
             
@@ -1117,29 +1131,29 @@ How else can I help you?`;
             };
             
             this.messages.push(imageMessage, botMessage);
-            // 保存到本地存储
+            // Save to local storage
             this.saveMessages();
           } else {
-            throw new Error(response.data.detail || this.$t('error.imageProcessingFailed'));
+            throw new Error(response.data.detail || 'Failed to process image');
           }
           
-          // 清空文件输入
+          // Clear file input
           event.target.value = '';
         } catch (error) {
-          errorHandler.handleError('上传图片失败:', error);
-          // 添加错误消息
-          this.addSystemMessage(`${this.$t('error.imageUploadFailed')}: ${error.message || error}`);
+          errorHandler.handleError(error, 'Failed to upload image');
+          // Add error message
+          this.addSystemMessage(`Failed to upload image: ${error.message || error}`);
           
-          // 如果后端未连接或超时，提供模拟响应
+          // If backend is not connected or timeout, provide mock response
           if (!this.backendConnected || error.message.includes('timeout')) {
             const imageMessage = {
               id: Date.now(),
               type: 'user',
-              content: `[图片: ${file.name}]`,
+              content: `[Image: ${file.name}]`,
               time: new Date().toLocaleTimeString()
             };
             
-            // 文件内容分析和响应
+            // File content analysis and response
             const mockResponse = this.analyzeUploadedFile(file, 'image');
             const botMessage = {
               id: Date.now() + 1,
@@ -1155,18 +1169,18 @@ How else can I help you?`;
       }
     },
 
-    // 分析上传的文件并生成智能响应
+    // Analyze uploaded file and generate intelligent response
     analyzeUploadedFile(file, type) {
-      // 模拟文件分析结果
+      // Mock file analysis result
       const fileType = file.type;
       let analysisResult = '';
       
       if (type === 'image' || fileType.includes('image')) {
-        analysisResult = `图像分析结果：\n- 文件名：${file.name}\n- 文件类型：${fileType}\n- 文件大小：${(file.size / 1024).toFixed(2)} KB\n- 内容类型：图像数据\n\nVision Model已分析图像内容，A Management Model可以基于图像信息提供相关回答。`;
+        analysisResult = `Image Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Content Type: Image Data\n\nVision Model has analyzed the image content. A Management Model can provide related answers based on image information.`;
       } else if (type === 'video' || fileType.includes('video')) {
-        analysisResult = `视频分析结果：\n- 文件名：${file.name}\n- 文件类型：${fileType}\n- 文件大小：${(file.size / 1024).toFixed(2)} KB\n- 内容类型：视频数据\n\n多模态处理已完成，A Management Model协调视觉和音频子系统进行了综合分析。`;
+        analysisResult = `Video Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Content Type: Video Data\n\nMultimodal processing completed. A Management Model coordinated visual and audio subsystems for comprehensive analysis.`;
       } else {
-        analysisResult = `文件分析结果：\n- 文件名：${file.name}\n- 文件类型：${fileType}\n- 文件大小：${(file.size / 1024).toFixed(2)} KB\n\n文件已成功上传，A Management Model可以基于文件内容提供相关回答。`;
+        analysisResult = `File Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n\nFile uploaded successfully. A Management Model can provide related answers based on file content.`;
       }
       
       return analysisResult;
@@ -1176,7 +1190,7 @@ How else can I help you?`;
 </script>
 
 <style scoped>
-/* 模型连接状态区域样式 - 黑白灰风格 */
+/* Model connection status area style - black, white, gray style */
 .model-status-area {
   margin-bottom: 20px;
   padding: 15px;
@@ -1218,16 +1232,16 @@ How else can I help you?`;
 }
 
 .status-indicator.connected {
-    background-color: #4caf50; /* 绿色 - 已连接 */
+    background-color: #4caf50; /* Green - Connected */
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
   }
 
   .status-indicator.connecting {
-    background-color: #ff9800; /* 橙色 - 连接中 */
+    background-color: #ff9800; /* Orange - Connecting */
   }
 
   .status-indicator.disconnected {
-    background-color: #f44336; /* 红色 - 断开连接 */
+    background-color: #f44336; /* Red - Disconnected */
   }
 
 .status-text {
@@ -1240,7 +1254,7 @@ How else can I help you?`;
   color: var(--text-secondary);
 }
 
-/* 对话标题和清除按钮区域 */
+/* Conversation title and clear button area */
 .conversation-header {
   display: flex;
   justify-content: space-between;
@@ -1325,12 +1339,12 @@ How else can I help you?`;
 }
 
 .status-dot.connected {
-      background-color: var(--text-primary); /* 深灰色 - 已连接 */
+      background-color: var(--text-primary); /* Dark gray - Connected */
       box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
     }
 
     .status-dot.disconnected {
-      background-color: var(--text-tertiary); /* 浅灰色 - 未连接 */
+      background-color: var(--text-tertiary); /* Light gray - Not connected */
       box-shadow: 0 0 0 2px rgba(200, 200, 200, 0.3);
     }
 
@@ -1696,7 +1710,7 @@ How else can I help you?`;
   box-shadow: var(--shadow-sm);
 }
 
-/* 管理模型状态显示样式 */
+/* Management model status display style */
 .conversation-header {
   display: flex;
   align-items: center;
@@ -1724,7 +1738,7 @@ How else can I help you?`;
   letter-spacing: normal;
 }
 
-/* 响应式设计 */
+/* Responsive Design */
 @media (max-width: 768px) {
   .home-view {
     padding: 15px;

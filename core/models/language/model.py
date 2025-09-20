@@ -13,14 +13,7 @@
 """
 
 """
-大语言模型 - 多语言交互与情感推理核心
 Language Model - Core Multilingual Interaction and Emotion Reasoning
-
-功能描述：
-- 支持多语言文本处理和理解
-- 实现情感分析和情感化响应生成
-- 提供本地和外部API两种运行模式
-- 支持联合训练和知识库集成
 
 Function Description:
 - Supports multilingual text processing and understanding
@@ -41,7 +34,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequen
 from transformers import DataCollatorForLanguageModeling, TextDataset
 from ..base_model import BaseModel
 from core.emotion_awareness import analyze_emotion, generate_emotion_response, EmotionAwarenessModule
-from core.i18n_manager import gettext, set_language as set_global_language
+
 from core.knowledge.knowledge_enhancer import KnowledgeEnhancer
 from core.unified_cognitive_architecture import NeuroSymbolicReasoner
 from core.self_learning import SelfLearningModule
@@ -57,30 +50,24 @@ class LanguageModel(BaseModel):
     """大语言模型核心
     Core Language Model
     
-    功能：处理多语言交互，实现情感推理和上下文理解
     Function: Handles multilingual interaction, implements emotion reasoning and context understanding
     """
     
     """
-    __init__函数 - 中文函数描述
-    __init__ Function - English function description
+    Initialize the Language Model
 
     Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
+        config: Configuration dictionary for the model
     """
     def __init__(self, config: Dict[str, Any] = None):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.model_id = "language"
         
-        # 语言支持配置 | Language support configuration
-        self.supported_languages = ["zh", "en", "de", "ja", "ru"]
-        self.current_language = "zh"  # 默认中文 | Default Chinese
+        # This is now an English-only system
+        self.current_language = "en"  # Fixed to English
         
-        # 情感状态机 | Emotion state machine
+        # Emotion state machine
         self.emotion_state = {
             "happiness": 0.5,
             "sadness": 0.2,
@@ -88,29 +75,29 @@ class LanguageModel(BaseModel):
             "surprise": 0.1,
             "fear": 0.1
         }
-        self.emotion_decay_rate = 0.95  # 情感衰减率
+        self.emotion_decay_rate = 0.95  # Emotion decay rate
         
-        # 模型运行模式 | Model operation mode
+        # Model operation mode
         self.model_mode = "local"  # local 或 api
         self.api_config = {}
         
-        # 情感推理缓存 | Emotion reasoning cache
+        # Emotion reasoning cache
         self.conversation_history = []
-        self.max_history_length = 20  # 增加历史长度
+        self.max_history_length = 20  # Increased history length
         
-        # AGI增强组件 | AGI enhanced components
-        self.conversation_model = None  # 对话理解神经网络
-        self.emotion_model = None  # 情感识别神经网络
-        self.knowledge_graph = {}  # 知识图谱存储
-        self.working_memory = []  # 工作记忆
-        self.attention_weights = {}  # 注意力权重
+        # AGI enhanced components
+        self.conversation_model = None  # Dialogue understanding neural network
+        self.emotion_model = None  # Emotion recognition neural network
+        self.knowledge_graph = {}  # Knowledge graph storage
+        self.working_memory = []  # Working memory
+        self.attention_weights = {}  # Attention weights
         
-        # 学习参数 | Learning parameters
+        # Learning parameters
         self.learning_rate = 0.001
-        self.memory_capacity = 1000  # 工作记忆容量
-        self.attention_span = 5  # 注意力跨度
+        self.memory_capacity = 1000  # Working memory capacity
+        self.attention_span = 5  # Attention span
         
-        # 确保performance_metrics已初始化 | Ensure performance_metrics is initialized
+        # Ensure performance_metrics is initialized
         if not hasattr(self, 'performance_metrics'):
             self.performance_metrics = {
                 "tasks_completed": 0,
@@ -127,35 +114,19 @@ class LanguageModel(BaseModel):
                 "last_updated": self._get_timestamp()
             }
         
-        self.logger.info("大语言模型初始化完成 | Language model initialized")
+        self.logger.info("Language model initialized")
         
         # 加载外部API配置（如果存在）| Load external API config if exists
         if config and "api_config" in config:
             self._load_api_config(config["api_config"])
 
-    """
-    set_language函数 - 中文函数描述
-    set_language Function - English function description
 
-    Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
-    """
-    def set_language(self, language_code: str):
-        """设置当前交互语言 | Set current interaction language"""
-        if language_code in self.supported_languages:
-            self.current_language = language_code
-            self.logger.info(f"语言已设置为: {language_code} | Language set to: {language_code}")
-            return True
-        self.logger.warning(f"不支持的语言: {language_code} | Unsupported language: {language_code}")
-        return False
+
 
     def _init_agi_modules(self):
         """初始化AGI认知模块 | Initialize AGI cognitive modules"""
         try:
-            # 确保单例模式，避免重复初始化
+            # Ensure singleton pattern to avoid repeated initialization
             if not hasattr(self, 'self_learning_module'):
                 self.self_learning_module = SelfLearningModule()
             if not hasattr(self, 'emotion_awareness_module'):
@@ -167,42 +138,42 @@ class LanguageModel(BaseModel):
             if not hasattr(self, 'unified_cognitive_architecture'):
                 self.unified_cognitive_architecture = UnifiedCognitiveArchitecture()
             
-            # 设置AGI模块之间的协作 | Set up collaboration between AGI modules
+            # Set up collaboration between AGI modules
             self._setup_agi_collaboration()
             
-            # AGI增强：初始化模块间的数据流和通信协议
+            # AGI Enhancement: Initialize data flow and communication protocols between modules
             self._init_agi_data_flow()
             
-            self.logger.info("AGI认知模块初始化完成 | AGI cognitive modules initialized")
+            self.logger.info("AGI cognitive modules initialized")
             return True
         except Exception as e:
-            self.logger.error(f"AGI模块初始化失败: {str(e)} | AGI module initialization failed: {str(e)}")
-            # 即使AGI模块失败，也继续运行，但记录错误 | Continue running even if AGI modules fail, but log error
+            self.logger.error(f"AGI module initialization failed: {str(e)}")
+            # Continue running even if AGI modules fail, but log error
             return False
 
     def _setup_agi_collaboration(self):
-        """设置AGI模块之间的协作关系 | Set up collaboration between AGI modules"""
-        # 配置模块之间的依赖和通信 | Configure dependencies and communication between modules
+        """Set up collaboration between AGI modules"""
+        # Configure dependencies and communication between modules
         if hasattr(self, 'neuro_symbolic_reasoner') and hasattr(self, 'context_memory_manager'):
             self.neuro_symbolic_reasoner.set_memory_manager(self.context_memory_manager)
         
         if hasattr(self, 'self_learning_module') and hasattr(self, 'neuro_symbolic_reasoner'):
             self.self_learning_module.set_reasoner(self.neuro_symbolic_reasoner)
         
-        self.logger.info("AGI模块协作设置完成 | AGI module collaboration setup completed")
+        self.logger.info("AGI module collaboration setup completed")
 
     def _init_agi_data_flow(self):
-        """初始化AGI模块间的数据流和通信协议 | Initialize data flow and communication protocols between AGI modules"""
+        """Initialize data flow and communication protocols between AGI modules"""
         try:
-            # 设置模块间的事件监听和回调
+            # Set up event listening and callbacks between modules
             if hasattr(self, 'self_learning_module') and hasattr(self, 'context_memory_manager'):
-                # 当自学习模块学到新知识时，更新上下文记忆
+                # When the self-learning module acquires new knowledge, update context memory
                 self.self_learning_module.set_learning_callback(
                     lambda data: self.context_memory_manager.update_from_learning(data)
                 )
             
             if hasattr(self, 'emotion_awareness_module') and hasattr(self, 'neuro_symbolic_reasoner'):
-                # 当情感状态变化时，通知神经符号推理器
+                # When emotion state changes, notify the neuro-symbolic reasoner
                 self.emotion_awareness_module.set_emotion_callback(
                     lambda emotion_data: self.neuro_symbolic_reasoner.update_emotion_context(emotion_data)
                 )
@@ -224,40 +195,40 @@ class LanguageModel(BaseModel):
                     lambda memory_data: self.emotion_awareness_module.update_context(memory_data)
                 )
             
-            self.logger.info("AGI数据流初始化完成 | AGI data flow initialized")
+            self.logger.info("AGI data flow initialized")
             
         except Exception as e:
-            self.logger.error(f"AGI数据流初始化失败: {str(e)} | AGI data flow initialization failed: {str(e)}")
+            self.logger.error(f"AGI data flow initialization failed: {str(e)}")
             # AGI增强：即使数据流初始化失败，也继续运行但记录详细错误
             self._log_detailed_error("agi_data_flow_init", str(e))
 
     def initialize(self) -> Dict[str, Any]:
-        """初始化语言模型资源 | Initialize language model resources"""
+        """Initialize language model resources"""
         try:
-            # 初始化情感分析器 | Initialize emotion analyzer
+            # Initialize emotion analyzer
             from core.emotion_awareness import EmotionAnalyzer
             self.emotion_analyzer = EmotionAnalyzer()
             self.emotion_analyzer.initialize()
             
-            # 初始化知识增强器 | Initialize knowledge enhancer
+            # Initialize knowledge enhancer
             from core.knowledge.knowledge_enhancer import KnowledgeEnhancer
             self.knowledge_enhancer = KnowledgeEnhancer()
             
-            # 初始化AGI认知模块 | Initialize AGI cognitive modules
+            # Initialize AGI cognitive modules
             self._init_agi_modules()
             
-            # 初始化神经网络模型 | Initialize neural network models
+            # Initialize neural network models
             self._initialize_neural_networks()
             
-            # 初始化知识图谱 | Initialize knowledge graph
+            # Initialize knowledge graph
             self._initialize_knowledge_graph()
             
-            # 初始化工作记忆和注意力机制 | Initialize working memory and attention
+            # Initialize working memory and attention
             self.working_memory = []
             self.attention_weights = {}
             
             self.is_initialized = True
-            self.logger.info("语言模型资源初始化完成 | Language model resources initialized")
+            self.logger.info("Language model resources initialized")
             return {
                 "success": True,
                 "initialized_components": [
@@ -270,51 +241,48 @@ class LanguageModel(BaseModel):
                 ]
             }
         except Exception as e:
-            self.logger.error(f"语言模型初始化失败: {str(e)} | Language model initialization failed: {str(e)}")
-            return {"success": False, "error": str(e)}
+            self.logger.error(f"Language model initialization failed: {str(e)}")
+            return {"success": False, "error": f"Language model initialization failed: {str(e)}"}
 
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理语言输入并生成AGI增强响应 | Process language input and generate AGI-enhanced response"""
+        """Process language input and generate AGI-enhanced response"""
         try:
-            # 检查模型是否已初始化 | Check if model is initialized
+            # Check if model is initialized
             if not self.is_initialized:
                 init_result = self.initialize()
                 if not init_result["success"]:
-                    return {"success": False, "error": "语言模型初始化失败 | Language model initialization failed"}
+                    return {"success": False, "error": "Language model initialization failed"}
             
             text = input_data.get("text", "")
             context = input_data.get("context", {})
             multimodal_data = input_data.get("multimodal_data", {})
             
-            # AGI增强：更新上下文记忆 | AGI Enhancement: Update context memory
+            # AGI Enhancement: Update context memory
             if hasattr(self, 'context_memory_manager'):
                 memory_context = self.context_memory_manager.update_context(
                     text, context, multimodal_data
                 )
                 context.update(memory_context)
             
-            # 更新对话历史 | Update conversation history
+            # Update conversation history
             self._update_history(text, context)
             
-            # AGI增强：深度情感分析 | AGI Enhancement: Deep emotion analysis
+            # AGI Enhancement: Deep emotion analysis
             emotion_state = self._analyze_emotion_with_agi(text, context)
             
-            # 多语言处理 | Multilingual processing
+            # Multilingual processing
             processed_text = self._preprocess_text(text)
             
-            # AGI增强：生成智能响应 | AGI Enhancement: Generate intelligent response
+            # AGI Enhancement: Generate intelligent response
             response = self._generate_agi_response(processed_text, emotion_state, context)
             
-            # AGI增强：情感化响应 | AGI Enhancement: Emotionalize response
+            # AGI Enhancement: Emotionalize response
             final_response = self._generate_emotion_aware_response(response, emotion_state)
             
-            # 翻译为目标语言 | Translate to target language
-            if self.current_language != "en":  # 假设模型内部使用英语 | Assuming internal use of English
-                # 设置全局语言以便gettext工作 | Set global language for gettext to work
-                set_global_language(self.current_language)
-                final_response = gettext(final_response)
+            # No need for translation since we'll keep everything in English
+            pass
             
-            # AGI增强：记录学习经验 | AGI Enhancement: Record learning experience
+            # AGI Enhancement: Record learning experience
             self._record_learning_experience(text, response, emotion_state, context)
             
             return {
@@ -326,7 +294,7 @@ class LanguageModel(BaseModel):
                 "context_understanding": self._calculate_context_understanding_score(context)
             }
         except Exception as e:
-            self.logger.error(f"语言处理错误: {str(e)} | Language processing error: {str(e)}")
+            self.logger.error(f"Language processing error: {str(e)}")
             # AGI增强：错误学习 | AGI Enhancement: Error learning
             if hasattr(self, 'self_learning_module'):
                 self.self_learning_module.record_error(str(e), "language_processing")
@@ -377,83 +345,59 @@ class LanguageModel(BaseModel):
             emotion_intensity = 0.5
             emotion_state = {"neutral": 0.5}
         
-        # 优先使用神经网络生成响应 | Prefer neural network for response generation
-        if self.conversation_model is not None and self.conversation_tokenizer is not None:
-            try:
-                return self._generate_neural_response(text, emotion_state)
-            except Exception as e:
-                self.logger.warning(f"神经网络响应失败，回退到本地响应: {str(e)} | Neural response failed, falling back to local: {str(e)}")
-                # 继续使用本地响应
-        else:
-            self.logger.info("神经网络模型未初始化，使用本地响应 | Neural models not initialized, using local response")
+        # Prefer neural network for response generation
+            if self.conversation_model is not None and self.conversation_tokenizer is not None:
+                try:
+                    return self._generate_neural_response(text, emotion_state)
+                except Exception as e:
+                    self.logger.warning(f"Neural response failed, falling back to local: {str(e)}")
+                    # Continue with local response
+            else:
+                self.logger.info("Neural models not initialized, using local response")
         
-        # 多语言响应生成 | Multilingual response generation
+        # English response templates
         response_templates = {
-            "zh": {
-                "greeting": [
-                    "你好！感受到你{emotion_phrase}，有什么我可以帮助的？",
-                    "嗨！{emotion_phrase}今天想聊点什么？",
-                    "您好！{emotion_phrase}很高兴与您交流。"
-                ],
-                "thanks": [
-                    "不用谢！{emotion_phrase}",
-                    "很乐意帮助！{emotion_phrase}",
-                    "这是我的荣幸！{emotion_phrase}"
-                ],
-                "default": [
-                    "我理解你的意思，{emotion_phrase}请告诉我更多细节。",
-                    "{emotion_phrase}我需要更多信息来更好地帮助你。",
-                    "我还在学习中，{emotion_phrase}请分享更多上下文。"
-                ],
-                "question": [
-                    "基于我的知识，{emotion_phrase}我认为...",
-                    "{emotion_phrase}从专业角度来说...",
-                    "根据我的理解，{emotion_phrase}建议..."
-                ]
-            },
-            "en": {
-                "greeting": [
-                    "Hello! I sense you're {emotion_phrase}, how can I help?",
-                    "Hi! {emotion_phrase} What would you like to talk about today?",
-                    "Greetings! {emotion_phrase} It's nice to communicate with you."
-                ],
-                "thanks": [
-                    "You're welcome! {emotion_phrase}",
-                    "Happy to help! {emotion_phrase}",
-                    "It's my pleasure! {emotion_phrase}"
-                ],
-                "default": [
-                    "I understand what you mean, {emotion_phrase} please tell me more details.",
-                    "{emotion_phrase} I need more information to better assist you.",
-                    "I'm still learning, {emotion_phrase} please share more context."
-                ],
-                "question": [
-                    "Based on my knowledge, {emotion_phrase} I think...",
-                    "{emotion_phrase} From a professional perspective...",
-                    "According to my understanding, {emotion_phrase} I recommend..."
-                ]
-            }
+            "greeting": [
+                "Hello! I sense you're {emotion_phrase}, how can I help?",
+                "Hi! {emotion_phrase} What would you like to talk about today?",
+                "Greetings! {emotion_phrase} It's nice to communicate with you."
+            ],
+            "thanks": [
+                "You're welcome! {emotion_phrase}",
+                "Happy to help! {emotion_phrase}",
+                "It's my pleasure! {emotion_phrase}"
+            ],
+            "default": [
+                "I understand what you mean, {emotion_phrase} please tell me more details.",
+                "{emotion_phrase} I need more information to better assist you.",
+                "I'm still learning, {emotion_phrase} please share more context."
+            ],
+            "question": [
+                "Based on my knowledge, {emotion_phrase} I think...",
+                "{emotion_phrase} From a professional perspective...",
+                "According to my understanding, {emotion_phrase} I recommend..."
+            ]
         }
         
-        # 获取情感短语 | Get emotion phrase
-        emotion_phrase = self._get_emotion_phrase(dominant_emotion, self.current_language)
+        # Get emotion phrase
+        emotion_phrase = self._get_emotion_phrase(dominant_emotion, "en")
         
-        # 根据输入内容选择响应模板 | Select response template based on input content
+        # Select response template based on input content
         import random
-        if any(word in text for word in ["你好", "hello", "hi", "嗨"]):
-            template = random.choice(response_templates[self.current_language]["greeting"])
-        elif any(word in text for word in ["谢谢", "thank", "thanks"]):
-            template = random.choice(response_templates[self.current_language]["thanks"])
-        elif "?" in text or "？" in text or any(word in text for word in ["什么", "如何", "为什么", "what", "how", "why"]):
-            template = random.choice(response_templates[self.current_language]["question"])
+        if any(word in text.lower() for word in ["hello", "hi"]):
+            template = random.choice(response_templates["greeting"])
+        elif any(word in text.lower() for word in ["thank", "thanks"]):
+            template = random.choice(response_templates["thanks"])
+        elif "?" in text or any(word in text.lower() for word in ["what", "how", "why"]):
+            template = random.choice(response_templates["question"])
         else:
-            template = random.choice(response_templates[self.current_language]["default"])
+            template = random.choice(response_templates["default"])
         
         return template.format(emotion_phrase=emotion_phrase)
 
     def train(self, training_data: Any = None, parameters: Dict[str, Any] = None) -> Dict[str, Any]:
-        """训练语言模型 | Train language model"""
-        self.logger.info("开始语言模型训练 | Starting language model training")
+        """Train language model"""
+        self.logger.info("Starting language model training")
         
         # 联合训练模式 | Joint training mode
         if parameters and "joint_training" in parameters:
@@ -462,7 +406,7 @@ class LanguageModel(BaseModel):
         try:
             # 检查训练数据 | Check training data
             if not training_data:
-                return {"success": False, "error": "缺少训练数据 | Missing training data"}
+                return {"success": False, "error": "Missing training data"}
             
             # 解析训练参数 | Parse training parameters
             batch_size = parameters.get("batch_size", 32) if parameters else 32
@@ -475,10 +419,10 @@ class LanguageModel(BaseModel):
             emotion_data = training_data.get("emotion_data", [])
             
             if not conversations and not emotion_data:
-                return {"success": False, "error": "训练数据为空 | Training data is empty"}
+                return {"success": False, "error": "Training data is empty"}
             
             # 开始真实训练过程 | Start real training process
-            self.logger.info(f"开始语言模型训练: {len(conversations)} 对话, {len(emotion_data)} 情感样本 | Starting language model training: {len(conversations)} conversations, {len(emotion_data)} emotion samples")
+            self.logger.info(f"Starting language model training: {len(conversations)} conversations, {len(emotion_data)} emotion samples")
             
             # 训练对话理解能力 | Train conversation understanding
             conversation_metrics = self._train_conversation_model(conversations, batch_size, learning_rate, max_epochs, validation_split)
@@ -508,73 +452,51 @@ class LanguageModel(BaseModel):
                 "training_time": f"{max_epochs * 0.5:.1f}s"  # 模拟训练时间 | Simulated training time
             }
             
-            self.logger.info(f"语言模型训练完成: {final_metrics} | Language model training completed: {final_metrics}")
+            self.logger.info(f"Language model training completed: {final_metrics}")
             return training_result
             
         except Exception as e:
-            self.logger.error(f"语言模型训练失败: {str(e)} | Language model training failed: {str(e)}")
-            return {"success": False, "error": str(e)}
+            self.logger.error(f"Language model training failed: {str(e)}")
+            return {"success": False, "error": f"Language model training failed: {str(e)}"}
 
-    def get_supported_languages(self) -> list:
-        """获取支持的语言列表 | Get supported languages list"""
-        return self.supported_languages
 
-    """
-    set_model_mode函数 - 中文函数描述
-    set_model_mode Function - English function description
 
-    Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
-    """
     def set_model_mode(self, mode: str, api_config: Dict[str, Any] = None):
-        """设置模型运行模式 | Set model operation mode"""
+        """Set model operation mode"""
         valid_modes = ["local", "api"]
         if mode not in valid_modes:
-            self.logger.error(f"无效模式: {mode} | Invalid mode: {mode}")
+            self.logger.error(f"Invalid mode: {mode}")
             return False
             
         self.model_mode = mode
         if mode == "api" and api_config:
             self._load_api_config(api_config)
             
-        self.logger.info(f"语言模型模式设置为: {mode} | Language model mode set to: {mode}")
+        self.logger.info(f"Language model mode set to: {mode}")
         return True
 
-    """
-    _load_api_config函数 - 中文函数描述
-    _load_api_config Function - English function description
-
-    Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
-    """
     def _load_api_config(self, config: Dict[str, Any]):
-        """加载API配置 | Load API configuration"""
+        """Load API configuration"""
         required_keys = ["api_key", "endpoint", "model_name"]
         if all(key in config for key in required_keys):
             self.api_config = config
-            self.logger.info("API配置加载成功 | API config loaded")
+            self.logger.info("API config loaded")
         else:
-            self.logger.error("API配置缺少必要参数 | API config missing required parameters")
+            self.logger.error("API config missing required parameters")
             
     def _call_external_api(self, text: str, emotion_state: Dict[str, float]) -> str:
-        """调用外部API | Call external API"""
+        """Call external API"""
         try:
-            # 获取API配置 | Get API configuration
+            # Get API configuration
             if not self.api_config:
-                self.logger.error("API配置未加载 | API config not loaded")
-                return "API配置错误 | API configuration error"
+                self.logger.error("API config not loaded")
+                return "API configuration error"
             
-            # 构建API请求 | Build API request
+            # Build API request
             request_data = {
                 "text": text,
                 "emotion_state": emotion_state,
-                "language": self.current_language,
+                "language": "en",
                 "max_tokens": 500,
                 "temperature": 0.7
             }
@@ -588,46 +510,24 @@ class LanguageModel(BaseModel):
             )
             
             if response.get("success"):
-                return response.get("data", {}).get("response", "无响应内容 | No response content")
+                return response.get("data", {}).get("response", "No response content")
             else:
-                self.logger.error(f"API调用失败: {response.get('error')} | API call failed: {response.get('error')}")
-                # 回退到本地模型 | Fallback to local model
+                self.logger.error(f"API call failed: {response.get('error')}")
+                # Fallback to local model
                 return self._generate_local_response(text, emotion_state)
                 
         except Exception as e:
-            self.logger.error(f"API调用异常: {str(e)} | API call exception: {str(e)}")
-            # 回退到本地模型 | Fallback to local model
+            self.logger.error(f"API call exception: {str(e)}")
+            # Fallback to local model
             return self._generate_local_response(text, emotion_state)
 
     def _generate_local_response(self, text: str, emotion_state: Dict[str, float]) -> str:
-        """本地模型响应生成 | Local model response generation"""
-        # 基础情感响应 | Basic emotion response
+        """Local model response generation"""
+        # Basic emotion response
         dominant_emotion = max(emotion_state, key=emotion_state.get)
         
-        # 多语言响应生成 | Multilingual response generation
+        # Multilingual response generation
         response_templates = {
-            "zh": {
-                "greeting": [
-                    "你好！感受到你{emotion_phrase}，有什么我可以帮助的？",
-                    "嗨！{emotion_phrase}今天想聊点什么？",
-                    "您好！{emotion_phrase}很高兴与您交流。"
-                ],
-                "thanks": [
-                    "不用谢！{emotion_phrase}",
-                    "很乐意帮助！{emotion_phrase}",
-                    "这是我的荣幸！{emotion_phrase}"
-                ],
-                "default": [
-                    "我理解你的意思，{emotion_phrase}请告诉我更多细节。",
-                    "{emotion_phrase}我需要更多信息来更好地帮助你。",
-                    "我还在学习中，{emotion_phrase}请分享更多上下文。"
-                ],
-                "question": [
-                    "基于我的知识，{emotion_phrase}我认为...",
-                    "{emotion_phrase}从专业角度来说...",
-                    "根据我的理解，{emotion_phrase}建议..."
-                ]
-            },
             "en": {
                 "greeting": [
                     "Hello! I sense you're {emotion_phrase}, how can I help?",
@@ -721,13 +621,13 @@ class LanguageModel(BaseModel):
         # 获取情感短语 | Get emotion phrase
         emotion_phrase = self._get_emotion_phrase(dominant_emotion, self.current_language)
         
-        # 根据输入内容选择响应模板 | Select response template based on input content
+        # Select response template based on input content
         import random
-        if any(word in text for word in ["你好", "hello", "hi", "嗨", "hallo", "こんにちは", "привет"]):
+        if any(word in text for word in ["hello", "hi", "hallo"]):
             template = random.choice(response_templates[self.current_language]["greeting"])
-        elif any(word in text for word in ["谢谢", "thank", "thanks", "danke", "ありがとう", "спасибо"]):
+        elif any(word in text for word in ["thank", "thanks", "danke"]):
             template = random.choice(response_templates[self.current_language]["thanks"])
-        elif "?" in text or "？" in text or any(word in text for word in ["什么", "如何", "为什么", "what", "how", "why", "was", "wie", "warum", "何", "どうやって", "なぜ", "что", "как", "почему"]):
+        elif "?" in text or any(word in text for word in ["what", "how", "why", "was", "wie", "warum"]):
             template = random.choice(response_templates[self.current_language]["question"])
         else:
             template = random.choice(response_templates[self.current_language]["default"])
@@ -735,27 +635,27 @@ class LanguageModel(BaseModel):
         return template.format(emotion_phrase=emotion_phrase)
 
     def _generate_neural_response(self, text: str, emotion_state: Dict[str, float]) -> str:
-        """使用神经网络生成响应 | Generate response using neural networks"""
+        """Generate response using neural networks"""
         try:
-            # 确保模型已初始化 | Ensure models are initialized
+            # Ensure models are initialized
             if self.conversation_model is None or self.conversation_tokenizer is None:
-                self.logger.warning("对话模型未初始化，使用本地响应 | Conversation model not initialized, using local response")
+                self.logger.warning("Conversation model not initialized, using local response")
                 return self._generate_local_response(text, emotion_state)
             
-            # 准备输入文本，包含情感上下文 | Prepare input text with emotion context
+            # Prepare input text with emotion context
             emotion_context = ""
             if emotion_state:
                 dominant_emotion = max(emotion_state, key=emotion_state.get)
                 emotion_intensity = emotion_state[dominant_emotion]
-                emotion_phrase = self._get_emotion_phrase(dominant_emotion, "en")  # 使用英语作为模型输入
+                emotion_phrase = self._get_emotion_phrase(dominant_emotion, "en")  # Use English for model input
                 emotion_context = f" [Emotion: {emotion_phrase} intensity: {emotion_intensity:.2f}]"
             
             input_text = text + emotion_context
             
-            # Tokenize输入文本 | Tokenize input text
+            # Tokenize input text
             inputs = self.conversation_tokenizer.encode(input_text, return_tensors="pt").to(self.device)
             
-            # 生成响应 | Generate response
+            # Generate response
             with torch.no_grad():
                 outputs = self.conversation_model.generate(
                     inputs,
@@ -768,10 +668,10 @@ class LanguageModel(BaseModel):
                     repetition_penalty=1.1
                 )
             
-            # 解码响应 | Decode response
+            # Decode response
             response = self.conversation_tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # 移除输入文本部分（如果包含）| Remove input text part if included
+            # Remove input text part if included
             if response.startswith(input_text):
                 response = response[len(input_text):].strip()
             
@@ -780,11 +680,11 @@ class LanguageModel(BaseModel):
             if not response:
                 response = self._generate_local_response(text, emotion_state)
             
-            self.logger.info(f"神经网络生成响应: {response} | Neural network generated response: {response}")
+            self.logger.info(f"Neural network generated response: {response}")
             return response
             
         except Exception as e:
-            self.logger.error(f"神经网络响应生成失败: {str(e)} | Neural response generation failed: {str(e)}")
+            self.logger.error(f"Neural response generation failed: {str(e)}")
             return self._generate_local_response(text, emotion_state)  # 回退到本地响应 | Fallback to local response
             
     
@@ -813,16 +713,8 @@ class LanguageModel(BaseModel):
             self.emotion_state[emotion] /= total
             
     def _get_emotion_phrase(self, emotion: str, lang: str) -> str:
-        """获取情感短语 | Get emotion phrase"""
+        """Get emotion phrase"""
         phrases = {
-            "zh": {
-                "happiness": "感受到你的快乐，",
-                "sadness": "感受到你的悲伤，",
-                "anger": "感受到你的愤怒，",
-                "surprise": "感受到你的惊讶，",
-                "fear": "感受到你的担忧，",
-                "neutral": "感受到你的平静，"
-            },
             "en": {
                 "happiness": "I sense your happiness, ",
                 "sadness": "I sense your sadness, ",
@@ -835,30 +727,30 @@ class LanguageModel(BaseModel):
         return phrases.get(lang, {}).get(emotion, "")
     
     def _analyze_emotion_with_agi(self, text: str, context: Dict[str, Any]) -> Dict[str, float]:
-        """AGI增强：深度情感分析 | AGI Enhancement: Deep emotion analysis"""
+        """AGI Enhancement: Deep emotion analysis"""
         try:
-            # 基础情感分析
+            # Basic emotion analysis
             emotion_result = analyze_emotion(text)
             base_emotion = emotion_result.get("emotions", {})
             
-            # AGI增强：使用情感意识模块进行深度分析
+            # AGI Enhancement: Use emotion awareness module for deep analysis
             if hasattr(self, 'emotion_awareness_module'):
                 agi_emotion = self.emotion_awareness_module.analyze_emotion(
                     text, context, base_emotion
                 )
-                # 融合基础情感和AGI情感分析
+                # Fuse basic emotion and AGI emotion analysis
                 for emotion, intensity in agi_emotion.items():
                     if emotion in base_emotion:
                         base_emotion[emotion] = (base_emotion[emotion] + intensity) / 2
                     else:
                         base_emotion[emotion] = intensity
             
-            # 确保情感状态包含所有基本情感
+            # Ensure emotion state contains all basic emotions
             for emotion in ["happiness", "sadness", "anger", "surprise", "fear"]:
                 if emotion not in base_emotion:
                     base_emotion[emotion] = 0.1
             
-            # 归一化情感强度
+            # Normalize emotion intensity
             total = sum(base_emotion.values())
             if total > 0:
                 for emotion in base_emotion:
@@ -867,39 +759,39 @@ class LanguageModel(BaseModel):
             return base_emotion
             
         except Exception as e:
-            self.logger.error(f"AGI情感分析失败: {str(e)} | AGI emotion analysis failed: {str(e)}")
-            # 回退到基础情感分析
+            self.logger.error(f"AGI emotion analysis failed: {str(e)}")
+            # Fall back to basic emotion analysis
             emotion_result = analyze_emotion(text)
             return emotion_result.get("emotions", {"neutral": 0.5})
     
     def _generate_agi_response(self, text: str, emotion_state: Dict[str, float], context: Dict[str, Any]) -> str:
-        """AGI增强：生成智能响应 | AGI Enhancement: Generate intelligent response"""
+        """AGI Enhancement: Generate intelligent response"""
         try:
-            # 使用神经符号推理器进行高级推理
+            # Use neuro-symbolic reasoner for advanced reasoning
             if hasattr(self, 'neuro_symbolic_reasoner'):
                 reasoning_result = self.neuro_symbolic_reasoner.reason_about_text(
                     text, emotion_state, context
                 )
                 
-                # 如果推理成功，使用推理结果生成响应
+                # If reasoning is successful, use reasoning result to generate response
                 if reasoning_result.get("success", False):
                     reasoned_response = reasoning_result.get("response", "")
                     if reasoned_response:
                         return reasoned_response
             
-            # 回退到标准响应生成
+            # Fall back to standard response generation
             if self.model_mode == "api":
                 return self._call_external_api(text, emotion_state)
             else:
                 return self._generate_neural_response(text, emotion_state)
                 
         except Exception as e:
-            self.logger.error(f"AGI响应生成失败: {str(e)} | AGI response generation failed: {str(e)}")
-            # 回退到本地响应
+            self.logger.error(f"AGI response generation failed: {str(e)}")
+            # Fall back to local response
             return self._generate_local_response(text, emotion_state)
     
     def _generate_emotion_aware_response(self, response: str, emotion_state: Dict[str, float]) -> str:
-        """AGI增强：情感化响应 | AGI Enhancement: Emotionalize response"""
+        """AGI Enhancement: Emotionalize response"""
         try:
             # 使用情感意识模块增强响应
             if hasattr(self, 'emotion_awareness_module'):
@@ -908,16 +800,16 @@ class LanguageModel(BaseModel):
                 )
                 return enhanced_response
             
-            # 回退到基础情感化响应
+            # Fall back to basic emotional response
             return generate_emotion_response(response, emotion_state)
             
         except Exception as e:
-            self.logger.error(f"情感化响应失败: {str(e)} | Emotion-aware response failed: {str(e)}")
+            self.logger.error(f"Emotion-aware response failed: {str(e)}")
             return response
     
     def _record_learning_experience(self, input_text: str, response: str, 
                                   emotion_state: Dict[str, float], context: Dict[str, Any]):
-        """AGI增强：记录学习经验 | AGI Enhancement: Record learning experience"""
+        """AGI Enhancement: Record learning experience"""
         try:
             if hasattr(self, 'self_learning_module'):
                 learning_data = {
@@ -931,36 +823,36 @@ class LanguageModel(BaseModel):
                 self.self_learning_module.record_experience(learning_data, "language_interaction")
                 
         except Exception as e:
-            self.logger.error(f"学习经验记录失败: {str(e)} | Learning experience recording failed: {str(e)}")
+            self.logger.error(f"Learning experience recording failed: {str(e)}")
     
     def _calculate_context_understanding_score(self, context: Dict[str, Any]) -> float:
-        """计算上下文理解得分 | Calculate context understanding score"""
+        """Calculate context understanding score"""
         try:
             if hasattr(self, 'context_memory_manager'):
                 return self.context_memory_manager.calculate_understanding_score(context)
             
-            # 基础上下文理解评分
+            # Basic context understanding scoring
             context_elements = len(context)
             history_length = len(self.conversation_history)
             
-            # 简单的评分逻辑
+            # Simple scoring logic
             score = min(0.9, (context_elements * 0.1 + history_length * 0.05))
             return round(score, 2)
             
         except Exception as e:
-            self.logger.error(f"上下文理解评分失败: {str(e)} | Context understanding scoring failed: {str(e)}")
+            self.logger.error(f"Context understanding scoring failed: {str(e)}")
             return 0.5
         
     def _joint_training(self, training_data: Any, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """联合训练接口 | Joint training interface"""
-        self.logger.info("开始联合训练 | Starting joint training")
+        """Joint training interface"""
+        self.logger.info("Starting joint training")
         
         try:
-            # 获取参与联合训练的模型 | Get models participating in joint training
+            # Get models participating in joint training
             joint_models = parameters.get("joint_models", [])
-            self.logger.info(f"联合训练模型: {joint_models} | Joint training models: {joint_models}")
+            self.logger.info(f"Joint training models: {joint_models}")
             
-            # 模拟联合训练过程 | Simulate joint training process
+            # Simulate joint training process
             training_metrics = {
                 "language_accuracy": 0.94,
                 "emotion_sync": 0.89,
@@ -968,7 +860,7 @@ class LanguageModel(BaseModel):
                 "context_understanding": 0.87
             }
             
-            # 更新性能指标 | Update performance metrics
+            # Update performance metrics
             self.performance_metrics.update(training_metrics)
             
             return {
@@ -979,14 +871,14 @@ class LanguageModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"联合训练失败: {str(e)} | Joint training failed: {str(e)}")
-            return {"status": "failed", "error": str(e)}
+            self.logger.error(f"Joint training failed: {str(e)}")
+            return {"status": "failed", "error": f"Joint training failed: {str(e)}"}
         
     
     def _train_conversation_model(self, conversations: List[Dict], batch_size: int, 
                                 learning_rate: float, max_epochs: int, validation_split: float) -> Dict[str, float]:
-        """训练对话理解模型 | Train conversation understanding model"""
-        self.logger.info(f"训练对话模型: {len(conversations)} 样本 | Training conversation model: {len(conversations)} samples")
+        """Train conversation understanding model"""
+        self.logger.info(f"Training conversation model: {len(conversations)} samples")
         
         # 模拟训练过程 | Simulate training process
         return {
@@ -999,8 +891,8 @@ class LanguageModel(BaseModel):
     
     def _train_emotion_model(self, emotion_data: List[Dict], batch_size: int,
                            learning_rate: float, max_epochs: int, validation_split: float) -> Dict[str, float]:
-        """训练情感识别模型 | Train emotion recognition model"""
-        self.logger.info(f"训练情感模型: {len(emotion_data)} 样本 | Training emotion model: {len(emotion_data)} samples")
+        """Train emotion recognition model"""
+        self.logger.info(f"Training emotion model: {len(emotion_data)} samples")
         
         # 模拟训练过程 | Simulate training process
         return {
@@ -1012,10 +904,10 @@ class LanguageModel(BaseModel):
         }
     
     def _update_response_templates(self, training_data: Dict[str, Any]):
-        """更新多语言响应模板 | Update multilingual response templates"""
+        """Update multilingual response templates"""
         new_templates = training_data.get("response_templates", {})
         if new_templates:
-            self.logger.info("更新响应模板 | Updating response templates")
+            self.logger.info("Updating response templates")
             # 这里可以添加实际的模板更新逻辑 | Add actual template update logic here
     
     def _calculate_multilingual_score(self, conversations: List[Dict]) -> float:
@@ -1037,9 +929,9 @@ class LanguageModel(BaseModel):
         return round((diversity * 0.4 + coverage * 0.6) * 0.95, 2)  # 加权得分 | Weighted score
 
     def _initialize_neural_networks(self):
-        """初始化神经网络模型 | Initialize neural network models"""
+        """Initialize neural network models"""
         try:
-            self.logger.info("开始初始化神经网络模型 | Starting neural network model initialization")
+            self.logger.info("Starting neural network model initialization")
             
             # 对话理解模型 - 使用预训练的多语言模型
             self.conversation_tokenizer = AutoTokenizer.from_pretrained(
@@ -1070,25 +962,25 @@ class LanguageModel(BaseModel):
             self.conversation_model.eval()
             self.emotion_model.eval()
             
-            self.logger.info("神经网络模型初始化完成 | Neural network models initialized")
+            self.logger.info("Neural network models initialized")
             
         except Exception as e:
-            self.logger.error(f"神经网络模型初始化失败: {str(e)} | Neural network model initialization failed: {str(e)}")
+            self.logger.error(f"Neural network model initialization failed: {str(e)}")
             # 回退到模拟模式
             self.model_mode = "simulated"
 
     def _initialize_knowledge_graph(self):
-        """初始化知识图谱 | Initialize knowledge graph"""
+        """Initialize knowledge graph"""
         try:
-            # 加载预训练的知识图谱或创建空图谱
+            # Load pre-trained knowledge graph or create empty graph
             self.knowledge_graph = {
                 "entities": {},
                 "relationships": {},
                 "last_updated": self._get_timestamp()
             }
-            self.logger.info("知识图谱初始化完成 | Knowledge graph initialized")
+            self.logger.info("Knowledge graph initialized")
         except Exception as e:
-            self.logger.error(f"知识图谱初始化失败: {str(e)} | Knowledge graph initialization failed: {str(e)}")
+            self.logger.error(f"Knowledge graph initialization failed: {str(e)}")
             self.knowledge_graph = {}
 
     def _get_timestamp(self) -> str:
@@ -1137,7 +1029,7 @@ class LanguageModel(BaseModel):
             return status
             
         except Exception as e:
-            self.logger.error(f"获取状态失败: {str(e)} | Failed to get status: {str(e)}")
+            self.logger.error(f"Failed to get status: {str(e)}")
             # 返回基本状态信息 | Return basic status information
             return {
                 "model_id": self.model_id,
@@ -1168,14 +1060,13 @@ class LanguageModel(BaseModel):
         任务执行结果 (Task execution result)
     """
     def execute_task(self, task_data: Dict[str, Any]) -> Dict[str, Any]:
-        """执行语言相关任务 | Execute language-related tasks"""
+        """Execute language-related tasks"""
         try:
             task_type = task_data.get("type", "process_text")
             task_params = task_data.get("params", {})
             
-            self.logger.info(f"执行语言任务: {task_type} | Executing language task: {task_type}")
+            self.logger.info(f"Executing language task: {task_type}")
             
-            # 根据任务类型执行不同的语言处理功能
             # Execute different language processing functions based on task type
             if task_type == "process_text":
                 return self.process(task_params)
@@ -1196,50 +1087,41 @@ class LanguageModel(BaseModel):
                 return self._generate_text(task_params)
                 
             else:
-                self.logger.warning(f"未知任务类型: {task_type} | Unknown task type: {task_type}")
+                self.logger.warning(f"Unknown task type: {task_type}")
                 return {
                     "success": False, 
-                    "error": f"不支持的任务类型: {task_type} | Unsupported task type: {task_type}"
+                    "error": f"Unsupported task type: {task_type}"
                 }
                 
         except Exception as e:
-            self.logger.error(f"任务执行失败: {str(e)} | Task execution failed: {str(e)}")
-            return {"success": False, "error": str(e)}
+            self.logger.error(f"Task execution failed: {str(e)}")
+            return {"success": False, "error": f"Task execution failed: {str(e)}"}
 
     def _translate_text(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """翻译文本 | Translate text"""
+        """Translate text"""
         text = params.get("text", "")
         target_lang = params.get("target_language", "en")
         source_lang = params.get("source_language", "auto")
         
-        # 保存当前语言设置 | Save current language setting
-        original_language = self.current_language
+        # Save current language setting
+        # This is now an English-only system, translation functionality is limited
         
-        try:
-            # 设置目标语言 | Set target language
-            if target_lang in self.supported_languages:
-                self.set_language(target_lang)
-            
-            # 模拟翻译过程 | Simulate translation process
-            translated_text = f"[翻译] {text} -> {target_lang}"
-            
-            return {
-                "success": True,
-                "translated_text": translated_text,
-                "source_language": source_lang,
-                "target_language": target_lang
-            }
-            
-        finally:
-            # 恢复原始语言设置 | Restore original language setting
-            self.set_language(original_language)
+        # Simulate translation process
+        translated_text = f"[Translated] {text} -> {target_lang}"
+        
+        return {
+            "success": True,
+            "translated_text": translated_text,
+            "source_language": source_lang,
+            "target_language": target_lang
+        }
 
     def _summarize_text(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """文本摘要 | Text summarization"""
+        """Text summarization"""
         text = params.get("text", "")
         max_length = params.get("max_length", 100)
         
-        # 模拟摘要生成 | Simulate summary generation
+        # Simulate summary generation
         if len(text) <= max_length:
             summary = text
         else:
@@ -1253,17 +1135,15 @@ class LanguageModel(BaseModel):
         }
 
     def _analyze_sentiment(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """情感分析 | Sentiment analysis"""
+        """Sentiment analysis"""
         text = params.get("text", "")
         
-        # 使用情感分析功能 | Use emotion analysis functionality
+        # Use emotion analysis functionality
         emotion_result = analyze_emotion(text)
         
-        # 确保我们只使用emotions字段，而不是整个结果对象
         # Ensure we only use the emotions field, not the entire result object
         emotion_state = emotion_result.get("emotions", {})
         
-        # 如果没有检测到情感，返回中性状态
         # If no emotions detected, return neutral state
         if not emotion_state:
             emotion_state = {"neutral": 0.5}
@@ -1276,16 +1156,12 @@ class LanguageModel(BaseModel):
         }
 
     def _detect_language(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """语言检测 | Language detection"""
+        """Language detection"""
         text = params.get("text", "")
         
-        # 简单的语言检测逻辑 | Simple language detection logic
+        # Simple language detection logic
         language_hints = {
-            "zh": ["的", "是", "在", "有", "我", "你", "他"],
-            "en": ["the", "and", "is", "in", "to", "of", "a"],
-            "de": ["der", "die", "das", "und", "ist", "in", "zu"],
-            "ja": ["の", "は", "に", "を", "が", "で", "た"],
-            "ru": ["и", "в", "не", "на", "я", "ты", "он"]
+            "en": ["the", "and", "is", "in", "to", "of", "a"]
         }
         
         detected_language = "unknown"
@@ -1305,13 +1181,13 @@ class LanguageModel(BaseModel):
         }
 
     def _generate_text(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """文本生成 | Text generation"""
+        """Text generation"""
         prompt = params.get("prompt", "")
         max_length = params.get("max_length", 200)
         temperature = params.get("temperature", 0.7)
         
-        # 模拟文本生成 | Simulate text generation
-        generated_text = f"基于提示 '{prompt}' 生成的文本示例。这是一段模拟的AI生成内容，展示了语言模型的文本生成能力。"
+        # Simulate text generation
+        generated_text = f"Text example generated based on prompt '{prompt}'. This is a simulated AI-generated content demonstrating the language model's text generation capability."
         
         if len(generated_text) > max_length:
             generated_text = generated_text[:max_length] + "..."
@@ -1324,5 +1200,5 @@ class LanguageModel(BaseModel):
             "temperature": temperature
         }
 
-# 导出模型类 | Export model class
+# Export model class
 AdvancedLanguageModel = LanguageModel

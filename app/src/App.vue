@@ -3,56 +3,39 @@
     <!-- System Top Menu Bar -->
     <div class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">{{ $t('main.title') }}</span>
+        <span class="system-title">AGI Brain System</span>
       </div>
       <div class="menu-right">
-        <!-- Language Switch Dropdown -->
-        <select v-model="currentLanguage" @change="changeLanguage" class="language-select">
-          <option value="en">{{ $t('language.english') }}</option>
-          <option value="zh">{{ $t('language.chinese') }}</option>
-          <option value="de">{{ $t('language.german') }}</option>
-          <option value="ja">{{ $t('language.japanese') }}</option>
-          <option value="ru">{{ $t('language.russian') }}</option>
-        </select>
-        
         <!-- Function Buttons -->
-        <router-link to="/" class="menu-link">          {{ $t('main.tabs.interaction') }}        </router-link>
-        <router-link to="/training" class="menu-link">
-          {{ $t('main.tabs.training') }}
-        </router-link>
-        <router-link to="/knowledge" class="menu-link">          {{ $t('main.tabs.knowledge') }}        </router-link>
-        <router-link to="/settings" class="menu-link">
-          {{ $t('main.tabs.settings') }}
-        </router-link>
-        <router-link to="/help" class="menu-link">
-          {{ $t('main.tabs.help') }}
-        </router-link>
+        <router-link to="/" class="menu-link">Interaction</router-link>
+        <router-link to="/training" class="menu-link">Training</router-link>
+        <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
+        <router-link to="/settings" class="menu-link">Settings</router-link>
+        <router-link to="/help" class="menu-link">Help</router-link>
         
         <!-- Server Connection Status -->
         <div class="connection-status">
           <span class="status-indicator" :class="{ 'connected': isConnected, 'disconnected': !isConnected }"></span>
-          <span class="status-text">{{ $t(isConnected ? 'main.status.connected' : 'main.status.disconnected') }}</span>
+          <span class="status-text">{{ isConnected ? 'Connected' : 'Disconnected' }}</span>
         </div>
       </div>
     </div>
 
     <router-view/>
     
-    <!-- 语音输入浮动按钮 | Voice Input Floating Button -->
+    <!-- Voice Input Floating Button -->
     <div class="voice-input-container" v-if="showVoiceInput">
       <button @click="toggleVoiceInput" class="voice-btn" :class="{ 'listening': recognitionInProgress }">
         <span v-if="!recognitionInProgress">🎤</span>
         <span v-else class="pulse-animation">🎤</span>
       </button>
-      <div class="voice-status" v-if="recognitionInProgress">          {{ $t('voice.listening') || 'Listening...' }}        </div>
+      <div class="voice-status" v-if="recognitionInProgress">Listening...</div>
     </div>
   </div>
 </template>
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { switchLanguage, detectAndSetBrowserLanguage } from './i18n.js'
-import i18n from './i18n.js'
 import { useRouter } from 'vue-router'
 import errorHandler from '@/utils/errorHandler'
 
@@ -64,162 +47,106 @@ export default {
   },
   setup(props, { emit }) {
     const router = useRouter();
-    const currentLanguage = ref('zh');
     const showVoiceInput = ref(true);
     const showVoiceStatus = ref(false);
     const voiceStatusMessage = ref('');
     const speechRecognition = ref(null);
     const recognitionInProgress = ref(false);
-    const isConnected = ref(false); // 服务器连接状态，默认为断开
+    const isConnected = ref(false); // Server connection status, default disconnected
     
-    // 模拟检查服务器连接状态
+    // Simulate checking server connection status
     const checkServerConnection = () => {
       try {
-        // 这里应该是实际的WebSocket连接检查逻辑
-        // 目前使用随机模拟连接状态
-        const randomConnection = Math.random() > 0.3; // 70%的概率模拟连接成功
+        // This should be actual WebSocket connection check logic
+        // Currently using random simulation of connection status
+        const randomConnection = Math.random() > 0.3; // 70% probability of successful connection
         isConnected.value = randomConnection;
         
-        // 每5秒检查一次连接状态
+        // Check connection status every 5 seconds
         setTimeout(checkServerConnection, 5000);
       } catch (error) {
-        errorHandler.handleError('检查服务器连接时出错:', error);
+        errorHandler.handleError('Error checking server connection:', error);
         isConnected.value = false;
       }
     };
-    // 移除监控标签，保持界面简洁
     
-    // 初始化语言设置
-    const initializeLanguage = () => {
-      try {
-        // 优先使用已保存的语言偏好
-        const savedLanguage = localStorage.getItem('user-language') || localStorage.getItem('agi_language')
-        if (savedLanguage && ['zh', 'en', 'de', 'ja', 'ru'].includes(savedLanguage)) {
-          currentLanguage.value = savedLanguage
-          // 确保i18n使用正确的语言
-          switchLanguage(savedLanguage)
-        } else {
-          // 自动检测浏览器语言
-          detectAndSetBrowserLanguage()
-          // 设置当前语言为检测到的语言或默认英文
-          currentLanguage.value = i18n.global.locale.value || 'en'
-          switchLanguage(currentLanguage.value)
-        }
-        
-        errorHandler.logInfo('语言设置已初始化:', currentLanguage.value)
-      } catch (error) {
-        errorHandler.handleWarning('初始化语言设置时出错:', error)
-        // 出错时默认使用英文
-        currentLanguage.value = 'en'
-        switchLanguage('en')
-        localStorage.setItem('user-language', 'en')
-      }
-    }
-    
-    // 初始化语音识别
+    // Initialize speech recognition
     const initSpeechRecognition = () => {
       try {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
           const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
           speechRecognition.value = new SpeechRecognition()
           
-          // 设置语音识别参数
-          speechRecognition.value.lang = getSpeechLanguage()
+          // Set speech recognition parameters
+          speechRecognition.value.lang = 'en-US' // Always use English
           speechRecognition.value.interimResults = true
           speechRecognition.value.maxAlternatives = 1
           speechRecognition.value.continuous = false
           
-          // 处理语音识别结果
+          // Handle speech recognition results
           speechRecognition.value.onresult = (event) => {
             const transcript = event.results[0][0].transcript
             processVoiceCommand(transcript)
           }
           
-          // 处理语音识别错误
+          // Handle speech recognition errors
           speechRecognition.value.onerror = (event) => {
-            errorHandler.handleError('语音识别错误:', event.error)
+            errorHandler.handleError('Speech recognition error:', event.error)
             recognitionInProgress.value = false
             showVoiceStatus.value = true
-            voiceStatusMessage.value = `语音识别错误: ${event.error}`
+            voiceStatusMessage.value = `Speech recognition error: ${event.error}`
             setTimeout(() => {
               showVoiceStatus.value = false
             }, 3000)
           }
           
-          // 处理语音识别结束
+          // Handle speech recognition end
           speechRecognition.value.onend = () => {
             recognitionInProgress.value = false
             showVoiceStatus.value = true
-            voiceStatusMessage.value = '语音识别已结束'
+            voiceStatusMessage.value = 'Speech recognition ended'
             setTimeout(() => {
               showVoiceStatus.value = false
             }, 2000)
           }
           
-          // 处理语音识别开始
+          // Handle speech recognition start
           speechRecognition.value.onstart = () => {
             recognitionInProgress.value = true
             showVoiceStatus.value = true
-            voiceStatusMessage.value = '正在聆听...'
+            voiceStatusMessage.value = 'Listening...'
           }
         } else {
-          errorHandler.handleWarning('当前浏览器不支持语音识别')
+          errorHandler.handleWarning('Speech recognition is not supported in this browser')
         }
       } catch (error) {
-        errorHandler.handleError('初始化语音识别时出错:', error)
+        errorHandler.handleError('Error initializing speech recognition:', error)
       }
     }
     
-    // 初始化组件
+    // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        errorHandler.logInfo('Self Soul 系统组件正在后台初始化...')
+        errorHandler.logInfo('AGI Brain System components are initializing in the background...')
         
-        // 模拟后台初始化过程
+        // Simulate background initialization process
         Promise.all([
-          delay(300), // 语言相关初始化
-          delay(500), // 连接后端服务
-          delay(800)  // 预加载必要的模型
+          delay(300), // Language related initialization (simplified)
+          delay(500), // Connect to backend services
+          delay(800)  // Preload necessary models
         ]).then(() => {
-          errorHandler.logInfo('Self Soul 系统组件初始化完成')
+          errorHandler.logInfo('AGI Brain System components initialization completed')
         }).catch(error => {
-          errorHandler.handleError('系统组件初始化过程中出现错误:', error)
+          errorHandler.handleError('Error during system components initialization:', error)
         })
       } catch (error) {
-        errorHandler.handleError('系统组件初始化过程中出现错误:', error)
+        errorHandler.handleError('Error during system components initialization:', error)
       }
     }
     
-    // 语言切换
-    const changeLanguage = () => {
-      try {
-        // 使用导入的switchLanguage函数
-        const success = switchLanguage(currentLanguage.value)
-        if (success) {
-          // 使用一致的key 'user-language'，与i18n.js保持一致
-          localStorage.setItem('user-language', currentLanguage.value)
-          errorHandler.logInfo(`系统语言已切换至: ${currentLanguage.value}`)
-          
-          // 如果语音识别已初始化，更新语言设置
-          if (speechRecognition.value) {
-            speechRecognition.value.lang = currentLanguage.value
-          }
-        }
-      } catch (error) {
-        errorHandler.handleError('切换语言时出错:', error)
-      }
-    }
-    
-    // 语音识别相关方法
+    // Speech recognition related methods
     const getSpeechLanguage = () => {
-      const langMap = {
-        'zh': 'zh-CN',
-        'en': 'en-US',
-        'de': 'de-DE',
-        'ja': 'ja-JP',
-        'ru': 'ru-RU'
-      }
-      return langMap[currentLanguage.value] || 'en-US'
+      return 'en-US' // Always return English
     }
     
     const toggleVoiceInput = () => {
@@ -232,32 +159,33 @@ export default {
         speechRecognition.value.start()
         recognitionInProgress.value = true
         showVoiceStatus.value = true
-        voiceStatusMessage.value = '正在聆听...'
+        voiceStatusMessage.value = 'Listening...'
       }
     }
     
     const processVoiceCommand = (command) => {
       try {
-        errorHandler.logInfo('语音命令:', command)
+        // Voice command processing
+          errorHandler.logInfo('Voice command:', command)
         showVoiceStatus.value = true
-        voiceStatusMessage.value = `已识别: ${command}`
+        voiceStatusMessage.value = `Recognized: ${command}`
         
-        // 简单的命令处理逻辑
+        // Simple command processing logic
         const lowerCommand = command.toLowerCase()
         
-        // 导航命令 - 只指向有效的路由
-        if (lowerCommand.includes('主页') || lowerCommand.includes('home')) {
+        // Navigation commands - only to valid routes
+        if (lowerCommand.includes('home')) {
           router.push('/')
-        } else if (lowerCommand.includes('训练') || lowerCommand.includes('train')) {
+        } else if (lowerCommand.includes('train')) {
           router.push('/training')
-        } else if (lowerCommand.includes('知识库') || lowerCommand.includes('knowledge')) {
+        } else if (lowerCommand.includes('knowledge')) {
           router.push('/knowledge')
-        } else if (lowerCommand.includes('设置') || lowerCommand.includes('settings')) {
+        } else if (lowerCommand.includes('settings')) {
           router.push('/settings')
-        } else if (lowerCommand.includes('帮助') || lowerCommand.includes('help')) {
+        } else if (lowerCommand.includes('help')) {
           router.push('/help')
         } else if (router.currentRoute.value.path === '/') {
-          // 如果在对话页面，将语音输入发送给子组件
+          // If on conversation page, send voice input to child component
           window.dispatchEvent(new CustomEvent('voice-input', { detail: command }));
         }
         
@@ -265,41 +193,36 @@ export default {
           showVoiceStatus.value = false
         }, 3000)
       } catch (error) {
-        errorHandler.handleError('处理语音命令时出错:', error)
+        errorHandler.handleError('Error processing voice command:', error)
       }
     }
     
-    // 辅助函数
+    // Helper function
     const delay = (ms) => {
       return new Promise(resolve => setTimeout(resolve, ms))
     }
     
-    // 生命周期钩子
+    // Life cycle hooks
     onMounted(() => {
-      initializeLanguage()
-      initSpeechRecognition()
-      initializeComponentsSilently()
-      checkServerConnection() // 开始检查服务器连接状态
-      
-      // 监听语言变化事件，确保语言选择器同步更新
-      window.addEventListener('language-changed', (event) => {
-        currentLanguage.value = event.detail.lang
-      })
-    })
-
-    // 添加卸载时清理事件监听器
-    onUnmounted(() => {
-      window.removeEventListener('language-changed', (event) => {
-        currentLanguage.value = event.detail.lang
-      })
+      checkServerConnection();
+      initSpeechRecognition();
     })
     
-    return {      currentLanguage,      showVoiceInput,      showVoiceStatus,      voiceStatusMessage,      recognitionInProgress,      isConnected,      changeLanguage,      toggleVoiceInput,      getSpeechLanguage,      processVoiceCommand    }
+    onUnmounted(() => {
+      // Cleanup resources if needed
+    })
+    
+    return {
+      showVoiceInput,
+      recognitionInProgress,
+      isConnected,
+      toggleVoiceInput
+    }
   }
 }
 </script>
 
-<style>
+<style scoped>
 /* 使用main.css中定义的黑白灰浅色主题变量 */
 
 /* 全局样式重置 */
@@ -357,21 +280,7 @@ body {
   gap: 15px;
 }
 
-/* 语言选择下拉菜单 */
-.language-select {
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.language-select option {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
+/* Removed language selector as it's no longer needed */
 
 /* 菜单项样式 */
 .menu-link {
@@ -409,14 +318,14 @@ body {
 }
 
 .status-indicator.connected {
-  background-color: #4CAF50; /* 绿色表示连接 */
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
+    background-color: #4CAF50; /* Green indicates connected */
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
 
-.status-indicator.disconnected {
-  background-color: #F44336; /* 红色表示断开 */
-  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
-}
+  .status-indicator.disconnected {
+    background-color: #F44336; /* Red indicates disconnected */
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+  }
 
 .status-text {
   font-size: 14px;

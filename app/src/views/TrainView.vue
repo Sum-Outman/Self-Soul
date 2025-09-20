@@ -23,87 +23,87 @@
     <!-- Training Control Panel -->
     <div class="control-panel">
       <div class="mode-selection">
-        <h2>{{ $t('train.trainingMode') }}</h2>
+        <h2>Training Mode</h2>
         <div class="mode-options">
           <button 
             @click="trainingMode = 'individual'"
             :class="{ active: trainingMode === 'individual' }"
           >
-            {{ $t('train.individual') }}
+            Individual
           </button>
           <button 
             @click="trainingMode = 'joint'"
             :class="{ active: trainingMode === 'joint' }"
           >
-            {{ $t('train.joint') }}
+            Joint
           </button>
         </div>
       </div>
       
       <div class="model-selection">
-        <h2>{{ $t('train.selectModels') }}</h2>
+        <h2>Select Models</h2>
         
         <!-- Recommended Combinations -->
-        <div class="recommended-combinations" v-if="trainingMode === 'joint'">
-          <h3>{{ $t('train.recommendedCombinations') }}</h3>
-          <div class="combination-buttons">
-            <button 
-              v-for="(combination, name) in recommendedCombinations" 
-              :key="name"
-              @click="selectRecommendedCombination(combination)"
-              class="combination-btn"
-            >
-              {{ $t(`train.combinations.${name}`) }}
-            </button>
-            <!-- Select All Models Button -->
-            <button 
-              @click="selectAllModels"
-              class="combination-btn"
-            >
-              {{ $t('train.selectAllModels') }}
-            </button>
-          </div>
-        </div>
+            <div class="recommended-combinations" v-if="trainingMode === 'joint'">
+              <h3>Recommended Combinations</h3>
+              <div class="combination-buttons">
+                <button 
+                  v-for="(combination, name) in recommendedCombinations" 
+                  :key="name"
+                  @click="selectRecommendedCombination(combination)"
+                  class="combination-btn"
+                >
+                  {{ name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, ' ') }}
+                </button>
+                <!-- Select All Models Button -->
+                <button 
+                  @click="selectAllModels"
+                  class="combination-btn"
+                >
+                  Select All Models
+                </button>
+              </div>
+            </div>
         
         <div class="model-grid">
-          <div 
-            v-for="model in availableModels" 
-            :key="model.id"
-            class="model-option"
-            :class="{ 
-              selected: selectedModels.includes(model.id),
-              required: isModelRequired(model.id),
-              disabled: isModelDisabled(model.id)
-            }"
-            @click="toggleModelSelection(model.id)"
-            :title="getModelTooltip(model.id)"
-          >
-            {{ $t(`models.${model.id}`) }}
-            <span v-if="isModelRequired(model.id)" class="required-indicator">*</span>
-          </div>
-        </div>
+              <div 
+                v-for="model in availableModels" 
+                :key="model.id"
+                class="model-option"
+                :class="{ 
+                  selected: selectedModels.includes(model.id),
+                  required: isModelRequired(model.id),
+                  disabled: isModelDisabled(model.id)
+                }"
+                @click="toggleModelSelection(model.id)"
+                :title="getModelTooltip(model.id)"
+              >
+                {{ model.id.charAt(0).toUpperCase() + model.id.slice(1) }}
+                <span v-if="isModelRequired(model.id)" class="required-indicator">*</span>
+              </div>
+            </div>
         
         <!-- Combination Validation Feedback -->
-        <div class="validation-feedback" :class="{ valid: combinationValid, invalid: !combinationValid }">
-          <span v-if="combinationValid">✓ {{ $t('train.combinationValid') }}</span>
-          <span v-else>✗ {{ validationMessage }}</span>
-        </div>
+            <div class="validation-feedback" :class="{ valid: combinationValid, invalid: !combinationValid }">
+              <span v-if="combinationValid">✓ Combination Valid</span>
+              <span v-else>✗ {{ validationMessage }}</span>
+            </div>
         
         <!-- Model Dependencies -->
-        <div class="model-dependencies" v-if="trainingMode === 'joint' && selectedModels.length > 0">
-          <h3>{{ $t('train.dependencies') }}</h3>
-          <div class="dependency-list">
-            <div v-for="dependency in currentDependencies" :key="dependency.model" class="dependency-item">
-              <span class="model-name">{{ $t(`models.${dependency.model}`) }}</span>
-              <span class="dependency-arrow">→</span>
-              <span class="depends-on">{{ dependency.dependencies.map(d => $t(`models.${d}`)).join(', ') }}</span>
+            <div class="model-dependencies" v-if="trainingMode === 'joint' && selectedModels.length > 0">
+              <h3>Dependencies</h3>
+              <div class="dependency-list">
+                <div v-for="dependency in currentDependencies" :key="dependency.model" class="dependency-item">
+                  <span class="model-name">{{ dependency.model.charAt(0).toUpperCase() + dependency.model.slice(1) }}</span>
+                  <span class="dependency-arrow">→</span>
+                  <span class="depends-on">{{ dependency.dependencies.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ') }}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
       </div>
       
       <div class="dataset-selection">
-        <h2>{{ $t('train.dataset') }}</h2>
+        <h2>Dataset</h2>
         <select v-model="selectedDataset" class="dataset-select">
           <option 
             v-for="dataset in datasets" 
@@ -114,7 +114,7 @@
           </option>
         </select>
         <button @click="openUploadDialog" class="upload-btn">
-          {{ $t('train.uploadDataset') }}
+          Upload Dataset
         </button>
         <input 
           type="file" 
@@ -126,43 +126,43 @@
       </div>
       
       <div class="parameter-settings">
-        <h2>{{ $t('train.parameters') }}</h2>
+        <h2>Parameters</h2>
         <div class="parameter-grid">
           <div class="parameter">
-            <label>{{ $t('train.epochs') }}:</label>
+            <label>Epochs:</label>
             <input type="number" v-model.number="parameters.epochs" min="1" max="1000">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.batchSize') }}:</label>
+            <label>Batch Size:</label>
             <input type="number" v-model.number="parameters.batchSize" min="1" max="1024">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.learningRate') }}:</label>
+            <label>Learning Rate:</label>
             <input type="number" v-model.number="parameters.learningRate" step="0.001" min="0.0001" max="1">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.validationSplit') }}:</label>
+            <label>Validation Split:</label>
             <input type="number" v-model.number="parameters.validationSplit" step="0.05" min="0.1" max="0.5">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.dropoutRate') }}:</label>
+            <label>Dropout Rate:</label>
             <input type="number" v-model.number="parameters.dropoutRate" step="0.05" min="0" max="0.5">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.weightDecay') }}:</label>
+            <label>Weight Decay:</label>
             <input type="number" v-model.number="parameters.weightDecay" step="0.0001" min="0" max="0.01">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.momentum') }}:</label>
+            <label>Momentum:</label>
             <input type="number" v-model.number="parameters.momentum" step="0.1" min="0" max="0.99">
           </div>
           <div class="parameter">
-            <label>{{ $t('train.optimizer') }}:</label>
+            <label>Optimizer:</label>
             <select v-model="parameters.optimizer">
-              <option value="adam">{{ $t('train.optimizers.adam') }}</option>
-              <option value="sgd">{{ $t('train.optimizers.sgd') }}</option>
-              <option value="rmsprop">{{ $t('train.optimizers.rmsprop') }}</option>
-              <option value="adagrad">{{ $t('train.optimizers.adagrad') }}</option>
+              <option value="adam">Adam</option>
+              <option value="sgd">SGD</option>
+              <option value="rmsprop">RMSProp</option>
+              <option value="adagrad">AdaGrad</option>
             </select>
           </div>
         </div>
@@ -170,7 +170,7 @@
       
       <!-- Training Strategy Selection -->
       <div class="strategy-selection" v-if="trainingMode === 'joint'">
-        <h2>{{ $t('train.trainingStrategy') }}</h2>
+        <h2>Training Strategy</h2>
         <div class="strategy-options">
           <div 
             v-for="strategy in trainingStrategies" 
@@ -185,34 +185,34 @@
         
         <!-- Knowledge Assistance Options -->
         <div class="knowledge-assist-options" v-if="selectedStrategy === 'knowledge_assisted'">
-          <h3>{{ $t('train.knowledgeAssistOptions') }}</h3>
+          <h3>Knowledge Assistance Options</h3>
           <div class="knowledge-options-grid">
             <div class="knowledge-option">
               <label>
                 <input type="checkbox" v-model="knowledgeAssistOptions.domainKnowledge">
-                {{ $t('train.domainKnowledge') }}
+                Domain Knowledge
               </label>
             </div>
             <div class="knowledge-option">
               <label>
                 <input type="checkbox" v-model="knowledgeAssistOptions.commonSense">
-                {{ $t('train.commonSense') }}
+                Common Sense
               </label>
             </div>
             <div class="knowledge-option">
               <label>
                 <input type="checkbox" v-model="knowledgeAssistOptions.proceduralKnowledge">
-                {{ $t('train.proceduralKnowledge') }}
+                Procedural Knowledge
               </label>
             </div>
             <div class="knowledge-option">
               <label>
                 <input type="checkbox" v-model="knowledgeAssistOptions.contextualLearning">
-                {{ $t('train.contextualLearning') }}
+                Contextual Learning
               </label>
             </div>
             <div class="knowledge-option">
-              <label>{{ $t('train.knowledgeIntensity') }}:</label>
+              <label>Knowledge Intensity:</label>
               <input type="range" v-model.number="knowledgeAssistOptions.knowledgeIntensity" min="0.1" max="1" step="0.1">
               <span>{{ knowledgeAssistOptions.knowledgeIntensity }}</span>
             </div>
@@ -226,39 +226,39 @@
           :disabled="isTraining"
           class="start-btn"
         >
-          {{ isTraining ? $t('train.trainingInProgress') : $t('train.startTraining') }}
+          {{ isTraining ? 'Training in Progress' : 'Start Training' }}
         </button>
         <button 
           @click="stopTraining" 
           :disabled="!isTraining"
           class="stop-btn"
         >
-          {{ $t('train.stopTraining') }}
+          Stop Training
         </button>
       </div>
     </div>
     
     <!-- Training Progress -->
     <div class="training-progress">
-      <h2>{{ $t('train.progress') }}</h2>
+      <h2>Progress</h2>
       <div class="progress-container">
         <div class="progress-bar" :style="{ width: trainingProgress + '%' }">
           {{ trainingProgress }}%
         </div>
       </div>
       <div class="progress-details">
-        <div>{{ $t('train.metrics.epoch') }}: {{ currentEpoch }}/{{ parameters.epochs }}</div>
-        <div>{{ $t('train.metrics.loss') }}: {{ currentLoss.toFixed(4) }}</div>
-        <div>{{ $t('train.metrics.accuracy') }}: {{ currentAccuracy.toFixed(2) }}%</div>
-        <div>{{ $t('train.metrics.time') }}: {{ elapsedTime }}</div>
+        <div>Epoch: {{ currentEpoch }}/{{ parameters.epochs }}</div>
+        <div>Loss: {{ currentLoss.toFixed(4) }}</div>
+        <div>Accuracy: {{ currentAccuracy.toFixed(2) }}%</div>
+        <div>Time: {{ elapsedTime }}</div>
       </div>
       
       <!-- Command Line Terminal -->
       <div class="terminal-section">
-        <h3>{{ $t('train.commandLine') }}</h3>
+        <h3>Command Line</h3>
         <TerminalWindow
           :logs="trainingLogs"
-          :title="$t('train.trainingTerminal')"
+          :title="'Training Terminal'"
           :show-timestamps="true"
           :show-input="false"
           :auto-scroll="true"
@@ -270,28 +270,28 @@
     
     <!-- Model Evaluation -->
     <div class="model-evaluation" v-if="evaluationResults">
-      <h2>{{ $t('train.evaluation') }}</h2>
+      <h2>Evaluation</h2>
       <div class="evaluation-grid">
         <div class="metric-card">
-          <h3>{{ $t('train.accuracy') }}</h3>
+          <h3>Accuracy</h3>
           <div class="metric-value">{{ evaluationResults.accuracy }}%</div>
         </div>
         <div class="metric-card">
-          <h3>{{ $t('train.loss') }}</h3>
+          <h3>Loss</h3>
           <div class="metric-value">{{ evaluationResults.loss.toFixed(4) }}</div>
         </div>
         <div class="metric-card">
-          <h3>{{ $t('train.precision') }}</h3>
+          <h3>Precision</h3>
           <div class="metric-value">{{ evaluationResults.precision.toFixed(4) }}</div>
         </div>
         <div class="metric-card">
-          <h3>{{ $t('train.recall') }}</h3>
+          <h3>Recall</h3>
           <div class="metric-value">{{ evaluationResults.recall.toFixed(4) }}</div>
         </div>
       </div>
       
       <div class="confusion-matrix">
-        <h3>{{ $t('train.confusionMatrix') }}</h3>
+        <h3>Confusion Matrix</h3>
         <div class="matrix-grid">
           <div class="matrix-header"></div>
           <div 
@@ -316,18 +316,18 @@
       </div>
     </div>
     
-    <!-- 训练历史 -->
+    <!-- Training History -->
     <div class="training-history">
-      <h2>{{ $t('train.history') }}</h2>
+      <h2>History</h2>
       <table class="history-table">
         <thead>
           <tr>
-            <th>{{ $t('train.date') }}</th>
-            <th>{{ $t('train.models') }}</th>
-            <th>{{ $t('train.dataset') }}</th>
-            <th>{{ $t('train.duration') }}</th>
-            <th>{{ $t('train.accuracy') }}</th>
-            <th>{{ $t('train.actions') }}</th>
+            <th>Date</th>
+            <th>Models</th>
+            <th>Dataset</th>
+            <th>Duration</th>
+            <th>Accuracy</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -335,15 +335,15 @@
             <td>{{ formatDate(session.date) }}</td>
             <td>
               <span v-for="model in session.models" :key="model">
-                {{ $t(`models.${model}`) }}
+                {{ model }}
               </span>
             </td>
             <td>{{ session.dataset }}</td>
             <td>{{ formatDuration(session.duration) }}</td>
             <td>{{ session.accuracy }}%</td>
             <td>
-              <button @click="viewSession(session.id)">{{ $t('train.view') }}</button>
-              <button @click="compareSession(session.id)">{{ $t('train.compare') }}</button>
+              <button @click="viewSession(session.id)">View</button>
+              <button @click="compareSession(session.id)">Compare</button>
             </td>
           </tr>
         </tbody>
@@ -354,7 +354,6 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import errorHandler from '@/utils/errorHandler';
 import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters } from '@/utils/modelIdMapper';
@@ -362,7 +361,6 @@ import TerminalWindow from '@/components/TerminalWindow.vue';
 
 export default {
     setup() {
-      const { t } = useI18n();
       
       // 将后端模型ID转换为前端字母ID
       const idToLetter = (backendId) => {
@@ -406,32 +404,32 @@ export default {
         
         // 直接使用模拟模型列表
         availableModels.value = [
-          { id: 'A', name: t('models.A'), backendId: 'manager' },
-          { id: 'B', name: t('models.B'), backendId: 'language' },
-          { id: 'C', name: t('models.C'), backendId: 'audio' },
-          { id: 'D', name: t('models.D'), backendId: 'vision_image' },
-          { id: 'E', name: t('models.E'), backendId: 'vision_video' },
-          { id: 'F', name: t('models.F'), backendId: 'spatial' },
-          { id: 'G', name: t('models.G'), backendId: 'sensor' },
-          { id: 'H', name: t('models.H'), backendId: 'computer_control' },
-          { id: 'I', name: t('models.I'), backendId: 'motion_control' },
-          { id: 'J', name: t('models.J'), backendId: 'knowledge' },
-          { id: 'K', name: t('models.K'), backendId: 'programming' },
-          { id: 'L', name: t('models.L'), backendId: 'planning' },
-          { id: 'M', name: t('models.M'), backendId: 'autonomous' },
-          { id: 'N', name: t('models.N'), backendId: 'collaboration' },
-          { id: 'O', name: t('models.O'), backendId: 'finance' },
-          { id: 'P', name: t('models.P'), backendId: 'medical' },
-          { id: 'Q', name: t('models.Q'), backendId: 'optimization' },
-          { id: 'R', name: t('models.R'), backendId: 'prediction' },
-          { id: 'S', name: t('models.S'), backendId: 'emotion' }
+          { id: 'A', name: 'Manager Model', backendId: 'manager' },
+          { id: 'B', name: 'Language Model', backendId: 'language' },
+          { id: 'C', name: 'Audio Model', backendId: 'audio' },
+          { id: 'D', name: 'Vision Image Model', backendId: 'vision_image' },
+          { id: 'E', name: 'Vision Video Model', backendId: 'vision_video' },
+          { id: 'F', name: 'Spatial Model', backendId: 'spatial' },
+          { id: 'G', name: 'Sensor Model', backendId: 'sensor' },
+          { id: 'H', name: 'Computer Control Model', backendId: 'computer_control' },
+          { id: 'I', name: 'Motion Control Model', backendId: 'motion_control' },
+          { id: 'J', name: 'Knowledge Model', backendId: 'knowledge' },
+          { id: 'K', name: 'Programming Model', backendId: 'programming' },
+          { id: 'L', name: 'Planning Model', backendId: 'planning' },
+          { id: 'M', name: 'Autonomous Model', backendId: 'autonomous' },
+          { id: 'N', name: 'Collaboration Model', backendId: 'collaboration' },
+          { id: 'O', name: 'Finance Model', backendId: 'finance' },
+          { id: 'P', name: 'Medical Model', backendId: 'medical' },
+          { id: 'Q', name: 'Optimization Model', backendId: 'optimization' },
+          { id: 'R', name: 'Prediction Model', backendId: 'prediction' },
+          { id: 'S', name: 'Emotion Model', backendId: 'emotion' }
         ];
         
         // 显示信息提示
-        showInfo(t('train.modelsLoadedSuccessfully'));
+        showInfo('Models loaded successfully');
       } catch (error) {
         // 即使在纯前端模式下也处理任何可能的错误
-        showError(t('train.modelsLoadingError'));
+        showError('Failed to load models');
       } finally {
         modelsLoading.value = false;
       }
@@ -442,10 +440,10 @@ export default {
     
     // 数据集
     const datasets = ref([
-      { id: 'multimodal_v1', name: t('training.datasets.multimodal_v1') },
-      { id: 'language_only', name: t('training.datasets.language_only') },
-      { id: 'vision_only', name: t('training.datasets.vision_only') },
-      { id: 'sensor_only', name: t('training.datasets.sensor_only') }
+      { id: 'multimodal_v1', name: 'Multimodal Dataset v1' },
+      { id: 'language_only', name: 'Language Only Dataset' },
+      { id: 'vision_only', name: 'Vision Only Dataset' },
+      { id: 'sensor_only', name: 'Sensor Only Dataset' }
     ]);
     
     // 推荐组合 - 包含所有11个核心模型的组合（A-K）
@@ -522,9 +520,7 @@ export default {
     const getModelTooltip = computed(() => (modelId) => {
       const dependencies = modelDependencies.value[modelId];
       if (dependencies && dependencies.length > 0) {
-        return t('train.requiresModels', {
-          models: dependencies.map(d => t(`models.${d}`)).join(', ')
-        });
+        return `Requires models: ${dependencies.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}`;
       }
       return '';
     });
@@ -568,7 +564,7 @@ export default {
       selectRecommendedCombination(allModelIds);
       
       // 显示成功消息
-      showSuccess(t('train.allModelsSelected'));
+      showSuccess('All models selected');
     };
     
     // 显示警告
@@ -633,14 +629,13 @@ export default {
       
       if (missingDependencies.length > 0) {
         combinationValid.value = false;
-        validationMessage.value = t('train.missingDependencies', {
-          details: missingDependencies.map(d => 
-            `${t(`models.${d.model}`)} → ${t(`models.${d.dependency}`)}`
-          ).join(', ')
-        });
+        validationMessage.value = 'Missing dependencies: ' + 
+          missingDependencies.map(d => 
+            `${d.model.toUpperCase()} → ${d.dependency.toUpperCase()}`
+          ).join(', ');
       } else {
         combinationValid.value = true;
-        validationMessage.value = t('train.combinationValid');
+        validationMessage.value = 'Model combination is valid';
       }
     };
     
@@ -667,10 +662,10 @@ export default {
     
     // 训练策略选项
     const trainingStrategies = ref([
-      { id: 'standard', name: t('train.strategies.standard') },
-      { id: 'knowledge_assisted', name: t('train.strategies.knowledge_assisted') },
-      { id: 'progressive', name: t('train.strategies.progressive') },
-      { id: 'adaptive', name: t('train.strategies.adaptive') }
+      { id: 'standard', name: 'Standard Training' },
+      { id: 'knowledge_assisted', name: 'Knowledge Assisted Training' },
+      { id: 'progressive', name: 'Progressive Training' },
+      { id: 'adaptive', name: 'Adaptive Learning' }
     ]);
     
     // 选中的训练策略
@@ -778,10 +773,10 @@ export default {
         selectedDataset.value = mockDatasetId;
         
         // 显示模拟成功消息
-        addLog(t('train.datasetUploadSuccess', { name: mockDatasetName }));
-        showInfo(t('train.usingMockDataset'));
+        addLog(`Dataset upload successful: ${mockDatasetName}`);
+        showInfo('Using mock dataset for training');
       } catch (error) {
-        addLog(t('errors.datasetUploadFailed', { error: error.message }));
+        addLog(`Dataset upload failed: ${error.message}`);
         // 确保即使在模拟过程中出现错误也有回退
         const mockDatasetId = `mock_${Date.now()}`;
         const mockDatasetName = files[0].name;
@@ -795,15 +790,15 @@ export default {
         selectedDataset.value = mockDatasetId;
         
         // 显示模拟成功消息
-        addLog(t('train.datasetUploadSuccess', { name: mockDatasetName }));
-        showInfo(t('train.usingMockDataset'));
+          addLog(`Dataset upload successful: ${mockDatasetName}`);
+          showInfo('Using mock dataset for training');
       }
     };
     
     // 开始训练
     const startTraining = async () => {
       if (selectedModels.value.length === 0) {
-        addLog(t('errors.selectAtLeastOneModel'));
+        addLog('Please select at least one model to train');
         return;
       }
       
@@ -822,20 +817,16 @@ export default {
         trainingTimer = setInterval(updateElapsedTime, 1000);
         
         // 添加开始日志
-        addLog(t('train.trainingStarted', {
-          mode: trainingMode.value,
-          models: selectedModels.value.map(m => t(`models.${m}`)).join(', '),
-          dataset: datasets.value.find(d => d.id === selectedDataset.value).name
-        }));
+        addLog(`Training started in ${trainingMode.value} mode with models: ${selectedModels.value.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ')} using dataset: ${datasets.value.find(d => d.id === selectedDataset.value).name}`);
         
         // 使用模拟训练
-        addLog(t('train.usingMockTraining'));
+        addLog('Using mock training implementation');
         currentJobId.value = Date.now().toString();
         
         // 模拟训练进度
         simulateTraining();
       } catch (error) {
-        addLog(t('errors.trainingStartFailed', { error: error.message }));
+        addLog(`Failed to start training: ${error.message}`);
         stopTraining();
       }
     };
@@ -848,7 +839,7 @@ export default {
         const wsUrl = `${protocol}//${window.location.host}/ws/training/${jobId}`;
         
         // 添加连接尝试日志
-        addLog(t('train.websocketConnecting', { url: wsUrl.replace(/^(wss?:\/\/[^\/]+)\/.*/, '$1/...') }));
+        addLog('Connecting to WebSocket: ' + wsUrl.replace(/^(wss?:\/\/[^/]+).*/, '$1/...'));
         
         websocketConnection.value = new WebSocket(wsUrl);
         
@@ -859,8 +850,8 @@ export default {
         
         websocketConnection.value.onopen = () => {
           connectionAttempts = 0;
-          addLog(t('train.websocketConnected'), 'success');
-          showInfo(t('train.realTimeUpdatesEnabled'));
+          addLog('WebSocket connected successfully', 'success');
+          showInfo('Real-time updates enabled');
         };
         
         websocketConnection.value.onmessage = (event) => {
@@ -908,31 +899,31 @@ export default {
                 break;
               
               default:
-                addLog(t('errors.unknownWebSocketMessage', { type: data.type }), 'warning');
+                addLog('Unknown WebSocket message type: ' + data.type, 'warning');
             }
           } catch (error) {
-            errorHandler.handleError(error, 'WebSocket消息解析错误');
-            addLog(t('errors.websocketParseError', { error: error.message }), 'error');
+            errorHandler.handleError(error, 'WebSocket message parse error');
+            addLog('WebSocket message parse error: ' + error.message, 'error');
           }
         };
         
         websocketConnection.value.onerror = (error) => {
           const errorMessage = error.message || 'Unknown error';
-          addLog(t('errors.websocketError', { error: errorMessage }), 'error');
-          errorHandler.handleError(error, 'WebSocket连接错误');
+          addLog('WebSocket connection error: ' + errorMessage, 'error');
+          errorHandler.handleError(error, 'WebSocket connection error');
           
           // 尝试重连
           if (connectionAttempts < maxReconnectAttempts && isTraining.value) {
             connectionAttempts++;
             const delay = Math.pow(2, connectionAttempts) * 1000;
-            addLog(t('train.websocketReconnecting', { attempt: connectionAttempts, max: maxReconnectAttempts, delay: delay/1000 }), 'warning');
+            addLog(`Reconnecting to WebSocket (attempt ${connectionAttempts}/${maxReconnectAttempts}, delay ${delay/1000}s)`, 'warning');
             
             reconnectTimeout = setTimeout(() => {
               startWebSocketConnection(jobId);
             }, delay);
           } else if (connectionAttempts >= maxReconnectAttempts) {
-            addLog(t('errors.websocketMaxReconnect', { max: maxReconnectAttempts }), 'error');
-            showError(t('errors.websocketFallbackToPolling'));
+            addLog(`Max WebSocket reconnection attempts (${maxReconnectAttempts}) reached`, 'error');
+            showError('Falling back to polling mode');
             
             // 如果重连失败，切换到轮询模式
             if (!statusPollingInterval.value) {
@@ -952,17 +943,17 @@ export default {
           
           // 正常关闭不需要显示错误
           if (code === 1000 || code === 1001) {
-            addLog(t('train.websocketDisconnected'), 'info');
+            addLog('WebSocket connection closed normally', 'info');
           } else {
-            addLog(t('errors.websocketClosedUnexpectedly', { code, reason }), 'warning');
+            addLog(`WebSocket connection closed unexpectedly (code: ${code}, reason: ${reason})`, 'warning');
           }
         };
         
         // 设置超时检测
         const timeoutId = setTimeout(() => {
           if (websocketConnection.value && websocketConnection.value.readyState !== WebSocket.OPEN) {
-            addLog(t('errors.websocketConnectionTimeout'), 'error');
-            showError(t('errors.websocketConnectionTimeout'));
+            addLog('WebSocket connection timeout', 'error');
+            showError('WebSocket connection timeout');
           }
         }, 5000);
         
@@ -970,11 +961,11 @@ export default {
         websocketConnection.value.onopen = function() {
           clearTimeout(timeoutId);
           connectionAttempts = 0;
-          addLog(t('train.websocketConnected'), 'success');
-          showInfo(t('train.realTimeUpdatesEnabled'));
+          addLog('WebSocket connected successfully', 'success');
+          showInfo('Real-time updates enabled');
         };
       } catch (error) {
-        addLog(t('errors.websocketConnectionFailed', { error: error.message }), 'error');
+        addLog(`WebSocket connection failed: ${error.message}`, 'error');
         
         // 连接失败，直接切换到轮询模式
         if (!statusPollingInterval.value) {
@@ -994,7 +985,7 @@ export default {
       let consecutiveFailures = 0;
       const maxFailures = 3;
       
-      addLog(t('train.startingPolling', { interval: pollingInterval/1000 }), 'info');
+      addLog(`Starting polling mode (interval: ${pollingInterval/1000}s)`, 'info');
       
       statusPollingInterval.value = setInterval(async () => {
         try {
@@ -1055,11 +1046,11 @@ export default {
               evaluationResults.value = status.evaluation;
               completeTraining();
             } else if (status.status === 'failed') {
-              addLog(t('errors.trainingFailed', { error: status.error || 'Unknown reason' }), 'error');
-              showError(t('errors.trainingFailed', { error: status.error || 'Unknown reason' }));
+              addLog('Training failed: ' + (status.error || 'Unknown reason'), 'error');
+              showError('Training failed: ' + (status.error || 'Unknown reason'));
               stopTraining();
             } else if (status.status === 'stopped') {
-              addLog(t('train.trainingStoppedByServer'), 'info');
+              addLog('Training stopped by server', 'info');
               stopTraining();
             }
           }
@@ -1068,23 +1059,23 @@ export default {
           consecutiveFailures++;
           
           // 记录错误但继续尝试
-          if (consecutiveFailures <= maxFailures) {
-            addLog(t('errors.pollingError', { attempt: consecutiveFailures, max: maxFailures, error: error.message }), 'warning');
-            
-            // 失败时增加轮询间隔
-            pollingInterval = Math.min(10000, pollingInterval * 1.5);
-          } else {
-            // 超过最大失败次数，切换到模拟模式
-            addLog(t('errors.maxPollingFailures', { max: maxFailures }), 'error');
-            addLog(t('train.switchingToSimulation'), 'info');
-            
-            clearInterval(statusPollingInterval.value);
-            
-            // 如果训练仍在进行中，切换到模拟模式
-            if (isTraining.value) {
-              simulateTraining();
+            if (consecutiveFailures <= maxFailures) {
+              addLog('Polling error (attempt ' + consecutiveFailures + '/' + maxFailures + '): ' + error.message, 'warning');
+              
+              // 失败时增加轮询间隔
+              pollingInterval = Math.min(10000, pollingInterval * 1.5);
+            } else {
+              // 超过最大失败次数，切换到模拟模式
+              addLog('Maximum polling failures reached (' + maxFailures + ')', 'error');
+              addLog('Switching to simulation mode', 'info');
+              
+              clearInterval(statusPollingInterval.value);
+              
+              // 如果训练仍在进行中，切换到模拟模式
+              if (isTraining.value) {
+                simulateTraining();
+              }
             }
-          }
         }
       }, pollingInterval);
     };
@@ -1101,34 +1092,31 @@ export default {
       
       // 添加详细的训练总结
       addLog('====================================================');
-      addLog(t('train.trainingCompleteSummary', {
-        models: selectedModels.value.map(m => t(`models.${m}`)).join(', '),
+      addLog('Training complete summary:', {
+        models: selectedModels.value.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', '),
         dataset: datasets.value.find(d => d.id === selectedDataset.value).name,
         duration: formatDuration(duration)
-      }));
-      addLog(t('train.finalMetrics', {
-        accuracy: accuracy.toFixed(2),
-        loss: loss.toFixed(4)
-      }));
+      });
+      addLog('Final metrics: Accuracy: ' + accuracy.toFixed(2) + '%, Loss: ' + loss.toFixed(4));
       
       // 如果有详细评估结果，显示更多信息
-      if (evaluationResults.value) {
-        if (evaluationResults.value.precision !== undefined) {
-          addLog(t('train.precisionMetric', { value: (evaluationResults.value.precision * 100).toFixed(2) }));
+        if (evaluationResults.value) {
+          if (evaluationResults.value.precision !== undefined) {
+            addLog('Precision: ' + (evaluationResults.value.precision * 100).toFixed(2) + '%');
+          }
+          if (evaluationResults.value.recall !== undefined) {
+            addLog('Recall: ' + (evaluationResults.value.recall * 100).toFixed(2) + '%');
+          }
+          if (evaluationResults.value.f1Score !== undefined) {
+            addLog('F1 Score: ' + (evaluationResults.value.f1Score * 100).toFixed(2) + '%');
+          }
         }
-        if (evaluationResults.value.recall !== undefined) {
-          addLog(t('train.recallMetric', { value: (evaluationResults.value.recall * 100).toFixed(2) }));
-        }
-        if (evaluationResults.value.f1Score !== undefined) {
-          addLog(t('train.f1ScoreMetric', { value: (evaluationResults.value.f1Score * 100).toFixed(2) }));
-        }
-      }
-      
-      // 计算训练效率指标
-      const epochs = parameters.value.epochs;
-      const efficiency = accuracy / (epochs * duration / 3600); // 每小时每轮次的准确率提升
-      const efficiencyRating = efficiency > 50 ? 'excellent' : efficiency > 30 ? 'good' : efficiency > 15 ? 'satisfactory' : 'room for improvement';
-      addLog(t('train.trainingEfficiency', { rating: t(`efficiency.${efficiencyRating}`), value: efficiency.toFixed(2) }));
+        
+        // 计算训练效率指标
+        const epochs = parameters.value.epochs;
+        const efficiency = accuracy / (epochs * duration / 3600); // 每小时每轮次的准确率提升
+        const efficiencyRating = efficiency > 50 ? 'excellent' : efficiency > 30 ? 'good' : efficiency > 15 ? 'satisfactory' : 'room for improvement';
+        addLog('Training efficiency: ' + efficiencyRating.charAt(0).toUpperCase() + efficiencyRating.slice(1) + ' (' + efficiency.toFixed(2) + ')');
       
       addLog('====================================================');
       
@@ -1149,13 +1137,13 @@ export default {
       loadTrainingHistory();
       
       // 显示成功消息
-      showSuccess(t('train.trainingCompletedSuccessfully'));
+      showSuccess('Training completed successfully');
     };
     
     // 停止训练
     const stopTraining = async () => {
       if (!isTraining.value) {
-        addLog(t('errors.noActiveTraining'));
+        addLog('No active training session');
         return;
       }
 
@@ -1171,7 +1159,7 @@ export default {
       }
       
       currentJobId.value = null;
-      addLog(t('train.trainingStopped'));
+      addLog('Training stopped');
     };
     
     // 更新耗时
@@ -1216,20 +1204,17 @@ export default {
       let baseAccuracy = initialParams.accuracy;
       let learningRate = parameters.value.learningRate;
       
-      addLog(t('train.simulationStarted', { method: 'enhanced simulation' }));
-      addLog(t('train.initialParameters', {
-        loss: baseLoss.toFixed(4),
-        accuracy: baseAccuracy.toFixed(2),
-        lr: learningRate.toFixed(6)
-      }));
+      addLog('Simulation started: Enhanced simulation mode');
+      addLog('Initial parameters: Loss=' + baseLoss.toFixed(4) + ', Accuracy=' + baseAccuracy.toFixed(2) + '%, LR=' + learningRate.toFixed(6));
       
-      // 模拟训练过程
-      const simulationInterval = setInterval(() => {
+      // 模拟训练过程 - 保存interval ID到statusPollingInterval.value
+      statusPollingInterval.value = setInterval(() => {
         if (!isTraining.value) {
-          clearInterval(simulationInterval);
-          addLog(t('train.simulationStopped'));
-          return;
-        }
+            clearInterval(statusPollingInterval.value);
+            statusPollingInterval.value = null;
+            addLog('Simulation stopped');
+            return;
+          }
         
         // 处理批次更新
         batchCount++;
@@ -1242,13 +1227,7 @@ export default {
           learningRate *= 0.95;
           
           // 完成一个epoch的日志
-          addLog(t('train.epochCompleted', {
-            epoch: simulatedEpoch,
-            totalEpochs: totalEpochs,
-            loss: currentLoss.value.toFixed(4),
-            accuracy: currentAccuracy.value.toFixed(2),
-            lr: learningRate.toFixed(6)
-          }));
+          addLog('Epoch ' + simulatedEpoch + '/' + totalEpochs + ' completed: Loss=' + currentLoss.value.toFixed(4) + ', Accuracy=' + currentAccuracy.value.toFixed(2) + '%, LR=' + learningRate.toFixed(6));
           
           // 检查是否完成所有epoch
           if (simulatedEpoch >= totalEpochs) {
@@ -1261,6 +1240,9 @@ export default {
             return;
           }
         }
+        
+        // 确保状态为训练中
+        if (!isTraining.value) return;
         
         // 计算当前进度
         const progress = ((simulatedEpoch * batchesPerEpoch + batchCount - 1) / (totalEpochs * batchesPerEpoch)) * 100;
@@ -1284,13 +1266,7 @@ export default {
         if (batchCount % 3 === 0) {
           // 根据所选模型添加特定的训练细节
           const modelSpecificDetails = getModelSpecificTrainingDetails();
-          addLog(t('train.batchProgress', {
-            batch: batchCount,
-            totalBatches: batchesPerEpoch,
-            loss: loss.toFixed(4),
-            accuracy: accuracy.toFixed(2),
-            details: modelSpecificDetails
-          }));
+          addLog('Batch ' + batchCount + '/' + batchesPerEpoch + ': Loss=' + loss.toFixed(4) + ', Accuracy=' + accuracy.toFixed(2) + '%, Details: ' + modelSpecificDetails);
         }
         
         // 模拟特殊训练事件
@@ -1305,10 +1281,10 @@ export default {
       try {
         // 直接使用模拟历史数据
         trainingHistory.value = generateMockTrainingHistory();
-        showInfo(t('train.trainingHistoryLoaded'));
+        showInfo('Training history loaded');
       } catch (error) {
         // 即使在纯前端模式下也处理任何可能的错误
-        showError(t('train.trainingHistoryError'));
+        showError('Failed to load training history');
         // 确保即使发生异常也有数据显示
         trainingHistory.value = generateMockTrainingHistory();
       }
@@ -1498,28 +1474,28 @@ export default {
       
       // 为不同类型的模型添加特定的训练细节
       if (selectedModels.value.includes('A')) {
-        // 管理模型
-        details.push(t('train.managementModelDetail', { value: (90 + Math.random() * 10).toFixed(1) }));
-      }
-      
-      if (selectedModels.value.includes('D')) {
-        // 文本模型
-        details.push(t('train.textModelDetail', { value: (0.8 + Math.random() * 0.2).toFixed(3) }));
-      }
-      
-      if (selectedModels.value.includes('J')) {
-        // 编程模型
-        details.push(t('train.programmingModelDetail', { value: (85 + Math.random() * 15).toFixed(1) }));
-      }
-      
-      if (selectedModels.value.includes('E')) {
-        // 知识模型
-        details.push(t('train.knowledgeModelDetail', { value: (75 + Math.random() * 25).toFixed(1) }));
-      }
+          // 管理模型
+          details.push('Management efficiency: ' + (90 + Math.random() * 10).toFixed(1) + '%');
+        }
+        
+        if (selectedModels.value.includes('D')) {
+          // 文本模型
+          details.push('Text processing confidence: ' + (0.8 + Math.random() * 0.2).toFixed(3));
+        }
+        
+        if (selectedModels.value.includes('J')) {
+          // 编程模型
+          details.push('Code generation accuracy: ' + (85 + Math.random() * 15).toFixed(1) + '%');
+        }
+        
+        if (selectedModels.value.includes('E')) {
+          // 知识模型
+          details.push('Knowledge retrieval score: ' + (75 + Math.random() * 25).toFixed(1) + '%');
+        }
       
       // 联合训练特定细节
       if (trainingMode.value === 'joint' && selectedModels.value.length > 1) {
-        details.push(t('train.jointTrainingDetail', { value: (0.001 + Math.random() * 0.004).toFixed(4) }));
+        details.push('Cross-model knowledge transfer efficiency: ' + (0.001 + Math.random() * 0.004).toFixed(4));
       }
       
       return details.join(', ');
@@ -1528,13 +1504,13 @@ export default {
     // 模拟特殊训练事件
     const simulateSpecialTrainingEvent = (epoch, batch) => {
       const events = [
-        { type: 'info', message: t('train.eventLearningRateAdjusted', { value: (parameters.value.learningRate * Math.random() * 0.5 + 0.75).toFixed(6) }) },
-        { type: 'info', message: t('train.eventBatchNormalization', { value: (0.9 + Math.random() * 0.1).toFixed(3) }) },
-        { type: 'info', message: t('train.eventDropoutAdjusted', { value: (0.2 + Math.random() * 0.2).toFixed(2) }) },
-        { type: 'info', message: t('train.eventGradientClipping', { value: (1.0 + Math.random() * 1.0).toFixed(2) }) },
-        { type: 'warning', message: t('train.eventMinorOverfitting') },
-        { type: 'success', message: t('train.eventEarlyStoppingCheck') },
-        { type: 'info', message: t('train.eventMomentumUpdated', { value: (0.8 + Math.random() * 0.15).toFixed(3) }) }
+        { type: 'info', message: 'Learning rate adjusted to ' + (parameters.value.learningRate * Math.random() * 0.5 + 0.75).toFixed(6) },
+        { type: 'info', message: 'Batch normalization updated to ' + (0.9 + Math.random() * 0.1).toFixed(3) },
+        { type: 'info', message: 'Dropout rate adjusted to ' + (0.2 + Math.random() * 0.2).toFixed(2) },
+        { type: 'info', message: 'Gradient clipping threshold set to ' + (1.0 + Math.random() * 1.0).toFixed(2) },
+        { type: 'warning', message: 'Minor overfitting detected' },
+        { type: 'success', message: 'Early stopping check passed' },
+        { type: 'info', message: 'Momentum updated to ' + (0.8 + Math.random() * 0.15).toFixed(3) }
       ];
       
       // 随机选择一个事件
@@ -1549,9 +1525,8 @@ export default {
       const finalLoss = currentLoss.value;
       
       // 生成相关的评估指标
-      const precision = Math.max(0.1, Math.min(0.99, finalAccuracy / 100 - 0.02 + Math.random() * 0.04));
-      const recall = Math.max(0.1, Math.min(0.99, finalAccuracy / 100 - 0.01 + Math.random() * 0.03));
-      const f1Score = Math.max(0.1, Math.min(0.99, 2 * (precision * recall) / (precision + recall + 0.0001)));
+      let precision = Math.max(0.1, Math.min(0.99, finalAccuracy / 100 - 0.02 + Math.random() * 0.04));
+      let recall = Math.max(0.1, Math.min(0.99, finalAccuracy / 100 - 0.01 + Math.random() * 0.03));
       
       // 根据模型类型调整指标
       if (selectedModels.value.some(m => ['D', 'J'].includes(m))) {
@@ -1563,6 +1538,8 @@ export default {
         // 视觉和知识模型通常有更好的recall
         recall = Math.min(0.99, recall + 0.05);
       }
+      
+      const f1Score = Math.max(0.1, Math.min(0.99, 2 * (precision * recall) / (precision + recall + 0.0001)));
       
       // 生成混淆矩阵（基于二分类问题）
       const truePositives = Math.floor(400 * precision * recall);
@@ -1685,11 +1662,11 @@ export default {
       
       // 占位符方法（需要在实际实现中完成）
       viewSession(id) {
-        addLog(t('train.viewingSession', { id }));
+        addLog(`Viewing session: ${id}`);
         // 实际查看会话的实现
       },
       compareSession(id) {
-        addLog(t('train.comparingSession', { id }));
+        addLog(`Comparing session: ${id}`);
         // 实际比较会话的实现
       }
     };

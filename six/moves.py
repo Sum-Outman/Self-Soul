@@ -23,7 +23,7 @@ class MovedModule(object):
         except (ImportError, AttributeError):
             raise AttributeError("module %r has no attribute %r" % (self.name, attr))
 
-# 创建常用的移动模块
+# Create common moved modules
 configparser = MovedModule('configparser', 'ConfigParser', 'configparser')
 cPickle = MovedModule('cPickle', 'cPickle', 'pickle')
 builtins = MovedModule('builtins', '__builtin__', 'builtins')
@@ -32,15 +32,15 @@ http_client = MovedModule('http_client', 'httplib', 'http.client')
 html_parser = MovedModule('html_parser', 'HTMLParser', 'html.parser')
 queue = MovedModule('queue', 'Queue', 'queue')
 tkinter = MovedModule('tkinter', 'Tkinter', 'tkinter')
-# 添加线程相关模块
+# Add thread-related modules
 _thread = MovedModule('_thread', 'thread', '_thread')
 _threading_local = MovedModule('_threading_local', 'threading_local', '_threading_local')
 shlex_quote = MovedModule('shlex_quote', 'pipes', 'shlex').quote
 
-# 导入lib模块
+# Import lib module
 from . import _moves_lib
 
-# 从lib模块导入函数
+# Import functions from lib module
 input = _moves_lib.input
 srange = _moves_lib.srange
 xrange = _moves_lib.xrange
@@ -53,3 +53,10 @@ reload_module = _moves_lib.reload_module
 unichr = _moves_lib.unichr
 bytearray2 = _moves_lib.bytearray2
 ascii = _moves_lib.ascii
+
+# Add itertools functions
+import itertools
+if sys.version_info[0] == 3:
+    zip_longest = itertools.zip_longest
+else:
+    zip_longest = itertools.izip_longest

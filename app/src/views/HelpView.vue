@@ -5,33 +5,33 @@
     <main class="help-main">
       <!-- System Introduction -->
       <section class="help-section">
-        <h2>系统介绍</h2>
-        <p>Self Soul 是一个革命性的类人脑AGI系统，具备独立思考、自主学习、自我优化和自我升级的能力。系统采用多模态架构，整合了语言、视觉、音频、传感器等多种感知能力。</p>
+        <h2>System Introduction</h2>
+        <p>Self Soul is a revolutionary human-like AGI system with the ability to think independently, learn autonomously, self-optimize and self-upgrade. The system adopts a multimodal architecture, integrating language, vision, audio, sensors and other perception capabilities.</p>
       </section>
 
       <!-- Quick Start -->
       <section class="help-section">
-        <h2>快速开始</h2>
+        <h2>Quick Start</h2>
         <div class="step-list">
           <div class="step">
             <span class="step-number">1</span>
             <div class="step-content">
-              <h3>启动系统</h3>
-              <p>运行启动脚本启动AGI系统</p>
+              <h3>Start the System</h3>
+              <p>Run the startup script to launch the AGI system</p>
             </div>
           </div>
           <div class="step">
             <span class="step-number">2</span>
             <div class="step-content">
-              <h3>配置模型</h3>
-              <p>在设置页面配置本地或外部API模型</p>
+              <h3>Configure Models</h3>
+              <p>Configure local or external API models in the settings page</p>
             </div>
           </div>
           <div class="step">
             <span class="step-number">3</span>
             <div class="step-content">
-              <h3>开始使用</h3>
-              <p>通过交互界面与系统进行多模态对话</p>
+              <h3>Start Using</h3>
+              <p>Conduct multimodal conversations with the system through the interface</p>
             </div>
           </div>
         </div>
@@ -39,87 +39,87 @@
 
       <!-- Core Models -->
       <section class="help-section">
-        <h2>核心模型</h2>
+        <h2>Core Models</h2>
         <div class="model-grid">
           <div class="model-card">
-            <h3>管理模型</h3>
-            <p>负责任务分配和模型协调</p>
+            <h3>Manager Model</h3>
+            <p>Responsible for task allocation and model coordination</p>
           </div>
           <div class="model-card">
-            <h3>语言模型</h3>
-            <p>处理文本交互和对话</p>
+            <h3>Language Model</h3>
+            <p>Processes text interactions and conversations</p>
           </div>
           <div class="model-card">
-            <h3>视觉模型</h3>
-            <p>处理图像和视频内容</p>
+            <h3>Vision Model</h3>
+            <p>Processes image and video content</p>
           </div>
           <div class="model-card">
-            <h3>音频模型</h3>
-            <p>处理语音和音频输入</p>
+            <h3>Audio Model</h3>
+            <p>Processes voice and audio inputs</p>
           </div>
           <div class="model-card">
-            <h3>自主模型</h3>
-            <p>实现系统自主决策和行动</p>
+            <h3>Autonomous Model</h3>
+            <p>Implements system autonomous decision-making and actions</p>
           </div>
           <div class="model-card">
-            <h3>知识模型</h3>
-            <p>管理和处理知识库内容</p>
+            <h3>Knowledge Model</h3>
+            <p>Manages and processes knowledge base content</p>
           </div>
           <div class="model-card">
-            <h3>规划模型</h3>
-            <p>制定任务计划和执行策略</p>
+            <h3>Planning Model</h3>
+            <p>Develops task plans and execution strategies</p>
           </div>
           <div class="model-card">
-            <h3>预测模型</h3>
-            <p>进行数据分析和趋势预测</p>
+            <h3>Prediction Model</h3>
+            <p>Performs data analysis and trend prediction</p>
           </div>
           <div class="model-card">
-            <h3>编程模型</h3>
-            <p>生成和优化代码</p>
+            <h3>Programming Model</h3>
+            <p>Generates and optimizes code</p>
           </div>
           <div class="model-card">
-            <h3>传感器模型</h3>
-            <p>处理各种传感器输入数据</p>
+            <h3>Sensor Model</h3>
+            <p>Processes various sensor input data</p>
           </div>
           <div class="model-card">
-            <h3>空间模型</h3>
-            <p>理解和处理空间关系</p>
+            <h3>Spatial Model</h3>
+            <p>Understands and processes spatial relationships</p>
           </div>
           <div class="model-card">
-            <h3>情感模型</h3>
-            <p>识别和处理情感信息</p>
+            <h3>Emotion Model</h3>
+            <p>Recognizes and processes emotional information</p>
           </div>
         </div>
       </section>
 
       <!-- Training Guide -->
       <section class="help-section">
-        <h2>训练指南</h2>
+        <h2>Training Guide</h2>
         <div class="training-info">
-          <h3>训练类型</h3>
+          <h3>Training Types</h3>
           <ul>
-            <li><strong>单独训练</strong> - 针对单个模型进行专门训练</li>
-            <li><strong>联合训练</strong> - 多个模型协同训练</li>
-            <li><strong>持续训练</strong> - 系统持续学习和优化</li>
+            <li><strong>Individual Training</strong> - Specialized training for a single model</li>
+            <li><strong>Joint Training</strong> - Multiple models training collaboratively</li>
+            <li><strong>Continuous Training</strong> - System continuous learning and optimization</li>
           </ul>
         </div>
       </section>
 
       <!-- Troubleshooting -->
       <section class="help-section">
-        <h2>常见问题</h2>
+        <h2>Troubleshooting</h2>
         <div class="faq-list">
           <div class="faq-item">
-            <h3>系统启动失败</h3>
-            <p>检查系统日志和依赖项安装</p>
+            <h3>System Startup Failure</h3>
+            <p>Check system logs and dependency installation</p>
           </div>
           <div class="faq-item">
-            <h3>模型无响应</h3>
-            <p>检查模型状态和网络连接</p>
+            <h3>Model Unresponsive</h3>
+            <p>Check model status and network connection</p>
           </div>
           <div class="faq-item">
-            <h3>训练失败</h3>
-            <p>检查数据集格式和模型依赖</p>
+            <h3>Training Failure</h3>
+            <p>Check dataset format and model dependencies</p>
           </div>
         </div>
       </section>
@@ -141,7 +141,7 @@ export default {
     }
   },
   mounted() {
-    document.title = 'Self Soul AGI 系统帮助'
+    document.title = 'Self Soul AGI System Help'
   }
 }
 </script>

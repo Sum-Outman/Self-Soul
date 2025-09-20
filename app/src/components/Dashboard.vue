@@ -16,7 +16,7 @@
 <template>
   <div class="dashboard">
     <div class="resource-monitor">
-      <h3>{{ $t('resource_usage') }}</h3>
+      <h3>Resource Usage</h3>
       <div class="resource-grid">
         <div class="resource-card">
           <h4>CPU</h4>
@@ -26,14 +26,14 @@
           <span>{{ cpuUsage }}%</span>
         </div>
         <div class="resource-card">
-          <h4>{{ $t('memory') }}</h4>
+          <h4>Memory</h4>
           <div class="progress-bar">
             <div class="progress" :style="{ width: memoryUsage + '%' }"></div>
           </div>
           <span>{{ memoryUsage }}%</span>
         </div>
         <div class="resource-card">
-          <h4>{{ $t('gpu') }}</h4>
+          <h4>GPU</h4>
           <div class="progress-bar">
             <div class="progress" :style="{ width: gpuUsage + '%' }"></div>
           </div>
@@ -43,15 +43,15 @@
     </div>
     
     <div class="model-performance">
-      <h3>{{ $t('model_performance') }}</h3>
+      <h3>Model Performance</h3>
       <div class="performance-grid">
         <div v-for="model in models" :key="model.name" class="model-card">
           <h4>{{ model.name }}</h4>
           <div class="metrics">
-            <div>{{ $t('accuracy') }}: {{ model.accuracy }}%</div>
-            <div>{{ $t('response_time') }}: {{ model.latency }}ms</div>
-            <div>{{ $t('status') }}: 
-              <span :class="model.status">{{ $t(model.status) }}</span>
+            <div>Accuracy: {{ model.accuracy }}%</div>
+            <div>Response Time: {{ model.latency }}ms</div>
+            <div>Status: 
+              <span :class="model.status">{{ this.getStatusText(model.status) }}</span>
             </div>
           </div>
         </div>
@@ -59,24 +59,24 @@
     </div>
     
     <div class="real-time-data">
-      <h3>{{ $t('real_time_data') }}</h3>
+      <h3>Real-time Data</h3>
       <div class="sensor-grid">
         <div v-for="sensor in sensors" :key="sensor.id" class="sensor-card">
           <h4>{{ sensor.name }}</h4>
           <div class="value">{{ sensor.value }} {{ sensor.unit }}</div>
-          <div class="status" :class="sensor.status">{{ $t(sensor.status) }}</div>
+          <div class="status" :class="sensor.status">{{ this.getStatusText(sensor.status) }}</div>
         </div>
       </div>
       
       <div class="emotion-monitor">
-        <h4>{{ $t('emotion_state') }}</h4>
+        <h4>Emotion State</h4>
         <div class="emotion-indicator">
           <div class="emotion-bar" :style="{ width: emotionValue + '%' }"></div>
         </div>
         <div class="emotion-labels">
-          <span>{{ $t('calm') }}</span>
-          <span>{{ $t('neutral') }}</span>
-          <span>{{ $t('excited') }}</span>
+          <span>Calm</span>
+          <span>Neutral</span>
+          <span>Excited</span>
         </div>
         <div class="emotion-value">{{ emotionState }} ({{ emotionValue }}%)</div>
       </div>
@@ -93,23 +93,34 @@ export default {
       memoryUsage: 60,
       gpuUsage: 30,
       models: [
-        { name: this.$t('language_model'), accuracy: 92, latency: 120, status: 'active' },
-        { name: this.$t('audio_model'), accuracy: 85, latency: 150, status: 'active' },
-        { name: this.$t('image_model'), accuracy: 88, latency: 200, status: 'active' },
-        { name: this.$t('video_model'), accuracy: 78, latency: 250, status: 'warning' },
-        { name: this.$t('spatial_model'), accuracy: 90, latency: 180, status: 'active' },
-        { name: this.$t('sensor_model'), accuracy: 95, latency: 100, status: 'active' },
-        { name: this.$t('knowledge_model'), accuracy: 96, latency: 300, status: 'active' },
-        { name: this.$t('programming_model'), accuracy: 82, latency: 220, status: 'warning' }
+        { name: 'Language Model', accuracy: 92, latency: 120, status: 'active' },
+        { name: 'Audio Model', accuracy: 85, latency: 150, status: 'active' },
+        { name: 'Image Model', accuracy: 88, latency: 200, status: 'active' },
+        { name: 'Video Model', accuracy: 78, latency: 250, status: 'warning' },
+        { name: 'Spatial Model', accuracy: 90, latency: 180, status: 'active' },
+        { name: 'Sensor Model', accuracy: 95, latency: 100, status: 'active' },
+        { name: 'Knowledge Model', accuracy: 96, latency: 300, status: 'active' },
+        { name: 'Programming Model', accuracy: 82, latency: 220, status: 'warning' }
       ],
       sensors: [
-        { id: 'temp', name: this.$t('temperature'), value: 25.5, unit: '°C', status: 'normal' },
-        { id: 'humidity', name: this.$t('humidity'), value: 45, unit: '%', status: 'normal' },
-        { id: 'pressure', name: this.$t('pressure'), value: 1013, unit: 'hPa', status: 'normal' },
-        { id: 'light', name: this.$t('light'), value: 850, unit: 'lux', status: 'normal' }
+        { id: 'temp', name: 'Temperature', value: 25.5, unit: '°C', status: 'normal' },
+        { id: 'humidity', name: 'Humidity', value: 45, unit: '%', status: 'normal' },
+        { id: 'pressure', name: 'Pressure', value: 1013, unit: 'hPa', status: 'normal' },
+        { id: 'light', name: 'Light', value: 850, unit: 'lux', status: 'normal' }
       ],
       emotionValue: 50,
-      emotionState: this.$t('neutral')
+      emotionState: 'Neutral'
+    }
+  },
+  methods: {
+    getStatusText(status) {
+      const statusMap = {
+        active: 'Active',
+        warning: 'Warning',
+        error: 'Error',
+        normal: 'Normal'
+      };
+      return statusMap[status] || status;
     }
   },
   mounted() {
@@ -144,11 +155,11 @@ export default {
       // 更新情感状态
       this.emotionValue = Math.max(0, Math.min(100, this.emotionValue + (Math.random() - 0.5) * 10));
       if (this.emotionValue > 70) {
-        this.emotionState = this.$t('excited');
+        this.emotionState = 'Excited';
       } else if (this.emotionValue > 40) {
-        this.emotionState = this.$t('neutral');
+        this.emotionState = 'Neutral';
       } else {
-        this.emotionState = this.$t('calm');
+        this.emotionState = 'Calm';
       }
     }, 2000);
   }

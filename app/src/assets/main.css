@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+/* Using system fonts for clean English appearance */
 
 :root {
-  /* 黑白灰浅色主题变量 */
+  /* Clean black, white, gray light theme variables */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f8f8;
   --bg-tertiary: #f0f0f0;
@@ -45,7 +45,7 @@
   --border-radius-lg: 12px;
   --transition: all 0.2s ease-in-out;
   --transition-fast: all 0.1s ease-in-out;
-  --font-family: 'Noto Sans SC', 'Segoe UI', sans-serif;
+  --font-family: 'Segoe UI', sans-serif;
 }
 
 /* 强制使用浅色模式，移除深色模式支持 */
@@ -59,7 +59,7 @@
 }
 
 body {
-  font-family: 'Noto Sans SC', 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;

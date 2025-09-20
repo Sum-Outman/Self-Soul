@@ -5,16 +5,44 @@ from __future__ import absolute_import
 import sys
 from functools import wraps
 
+# Handle urllib modules
+if sys.version_info[0] == 3:
+    import urllib.request as urllib_request
+    import urllib.error as urllib_error
+    import urllib.parse as urllib_parse
+    import http.client as http_client
+else:
+    import urllib2 as urllib_request
+    import urllib2 as urllib_error
+    import urllib as urllib_parse
+    import httplib as http_client
+
+# Create urllib module structure
+sys.modules['six.moves.urllib'] = type('module', (), {})
+sys.modules['six.moves.urllib.request'] = urllib_request
+sys.modules['six.moves.urllib.error'] = urllib_error
+sys.modules['six.moves.urllib.parse'] = urllib_parse
+
+# Add range and zip functions to six.moves
+sys.modules['six.moves'].__dict__['range'] = range
+sys.modules['six.moves'].__dict__['zip'] = zip
+
+# Add html_entities to six.moves
+import html
+import html.entities
+html_entities = html.entities
+sys.modules['six.moves'].__dict__['html_entities'] = html_entities
+
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
-# 处理input函数
+# Handle input function
 if PY3:
     input = input
 else:
     input = raw_input
 
-# 处理range函数
+# Handle range function
 if PY3:
     def srange(*args):
         return list(range(*args))
@@ -23,7 +51,7 @@ else:
     srange = range
     xrange = xrange
 
-# 处理filter, map, zip函数
+# Handle filter, map, zip functions
 if PY3:
     filter = filter
     map = map
@@ -38,38 +66,38 @@ else:
     def zip(*it):
         return list(__builtins__.zip(*it))
 
-# 处理reduce函数
+# Handle reduce function
 if PY3:
     from functools import reduce
 else:
     reduce = reduce
 
-# 处理intern函数
+# Handle intern function
 if PY3:
     intern = sys.intern
 else:
     intern = intern
 
-# 处理reload函数
+# Handle reload function
 if PY3:
     from importlib import reload as reload_module
 else:
     reload_module = reload
 
-# 处理unichr函数
+# Handle unichr function
 if PY3:
     unichr = chr
 else:
     unichr = unichr
 
-# 处理bytearray函数
+# Handle bytearray function
 if PY3:
     bytearray2 = bytearray
 else:
     def bytearray2(*args):
         return bytearray(*args)
 
-# 处理ascii函数
+# Handle ascii function
 if PY3:
     ascii = ascii
 else:

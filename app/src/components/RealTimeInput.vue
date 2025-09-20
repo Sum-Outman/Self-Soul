@@ -1,6 +1,6 @@
 <template>
   <div class="real-time-input">
-    <!-- 状态消息显示 -->
+    <!-- Status Messages Display -->
     <div class="status-messages">
       <div v-if="errorState.hasError" class="message error">
         {{ errorState.message }}
@@ -16,61 +16,61 @@
       </div>
     </div>
     
-    <!-- 摄像头输入 -->
+    <!-- Camera Input -->
     <div class="camera-section">
-      <h3>{{ $t('realtime.camera') }}</h3>
+      <h3>Camera</h3>
       <div class="camera-container">
         <video ref="videoElement" autoplay playsinline></video>
         <canvas ref="canvasElement" style="display: none;"></canvas>
       </div>
       <div class="camera-controls">
-        <button @click="toggleCamera">{{ isCameraActive ? $t('realtime.stopCamera') : $t('realtime.startCamera') }}</button>
-        <button @click="captureFrame" :disabled="!isCameraActive">{{ $t('realtime.capture') }}</button>
+        <button @click="toggleCamera">{{ isCameraActive ? 'Stop Camera' : 'Start Camera' }}</button>
+        <button @click="captureFrame" :disabled="!isCameraActive">Capture</button>
         <select v-model="selectedCamera" @change="changeCamera">
-          <option v-for="camera in cameras" :key="camera.deviceId" :value="camera.deviceId">
-            {{ camera.label || $t('realtime.camera') }} {{ $index + 1 }}
+          <option v-for="(camera, index) in cameras" :key="camera.deviceId" :value="camera.deviceId">
+            {{ camera.label || 'Camera' }} {{ index + 1 }}
           </option>
         </select>
       </div>
     </div>
 
-    <!-- 麦克风输入 -->
+    <!-- Microphone Input -->
     <div class="microphone-section">
-      <h3>{{ $t('realtime.microphone') }}</h3>
+      <h3>Microphone</h3>
       <div class="audio-visualization">
         <canvas ref="audioCanvas"></canvas>
       </div>
       <div class="microphone-controls">
-        <button @click="toggleMicrophone">{{ isMicrophoneActive ? $t('realtime.stopMicrophone') : $t('realtime.startMicrophone') }}</button>
+        <button @click="toggleMicrophone">{{ isMicrophoneActive ? 'Stop Microphone' : 'Start Microphone' }}</button>
         <select v-model="selectedMicrophone" @change="changeMicrophone">
-          <option v-for="mic in microphones" :key="mic.deviceId" :value="mic.deviceId">
-            {{ mic.label || $t('realtime.microphone') }} {{ $index + 1 }}
+          <option v-for="(mic, index) in microphones" :key="mic.deviceId" :value="mic.deviceId">
+            {{ mic.label || 'Microphone' }} {{ index + 1 }}
           </option>
         </select>
-        <button @click="startSpeechRecognition" :disabled="!isMicrophoneActive">{{ $t('realtime.startRecognition') }}</button>
+        <button @click="startSpeechRecognition" :disabled="!isMicrophoneActive">Start Speech Recognition</button>
       </div>
       <div v-if="transcript" class="transcript">
-        {{ $t('realtime.transcript') }}: {{ transcript }}
+        Transcript: {{ transcript }}
       </div>
     </div>
 
-    <!-- 网络流输入 -->
+    <!-- Network Stream Input -->
     <div class="network-stream-section">
-      <h3>{{ $t('realtime.networkStream') }}</h3>
+      <h3>Network Stream</h3>
       <div class="stream-controls">
         <div class="input-group">
-          <label>{{ $t('realtime.videoStreamUrl') }}:</label>
-          <input v-model="videoStreamUrl" placeholder="rtsp://或http://视频流地址" />
+          <label>Video Stream URL:</label>
+          <input v-model="videoStreamUrl" placeholder="rtsp:// or http:// video stream URL" />
           <button @click="toggleVideoStream" :disabled="!videoStreamUrl">
-            {{ isVideoStreamActive ? $t('realtime.stopStream') : $t('realtime.startStream') }}
+            {{ isVideoStreamActive ? 'Stop Stream' : 'Start Stream' }}
           </button>
         </div>
         <div class="input-group">
-          <label>{{ $t('realtime.audioStreamUrl') }}:</label>
-          <input v-model="audioStreamUrl" placeholder="http://音频流地址" />
+          <label>Audio Stream URL:</label>
+          <input v-model="audioStreamUrl" placeholder="http:// audio stream URL" />
           <button @click="toggleAudioStream" :disabled="!audioStreamUrl">
-            {{ isAudioStreamActive ? $t('realtime.stopStream') : $t('realtime.startStream') }}
-          </button>
+              {{ isAudioStreamActive ? 'Stop Stream' : 'Start Stream' }}
+            </button>
         </div>
       </div>
       <div v-if="isVideoStreamActive" class="stream-preview">
@@ -78,58 +78,58 @@
       </div>
     </div>
 
-    <!-- 传感器数据输入 -->
+    <!-- Sensor Data Input -->
     <div class="sensor-section">
-      <h3>{{ $t('realtime.sensorData') }}</h3>
+      <h3>Sensor Data</h3>
       <div class="sensor-controls">
-        <button @click="toggleSensorData">{{ isSensorDataActive ? $t('realtime.stopSensors') : $t('realtime.startSensors') }}</button>
+        <button @click="toggleSensorData">{{ isSensorDataActive ? 'Stop Sensors' : 'Start Sensors' }}</button>
         <select v-model="selectedSensorInterface">
-          <option value="serial">{{ $t('realtime.sensorSerial') }}</option>
-          <option value="bluetooth">{{ $t('realtime.sensorBluetooth') }}</option>
-          <option value="network">{{ $t('realtime.sensorNetwork') }}</option>
+          <option value="serial">Serial Port</option>
+          <option value="bluetooth">Bluetooth</option>
+          <option value="network">Network</option>
         </select>
       </div>
       <div v-if="isSensorDataActive" class="sensor-readings">
         <div class="sensor-reading" v-for="(value, sensor) in sensorData" :key="sensor">
-          <span class="sensor-label">{{ $t(`realtime.${sensor}`) }}:</span>
+          <span class="sensor-label">{{ sensor }}:</span>
           <span class="sensor-value">{{ value }}</span>
         </div>
       </div>
     </div>
 
-    <!-- 多模态融合控制 -->
+    <!-- Multimodal Fusion Control -->
     <div class="fusion-controls">
-      <h3>{{ $t('realtime.multimodalFusion') }}</h3>
+      <h3>Multimodal Fusion</h3>
       <div class="fusion-options">
         <label>
           <input type="checkbox" v-model="fuseAudioVisual"> 
-          {{ $t('realtime.fuseAudioVisual') }}
+          Fuse Audio & Visual
         </label>
         <label>
           <input type="checkbox" v-model="fuseSensorCamera"> 
-          {{ $t('realtime.fuseSensorCamera') }}
+          Fuse Sensor & Camera
         </label>
         <label>
           <input type="checkbox" v-model="fuseAllModalities"> 
-          {{ $t('realtime.fuseAll') }}
+          Fuse All Modalities
         </label>
       </div>
-      <button @click="processFusedData" :disabled="!hasInputData">{{ $t('realtime.process') }}</button>
+      <button @click="processFusedData" :disabled="!hasInputData">Process</button>
     </div>
 
-    <!-- 实时对话控制 -->
+    <!-- Real-time Dialog Control -->
     <div class="realtime-dialog-section">
-      <h3>{{ $t('realtime.realTimeDialog') }}</h3>
+      <h3>Real-time Dialog</h3>
       <div class="dialog-controls">
         <button @click="toggleRealTimeDialog" :class="{ active: isRealTimeDialogActive }">
-          {{ isRealTimeDialogActive ? $t('realtime.stopDialog') : $t('realtime.startDialog') }}
+          {{ isRealTimeDialogActive ? 'Stop Dialog' : 'Start Dialog' }}
         </button>
         <div class="dialog-status" :class="isRealTimeDialogActive ? 'active' : 'inactive'">
-          {{ isRealTimeDialogActive ? $t('realtime.dialogActive') : $t('realtime.dialogInactive') }}
+          {{ isRealTimeDialogActive ? 'Active' : 'Inactive' }}
         </div>
       </div>
       <div v-if="isRealTimeDialogActive" class="dialog-output">
-        <h4>{{ $t('realtime.realTimeResponses') }}</h4>
+        <h4>Real-time Responses</h4>
         <div class="response-messages">
           <div v-for="(response, index) in realTimeResponses" :key="index" class="response-message">
             {{ response }}
@@ -147,13 +147,13 @@ export default {
   name: 'RealTimeInput',
   data() {
     return {
-      // 摄像头相关状态
+      // Camera-related Status
       isCameraActive: false,
       cameras: [],
       selectedCamera: '',
       stream: null,
       
-      // 麦克风相关状态
+      // Microphone-related Status
       isMicrophoneActive: false,
       microphones: [],
       selectedMicrophone: '',
@@ -163,7 +163,7 @@ export default {
       transcript: '',
       recognition: null,
       
-      // 网络流相关状态
+      // Network Stream-related Status
       videoStreamUrl: '',
       audioStreamUrl: '',
       isVideoStreamActive: false,
@@ -171,7 +171,7 @@ export default {
       videoMediaSource: null,
       audioMediaSource: null,
       
-      // 传感器相关状态
+      // Sensor-related Status
       isSensorDataActive: false,
       selectedSensorInterface: 'serial',
       sensorData: {
@@ -182,24 +182,24 @@ export default {
         distance: '100cm'
       },
       
-      // 多模态融合
+      // Multimodal Fusion
       fuseAudioVisual: false,
       fuseSensorCamera: false,
       fuseAllModalities: false,
       hasInputData: false,
       
-      // 实时对话状态
+      // Real-time Dialog Status
       isRealTimeDialogActive: false,
       realTimeWebSocket: null,
       audioProcessor: null,
       videoProcessor: null,
       realTimeResponses: [],
-      webSocketUrl: 'ws://localhost:8000/ws', // 默认WebSocket地址
+      webSocketUrl: 'ws://localhost:8000/ws', // Default WebSocket URL
       audioCaptureInterval: null,
       videoCaptureInterval: null,
       isWebSocketConnected: false,
       
-      // 状态消息系统
+      // Status Message System
       errorState: {
         hasError: false,
         message: ''
@@ -231,7 +231,7 @@ export default {
     this.stopSensorData();
   },
   methods: {
-    // 获取设备列表
+    // Get Device List
     async listDevices() {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -250,7 +250,7 @@ export default {
       }
     },
     
-    // 切换摄像头
+    // Toggle Camera
     async toggleCamera() {
       if (this.isCameraActive) {
         this.stopCamera();
@@ -259,7 +259,7 @@ export default {
       }
     },
     
-    // 启动摄像头
+    // Start Camera
     async startCamera() {
       try {
         const constraints = {
@@ -274,14 +274,14 @@ export default {
         this.$refs.videoElement.srcObject = this.stream;
         this.isCameraActive = true;
         this.hasInputData = true;
-        this.showSuccess(this.$t('realtime.cameraStarted'));
+        this.showSuccess('Camera started successfully');
       } catch (error) {
-        console.error('启动摄像头失败:', error);
-        this.showError(this.$t('errors.cameraStartFailed'));
+        console.error('Failed to start camera:', error);
+        this.showError('Failed to start camera');
       }
     },
     
-    // 停止摄像头
+    // Stop Camera
     stopCamera() {
       if (this.stream) {
         this.stream.getTracks().forEach(track => track.stop());
@@ -291,7 +291,7 @@ export default {
       this.$refs.videoElement.srcObject = null;
     },
     
-    // 切换摄像头设备
+    // Switch Camera Device
     async changeCamera() {
       if (this.isCameraActive) {
         this.stopCamera();
@@ -299,7 +299,7 @@ export default {
       }
     },
     
-    // 捕获帧
+    // Capture Frame
     captureFrame() {
       if (!this.isCameraActive) return;
       
@@ -318,14 +318,14 @@ export default {
       this.processImageData(imageData);
     },
     
-    // 处理图像数据
+    // Process Image Data
     processImageData(imageData) {
       console.log('处理图像数据:', imageData);
       // 实际实现中会发送到图像处理模型
       this.$emit('image-data', imageData);
     },
     
-    // 切换麦克风
+    // Toggle Microphone
     async toggleMicrophone() {
       if (this.isMicrophoneActive) {
         this.stopMicrophone();
@@ -334,7 +334,7 @@ export default {
       }
     },
     
-    // 启动麦克风
+    // Start Microphone
     async startMicrophone() {
       try {
         const constraints = {
@@ -349,14 +349,14 @@ export default {
         
         // 设置音频分析器
         this.setupAudioAnalyser();
-        this.showSuccess(this.$t('realtime.microphoneStarted'));
+        this.showSuccess('Microphone started successfully.');
       } catch (error) {
         console.error('启动麦克风失败:', error);
-        this.showError(this.$t('errors.microphoneStartFailed'));
+        this.showError('Failed to start microphone.');
       }
     },
     
-    // 停止麦克风
+    // Stop Microphone
     stopMicrophone() {
       if (this.audioStream) {
         this.audioStream.getTracks().forEach(track => track.stop());
@@ -370,7 +370,7 @@ export default {
       }
     },
     
-    // 设置音频分析器
+    // Set Up Audio Analyzer
     setupAudioAnalyser() {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.analyser = this.audioContext.createAnalyser();
@@ -383,7 +383,7 @@ export default {
       this.visualizeAudio();
     },
     
-    // 音频可视化
+    // Audio Visualization
     visualizeAudio() {
       if (!this.isMicrophoneActive || !this.analyser) return;
       
@@ -421,7 +421,7 @@ export default {
       draw();
     },
     
-    // 切换麦克风设备
+    // Switch Microphone Device
     async changeMicrophone() {
       if (this.isMicrophoneActive) {
         this.stopMicrophone();
@@ -429,26 +429,18 @@ export default {
       }
     },
     
-    // 启动语音识别
+    // Start Speech Recognition
     startSpeechRecognition() {
       if (!('webkitSpeechRecognition' in window)) {
-        this.showError(this.$t('errors.speechRecognitionNotSupported'));
+        this.showError('Speech recognition is not supported in this browser.');
         return;
       }
       
       this.recognition = new window.webkitSpeechRecognition();
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
-      // 从全局获取语音识别语言设置
-      const currentLanguage = localStorage.getItem('user-language') || 'zh';
-      const langMap = {
-        'zh': 'zh-CN',
-        'en': 'en-US',
-        'de': 'de-DE',
-        'ja': 'ja-JP',
-        'ru': 'ru-RU'
-      };
-      this.recognition.lang = langMap[currentLanguage] || 'en-US';
+      // Always use English for speech recognition
+      this.recognition.lang = 'en-US';
       
       this.recognition.onresult = (event) => {
         let interimTranscript = '';
@@ -467,15 +459,16 @@ export default {
       };
       
       this.recognition.onerror = (event) => {
-        console.error('语音识别错误:', event.error);
-        this.showError(this.$t('errors.speechRecognitionError'));
+        console.error('Speech recognition error:', event.error);
+        this.showError('Speech recognition error');
       };
       
       this.recognition.start();
-      this.showInfo(this.$t('realtime.speechRecognitionStarted'));
+      this.showInfo('Speech recognition started');
+
     },
     
-    // 停止语音识别
+    // Stop Speech Recognition
     stopSpeechRecognition() {
       if (this.recognition) {
         this.recognition.stop();
@@ -483,7 +476,7 @@ export default {
       }
     },
     
-    // 切换视频流
+    // Toggle Video Stream
     async toggleVideoStream() {
       if (this.isVideoStreamActive) {
         this.stopVideoStream();
@@ -492,22 +485,22 @@ export default {
       }
     },
     
-    // 启动视频流
+    // Start Video Stream
     async startVideoStream() {
       try {
         if (this.videoStreamUrl) {
           this.$refs.videoStreamElement.src = this.videoStreamUrl;
           this.isVideoStreamActive = true;
           this.hasInputData = true;
-          this.showSuccess(this.$t('realtime.videoStreamStarted'));
+          this.showSuccess('Video stream started');
         }
       } catch (error) {
-        console.error('启动视频流失败:', error);
-        this.showError(this.$t('errors.videoStreamFailed'));
+        console.error('Failed to start video stream:', error);
+        this.showError('Failed to start video stream');
       }
     },
     
-    // 停止视频流
+    // Stop Video Stream
     stopVideoStream() {
       if (this.$refs.videoStreamElement) {
         this.$refs.videoStreamElement.src = '';
@@ -515,7 +508,7 @@ export default {
       this.isVideoStreamActive = false;
     },
     
-    // 切换音频流
+    // Toggle Audio Stream
     async toggleAudioStream() {
       if (this.isAudioStreamActive) {
         this.stopAudioStream();
@@ -524,7 +517,7 @@ export default {
       }
     },
     
-    // 启动音频流
+    // Start Audio Stream
     async startAudioStream() {
       try {
         if (this.audioStreamUrl) {
@@ -532,20 +525,20 @@ export default {
           console.log('启动音频流:', this.audioStreamUrl);
           this.isAudioStreamActive = true;
           this.hasInputData = true;
-          this.showSuccess(this.$t('realtime.audioStreamStarted'));
+          this.showSuccess('Audio stream started');
         }
       } catch (error) {
-        console.error('启动音频流失败:', error);
-        this.showError(this.$t('errors.audioStreamFailed'));
-      }
+          console.error('Failed to start audio stream:', error);
+          this.showError('Failed to start audio stream');
+        }
     },
     
-    // 停止音频流
+    // Stop Audio Stream
     stopAudioStream() {
       this.isAudioStreamActive = false;
     },
     
-    // 切换传感器数据
+    // Toggle Sensor Data
     toggleSensorData() {
       if (this.isSensorDataActive) {
         this.stopSensorData();
@@ -554,19 +547,19 @@ export default {
       }
     },
     
-    // 启动传感器数据
+    // Start Sensor Data
     startSensorData() {
       this.isSensorDataActive = true;
       this.hasInputData = true;
       // 实际实现中会连接真实传感器
     },
     
-    // 停止传感器数据
+    // Stop Sensor Data
     stopSensorData() {
       this.isSensorDataActive = false;
     },
     
-    // 设置传感器模拟
+    // Set Up Sensor Simulation
     setupSensorSimulation() {
       // 模拟传感器数据更新
       setInterval(() => {
@@ -582,7 +575,7 @@ export default {
       }, 1000);
     },
 
-    // 切换实时对话
+    // Toggle Real-time Dialog
     async toggleRealTimeDialog() {
       if (this.isRealTimeDialogActive) {
         await this.stopRealTimeDialog();
@@ -591,7 +584,7 @@ export default {
       }
     },
 
-    // 启动实时对话
+    // Start Real-time Dialog
     async startRealTimeDialog() {
       try {
         // 连接WebSocket
@@ -608,14 +601,14 @@ export default {
         }
         
         this.isRealTimeDialogActive = true;
-        this.showSuccess(this.$t('realtime.dialogStarted'));
+        this.showSuccess('Real-time dialog started');
       } catch (error) {
-        console.error('启动实时对话失败:', error);
-        this.showError(this.$t('errors.dialogStartFailed'));
+        console.error('Failed to start real-time dialog:', error);
+        this.showError('Failed to start real-time dialog');
       }
     },
 
-    // 停止实时对话
+    // Stop Real-time Dialog
     async stopRealTimeDialog() {
       // 停止音频捕获
       if (this.audioCaptureInterval) {
@@ -629,14 +622,21 @@ export default {
         this.videoCaptureInterval = null;
       }
       
+      // 清理音频处理器资源
+      if (this.audioProcessor) {
+        // 关闭AudioContext以释放资源
+        this.audioProcessor.close();
+        this.audioProcessor = null;
+      }
+      
       // 断开WebSocket连接
       await this.disconnectWebSocket();
       
       this.isRealTimeDialogActive = false;
-      this.showInfo(this.$t('realtime.dialogStopped'));
+      this.showInfo('Real-time dialog stopped');
     },
 
-    // 连接WebSocket
+    // Connect WebSocket
     async connectWebSocket() {
       return new Promise((resolve, reject) => {
         try {
@@ -644,7 +644,7 @@ export default {
           
           this.realTimeWebSocket.onopen = () => {
             this.isWebSocketConnected = true;
-            this.showSuccess(this.$t('realtime.websocketConnected'));
+            this.showSuccess('WebSocket connected');
             resolve();
           };
           
@@ -659,17 +659,17 @@ export default {
           
           this.realTimeWebSocket.onclose = () => {
             this.isWebSocketConnected = false;
-            this.showWarning(this.$t('realtime.websocketDisconnected'));
+            this.showWarning('WebSocket disconnected');
           };
         } catch (error) {
-          console.error('WebSocket连接失败:', error);
-          this.showError(this.$t('errors.websocketConnectionFailed'));
+          console.error('WebSocket connection failed:', error);
+          this.showError('WebSocket connection failed');
           reject(error);
         }
       });
     },
 
-    // 断开WebSocket连接
+    // Disconnect WebSocket
     async disconnectWebSocket() {
       if (this.realTimeWebSocket) {
         this.realTimeWebSocket.close();
@@ -678,7 +678,7 @@ export default {
       this.isWebSocketConnected = false;
     },
 
-    // 处理WebSocket消息
+    // Handle WebSocket Message
     handleWebSocketMessage(data) {
       try {
         const message = JSON.parse(data);
@@ -702,16 +702,16 @@ export default {
       }
     },
 
-    // 处理WebSocket错误
+    // Handle WebSocket Error
     handleWebSocketError(error) {
       console.error('WebSocket错误:', error);
-      this.showError(this.$t('errors.websocketError'));
+      this.showError('WebSocket connection error.');
     },
 
-    // 启动音频捕获
+    // Start Audio Capture
     startAudioCapture() {
       if (!this.isMicrophoneActive || !this.audioStream) {
-        this.showWarning(this.$t('realtime.microphoneNotActive'));
+        this.showWarning('Microphone is not active.');
         return;
       }
       
@@ -738,7 +738,7 @@ export default {
       }, 100); // 每100毫秒发送一次
     },
 
-    // 捕获音频帧
+    // Capture Audio Frame
     captureAudioFrame() {
       if (!this.analyser) return;
       
@@ -756,7 +756,7 @@ export default {
       }
     },
 
-    // 发送音频数据
+    // Send Audio Data
     sendAudioData(audioData) {
       if (this.isWebSocketConnected && this.realTimeWebSocket) {
         // 将音频数据转换为适合传输的格式
@@ -770,7 +770,7 @@ export default {
       }
     },
 
-    // 压缩音频数据
+    // Compress Audio Data
     compressAudioData(audioData) {
       // 简单的压缩：采样和量化
       const compressed = [];
@@ -783,10 +783,10 @@ export default {
       return compressed;
     },
 
-    // 启动视频捕获
+    // Start Video Capture
     startVideoCapture() {
       if (!this.isCameraActive || !this.stream) {
-        this.showWarning(this.$t('realtime.cameraNotActive'));
+        this.showWarning('Camera is not active');
         return;
       }
       
@@ -797,7 +797,7 @@ export default {
       }, 100); // 每100毫秒捕获一帧
     },
 
-    // 捕获视频帧
+    // Capture Video Frame
     captureVideoFrame() {
       const video = this.$refs.videoElement;
       const canvas = this.$refs.canvasElement;
@@ -825,7 +825,7 @@ export default {
       }
     },
 
-    // 压缩图像数据
+    // Compress Image Data
     compressImageData(imageData) {
       // 简单的压缩：降低分辨率和质量
       const canvas = document.createElement('canvas');
@@ -849,7 +849,7 @@ export default {
       return canvas.toDataURL('image/jpeg', 0.7); // 70%质量
     },
 
-    // 播放音频响应
+    // Play Audio Response
     playAudioResponse(audioData) {
       if (!audioData) return;
       
@@ -867,50 +867,50 @@ export default {
       }
     },
     
-  // 状态消息辅助方法
-  showError(message) {
-    this.errorState = { hasError: true, message };
-    setTimeout(() => {
-      this.errorState = { hasError: false, message: '' };
-    }, 5000);
-  },
-  
-  showSuccess(message) {
-    this.successState = { hasSuccess: true, message };
-    setTimeout(() => {
-      this.successState = { hasSuccess: false, message: '' };
-    }, 3000);
-  },
-  
-  showWarning(message) {
-    this.warningState = { hasWarning: true, message };
-    setTimeout(() => {
-      this.warningState = { hasWarning: false, message: '' };
-    }, 4000);
-  },
-  
-  showInfo(message) {
-    this.infoState = { hasInfo: true, message };
-    setTimeout(() => {
-      this.infoState = { hasInfo: false, message: '' };
-    }, 3000);
-  },
-  
-  // 处理融合数据
-  processFusedData() {
-    console.log('处理融合数据:', {
-      audioVisual: this.fuseAudioVisual,
-      sensorCamera: this.fuseSensorCamera,
-      allModalities: this.fuseAllModalities
-    });
+    // Status Message Helper Methods
+    showError(message) {
+      this.errorState = { hasError: true, message };
+      setTimeout(() => {
+        this.errorState = { hasError: false, message: '' };
+      }, 5000);
+    },
     
-    // 实际实现中会发送到主模型进行融合处理
-    this.$emit('process-fused-data', {
-      audioVisual: this.fuseAudioVisual,
-      sensorCamera: this.fuseSensorCamera,
-      allModalities: this.fuseAllModalities
-    });
-  }
+    showSuccess(message) {
+      this.successState = { hasSuccess: true, message };
+      setTimeout(() => {
+        this.successState = { hasSuccess: false, message: '' };
+      }, 3000);
+    },
+    
+    showWarning(message) {
+      this.warningState = { hasWarning: true, message };
+      setTimeout(() => {
+        this.warningState = { hasWarning: false, message: '' };
+      }, 4000);
+    },
+    
+    showInfo(message) {
+      this.infoState = { hasInfo: true, message };
+      setTimeout(() => {
+        this.infoState = { hasInfo: false, message: '' };
+      }, 3000);
+    },
+    
+    // Process Fused Data
+    processFusedData() {
+      console.log('处理融合数据:', {
+        audioVisual: this.fuseAudioVisual,
+        sensorCamera: this.fuseSensorCamera,
+        allModalities: this.fuseAllModalities
+      });
+      
+      // 实际实现中会发送到主模型进行融合处理
+      this.$emit('process-fused-data', {
+        audioVisual: this.fuseAudioVisual,
+        sensorCamera: this.fuseSensorCamera,
+        allModalities: this.fuseAllModalities
+      });
+    }
   }
 }
 </script>

@@ -2,23 +2,23 @@
   <div class="knowledge-view">
     <div class="header">
       <div class="header-actions">
-        <button :class="{ active: activeTab === 'import' }" @click="activeTab = 'import'">{{ $t('knowledge.importTab') }}</button>
-        <button :class="{ active: activeTab === 'browse' }" @click="activeTab = 'browse'">{{ $t('knowledge.browseTab') }}</button>
-        <button :class="{ active: activeTab === 'manage' }" @click="activeTab = 'manage'">{{ $t('knowledge.manageTab') }}</button>
-        <button :class="{ active: activeTab === 'stats' }" @click="activeTab = 'stats'">{{ $t('knowledge.statsTab') }}</button>
+        <button :class="{ active: activeTab === 'import' }" @click="activeTab = 'import'">Import</button>
+        <button :class="{ active: activeTab === 'browse' }" @click="activeTab = 'browse'">Browse</button>
+        <button :class="{ active: activeTab === 'manage' }" @click="activeTab = 'manage'">Manage</button>
+        <button :class="{ active: activeTab === 'stats' }" @click="activeTab = 'stats'">Statistics</button>
       </div>
     </div>
 
     <!-- Import Tab -->
     <div v-if="activeTab === 'import'" class="content">
-      <h2>{{ $t('knowledge.importTitle') }}</h2>
+      <h2>Import Knowledge</h2>
       <div class="import-section">
         <div class="upload-area">
           <input type="file" ref="fileInput" multiple @change="handleFileUpload" style="display: none;">
           <label @click="$refs.fileInput.click()" class="upload-label">
             <div class="upload-icon">📁</div>
-            <p>{{ $t('knowledge.selectFiles') }}</p>
-            <p class="small-text">{{ $t('knowledge.supportedFormats') }}</p>
+            <p>Select Files to Import</p>
+            <p class="small-text">Supports PDF, DOCX, TXT, JSON, CSV formats</p>
           </label>
         </div>
         
@@ -27,16 +27,16 @@
           <div class="progress-bar">
             <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
           </div>
-          <p>{{ $t('knowledge.uploading') }}: {{ currentUploadFile }}</p>
+          <p>Uploading: {{ currentUploadFile }}</p>
         </div>
         
         <!-- Domain selection for new files -->
         <div class="domain-selection">
-          <label>{{ $t('knowledge.domain') }}</label>
+          <label>Domain</label>
           <select v-model="selectedDomain">
-            <option value="autoDetect">{{ $t('knowledge.autoDetect') }}</option>
+            <option value="autoDetect">Auto Detect</option>
             <option v-for="domain in domains" :key="domain" :value="domain">
-              {{ $t(`knowledge.domains.${domain}`) }}
+              {{ domain.charAt(0).toUpperCase() + domain.slice(1) }}
             </option>
           </select>
         </div>
@@ -49,65 +49,65 @@
         <div class="search-box">
           <input type="text"
                  v-model="searchQuery"
-                 :placeholder="$t('knowledge.searchPlaceholder')">
+                 placeholder="Search knowledge content...">
           <select v-model="searchDomain">
-            <option value="">{{ $t('knowledge.allDomains') }}</option>
+            <option value="">All Domains</option>
             <option v-for="domain in domains" :key="domain" :value="domain">
-              {{ $t(`knowledge.domains.${domain}`) }}
+              {{ domain.charAt(0).toUpperCase() + domain.slice(1) }}
             </option>
           </select>
-          <button @click="searchKnowledge">{{ $t('knowledge.search') }}</button>
+          <button @click="searchKnowledge">Search</button>
         </div>
       </div>
 
       <div v-if="searchResults.length > 0" class="search-results">
-        <h3>{{ $t('knowledge.searchResults') }} ({{ searchResults.length }})</h3>
+        <h3>Search Results ({{ searchResults.length }})</h3>
         <div v-for="(result, index) in searchResults" :key="index" class="result-item">
-          <div class="result-domain">{{ $t(`knowledge.domains.${result.domain}`) }}</div>
+          <div class="result-domain">{{ result.domain.charAt(0).toUpperCase() + result.domain.slice(1) }}</div>
           <div class="result-content">{{ result.content }}</div>
-          <div class="result-source">{{ $t('knowledge.source') }}: {{ result.source }}</div>
+          <div class="result-source">Source: {{ result.source }}</div>
         </div>
       </div>
 
       <div v-else-if="searchPerformed" class="no-results">
-        {{ $t('knowledge.noResults') }}
+        No results found
       </div>
     </div>
 
     <!-- Manage Tab -->
     <div v-else-if="activeTab === 'manage'" class="content">
       <div class="manage-header">
-        <h3>{{ $t('knowledge.manageFiles') }}</h3>
+        <h3>Manage Files</h3>
         <button @click="loadFiles" class="refresh-btn">
-          {{ $t('knowledge.refresh') }}
+          Refresh
         </button>
       </div>
 
       <div v-if="filesLoading" class="loading">
-        {{ $t('knowledge.loadingFiles') }}...
+        Loading files...
       </div>
 
       <div v-else-if="files.length > 0" class="files-list">
         <div class="files-controls">
           <div class="filter-controls">
             <select v-model="filterDomain" @change="filterFiles">
-              <option value="">{{ $t('knowledge.allDomains') }}</option>
+              <option value="">All Domains</option>
               <option v-for="domain in domains" :key="domain" :value="domain">
-                {{ $t(`knowledge.domains.${domain}`) }}
+                {{ domain.charAt(0).toUpperCase() + domain.slice(1) }}
               </option>
             </select>
-            <input type="text" v-model="searchFileQuery" :placeholder="$t('knowledge.searchFiles')" @input="filterFiles">
+            <input type="text" v-model="searchFileQuery" placeholder="Search files..." @input="filterFiles">
           </div>
           <div class="sort-controls">
             <select v-model="sortBy" @change="sortFiles">
-              <option value="name">{{ $t('knowledge.sortByName') }}</option>
-              <option value="size">{{ $t('knowledge.sortBySize') }}</option>
-              <option value="date">{{ $t('knowledge.sortByDate') }}</option>
-            </select>
-            <select v-model="sortOrder" @change="sortFiles">
-              <option value="asc">{{ $t('knowledge.ascending') }}</option>
-              <option value="desc">{{ $t('knowledge.descending') }}</option>
-            </select>
+                <option value="name">Sort by Name</option>
+                <option value="size">Sort by Size</option>
+                <option value="date">Sort by Date</option>
+              </select>
+              <select v-model="sortOrder" @change="sortFiles">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
           </div>
         </div>
 
@@ -115,61 +115,61 @@
           <div v-for="file in filteredFiles" :key="file.id" class="file-card">
             <div class="file-header">
               <span class="file-name">{{ file.name }}</span>
-              <span class="file-domain">{{ $t(`knowledge.domains.${file.domain}`) }}</span>
+              <span class="file-domain">{{ file.domain.charAt(0).toUpperCase() + file.domain.slice(1) }}</span>
             </div>
             <div class="file-details">
               <span class="file-size">{{ formatFileSize(file.size) }}</span>
               <span class="file-date">{{ formatDate(file.upload_date) }}</span>
             </div>
             <div class="file-actions">
-              <button @click="viewFile(file)" class="action-btn view">{{ $t('knowledge.view') }}</button>
-              <button @click="downloadFile(file)" class="action-btn download">{{ $t('knowledge.download') }}</button>
-              <button @click="confirmDelete(file)" class="action-btn delete">{{ $t('knowledge.delete') }}</button>
+              <button @click="viewFile(file)" class="action-btn view">View</button>
+              <button @click="downloadFile(file)" class="action-btn download">Download</button>
+              <button @click="confirmDelete(file)" class="action-btn delete">Delete</button>
             </div>
           </div>
         </div>
 
         <div class="pagination" v-if="filteredFiles.length > 0">
-          <button @click="prevPage" :disabled="currentPage === 1">{{ $t('knowledge.previous') }}</button>
-          <span>{{ $t('knowledge.page') }} {{ currentPage }} {{ $t('knowledge.of') }} {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('knowledge.next') }}</button>
+          <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
         </div>
       </div>
 
       <div v-else class="no-files">
-        {{ $t('knowledge.noFiles') }}
+        No files available
       </div>
     </div>
 
     <!-- Stats Tab -->
     <div v-else-if="activeTab === 'stats'" class="content">
       <div class="stats-container">
-        <h3>{{ $t('knowledge.knowledgeStatistics') }}</h3>
+        <h3>Knowledge Statistics</h3>
         <div v-if="statsLoading" class="loading">
-          {{ $t('knowledge.loading') }}...
+          Loading...
         </div>
         <div v-else-if="knowledgeStats" class="stats-grid">
           <div class="stat-card">
             <div class="stat-value">{{ knowledgeStats.total_domains }}</div>
-            <div class="stat-label">{{ $t('knowledge.totalDomains') }}</div>
+            <div class="stat-label">Total Domains</div>
           </div>
           <div class="stat-card">
             <div class="stat-value">{{ knowledgeStats.total_items }}</div>
-            <div class="stat-label">{{ $t('knowledge.totalItems') }}</div>
+            <div class="stat-label">Total Items</div>
           </div>
           <div class="stat-card">
             <div class="stat-value">{{ formatFileSize(knowledgeStats.total_size || 0) }}</div>
-            <div class="stat-label">{{ $t('knowledge.totalSize') }}</div>
+            <div class="stat-label">Total Size</div>
           </div>
         </div>
 
         <div v-if="knowledgeStats?.domains" class="domain-stats">
-          <h4>{{ $t('knowledge.byDomain') }}</h4>
+          <h4>By Domain</h4>
           <div v-for="(domainStats, domain) in knowledgeStats.domains" :key="domain" class="domain-item">
-            <span class="domain-name">{{ $t(`knowledge.domains.${domain}`) }}</span>
-            <span class="domain-count">{{ domainStats.item_count }} {{ $t('knowledge.items') }}</span>
+            <span class="domain-name">{{ domain.charAt(0).toUpperCase() + domain.slice(1) }}</span>
+            <span class="domain-count">{{ domainStats.item_count }} Items</span>
             <span class="domain-updated" v-if="domainStats.last_updated">
-              {{ $t('knowledge.lastUpdated') }}: {{ formatDate(domainStats.last_updated) }}
+              Last Updated: {{ formatDate(domainStats.last_updated) }}
             </span>
           </div>
         </div>
@@ -179,11 +179,11 @@
     <!-- Delete confirmation modal -->
     <div v-if="showDeleteModal" class="modal-overlay">
       <div class="modal">
-        <h3>{{ $t('knowledge.confirmDelete') }}</h3>
-        <p>{{ $t('knowledge.deleteConfirmMessage', { file: fileToDelete.name }) }}</p>
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete the file "{{ fileToDelete.name }}"? This action cannot be undone.</p>
         <div class="modal-actions">
-          <button @click="deleteFile" class="confirm-btn">{{ $t('knowledge.confirm') }}</button>
-          <button @click="cancelDelete" class="cancel-btn">{{ $t('knowledge.cancel') }}</button>
+          <button @click="deleteFile" class="confirm-btn">Confirm</button>
+          <button @click="cancelDelete" class="cancel-btn">Cancel</button>
         </div>
       </div>
     </div>
@@ -197,10 +197,10 @@
         </div>
         <div class="preview-content">
           <div v-if="previewLoading" class="loading-preview">
-            {{ $t('knowledge.loadingPreview') }}...
+            Loading preview...
           </div>
           <div v-else-if="previewError" class="preview-error">
-            {{ $t('knowledge.previewError') }}
+            Error loading preview
           </div>
           <div v-else-if="isTextFile(currentPreviewFile)" class="text-preview">
             <pre>{{ currentFileContent }}</pre>
@@ -209,23 +209,23 @@
             <img :src="currentFileContent" :alt="currentPreviewFile.name" />
           </div>
           <div v-else class="unsupported-preview">
-            <p>{{ $t('knowledge.unsupportedPreview') }}</p>
+            <p>Preview not available for this file type</p>
             <p class="file-info">
-              {{ $t('knowledge.fileType') }}: {{ currentPreviewFile?.type || 'unknown' }}<br>
-              {{ $t('knowledge.fileSize') }}: {{ formatFileSize(currentPreviewFile?.size) }}<br>
-              {{ $t('knowledge.uploadDate') }}: {{ formatDate(currentPreviewFile?.upload_date) }}
+              File Type: {{ currentPreviewFile?.type || 'unknown' }}<br>
+              File Size: {{ formatFileSize(currentPreviewFile?.size) }}<br>
+              Upload Date: {{ formatDate(currentPreviewFile?.upload_date) }}
             </p>
           </div>
         </div>
         <div class="preview-actions">
           <button @click="downloadFile(currentPreviewFile)" class="action-btn download">
-            {{ $t('knowledge.download') }}
+            Download
           </button>
           <button v-if="isTextFile(currentPreviewFile)" @click="copyText" class="action-btn copy">
-            {{ $t('knowledge.copyText') }}
+            Copy Text
           </button>
           <button @click="closePreview" class="action-btn close">
-            {{ $t('knowledge.close') }}
+            Close
           </button>
         </div>
       </div>
@@ -235,7 +235,6 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import errorHandler from '@/utils/errorHandler';
 
@@ -245,7 +244,6 @@ export default {
     // KnowledgeImport组件未被使用，已移除
   },
   setup() {
-    const { t } = useI18n();
     
     const activeTab = ref('import');
     const searchQuery = ref('');
@@ -287,12 +285,12 @@ export default {
         }
         searchPerformed.value = true;
       } catch (error) {
-        errorHandler.handleError(t('knowledge.searchKnowledgeFailed'), error);
+        errorHandler.handleError(error, 'Search knowledge failed');
         // 使用模拟搜索结果作为回退
         searchResults.value = getMockSearchResults(searchQuery.value, searchDomain.value);
         searchPerformed.value = true;
         isRealAPI.value = false;
-        showSystemMessage(t('knowledge.usingMockSearch'));
+        showSystemMessage('Using mock search results');
       }
     };
 
@@ -301,22 +299,22 @@ export default {
       const mockResults = [
         {
           domain: 'computer_science',
-          content: t('knowledge.mockResult1', { query }),
+          content: `This is a mock search result related to "${query}" about artificial intelligence concepts.`,
           source: '人工智能导论.pdf'
         },
         {
           domain: 'computer_science',
-          content: t('knowledge.mockResult2', { query }),
+          content: `This mock result discusses machine learning fundamentals in the context of "${query}".`,
           source: '机器学习基础.docx'
         },
         {
           domain: 'computer_science', 
-          content: t('knowledge.mockResult3', { query }),
+          content: `This document covers deep learning techniques related to "${query}".`,
           source: '深度学习技术.pptx'
         }
       ];
       
-      // 根据领域过滤
+      // Filter by domain
       if (domain) {
         return mockResults.filter(result => result.domain === domain);
       }
@@ -332,15 +330,21 @@ export default {
           knowledgeStats.value = response.data;
         }
       } catch (error) {
-        errorHandler.handleError(t('knowledge.loadStatsFailed'), error);
+        // Check if connection error
+        if (error.code === 'ECONNREFUSED') {
+          // 明确告诉用户后端服务未启动
+          errorHandler.handleError(error, 'Backend service not running. Please start the Python backend with "python core/main.py".');
+        } else {
+          errorHandler.handleError(error, 'Failed to load statistics');
+        }
         // 使用模拟统计数据作为回退
         knowledgeStats.value = getMockKnowledgeStats();
-        showSystemMessage(t('knowledge.usingMockStats'));
+        showSystemMessage('Using mock statistics data');
       }
       statsLoading.value = false;
     };
 
-    // 模拟知识统计数据
+    // Mock knowledge statistics data
     const getMockKnowledgeStats = () => {
       return {
         total_domains: 9,
@@ -374,7 +378,7 @@ export default {
     const formatFileSize = (bytes) => {
       if (bytes === 0) return '0 B';
       const k = 1024;
-      const sizes = [t('knowledge.sizeB'), t('knowledge.sizeKB'), t('knowledge.sizeMB'), t('knowledge.sizeGB')];
+      const sizes = ['B', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
@@ -498,19 +502,25 @@ export default {
         if (response.data && response.data.success) {
           files.value = response.data.files;
           filterFiles();
-          showSystemMessage('文件列表加载成功');
-          // 标记为真实API连接
+          showSystemMessage('File list loaded successfully');
+          // Mark as real API connection
           isRealAPI.value = true;
         } else {
           files.value = [];
-          showSystemMessage('文件列表为空');
+          showSystemMessage('File list is empty');
         }
       } catch (error) {
-        errorHandler.handleError(t('knowledge.loadFilesFailed'), error);
+        // Check if connection error
+        if (error.code === 'ECONNREFUSED') {
+          // 明确告诉用户后端服务未启动
+          errorHandler.handleError(error, 'Backend service not running. Please start the Python backend with "python core/main.py".');
+        } else {
+          errorHandler.handleError(error, 'Failed to load files');
+        }
         // 使用模拟数据作为回退
         files.value = getMockFiles();
         filterFiles();
-        showSystemMessage(t('knowledge.usingMockFiles'));
+        showSystemMessage('Using mock file list');
         isRealAPI.value = false;
       }
       filesLoading.value = false;
@@ -521,28 +531,28 @@ export default {
       return [
         {
           id: 'mock_1',
-          name: '人工智能导论.pdf',
+          name: 'Introduction to AI.pdf',
           size: 2048000,
           upload_date: '2023-06-15T10:30:00Z',
           domain: 'computer_science'
         },
         {
           id: 'mock_2',
-          name: '机器学习基础.docx',
+          name: 'Machine Learning Basics.docx',
           size: 1536000,
           upload_date: '2023-06-10T14:45:00Z',
           domain: 'computer_science'
         },
         {
           id: 'mock_3',
-          name: '深度学习技术.pptx',
+          name: 'Deep Learning Techniques.pptx',
           size: 3072000,
           upload_date: '2023-06-05T09:20:00Z',
           domain: 'computer_science'
         },
         {
           id: 'mock_4',
-          name: '数据科学手册.pdf',
+          name: 'Data Science Handbook.pdf',
           size: 4096000,
           upload_date: '2023-06-01T16:10:00Z',
           domain: 'computer_science'
@@ -556,7 +566,7 @@ export default {
         // In a real app, this would use a notification system
         console.log('[System]', message);
         // Simple alert as fallback
-        setTimeout(() => alert(`${t('knowledge.systemPrefix')}${message}`), 100);
+        setTimeout(() => alert(`[System] ${message}`), 100);
       }
     };
 
@@ -577,13 +587,13 @@ export default {
         
         // Check if popup was blocked
         if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-          showSystemMessage('请允许弹出窗口以查看文件');
+          showSystemMessage('Please allow pop-ups to view file');
           // Fallback to preview modal
           openPreview(file);
         }
       } catch (error) {
-        errorHandler.handleError(t('knowledge.viewFileFailed'), error);
-        showSystemMessage(`无法查看文件: ${file.name}`);
+        errorHandler.handleError(error, 'Failed to view file');
+        showSystemMessage(`Failed to view file: ${file.name}`);
         // Fallback to preview modal
         openPreview(file);
       }
@@ -614,12 +624,12 @@ export default {
         // Check if file is mock file
         if (file.id && file.id.startsWith('mock_')) {
           // Simulate content for mock files
-          if (isTextFile(file)) {
-            currentFileContent.value = `这是模拟文件 ${file.name} 的内容。\n\n文件大小: ${formatFileSize(file.size)}\n上传日期: ${formatDate(file.upload_date)}\n领域: ${file.domain}`;
-          } else if (isImageFile(file)) {
-            // Use placeholder image for mock image files
-            currentFileContent.value = 'https://via.placeholder.com/400x300?text=模拟图片';
-          }
+        if (isTextFile(file)) {
+          currentFileContent.value = `This is mock content for ${file.name}.\n\nFile Size: ${formatFileSize(file.size)}\nUpload Date: ${formatDate(file.upload_date)}\nDomain: ${file.domain}`;
+        } else if (isImageFile(file)) {
+          // Use placeholder image for mock image files
+          currentFileContent.value = 'https://via.placeholder.com/400x300?text=Mock+Image';
+        }
           previewLoading.value = false;
           return;
         }
@@ -645,13 +655,13 @@ export default {
           throw new Error('Failed to load file content');
         }
       } catch (error) {
-          errorHandler.handleError(t('knowledge.previewLoadFailed'), error);
-        previewError.value = true;
-        // For mock files or when API fails, show simulated content
-        if (isTextFile(file)) {
-          currentFileContent.value = `无法加载文件内容。\n\n文件信息:\n名称: ${file.name}\n大小: ${formatFileSize(file.size)}\n上传日期: ${formatDate(file.upload_date)}`;
+          errorHandler.handleError(error, 'Failed to load preview');
+          previewError.value = true;
+          // For mock files or when API fails, show simulated content
+          if (isTextFile(file)) {
+            currentFileContent.value = `Failed to load file content.\n\nFile Info:\nName: ${file.name}\nSize: ${formatFileSize(file.size)}\nUpload Date: ${formatDate(file.upload_date)}`;
+          }
         }
-      }
       previewLoading.value = false;
     };
 
@@ -668,10 +678,10 @@ export default {
     const copyText = async () => {
       try {
         await navigator.clipboard.writeText(currentFileContent.value);
-          showSystemMessage(t('knowledge.textCopied'));
+          showSystemMessage('Text copied to clipboard');
         } catch (error) {
-          errorHandler.handleError(t('knowledge.copyTextFailed'), error);
-          showSystemMessage(t('knowledge.copyTextFailedMessage'));
+        errorHandler.handleError(error, 'Failed to copy text');
+        showSystemMessage('Failed to copy text. Please try manually.');
       }
     };
 
@@ -705,7 +715,7 @@ export default {
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`${t('knowledge.downloadFailed')} ${response.status}`);
+          throw new Error(`Download failed: ${response.status}`);
         }
         
         const blob = await response.blob();
@@ -718,12 +728,12 @@ export default {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
-        showSystemMessage(`${t('knowledge.downloadSuccess')} ${file.name}`);
+        showSystemMessage(`Download successful: ${file.name}`);
       } catch (error) {
-        errorHandler.handleError(t('knowledge.downloadError'), error);
+        errorHandler.handleError(error, 'Download error');
         // If timeout or other error, try to simulate download
         if (error.name === 'AbortError' || !error.response) {
-          showSystemMessage(`${t('knowledge.mockDownload')} ${file.name}`);
+          showSystemMessage(`Simulating download: ${file.name}`);
           // Create a dummy blob for simulation
           const blob = new Blob(['This is a simulated file content.'], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
@@ -735,7 +745,7 @@ export default {
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
         } else {
-          showSystemMessage(`${t('knowledge.cannotDownload')} ${file.name}`);
+          showSystemMessage(`Cannot download file: ${file.name}`);
         }
       }
     };
@@ -761,7 +771,7 @@ export default {
         if (fileToDelete.value.id && fileToDelete.value.id.startsWith('mock_')) {
           files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
           filterFiles();
-          showSystemMessage(`${t('knowledge.mockDelete')} ${fileToDelete.value.name}`);
+          showSystemMessage(`Simulating deletion: ${fileToDelete.value.name}`);
           showDeleteModal.value = false;
           fileToDelete.value = null;
           return;
@@ -774,16 +784,16 @@ export default {
           // Remove file from list
           files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
           filterFiles();
-          showSystemMessage(`${t('knowledge.deleteSuccess')} ${fileToDelete.value.name}`);
+          showSystemMessage(`Delete successful: ${fileToDelete.value.name}`);
         } else {
-          showSystemMessage(`${t('knowledge.deleteFailed')} ${fileToDelete.value.name}`);
+          showSystemMessage(`Delete failed: ${fileToDelete.value.name}`);
         }
       } catch (error) {
-        errorHandler.handleError(t('knowledge.deleteError'), error);
+        errorHandler.handleError(error, 'Delete error');
         // Even if server fails, remove from local list for better UX
         files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
         filterFiles();
-        showSystemMessage(`${t('knowledge.localDelete')} ${fileToDelete.value.name}`);
+        showSystemMessage(`File removed locally: ${fileToDelete.value.name}`);
       }
       showDeleteModal.value = false;
       fileToDelete.value = null;
@@ -807,15 +817,15 @@ export default {
         
         // Validate file type
         if (!allowedTypes.includes(file.type)) {
-          showSystemMessage(`不支持的文件类型: ${file.name}`);
+          showSystemMessage(`File type not supported: ${file.name}`);
           continue;
         }
         
         // Validate file size
-        if (file.size > maxFileSize) {
-          showSystemMessage(`文件太大 (${formatFileSize(file.size)}), 最大支持 20MB: ${file.name}`);
-          continue;
-        }
+          if (file.size > maxFileSize) {
+            showSystemMessage(`File size exceeds limit: ${file.name}`);
+            continue;
+          }
         
         try {
           uploading.value = true;
@@ -839,7 +849,7 @@ export default {
           if (selectedDomain.value === 'autoDetect') {
             // In a real app, this would send to server for auto-detection
             formData.append('domain', 'general'); // Default to general
-            showSystemMessage(`将自动检测 ${file.name} 的领域`);
+            showSystemMessage(`Automatically detecting domain for ${file.name}`);
           } else {
             formData.append('domain', selectedDomain.value);
           }
@@ -856,16 +866,16 @@ export default {
             });
             
             if (response.data.success) {
-              showSystemMessage(`${t('knowledge.uploadSuccess')} ${file.name}`);
+              showSystemMessage(`Upload successful: ${file.name}`);
               // Refresh file list
               loadFiles();
             } else {
-              showSystemMessage(`${t('knowledge.uploadFailed')} ${file.name}`);
+              showSystemMessage(`Upload failed: ${file.name}`);
             }
           } catch (error) {
-            errorHandler.handleError(t('knowledge.uploadError'), error);
+            errorHandler.handleError(error, 'Upload error');
             // Simulate successful upload for demo purposes
-            showSystemMessage(`${t('knowledge.mockUploadSuccess')} ${file.name}`);
+            showSystemMessage(`Simulating upload success: ${file.name}`);
             // Add mock file to list
             const mockFile = {
               id: 'mock_' + Date.now(),
@@ -881,9 +891,9 @@ export default {
           clearInterval(progressInterval);
           uploadProgress.value = 100;
         } catch (error) {
-          errorHandler.handleError(t('knowledge.processFileError'), error);
-          showSystemMessage(`${t('knowledge.processFileErrorMessage')} ${file.name}`);
-        } finally {
+            errorHandler.handleError(error, 'Error processing file');
+            showSystemMessage(`Failed to process file: ${file.name}`);
+          } finally {
           // Reset upload state after a short delay to show 100% progress
           setTimeout(() => {
             uploading.value = false;
@@ -916,7 +926,7 @@ export default {
       formatDate,
       files,
       filesLoading,
-      filteredFiles: paginatedFiles, // 模板中使用的是filteredFiles，映射到分页后的文件
+      filteredFiles: paginatedFiles, // filteredFiles is used in the template, mapped to paginated files
       filterDomain,
       searchFileQuery,
       sortBy,

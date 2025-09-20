@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-// 情感智能核心模型
+// Emotional Intelligence Core Model
 class EmotionModel {
   constructor() {
     // 情感状态 (0-100)
@@ -46,8 +46,8 @@ class EmotionModel {
   
   // 分析文本情感
   analyzeText(text) {
-    const positiveWords = ['高兴', '快乐', '喜欢', '爱', '成功', '美好', '满意']
-    const negativeWords = ['悲伤', '难过', '恨', '生气', '失败', '糟糕', '失望']
+    const positiveWords = ['happy', 'joyful', 'like', 'love', 'success', 'wonderful', 'satisfied']
+    const negativeWords = ['sad', 'sorrow', 'hate', 'angry', 'failure', 'terrible', 'disappointed']
     
     let positiveCount = 0
     let negativeCount = 0
@@ -171,28 +171,28 @@ class EmotionModel {
     const dominant = this.getDominantEmotion()
     let response = text
     
-    // 根据主导情感修饰响应
+    // Modify response based on dominant emotion
     switch(dominant) {
       case 'joy':
-        response = `😊 ${response} 这真让人开心！`
+        response = `😊 ${response} This makes me happy!`
         break
       case 'sadness':
-        response = `😔 ${response} 我对此感到有些难过。`
+        response = `😔 ${response} I feel a bit sad about this.`
         break
       case 'anger':
-        response = `😠 ${response} 这让我感到生气！`
+        response = `😠 ${response} This makes me angry!`
         break
       case 'surprise':
-        response = `😲 ${response} 这真令人惊讶！`
+        response = `😲 ${response} This is surprising!`
         break
       case 'fear':
-        response = `😨 ${response} 这让我有点害怕...`
+        response = `😨 ${response} This makes me a bit scared...`
         break
       case 'trust':
-        response = `🤝 ${response} 我相信我们可以解决这个问题。`
+        response = `🤝 ${response} I believe we can solve this problem.`
         break
       case 'anticipation':
-        response = `🤔 ${response} 我期待着看到结果。`
+        response = `🤔 ${response} I'm looking forward to seeing the results.`
         break
       default:
         response = `🤖 ${response}`

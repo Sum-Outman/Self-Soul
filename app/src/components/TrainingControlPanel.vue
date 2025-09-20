@@ -1,38 +1,38 @@
 <template>
   <div class="training-control-panel">
-    <h2>{{ $t('training.title') }}</h2>
-    
-    <div class="model-selection">
-      <h3>{{ $t('training.selectModels') }}</h3>
+      <h2>Model Training</h2>
+      
+      <div class="model-selection">
+        <h3>Select Models</h3>
       <div v-for="model in availableModels" :key="model.id" class="model-item">
-        <input type="checkbox" :id="model.id" v-model="selectedModels" :value="model.id">
-        <label :for="model.id">{{ $t(`models.${model.id}`) }}</label>
-        
-        <div class="model-config" v-if="selectedModels.includes(model.id)">
-          <div class="config-option">
-            <label>{{ $t('training.modelSource') }}:</label>
-            <select v-model="modelSources[model.id]">
-              <option value="local">{{ $t('training.localModel') }}</option>
-              <option value="external">{{ $t('training.externalModel') }}</option>
-            </select>
-          </div>
+            <input type="checkbox" :id="model.id" v-model="selectedModels" :value="model.id">
+            <label :for="model.id">{{ model.name }}</label>
+            
+            <div class="model-config" v-if="selectedModels.includes(model.id)">
+              <div class="config-option">
+                <label>Model Source:</label>
+                <select v-model="modelSources[model.id]">
+                  <option value="local">Local Model</option>
+                  <option value="external">External API Model</option>
+                </select>
+              </div>
           
           <div v-if="modelSources[model.id] === 'external'" class="external-config">
-            <div class="config-input">
-              <label>{{ $t('training.endpoint') }}:</label>
-              <input type="text" v-model="externalConfigs[model.id].endpoint" placeholder="https://api.example.com">
-            </div>
-            <div class="config-input">
-              <label>{{ $t('training.apiKey') }}:</label>
-              <input type="password" v-model="externalConfigs[model.id].apiKey" placeholder="API Key">
-            </div>
-            <div class="config-input">
-              <label>{{ $t('training.modelName') }}:</label>
-              <input type="text" v-model="externalConfigs[model.id].modelName" placeholder="Model Name">
-            </div>
-            <button @click="testConnection(model.id)" class="test-btn">
-              {{ $t('training.testConnection') }}
-            </button>
+                <div class="config-input">
+                  <label>Endpoint:</label>
+                  <input type="text" v-model="externalConfigs[model.id].endpoint" placeholder="https://api.example.com">
+                </div>
+                <div class="config-input">
+                  <label>API Key:</label>
+                  <input type="password" v-model="externalConfigs[model.id].apiKey" placeholder="API Key">
+                </div>
+                <div class="config-input">
+                  <label>Model Name:</label>
+                  <input type="text" v-model="externalConfigs[model.id].modelName" placeholder="Model Name">
+                </div>
+                <button @click="testConnection(model.id)" class="test-btn">
+                  Test Connection
+                </button>
             <span v-if="connectionStatus[model.id]" :class="['status', connectionStatus[model.id].status]">
               {{ connectionStatus[model.id].message }}
             </span>
@@ -42,14 +42,14 @@
     </div>
 
     <div class="training-options">
-      <h3>{{ $t('training.trainingOptions') }}</h3>
-      <div class="option">
-        <label>{{ $t('training.trainingMode') }}:</label>
-        <select v-model="trainingMode" @change="onTrainingModeChange">
-          <option value="individual">{{ $t('training.individual') }}</option>
-          <option value="joint">{{ $t('training.joint') }}</option>
-        </select>
-      </div>
+        <h3>Training Options</h3>
+        <div class="option">
+          <label>Training Mode:</label>
+          <select v-model="trainingMode" @change="onTrainingModeChange">
+            <option value="individual">Individual</option>
+            <option value="joint">Joint</option>
+          </select>
+        </div>
 
       <!-- 联合训练特定选项 -->
       <div v-if="trainingMode === 'joint'" class="joint-training-options">
@@ -116,9 +116,9 @@
     </div>
 
     <div class="training-progress" v-if="isTraining">
-      <h3>{{ $t('training.progress') }}</h3>
-      <div v-for="model in trainingProgress" :key="model.id" class="progress-item">
-        <div class="model-name">{{ $t(`models.${model.id}`) }}</div>
+        <h3>Training Progress</h3>
+        <div v-for="model in trainingProgress" :key="model.id" class="progress-item">
+          <div class="model-name">{{ model.name }}</div>
         <div class="progress-bar">
           <div class="progress" :style="{ width: `${model.progress}%` }"></div>
           <span>{{ model.progress }}%</span>
@@ -127,19 +127,19 @@
     </div>
 
     <div class="performance-metrics" v-if="trainingMetrics.length > 0">
-      <h3>{{ $t('training.performanceMetrics') }}</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>{{ $t('training.model') }}</th>
-            <th>{{ $t('training.loss') }}</th>
-            <th>{{ $t('training.accuracy') }}</th>
-            <th>{{ $t('training.trainingTime') }}</th>
-          </tr>
-        </thead>
+        <h3>Performance Metrics</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Loss</th>
+              <th>Accuracy (%)</th>
+              <th>Training Time</th>
+            </tr>
+          </thead>
         <tbody>
           <tr v-for="metric in trainingMetrics" :key="metric.model">
-            <td>{{ $t(`models.${metric.model}`) }}</td>
+            <td>{{ getModelName(metric.model) }}</td>
             <td>{{ metric.loss.toFixed(4) }}</td>
             <td>{{ metric.accuracy.toFixed(2) }}%</td>
             <td>{{ formatTime(metric.trainingTime) }}</td>
@@ -198,12 +198,45 @@ export default {
       pollingInterval: null
     };
   },
-
-  async mounted() {
-    // 组件挂载时加载已保存的模型配置 | Load saved model configurations when component mounts
-    await this.loadSavedConfigs();
-  },
   methods: {
+    // Get model name by ID without i18n dependency
+    getModelName(modelId) {
+      const model = this.availableModels.find(m => m.id === modelId);
+      return model ? model.name : modelId;
+    },
+    
+    async loadSavedConfigs() {
+      try {
+        // 在纯前端模式下，加载本地存储的配置
+        const savedConfigs = localStorage.getItem('trainingConfigs');
+        if (savedConfigs) {
+          const configs = JSON.parse(savedConfigs);
+          // 应用保存的配置
+          if (configs.modelSources) {
+            this.modelSources = configs.modelSources;
+          }
+          if (configs.externalConfigs) {
+            this.externalConfigs = configs.externalConfigs;
+          }
+          if (configs.selectedModels) {
+            this.selectedModels = configs.selectedModels;
+          }
+          if (configs.trainingMode) {
+            this.trainingMode = configs.trainingMode;
+          }
+          if (configs.trainingParams) {
+            const { epochs, learningRate, batchSize, validationSplit } = configs.trainingParams;
+            this.epochs = epochs || 50;
+            this.learningRate = learningRate || 0.001;
+            this.batchSize = batchSize || 32;
+            this.validationSplit = validationSplit || 0.2;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved configurations:', error);
+      }
+    },
+    
     onTrainingModeChange() {
       // 当训练模式改变时重置联合训练相关选项
       if (this.trainingMode !== 'joint') {
@@ -234,18 +267,18 @@ export default {
             this.selectedCombination = this.recommendedCombinations[0].models;
           }
           this.$notify({
-            title: this.$t('training.recommendationsLoaded'),
-            message: this.$t('training.foundCombinations', { count: this.recommendedCombinations ? this.recommendedCombinations.length : 0 }),
+            title: 'Recommendations Loaded',
+            message: `Found ${this.recommendedCombinations ? this.recommendedCombinations.length : 0} recommended combinations`,
             type: 'success'
           });
         } else {
-          throw new Error(result.detail || this.$t('training.loadRecommendationsFailed'));
+          throw new Error(result.detail || 'Failed to load recommendations');
         }
       } catch (error) {
-        console.error('加载推荐组合失败:', error);
+        console.error('Failed to load recommended combinations:', error);
         this.$notify({
-          title: this.$t('training.error'),
-          message: error.message || this.$t('training.loadRecommendationsFailed'),
+          title: 'Error',
+          message: error.message || 'Failed to load recommendations',
           type: 'error'
         });
       }
@@ -295,23 +328,23 @@ export default {
         if (result.status === 'success') {
           this.jobId = result.job_id;
           this.$notify({
-            title: this.$t('training.started'),
-            message: this.$t('training.jobStarted', { jobId: this.jobId }),
+            title: 'Training Started',
+            message: `Training job ${this.jobId} has started`,
             type: 'success'
           });
           
           // 开始轮询训练状态
           this.startPollingTrainingStatus();
         } else {
-          throw new Error(result.detail || this.$t('training.startFailed'));
+          throw new Error(result.detail || 'Failed to start training');
         }
       } catch (error) {
         console.error('启动训练失败:', error);
         this.$notify({
-          title: this.$t('training.error'),
-          message: error.message || this.$t('training.startFailed'),
-          type: 'error'
-        });
+            title: 'Error',
+            message: error.message || 'Failed to start training',
+            type: 'error'
+          });
         this.isTraining = false;
       }
     },
@@ -341,8 +374,8 @@ export default {
               
               if (status.status === 'completed') {
                 this.$notify({
-                  title: this.$t('training.completed'),
-                  message: this.$t('training.trainingCompleted'),
+                  title: 'Training Completed',
+                  message: 'Training has been successfully completed',
                   type: 'success'
                 });
                 
@@ -350,8 +383,8 @@ export default {
                 await this.loadTrainingResults();
               } else {
                 this.$notify({
-                  title: this.$t('training.failed'),
-                  message: status.error || this.$t('training.trainingFailed'),
+                  title: 'Training Failed',
+                  message: status.error || 'Training process failed',
                   type: 'error'
                 });
               }
@@ -381,7 +414,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('加载训练结果失败:', error);
+        console.error('Failed to load training results:', error);
       }
     },
     
@@ -407,17 +440,17 @@ export default {
     },
     
     async testConnection(modelId) {
-      // 设置连接状态为测试中 | Set connection status to testing
-      this.$set(this.connectionStatus, modelId, {
-        status: 'testing',
-        message: this.$t('training.connecting')
-      });
+      // Set connection status to testing
+        this.$set(this.connectionStatus, modelId, {
+          status: 'testing',
+          message: 'Connecting...'
+        });
       
       try {
         // 获取外部配置 | Get external configuration
         const config = this.externalConfigs[modelId];
         if (!config.endpoint || !config.apiKey) {
-          throw new Error(this.$t('training.missingConfig'));
+          throw new Error('Missing configuration parameters');
         }
         
         // 调用后端API进行真实连接测试 | Call backend API for real connection test
@@ -438,23 +471,23 @@ export default {
         
         if (result.success) {
           this.$set(this.connectionStatus, modelId, {
-            status: 'success',
-            message: this.$t('training.connectionSuccess')
-          });
+                status: 'success',
+                message: 'Connection successful'
+              });
           
           // 保存成功的配置到系统设置 | Save successful configuration to system settings
           await this.saveModelConfig(modelId, config);
         } else {
           this.$set(this.connectionStatus, modelId, {
-            status: 'error',
-            message: result.message || this.$t('training.connectionFailed')
-          });
+                status: 'error',
+                message: result.message || 'Connection failed'
+              });
         }
       } catch (error) {
         this.$set(this.connectionStatus, modelId, {
-          status: 'error',
-          message: error.message || this.$t('training.connectionError')
-        });
+              status: 'error',
+              message: error.message || 'Connection error'
+            });
       }
     },
     
@@ -516,8 +549,8 @@ export default {
           }
         }
       } catch (error) {
-        console.error('加载配置失败 | Failed to load configurations:', error);
-        // 初始化默认配置 | Initialize default configurations
+        console.error('Failed to load configurations:', error);
+        // Initialize default configurations
         for (const model of this.availableModels) {
           this.$set(this.modelSources, model.id, 'local');
           this.$set(this.externalConfigs, model.id, {

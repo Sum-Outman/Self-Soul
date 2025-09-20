@@ -3,22 +3,22 @@
     <div class="guide-overlay" v-if="showGuide" @click="closeGuide"></div>
     <div class="guide-content" v-if="showGuide">
       <div class="guide-header">
-        <h2>{{ $t('guide.title') }}</h2>
+        <h2>User Guide</h2>
         <button class="close-btn" @click="closeGuide">&times;</button>
       </div>
       <div class="guide-steps">
         <div class="step" v-for="(step, index) in steps" :key="index" v-show="currentStep === index + 1">
           <div class="step-number">{{ index + 1 }}</div>
           <div class="step-content">
-            <h3>{{ $t(`guide.steps.${index}.title`) }}</h3>
-            <p>{{ $t(`guide.steps.${index}.description`) }}</p>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
           </div>
         </div>
       </div>
       <div class="guide-navigation">
-        <button @click="prevStep" :disabled="currentStep === 1">{{ $t('guide.prev') }}</button>
-        <button @click="nextStep" :disabled="currentStep === steps.length">{{ $t('guide.next') }}</button>
-        <button @click="finishGuide" v-if="currentStep === steps.length">{{ $t('guide.finish') }}</button>
+        <button @click="prevStep" :disabled="currentStep === 1">Previous</button>
+        <button @click="nextStep" :disabled="currentStep === steps.length">Next</button>
+        <button @click="finishGuide" v-if="currentStep === steps.length">Finish</button>
       </div>
     </div>
   </div>
@@ -36,11 +36,11 @@ export default {
   setup(props, { emit }) {
     const currentStep = ref(1);
     const steps = [
-      { title: 'guide.steps.0.title', description: 'guide.steps.0.description' },
-      { title: 'guide.steps.1.title', description: 'guide.steps.1.description' },
-      { title: 'guide.steps.2.title', description: 'guide.steps.2.description' },
-      { title: 'guide.steps.3.title', description: 'guide.steps.3.description' },
-      { title: 'guide.steps.4.title', description: 'guide.steps.4.description' }
+      { title: 'Welcome to AGI System', description: 'This is an artificial intelligence system with self-awareness and autonomous learning capabilities. The system includes 11 core models working together to achieve human brain-like functionality.' },
+      { title: 'Model Management', description: 'The Manager Model (A) coordinates all sub-model tasks, supporting multiple interaction methods including voice, text, and images. Model configuration and monitoring can be done through the main interface.' },
+      { title: 'Training and Control', description: 'The system supports both individual model training and joint training. The training control panel allows selecting models for training and setting training parameters.' },
+      { title: 'Real-time Monitoring', description: 'The monitoring dashboard provides real-time system status, model performance, and resource usage. Supports real-time data stream viewing and model restart operations.' },
+      { title: 'System Features', description: 'The system provides comprehensive AI capabilities including language processing, vision recognition, audio analysis, knowledge management, and autonomous learning.' }
     ];
 
     const closeGuide = () => {

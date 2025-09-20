@@ -1,0 +1,52 @@
+{
+  "model_ports": {
+    "manager": 8001,
+    "language": 8002,
+    "knowledge": 8003,
+    "vision": 8004,
+    "audio": 8005,
+    "autonomous": 8006,
+    "programming": 8007,
+    "planning": 8008,
+    "emotion": 8009,
+    "spatial": 8010,
+    "computer_vision": 8011,
+    "sensor": 8012,
+    "motion": 8013,
+    "prediction": 8014,
+    "advanced_reasoning": 8015,
+    "data_fusion": 8016,
+    "creative_problem_solving": 8017,
+    "meta_cognition": 8018,
+    "value_alignment": 8019,
+    "finance": 8020,
+    "medical": 8021
+  },
+  "main_api": {
+    "port": 8000,
+    "host": "0.0.0.0",
+    "workers": 1
+  },
+  "realtime_stream_manager": {
+    "port": 8765,
+    "host": "0.0.0.0"
+  },
+  "service_settings": {
+    "auto_start": true,
+    "max_workers": 5,
+    "health_check_interval": 30,
+    "timeout": 10,
+    "retry_count": 3
+  },
+  "logging": {
+    "level": "INFO",
+    "file_path": "logs/model_services.log",
+    "rotation": "1 day",
+    "retention": "7 days"
+  },
+  "performance_monitoring": {
+    "enabled": true,
+    "metrics_port": 8081,
+    "collection_interval": 15
+  }
+}

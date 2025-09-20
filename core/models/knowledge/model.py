@@ -13,7 +13,6 @@
 """
 
 """
-知识库专家模型 - 多学科知识系统
 Knowledge Expert Model - Multidisciplinary Knowledge System
 """
 
@@ -26,24 +25,23 @@ import numpy as np
 from typing import Dict, List, Any, Tuple, Optional
 from collections import defaultdict
 from ..base_model import BaseModel
-from core.i18n_manager import translate_text
 from core.api_model_connector import api_model_connector
 from core.system_settings_manager import system_settings_manager
 
-# 尝试导入PDF和DOCX处理库
+# Try to import PDF and DOCX processing libraries
 try:
     import PyPDF2
     PDF_SUPPORT = True
 except ImportError:
     PDF_SUPPORT = False
-    logging.warning("PyPDF2未安装，PDF文件导入功能将不可用 | PyPDF2 not installed, PDF import functionality will be unavailable")
+    logging.warning("PyPDF2 not installed, PDF import functionality will be unavailable")
 
 try:
     import docx
     DOCX_SUPPORT = True
 except ImportError:
     DOCX_SUPPORT = False
-    logging.warning("python-docx未安装，DOCX文件导入功能将不可用 | python-docx not installed, DOCX import functionality will be unavailable")
+    logging.warning("python-docx not installed, DOCX import functionality will be unavailable")
 
 
 """

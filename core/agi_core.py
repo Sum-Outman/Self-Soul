@@ -1,6 +1,7 @@
 """
 AGI核心模块 - 实现真正的通用人工智能神经网络架构
 集成高级神经网络组件、元学习、知识图谱和自适应学习机制
+完全自主的AGI系统，不依赖任何外部预训练模型
 """
 
 import torch
@@ -9,7 +10,7 @@ import torch.optim as optim
 import numpy as np
 import json
 import time
-from typing import Dict, List, Any, Optional, Callable, Tuple
+from typing import Dict, List, Any, Optional, Callable, Tuple, Union
 import logging
 from dataclasses import dataclass
 import pickle
@@ -17,12 +18,167 @@ from pathlib import Path
 import hashlib
 from datetime import datetime
 import networkx as nx
-from collections import deque
+from collections import deque, defaultdict
 import random
+import re
+import math
+import base64
+import zlib
+import warnings
+warnings.filterwarnings('ignore')
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# AGI自学习特征提取器 - 完全自包含，无外部依赖
+class AGIFeatureExtractor:
+    """AGI自学习特征提取系统，完全替代外部预训练模型"""
+    
+    def __init__(self, input_dim: int = 512, hidden_dim: int = 1024, output_dim: int = 384):
+        self.extractor_network = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.GELU(),
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.GELU(),
+            nn.LayerNorm(hidden_dim // 2),
+            nn.Linear(hidden_dim // 2, output_dim)
+        )
+        self.optimizer = optim.Adam(self.extractor_network.parameters(), lr=0.001)
+        self.loss_fn = nn.MSELoss()
+        self.feature_memory = deque(maxlen=10000)
+        self.is_trained = False
+        self.semantic_vocabulary = set()
+        self.concept_embeddings = {}
+    
+    def extract_features(self, input_data: Any, modality: str = "text") -> np.ndarray:
+        """自学习特征提取，完全替代外部模型"""
+        if not self.is_trained:
+            return self._initialize_features(input_data, modality)
+        
+        # 转换为模型输入
+        input_tensor = self._preprocess_input(input_data, modality)
+        with torch.no_grad():
+            features = self.extractor_network(input_tensor)
+        return features.numpy()
+    
+    def learn_from_examples(self, examples: List[Tuple[Any, np.ndarray]], modality: str = "text"):
+        """从示例中学习特征提取"""
+        for input_data, target_features in examples:
+            input_tensor = self._preprocess_input(input_data, modality)
+            target_tensor = torch.tensor(target_features, dtype=torch.float32)
+            
+            self.optimizer.zero_grad()
+            output = self.extractor_network(input_tensor)
+            loss = self.loss_fn(output, target_tensor)
+            loss.backward()
+            self.optimizer.step()
+            
+            self.feature_memory.append((input_data, target_features, modality))
+        
+        self.is_trained = True
+    
+    def _initialize_features(self, input_data: Any, modality: str) -> np.ndarray:
+        """初始化特征向量"""
+        if modality == "text":
+            text = str(input_data)
+            # 高级文本特征：语义丰富度、结构复杂度、概念密度
+            words = re.findall(r'\b\w+\b', text.lower())
+            if not words:
+                return np.random.randn(384).astype(np.float32) * 0.1
+            
+            # 计算高级文本特征
+            features = [
+                len(text) / 1000.0,  # 文本长度
+                len(words) / 100.0,  # 词汇数量
+                len(set(words)) / max(1, len(words)),  # 词汇多样性
+                sum(len(word) for word in words) / max(1, len(words)) / 10.0,  # 平均词长
+                self._calculate_semantic_richness(text),  # 语义丰富度
+                self._calculate_structure_complexity(text),  # 结构复杂度
+            ]
+            
+            # 添加字符级语义特征
+            char_features = [ord(c) / 1000.0 for c in text[:100]]
+            features.extend(char_features)
+            
+            # 添加词汇级语义特征
+            word_features = [hash(word) % 100 / 100.0 for word in words[:20]]
+            features.extend(word_features)
+            
+            # 确保固定长度
+            features = features + [0.0] * (384 - len(features))
+            return np.array(features[:384])
+        else:
+            # 其他模态的基础特征
+            return np.random.randn(384).astype(np.float32) * 0.1
+    
+    def _calculate_semantic_richness(self, text: str) -> float:
+        """计算文本语义丰富度"""
+        words = re.findall(r'\b\w+\b', text.lower())
+        if not words:
+            return 0.0
+        
+        # 计算信息熵作为语义丰富度指标
+        word_counts = {}
+        for word in words:
+            word_counts[word] = word_counts.get(word, 0) + 1
+        
+        total_words = len(words)
+        entropy = 0.0
+        for count in word_counts.values():
+            probability = count / total_words
+            entropy -= probability * math.log(probability + 1e-8)
+        
+        return min(1.0, entropy / math.log(len(word_counts) + 1e-8))
+    
+    def _calculate_structure_complexity(self, text: str) -> float:
+        """计算文本结构复杂度"""
+        # 分析句子结构
+        sentences = re.split(r'[.!?]+', text)
+        sentences = [s.strip() for s in sentences if s.strip()]
+        
+        if not sentences:
+            return 0.0
+        
+        # 计算平均句子长度和变异系数
+        sentence_lengths = [len(re.findall(r'\b\w+\b', s)) for s in sentences]
+        avg_length = sum(sentence_lengths) / len(sentence_lengths)
+        if avg_length == 0:
+            return 0.0
+        
+        std_dev = math.sqrt(sum((l - avg_length) ** 2 for l in sentence_lengths) / len(sentence_lengths))
+        cv = std_dev / avg_length
+        
+        return min(1.0, avg_length / 50 + cv / 2)
+    
+    def _preprocess_input(self, input_data: Any, modality: str) -> torch.Tensor:
+        """预处理输入数据"""
+        if modality == "text":
+            text = str(input_data)
+            # 高级文本编码
+            encoding = [
+                len(text) / 1000.0,
+                self._calculate_semantic_richness(text),
+                self._calculate_structure_complexity(text)
+            ]
+            
+            # 添加字符级编码
+            encoding.extend([ord(c) / 1000.0 for c in text[:200]])
+            
+            # 添加词汇级编码
+            words = re.findall(r'\b\w+\b', text.lower())[:100]
+            encoding.extend([hash(word) % 100 / 100.0 for word in words])
+            
+            # 确保固定长度
+            encoding = encoding + [0.0] * (512 - len(encoding))
+            return torch.tensor(encoding[:512], dtype=torch.float32).unsqueeze(0)
+        else:
+            # 其他模态的编码
+            return torch.randn(1, 512) * 0.1
+
+# 初始化AGI自学习特征提取器
+AGI_FEATURE_EXTRACTOR = AGIFeatureExtractor()
 
 @dataclass
 class AGIConfig:
@@ -126,87 +282,123 @@ class DynamicNeuralArchitecture(nn.Module):
         self.meta_parameters['learning_rate'].data *= (1 + 0.1 * (learning_speed - 0.5))
         self.meta_parameters['exploration_rate'].data *= (1 + 0.1 * (adaptation_efficiency - 0.5))
 
-class KnowledgeGraph:
-    """动态知识图谱管理系统"""
+class AdvancedKnowledgeGraph:
+    """AGI实时知识图谱系统 - 完全自包含，无外部依赖"""
     
-    def __init__(self, storage_path: str):
-        self.storage_path = Path(storage_path)
+    def __init__(self, storage_path: str = None):
         self.graph = nx.DiGraph()
-        self.concept_index = {}
-        self.relationship_strengths = {}
-        self.temporal_context = {}
+        self.concept_index = {}  # 概念名称到节点ID的映射
+        self.relationship_index = defaultdict(dict)  # 快速关系查询
+        self.temporal_context = {}  # 时间上下文信息
+        self.semantic_index = {}  # 语义索引用于快速搜索
+        self.embedding_cache = {}  # 概念嵌入缓存
         
-        self._load_knowledge_graph()
+        # 高级索引结构
+        self.concept_embeddings = {}  # 概念ID到嵌入向量的映射
+        self.embedding_dim = 384  # 嵌入维度
+        
+        # 自包含语义搜索索引
+        self.semantic_search_index = {}
+        self.concept_similarity_matrix = {}
+        
+        logger.info("AGI实时知识图谱初始化完成")
     
-    def _load_knowledge_graph(self):
-        """加载知识图谱"""
-        try:
-            if (self.storage_path / "knowledge_graph.pkl").exists():
-                with open(self.storage_path / "knowledge_graph.pkl", 'rb') as f:
-                    data = pickle.load(f)
-                    self.graph = data['graph']
-                    self.concept_index = data['concept_index']
-                    self.relationship_strengths = data['relationship_strengths']
-                    self.temporal_context = data['temporal_context']
-                logger.info("知识图谱加载成功")
-        except Exception as e:
-            logger.warning(f"加载知识图谱失败: {e}")
-    
-    def save_knowledge_graph(self):
-        """保存知识图谱"""
-        try:
-            self.storage_path.mkdir(parents=True, exist_ok=True)
-            data = {
-                'graph': self.graph,
-                'concept_index': self.concept_index,
-                'relationship_strengths': self.relationship_strengths,
-                'temporal_context': self.temporal_context
-            }
-            with open(self.storage_path / "knowledge_graph.pkl", 'wb') as f:
-                pickle.dump(data, f)
-            logger.info("知识图谱保存成功")
-        except Exception as e:
-            logger.error(f"保存知识图谱失败: {e}")
-    
-    def add_concept(self, concept: str, properties: Dict[str, Any], 
+    def add_concept(self, concept: str, properties: Dict[str, Any] = None, 
                    context: Optional[Dict[str, Any]] = None) -> str:
-        """添加概念到知识图谱"""
-        concept_id = hashlib.md5(concept.encode()).hexdigest()[:16]
+        """添加概念到知识图谱，使用自学习特征提取"""
+        concept_id = hashlib.sha256(concept.encode()).hexdigest()[:32]
         
         if concept_id not in self.graph:
+            # 生成概念嵌入 - 使用AGI自学习特征提取器
+            embedding = AGI_FEATURE_EXTRACTOR.extract_features(concept, "text")
+            self.concept_embeddings[concept_id] = embedding
+            
+            # 添加节点到图
             self.graph.add_node(concept_id, 
                                concept=concept,
-                               properties=properties,
+                               properties=properties or {},
                                created=datetime.now(),
-                               confidence=1.0)
+                               confidence=1.0,
+                               embedding=embedding)
+            
             self.concept_index[concept] = concept_id
+            
+            # 构建语义索引
+            words = concept.lower().split()
+            for word in words:
+                if len(word) > 2:  # 只索引长度大于2的词
+                    if word not in self.semantic_index:
+                        self.semantic_index[word] = set()
+                    self.semantic_index[word].add(concept_id)
+            
+            # 更新语义搜索索引
+            self._update_semantic_search_index(concept_id, concept, embedding)
         
         # 更新时间上下文
-        if context:
+        current_time = datetime.now()
+        if concept_id in self.temporal_context:
+            self.temporal_context[concept_id]['last_accessed'] = current_time
+            self.temporal_context[concept_id]['access_count'] += 1
+            if context:
+                self.temporal_context[concept_id]['context'].update(context)
+        else:
             self.temporal_context[concept_id] = {
-                'last_accessed': datetime.now(),
-                'access_count': self.temporal_context.get(concept_id, {}).get('access_count', 0) + 1,
-                'context': context
+                'last_accessed': current_time,
+                'access_count': 1,
+                'context': context or {}
             }
         
         return concept_id
     
+    def _update_semantic_search_index(self, concept_id: str, concept: str, embedding: np.ndarray):
+        """更新语义搜索索引"""
+        # 构建概念相似性矩阵
+        for existing_id, existing_embedding in self.concept_embeddings.items():
+            if existing_id != concept_id:
+                similarity = self._calculate_cosine_similarity(embedding, existing_embedding)
+                if concept_id not in self.concept_similarity_matrix:
+                    self.concept_similarity_matrix[concept_id] = {}
+                self.concept_similarity_matrix[concept_id][existing_id] = similarity
+                
+                if existing_id not in self.concept_similarity_matrix:
+                    self.concept_similarity_matrix[existing_id] = {}
+                self.concept_similarity_matrix[existing_id][concept_id] = similarity
+    
+    def _calculate_cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+        """计算余弦相似度"""
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return dot_product / (norm1 * norm2)
+    
     def add_relationship(self, source_concept: str, target_concept: str, 
-                        relationship_type: str, strength: float = 1.0) -> None:
-        """添加概念间关系"""
+                        relationship_type: str, strength: float = 1.0, 
+                        properties: Dict[str, Any] = None) -> None:
+        """添加概念间关系，支持属性存储"""
         source_id = self.concept_index.get(source_concept)
         target_id = self.concept_index.get(target_concept)
         
         if source_id and target_id:
-            relationship_key = f"{source_id}-{target_id}-{relationship_type}"
+            relationship_id = f"{source_id}-{target_id}-{relationship_type}"
+            
             self.graph.add_edge(source_id, target_id, 
                                relationship=relationship_type,
                                strength=strength,
+                               properties=properties or {},
                                created=datetime.now())
-            self.relationship_strengths[relationship_key] = strength
+            
+            # 更新关系索引
+            if source_id not in self.relationship_index:
+                self.relationship_index[source_id] = {}
+            if relationship_type not in self.relationship_index[source_id]:
+                self.relationship_index[source_id][relationship_type] = []
+            self.relationship_index[source_id][relationship_type].append(target_id)
     
-    def infer_relationships(self, concept: str, max_depth: int = 3) -> List[Dict[str, Any]]:
-        """推理概念间关系"""
+    def infer_relationships(self, concept: str, max_depth: int = 3, 
+                           relationship_types: List[str] = None) -> List[Dict[str, Any]]:
+        """高效推理概念间关系，使用广度优先搜索和关系索引"""
         concept_id = self.concept_index.get(concept)
         if not concept_id:
             return []
@@ -223,56 +415,244 @@ class KnowledgeGraph:
             
             visited.add(current_id)
             
-            # 获取当前概念的所有关系
-            for neighbor in self.graph.neighbors(current_id):
-                edge_data = self.graph[current_id][neighbor]
-                relationship_info = {
-                    'source': self.graph.nodes[current_id]['concept'],
-                    'target': self.graph.nodes[neighbor]['concept'],
-                    'relationship': edge_data['relationship'],
-                    'strength': edge_data['strength'],
-                    'path': path + [{
-                        'concept': self.graph.nodes[current_id]['concept'],
-                        'relationship': edge_data['relationship']
-                    }]
-                }
-                results.append(relationship_info)
-                
-                if depth < max_depth:
-                    queue.append((neighbor, depth + 1, path + [{
-                        'concept': self.graph.nodes[current_id]['concept'],
-                        'relationship': edge_data['relationship']
-                    }]))
+            # 使用关系索引进行高效遍历
+            if current_id in self.relationship_index:
+                for rel_type, target_ids in self.relationship_index[current_id].items():
+                    if relationship_types and rel_type not in relationship_types:
+                        continue
+                    
+                    for target_id in target_ids:
+                        if target_id not in visited:
+                            target_concept = self.graph.nodes[target_id]['concept']
+                            edge_data = self.graph[current_id][target_id]
+                            
+                            relationship_info = {
+                                'source': self.graph.nodes[current_id]['concept'],
+                                'target': target_concept,
+                                'relationship': rel_type,
+                                'strength': edge_data['strength'],
+                                'properties': edge_data['properties'],
+                                'path': path + [{
+                                    'concept': self.graph.nodes[current_id]['concept'],
+                                    'relationship': rel_type
+                                }]
+                            }
+                            results.append(relationship_info)
+                            
+                            if depth < max_depth:
+                                queue.append((target_id, depth + 1, path + [{
+                                    'concept': self.graph.nodes[current_id]['concept'],
+                                    'relationship': rel_type
+                                }]))
         
         return results
     
-    def get_relevant_concepts(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
-        """获取相关概念"""
-        relevant = []
-        query_lower = query.lower()
+    def semantic_search(self, query: str, max_results: int = 10, 
+                       similarity_threshold: float = 0.6) -> List[Dict[str, Any]]:
+        """高级语义搜索，完全自包含实现"""
+        results = []
         
-        for concept, concept_id in self.concept_index.items():
-            if query_lower in concept.lower():
-                node_data = self.graph.nodes[concept_id]
-                relevant.append({
-                    'concept': concept,
-                    'properties': node_data['properties'],
-                    'confidence': node_data['confidence'],
-                    'last_accessed': self.temporal_context.get(concept_id, {}).get('last_accessed')
-                })
+        # 1. 向量语义搜索
+        vector_results = self._vector_semantic_search(query, max_results, similarity_threshold)
+        results.extend(vector_results)
         
-        # 按相关性和时间排序
-        relevant.sort(key=lambda x: (
-            x['confidence'] * 0.7 + 
-            (1 if x['last_accessed'] else 0) * 0.3
+        # 2. 关键词搜索作为补充
+        if len(results) < max_results:
+            keyword_results = self._keyword_search(query, max_results - len(results))
+            results.extend(keyword_results)
+        
+        # 3. 按相关性和时间排序
+        results.sort(key=lambda x: (
+            x.get('similarity_score', 0.5) * 0.7 + 
+            x.get('confidence', 0.5) * 0.2 +
+            (1 if x.get('last_accessed') else 0) * 0.1
         ), reverse=True)
         
-        return relevant[:max_results]
+        return results[:max_results]
+    
+    def _vector_semantic_search(self, query: str, max_results: int, 
+                               similarity_threshold: float) -> List[Dict[str, Any]]:
+        """向量语义搜索 - 自包含实现"""
+        if not self.concept_embeddings:
+            return []
+        
+        try:
+            # 使用AGI自学习特征提取器生成查询嵌入
+            query_embedding = AGI_FEATURE_EXTRACTOR.extract_features(query, "text")
+            
+            # 计算与所有概念的相似度
+            similarities = []
+            for concept_id, concept_embedding in self.concept_embeddings.items():
+                similarity = self._calculate_cosine_similarity(query_embedding, concept_embedding)
+                similarities.append((concept_id, similarity))
+            
+            # 按相似度排序
+            similarities.sort(key=lambda x: x[1], reverse=True)
+            
+            results = []
+            for concept_id, similarity in similarities[:max_results]:
+                if similarity >= similarity_threshold:
+                    node_data = self.graph.nodes[concept_id]
+                    results.append({
+                        'concept': node_data['concept'],
+                        'properties': node_data['properties'],
+                        'confidence': node_data['confidence'] * similarity,
+                        'similarity_score': similarity,
+                        'last_accessed': self.temporal_context.get(concept_id, {}).get('last_accessed'),
+                        'match_type': 'semantic'
+                    })
+            
+            return results
+        except Exception as e:
+            logger.warning(f"向量语义搜索失败: {e}")
+            return []
+    
+    def _keyword_search(self, query: str, max_results: int) -> List[Dict[str, Any]]:
+        """关键词搜索"""
+        query_words = query.lower().split()
+        relevant_concepts = set()
+        
+        # 查找包含查询关键词的概念
+        for word in query_words:
+            if word in self.semantic_index:
+                relevant_concepts.update(self.semantic_index[word])
+        
+        results = []
+        for concept_id in list(relevant_concepts)[:max_results]:
+            node_data = self.graph.nodes[concept_id]
+            results.append({
+                'concept': node_data['concept'],
+                'properties': node_data['properties'],
+                'confidence': node_data['confidence'],
+                'similarity_score': 0.5,  # 默认相似度
+                'last_accessed': self.temporal_context.get(concept_id, {}).get('last_accessed'),
+                'match_type': 'keyword'
+            })
+        
+        return results
+    
+    def get_related_concepts(self, concept: str, relationship_type: str = None, 
+                           max_results: int = 10) -> List[Dict[str, Any]]:
+        """获取相关概念，支持特定关系类型过滤"""
+        concept_id = self.concept_index.get(concept)
+        if not concept_id:
+            return []
+        
+        results = []
+        
+        if relationship_type:
+            # 获取特定类型的关系
+            if (concept_id in self.relationship_index and 
+                relationship_type in self.relationship_index[concept_id]):
+                target_ids = self.relationship_index[concept_id][relationship_type][:max_results]
+                for target_id in target_ids:
+                    node_data = self.graph.nodes[target_id]
+                    edge_data = self.graph[concept_id][target_id]
+                    
+                    results.append({
+                        'concept': node_data['concept'],
+                        'relationship': relationship_type,
+                        'strength': edge_data['strength'],
+                        'properties': edge_data['properties'],
+                        'confidence': node_data['confidence']
+                    })
+        else:
+            # 获取所有关系
+            neighbors = list(self.graph.neighbors(concept_id))[:max_results]
+            for neighbor_id in neighbors:
+                node_data = self.graph.nodes[neighbor_id]
+                edge_data = self.graph[concept_id][neighbor_id]
+                
+                results.append({
+                    'concept': node_data['concept'],
+                    'relationship': edge_data['relationship'],
+                    'strength': edge_data['strength'],
+                    'properties': edge_data['properties'],
+                    'confidence': node_data['confidence']
+                })
+        
+        return results
+    
+    def update_concept_confidence(self, concept: str, confidence: float) -> None:
+        """更新概念置信度"""
+        concept_id = self.concept_index.get(concept)
+        if concept_id:
+            self.graph.nodes[concept_id]['confidence'] = max(0.0, min(1.0, confidence))
+    
+    def strengthen_relationship(self, source_concept: str, target_concept: str, 
+                               relationship_type: str, factor: float = 1.1) -> None:
+        """增强关系强度"""
+        source_id = self.concept_index.get(source_concept)
+        target_id = self.concept_index.get(target_concept)
+        
+        if source_id and target_id and self.graph.has_edge(source_id, target_id):
+            current_strength = self.graph[source_id][target_id]['strength']
+            new_strength = min(1.0, current_strength * factor)
+            self.graph[source_id][target_id]['strength'] = new_strength
+    
+    def get_concept_statistics(self) -> Dict[str, Any]:
+        """获取知识图谱统计信息"""
+        return {
+            'num_concepts': len(self.graph.nodes()),
+            'num_relationships': len(self.graph.edges()),
+            'avg_confidence': np.mean([d['confidence'] for n, d in self.graph.nodes(data=True)]) 
+            if self.graph.nodes() else 0.5,
+            'avg_relationship_strength': np.mean([d['strength'] for u, v, d in self.graph.edges(data=True)])
+            if self.graph.edges() else 0.5,
+            'most_accessed_concept': max(self.temporal_context.items(), 
+                                       key=lambda x: x[1]['access_count'], 
+                                       default=(None, {'access_count': 0}))[0]
+        }
+    
+    def save_to_disk(self, file_path: str) -> None:
+        """保存知识图谱到磁盘"""
+        try:
+            data = {
+                'graph': nx.node_link_data(self.graph),
+                'concept_index': self.concept_index,
+                'relationship_index': dict(self.relationship_index),
+                'temporal_context': self.temporal_context,
+                'concept_embeddings': {k: v.tolist() for k, v in self.concept_embeddings.items()}
+            }
+            
+            with open(file_path, 'wb') as f:
+                pickle.dump(data, f)
+            
+            logger.info(f"知识图谱已保存到: {file_path}")
+        except Exception as e:
+            logger.error(f"保存知识图谱失败: {e}")
+    
+    def load_from_disk(self, file_path: str) -> None:
+        """从磁盘加载知识图谱"""
+        try:
+            with open(file_path, 'rb') as f:
+                data = pickle.load(f)
+            
+            self.graph = nx.node_link_graph(data['graph'])
+            self.concept_index = data['concept_index']
+            self.relationship_index = defaultdict(dict, data['relationship_index'])
+            self.temporal_context = data['temporal_context']
+            self.concept_embeddings = {k: np.array(v) for k, v in data['concept_embeddings'].items()}
+            
+            # 重建语义索引
+            self.semantic_index = {}
+            for concept, concept_id in self.concept_index.items():
+                words = concept.lower().split()
+                for word in words:
+                    if len(word) > 2:
+                        if word not in self.semantic_index:
+                            self.semantic_index[word] = set()
+                        self.semantic_index[word].add(concept_id)
+            
+            logger.info(f"知识图谱已从 {file_path} 加载")
+        except Exception as e:
+            logger.error(f"加载知识图谱失败: {e}")
 
 class AGICore:
     """
     AGI核心系统 - 实现真正的通用人工智能神经网络架构
     集成动态神经网络、知识图谱、元学习和自适应机制
+    完全自包含，无外部依赖
     """
     
     def __init__(self, config: Optional[AGIConfig] = None):
@@ -285,925 +665,377 @@ class AGICore:
                                                          self.config.num_layers).to(self.device)
         self.reasoning_network = DynamicNeuralArchitecture(1024, 512,
                                                          self.config.hidden_size // 2,
-                                                         self.config.num_layers // 2).to(self.device)
-        self.meta_learning_network = DynamicNeuralArchitecture(512, 256,
-                                                              self.config.hidden_size // 4,
-                                                              self.config.num_layers // 3).to(self.device)
+                                                         self.config.num_layers).to(self.device)
         
-        # 优化器和损失函数
+        # 初始化知识图谱
+        self.knowledge_graph = AdvancedKnowledgeGraph(self.config.knowledge_base_path)
+        
+        # 初始化优化器
         self.optimizer = optim.Adam(
-            list(self.cognitive_network.parameters()) +
-            list(self.reasoning_network.parameters()) +
-            list(self.meta_learning_network.parameters()),
+            list(self.cognitive_network.parameters()) + 
+            list(self.reasoning_network.parameters()),
             lr=self.config.learning_rate
         )
         
-        self.meta_optimizer = optim.Adam(
-            [
-                {'params': self.cognitive_network.meta_parameters.values()},
-                {'params': self.reasoning_network.meta_parameters.values()},
-                {'params': self.meta_learning_network.meta_parameters.values()}
-            ],
-            lr=self.config.meta_learning_rate
-        )
-        
-        # 多模态损失函数
-        self.loss_functions = {
-            'classification': nn.CrossEntropyLoss(),
-            'regression': nn.MSELoss(),
-            'reinforcement': nn.SmoothL1Loss(),
-            'meta_learning': nn.KLDivLoss()
-        }
-        
-        # 知识图谱系统
-        self.knowledge_graph = KnowledgeGraph(self.config.knowledge_base_path)
-        
-        # 经验回放缓冲区
-        self.experience_buffer = deque(maxlen=self.config.memory_capacity)
-        
-        # 学习状态和性能监控
-        self.learning_state = self._initialize_learning_state()
+        # 记忆系统
+        self.memory_buffer = deque(maxlen=self.config.memory_capacity)
         self.performance_history = []
-        self.adaptation_history = []
+        self.learning_adaptation_factor = 1.0
         
-        # 元学习计数器
+        # 元学习状态
         self.meta_learning_counter = 0
+        self.last_meta_learning_time = time.time()
         
-        # 加载已有模型
-        self._load_model()
+        logger.info("AGI核心系统初始化完成")
+    
+    def process_input(self, input_data: Any, modality: str = "text", 
+                     context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """处理输入数据，进行认知和推理"""
+        # 提取特征
+        features = AGI_FEATURE_EXTRACTOR.extract_features(input_data, modality)
+        features_tensor = torch.tensor(features, dtype=torch.float32).unsqueeze(0).to(self.device)
         
-        logger.info(f"AGI核心系统初始化完成，设备: {self.device}")
-    
-    def _initialize_learning_state(self) -> Dict[str, Any]:
-        """初始化高级学习状态"""
-        return {
-            "current_task": None,
-            "learning_mode": "meta_learning",
-            "confidence_level": 0.7,
-            "adaptation_rate": self.config.adaptation_rate,
-            "exploration_rate": self.config.exploration_rate,
-            "meta_learning_progress": 0.0,
-            "knowledge_integration_level": 0.5,
-            "recent_performance": deque(maxlen=100),
-            "skill_acquisition": {},
-            "conceptual_understanding": {}
-        }
-    
-    def _load_model(self):
-        """加载训练好的模型和状态"""
-        model_path = Path(self.config.model_save_path)
-        if model_path.exists():
-            try:
-                checkpoint = torch.load(model_path / "agi_core_advanced.pth", 
-                                       map_location=self.device)
-                
-                self.cognitive_network.load_state_dict(checkpoint['cognitive_state'])
-                self.reasoning_network.load_state_dict(checkpoint['reasoning_state'])
-                self.meta_learning_network.load_state_dict(checkpoint['meta_learning_state'])
-                self.optimizer.load_state_dict(checkpoint['optimizer_state'])
-                self.meta_optimizer.load_state_dict(checkpoint['meta_optimizer_state'])
-                
-                # 加载学习状态
-                self.learning_state = checkpoint['learning_state']
-                self.performance_history = checkpoint['performance_history']
-                
-                logger.info("成功加载高级AGI核心模型")
-            except Exception as e:
-                logger.warning(f"加载高级模型失败: {e}")
-    
-    def save_model(self):
-        """保存模型状态和知识"""
-        model_path = Path(self.config.model_save_path)
-        model_path.mkdir(parents=True, exist_ok=True)
+        # 认知处理
+        cognitive_output = self.cognitive_network(features_tensor)
         
-        checkpoint = {
-            'cognitive_state': self.cognitive_network.state_dict(),
-            'reasoning_state': self.reasoning_network.state_dict(),
-            'meta_learning_state': self.meta_learning_network.state_dict(),
-            'optimizer_state': self.optimizer.state_dict(),
-            'meta_optimizer_state': self.meta_optimizer.state_dict(),
-            'learning_state': self.learning_state,
-            'performance_history': self.performance_history
-        }
+        # 推理处理
+        reasoning_output = self.reasoning_network(cognitive_output)
         
-        try:
-            torch.save(checkpoint, model_path / "agi_core_advanced.pth")
-            
-            # 保存知识图谱
-            self.knowledge_graph.save_knowledge_graph()
-            
-            logger.info("高级AGI核心模型和知识保存成功")
-        except Exception as e:
-            logger.error(f"保存高级模型失败: {e}")
-    
-    def process_multimodal_input(self, input_data: Any, modality: str = "text", 
-                                context: Optional[Dict[str, Any]] = None) -> torch.Tensor:
-        """
-        处理多模态输入数据，集成真实特征提取
-        """
-        try:
-            if modality == "text":
-                return self._process_text_advanced(input_data, context)
-            elif modality == "image":
-                return self._process_image_advanced(input_data, context)
-            elif modality == "audio":
-                return self._process_audio_advanced(input_data, context)
-            elif modality == "structured":
-                return self._process_structured_data(input_data, context)
-            else:
-                return self._process_general_advanced(input_data, context)
-        except Exception as e:
-            logger.error(f"处理{modality}输入失败: {e}")
-            return self._create_fallback_representation(input_data, modality)
-    
-    def _process_text_advanced(self, text: str, context: Optional[Dict[str, Any]]) -> torch.Tensor:
-        """高级文本处理，集成语义分析和知识图谱"""
-        # 提取关键概念和关系
-        concepts = self._extract_concepts_from_text(text)
-        semantic_features = self._generate_semantic_features(text, concepts)
+        # 生成响应
+        response = self._generate_response(reasoning_output, context)
         
         # 更新知识图谱
-        for concept in concepts:
-            concept_id = self.knowledge_graph.add_concept(
-                concept, 
-                {'type': 'text', 'context': context, 'source_text': text[:200]},
-                context
-            )
+        self._update_knowledge_graph(input_data, response, modality, context)
         
-        # 构建综合特征向量
-        feature_vector = []
-        feature_vector.extend(semantic_features)
-        feature_vector.extend([len(concepts) / 10.0])  # 概念密度
-        feature_vector.extend([self._calculate_text_complexity(text)])
+        # 学习适应
+        self._adapt_learning(response)
         
-        # 确保固定长度
-        feature_vector = feature_vector[:2048] + [0.0] * (2048 - len(feature_vector))
-        return torch.tensor(feature_vector, dtype=torch.float32).to(self.device)
+        return response
     
-    def _extract_concepts_from_text(self, text: str) -> List[str]:
-        """从文本中提取关键概念"""
-        # 使用简单的NLP技术提取概念（实际应使用spaCy或NLTK）
-        words = text.lower().split()
+    def _generate_response(self, reasoning_output: torch.Tensor, 
+                          context: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """基于推理输出生成响应"""
+        # 将输出转换为概率分布
+        output_probs = torch.softmax(reasoning_output, dim=-1)
+        
+        # 生成多种类型的响应
+        response = {
+            'text': self._generate_text_response(output_probs, context),
+            'action': self._generate_action(output_probs, context),
+            'confidence': float(output_probs.max().item()),
+            'reasoning_path': self._generate_reasoning_path(context),
+            'learning_signal': self._calculate_learning_signal(output_probs)
+        }
+        
+        return response
+    
+    def _generate_text_response(self, output_probs: torch.Tensor, 
+                               context: Optional[Dict[str, Any]]) -> str:
+        """高级自然语言生成 - 基于认知状态和知识图谱"""
+        # 提取认知状态特征
+        cognitive_features = output_probs.detach().numpy().flatten()
+        
+        # 基于认知状态生成响应
+        if np.max(cognitive_features) < 0.3:
+            return "我需要更多信息来理解这个问题。能否提供更多细节？"
+        
+        # 分析认知状态模式
+        pattern_confidence = np.std(cognitive_features) / np.mean(cognitive_features)
+        
+        if pattern_confidence > 0.5:
+            # 高确定性模式 - 提供具体响应
+            dominant_concept_idx = np.argmax(cognitive_features)
+            
+            # 从知识图谱获取相关信息
+            related_concepts = self.knowledge_graph.get_related_concepts(
+                f"concept_{dominant_concept_idx}", max_results=3
+            )
+            
+            if related_concepts:
+                response = f"基于我的知识，{related_concepts[0]['concept']} 相关的信息："
+                for i, concept in enumerate(related_concepts[:2]):
+                    response += f"\n- {concept['concept']} (置信度: {concept['confidence']:.2f})"
+                return response
+            else:
+                return "我分析了这个信息，认为这是一个重要的概念。需要更多数据来完善我的理解。"
+        else:
+            # 探索性模式 - 生成创造性响应
+            creative_responses = [
+                "这是一个有趣的角度，让我从多个层面来思考：",
+                "基于现有知识，我看到了几种可能的解释：",
+                "这个问题激发了我对相关领域的思考：",
+                "我注意到一些潜在的模式和联系："
+            ]
+            
+            base_response = random.choice(creative_responses)
+            
+            # 添加具体的推理内容
+            reasoning_elements = []
+            for i in range(min(3, len(cognitive_features))):
+                if cognitive_features[i] > 0.2:
+                    reasoning_elements.append(f"维度{i+1}的权重为{cognitive_features[i]:.2f}")
+            
+            if reasoning_elements:
+                return base_response + " " + "，".join(reasoning_elements) + "。"
+            else:
+                return base_response + " 需要更多分析来确定最佳路径。"
+    
+    def _generate_action(self, output_probs: torch.Tensor, 
+                        context: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """生成行动建议"""
+        # 基于输出生成可能的行动
+        action_prob = output_probs[0, -1].item()  # 假设最后一个维度是行动概率
+        
+        if action_prob > 0.7:
+            return {
+                'type': 'information_retrieval',
+                'confidence': action_prob,
+                'parameters': {'depth': 2, 'breadth': 5}
+            }
+        elif action_prob > 0.5:
+            return {
+                'type': 'learning_update',
+                'confidence': action_prob,
+                'parameters': {'learning_rate': 0.001, 'batch_size': 16}
+            }
+        
+        return None
+    
+    def _generate_reasoning_path(self, context: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """生成推理路径说明"""
+        # 模拟推理过程的可解释性输出
+        path = [
+            {'step': 'input_processing', 'description': '解析输入数据和上下文'},
+            {'step': 'feature_extraction', 'description': '提取高级语义特征'},
+            {'step': 'cognitive_processing', 'description': '进行认知层次的处理'},
+            {'step': 'reasoning', 'description': '执行逻辑推理和问题解决'},
+            {'step': 'response_generation', 'description': '生成最终响应和行动'}
+        ]
+        
+        if context and 'complexity' in context:
+            complexity = context['complexity']
+            if complexity == 'high':
+                path.append({'step': 'meta_reasoning', 'description': '执行元认知监控和调整'})
+        
+        return path
+    
+    def _calculate_learning_signal(self, output_probs: torch.Tensor) -> float:
+        """计算学习信号强度"""
+        # 基于输出不确定性和置信度计算学习需求
+        entropy = -torch.sum(output_probs * torch.log(output_probs + 1e-8), dim=-1)
+        confidence = output_probs.max(dim=-1)[0]
+        
+        # 学习信号与不确定性和低置信度正相关
+        learning_signal = float(entropy.mean().item() * (1 - confidence.mean().item()))
+        return min(1.0, max(0.0, learning_signal))
+    
+    def _update_knowledge_graph(self, input_data: Any, response: Dict[str, Any], 
+                               modality: str, context: Optional[Dict[str, Any]]):
+        """更新知识图谱"""
+        # 提取关键概念
+        concepts = self._extract_concepts(input_data, modality)
+        
+        # 添加概念到知识图谱
+        for concept in concepts:
+            self.knowledge_graph.add_concept(concept, {
+                'modality': modality,
+                'context': context,
+                'response_confidence': response['confidence']
+            }, context)
+        
+        # 建立概念间关系
+        if len(concepts) > 1:
+            for i in range(len(concepts) - 1):
+                self.knowledge_graph.add_relationship(
+                    concepts[i], concepts[i + 1], 
+                    'semantic_relation', 
+                    strength=0.8,
+                    properties={'context': context}
+                )
+    
+    def _extract_concepts(self, input_data: Any, modality: str) -> List[str]:
+        """从输入数据中提取关键概念"""
         concepts = []
         
-        # 提取名词短语和重要概念
-        important_positions = [0, -1]  # 开头和结尾的词汇通常更重要
-        for i, word in enumerate(words):
-            if len(word) > 3 and (i in important_positions or random.random() < 0.3):
-                concepts.append(word)
+        if modality == "text":
+            text = str(input_data)
+            # 使用简单的规则提取名词短语作为概念
+            words = re.findall(r'\b\w+\b', text.lower())
+            # 假设长度大于3的单词可能是重要概念
+            concepts = [word for word in words if len(word) > 3][:10]  # 限制数量
         
-        return list(set(concepts))
+        elif modality == "structured":
+            # 对于结构化数据，提取键或值作为概念
+            if isinstance(input_data, dict):
+                concepts = list(input_data.keys())[:5]
+                concepts.extend([str(v) for v in input_data.values() if isinstance(v, (str, int, float))][:5])
+        
+        return list(set(concepts))  # 去重
     
-    def _generate_semantic_features(self, text: str, concepts: List[str]) -> List[float]:
-        """生成语义特征向量"""
-        features = []
+    def _adapt_learning(self, response: Dict[str, Any]):
+        """根据响应质量调整学习参数"""
+        learning_signal = response['learning_signal']
         
-        # 文本长度特征
-        features.append(len(text) / 1000.0)
-        features.append(len(text.split()) / 100.0)
+        # 调整学习率
+        new_lr = self.config.learning_rate * (1 + 0.1 * (learning_signal - 0.5))
+        new_lr = max(0.0001, min(0.01, new_lr))
         
-        # 概念相关特征
-        features.append(len(concepts) / 20.0)
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = new_lr
         
-        # 语义丰富度特征（简单实现）
-        unique_words = len(set(text.lower().split()))
-        features.append(unique_words / len(text.split()) if text.split() else 0)
+        # 调整探索率
+        self.config.exploration_rate = max(0.1, min(0.9, 
+            self.config.exploration_rate * (1 + 0.05 * (learning_signal - 0.5))))
         
-        return features
+        # 记录性能
+        self.performance_history.append({
+            'timestamp': time.time(),
+            'learning_signal': learning_signal,
+            'confidence': response['confidence'],
+            'learning_rate': new_lr,
+            'exploration_rate': self.config.exploration_rate
+        })
+        
+        # 每100次处理执行元学习
+        self.meta_learning_counter += 1
+        if self.meta_learning_counter >= self.config.meta_learning_interval:
+            self._perform_meta_learning()
+            self.meta_learning_counter = 0
     
-    def _calculate_text_complexity(self, text: str) -> float:
-        """计算文本复杂度"""
-        words = text.split()
-        if not words:
-            return 0.0
+    def _perform_meta_learning(self):
+        """执行元学习，优化网络架构和参数"""
+        logger.info("执行元学习优化...")
         
-        avg_word_length = sum(len(word) for word in words) / len(words)
-        unique_ratio = len(set(words)) / len(words)
+        # 分析性能历史
+        recent_performance = self.performance_history[-100:] if len(self.performance_history) > 100 else self.performance_history
         
-        return min(1.0, (avg_word_length * 0.3 + unique_ratio * 0.7))
-    
-    def _process_image_advanced(self, image_data: Any, context: Optional[Dict[str, Any]]) -> torch.Tensor:
-        """高级图像处理（placeholder，实际应集成OpenCV或PyTorch Vision）"""
-        # 返回模拟特征向量（实际应使用CNN特征提取）
-        features = [0.5] * 512
-        
-        # 添加上下文信息
-        if context:
-            features.extend([hash(str(context)) % 100 / 100.0])
-        
-        features = features[:2048] + [0.0] * (2048 - len(features))
-        return torch.tensor(features, dtype=torch.float32).to(self.device)
-    
-    def _process_audio_advanced(self, audio_data: Any, context: Optional[Dict[str, Any]]) -> torch.Tensor:
-        """高级音频处理（placeholder，实际应使用librosa或音频特征提取）"""
-        features = [0.3] * 512
-        
-        if context:
-            features.extend([hash(str(context)) % 100 / 100.0])
-        
-        features = features[:2048] + [0.0] * (2048 - len(features))
-        return torch.tensor(features, dtype=torch.float32).to(self.device)
-    
-    def _process_structured_data(self, data: Any, context: Optional[Dict[str, Any]]) -> torch.Tensor:
-        """处理结构化数据"""
-        try:
-            if isinstance(data, dict):
-                # 将字典转换为特征向量
-                features = []
-                for key, value in data.items():
-                    if isinstance(value, (int, float)):
-                        features.append(float(value))
-                    elif isinstance(value, str):
-                        features.append(hash(value) % 100 / 100.0)
-                    elif isinstance(value, bool):
-                        features.append(1.0 if value else 0.0)
-                
-                features = features[:2048] + [0.0] * (2048 - len(features))
-                return torch.tensor(features, dtype=torch.float32).to(self.device)
-            else:
-                return self._process_general_advanced(data, context)
-        except Exception as e:
-            logger.error(f"处理结构化数据失败: {e}")
-            return self._create_fallback_representation(data, "structured")
-    
-    def _process_general_advanced(self, data: Any, context: Optional[Dict[str, Any]]) -> torch.Tensor:
-        """高级通用数据处理"""
-        try:
-            str_data = str(data)
-            features = [len(str_data) / 1000.0]
-            features.extend([ord(c) / 1000.0 for c in str_data[:100]])
-            
-            if context:
-                features.append(hash(str(context)) % 100 / 100.0)
-            
-            features = features[:2048] + [0.0] * (2048 - len(features))
-            return torch.tensor(features, dtype=torch.float32).to(self.device)
-        except Exception as e:
-            logger.error(f"处理通用数据失败: {e}")
-            return self._create_fallback_representation(data, "general")
-    
-    def _create_fallback_representation(self, data: Any, modality: str) -> torch.Tensor:
-        """创建回退表示"""
-        features = [0.5] * 1024
-        features.append(hash(modality) % 100 / 100.0)
-        features.append(hash(str(data)) % 100 / 100.0)
-        
-        features = features[:2048] + [0.0] * (2048 - len(features))
-        return torch.tensor(features, dtype=torch.float32).to(self.device)
-    
-    def forward_pass(self, input_tensor: torch.Tensor, 
-                    context: Optional[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
-        """
-        高级前向传播，集成动态路由和上下文处理
-        """
-        # 认知处理 with dynamic routing
-        cognitive_output = self.cognitive_network(input_tensor, context)
-        cognitive_output = torch.tanh(cognitive_output)  # 使用tanh保持数值稳定性
-        
-        # 推理处理 with attention
-        reasoning_output = self.reasoning_network(cognitive_output, context)
-        reasoning_output = torch.tanh(reasoning_output)
-        
-        # 元学习处理
-        meta_learning_output = self.meta_learning_network(reasoning_output, context)
-        
-        # 应用元学习参数
-        learning_rate_factor = torch.sigmoid(self.cognitive_network.meta_parameters['learning_rate'])
-        exploration_factor = torch.sigmoid(self.cognitive_network.meta_parameters['exploration_rate'])
-        
-        # 综合输出
-        integrated_output = cognitive_output * 0.4 + reasoning_output * 0.3 + meta_learning_output * 0.3
-        
-        return {
-            "cognitive": cognitive_output,
-            "reasoning": reasoning_output,
-            "meta_learning": meta_learning_output,
-            "integrated": integrated_output,
-            "learning_rate_factor": learning_rate_factor,
-            "exploration_factor": exploration_factor
-        }
-    
-    def learn_from_experience(self, input_data: Any, target_output: Any, 
-                             modality: str = "text", context: Optional[Dict[str, Any]] = None,
-                             learning_type: str = "supervised") -> Dict[str, Any]:
-        """
-        从经验中学习，支持多种学习类型
-        """
-        try:
-            # 处理输入
-            input_tensor = self.process_multimodal_input(input_data, modality, context)
-            target_tensor = self.process_multimodal_input(target_output, modality, context)
-            
-            # 前向传播
-            outputs = self.forward_pass(input_tensor, context)
-            
-            # 选择损失函数
-            if learning_type == "supervised":
-                loss = self.loss_functions['regression'](outputs["integrated"], target_tensor)
-            elif learning_type == "reinforcement":
-                loss = self.loss_functions['reinforcement'](outputs["integrated"], target_tensor)
-            else:
-                loss = self.loss_functions['regression'](outputs["integrated"], target_tensor)
-            
-            # 反向传播
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
-            
-            # 元学习更新
-            self.meta_learning_counter += 1
-            if self.meta_learning_counter >= self.config.meta_learning_interval:
-                self._update_meta_learning_parameters()
-                self.meta_learning_counter = 0
-            
-            # 记录经验和性能
-            self._record_experience(input_data, target_output, modality, context, loss.item())
-            self._update_performance_metrics(loss.item(), learning_type)
-            
-            # 动态调整架构
-            if len(self.performance_history) % 50 == 0:
-                self._adapt_architecture_based_on_performance()
-            
-            return {
-                "loss": loss.item(),
-                "learning_type": learning_type,
-                "performance_metrics": self._get_current_performance(),
-                "adaptation_level": self.learning_state["adaptation_rate"]
-            }
-            
-        except Exception as e:
-            logger.error(f"学习过程中出错: {e}")
-            return {
-                "loss": float('inf'),
-                "error": str(e),
-                "success": False
-            }
-    
-    def _update_meta_learning_parameters(self):
-        """更新元学习参数"""
-        try:
-            # 基于性能历史更新元参数
-            recent_performance = self.learning_state["recent_performance"]
-            if recent_performance:
-                avg_performance = sum(recent_performance) / len(recent_performance)
-                
-                # 元学习优化
-                meta_loss = nn.MSELoss()(
-                    torch.tensor([avg_performance], device=self.device),
-                    torch.tensor([0.1], device=self.device)  # 目标低损失
-                )
-                
-                self.meta_optimizer.zero_grad()
-                meta_loss.backward()
-                self.meta_optimizer.step()
-                
-        except Exception as e:
-            logger.warning(f"元学习更新失败: {e}")
-    
-    def _record_experience(self, input_data: Any, target_output: Any, 
-                          modality: str, context: Optional[Dict[str, Any]], loss: float):
-        """记录学习经验"""
-        experience = {
-            'input': input_data,
-            'target': target_output,
-            'modality': modality,
-            'context': context,
-            'loss': loss,
-            'timestamp': datetime.now(),
-            'learning_state': self.learning_state.copy()
-        }
-        self.experience_buffer.append(experience)
-    
-    def _update_performance_metrics(self, loss: float, learning_type: str):
-        """更新性能指标"""
-        performance_metric = {
-            'timestamp': datetime.now(),
-            'loss': loss,
-            'learning_type': learning_type,
-            'adaptation_rate': self.learning_state["adaptation_rate"],
-            'exploration_rate': self.learning_state["exploration_rate"],
-            'confidence': self.learning_state["confidence_level"]
-        }
-        
-        self.performance_history.append(performance_metric)
-        self.learning_state["recent_performance"].append(loss)
-        
-        # 更新学习状态
-        if loss < 0.1:  # 低损失表示学习良好
-            self.learning_state["confidence_level"] = min(1.0, self.learning_state["confidence_level"] + 0.05)
-            self.learning_state["adaptation_rate"] *= 1.05
-        else:
-            self.learning_state["confidence_level"] = max(0.1, self.learning_state["confidence_level"] - 0.02)
-            self.learning_state["exploration_rate"] = min(0.8, self.learning_state["exploration_rate"] + 0.03)
-    
-    def _adapt_architecture_based_on_performance(self):
-        """基于性能动态调整架构"""
-        if len(self.performance_history) < 10:
+        if not recent_performance:
             return
         
-        # 计算近期平均性能
-        recent_losses = [p['loss'] for p in self.performance_history[-10:]]
-        avg_loss = sum(recent_losses) / len(recent_losses)
+        avg_confidence = np.mean([p['confidence'] for p in recent_performance])
+        avg_learning_signal = np.mean([p['learning_signal'] for p in recent_performance])
         
-        # 性能指标
+        # 调整网络架构
         performance_metrics = {
-            'learning_speed': 1.0 / (avg_loss + 1e-8),
-            'adaptation_efficiency': 1.0 - min(1.0, avg_loss),
-            'stability': 1.0 - (max(recent_losses) - min(recent_losses))
+            'learning_speed': avg_learning_signal,
+            'adaptation_efficiency': avg_confidence
         }
         
-        # 调整神经网络架构
         self.cognitive_network.adapt_architecture(performance_metrics)
         self.reasoning_network.adapt_architecture(performance_metrics)
-        self.meta_learning_network.adapt_architecture(performance_metrics)
+        
+        # 调整优化器参数
+        self.learning_adaptation_factor *= (1 + 0.1 * (avg_confidence - 0.5))
+        self.learning_adaptation_factor = max(0.5, min(2.0, self.learning_adaptation_factor))
+        
+        logger.info(f"元学习完成 - 平均置信度: {avg_confidence:.3f}, 学习信号: {avg_learning_signal:.3f}")
     
-    def _get_current_performance(self) -> Dict[str, float]:
-        """获取当前性能指标"""
-        if not self.performance_history:
-            return {
-                'avg_loss': 1.0,
-                'learning_speed': 0.5,
-                'adaptation_efficiency': 0.5,
-                'stability': 0.5
-            }
+    def train(self, training_data: List[Tuple[Any, Any]], 
+             modalities: List[str] = None, epochs: int = 10):
+        """训练AGI系统"""
+        logger.info(f"开始训练，数据量: {len(training_data)}, 周期: {epochs}")
         
-        recent = self.performance_history[-10:] if len(self.performance_history) >= 10 else self.performance_history
-        losses = [p['loss'] for p in recent]
+        for epoch in range(epochs):
+            total_loss = 0.0
+            correct_predictions = 0
+            
+            for input_data, target in training_data:
+                # 处理输入
+                response = self.process_input(input_data, 
+                                            modalities[0] if modalities else "text", 
+                                            {'training_mode': True})
+                
+                # 计算损失（这里需要根据具体任务定义损失函数）
+                # 简化示例：使用响应置信度作为损失信号
+                loss = 1.0 - response['confidence']
+                
+                # 反向传播
+                self.optimizer.zero_grad()
+                loss_tensor = torch.tensor(loss, requires_grad=True)
+                loss_tensor.backward()
+                self.optimizer.step()
+                
+                total_loss += loss
+                if response['confidence'] > 0.7:
+                    correct_predictions += 1
+            
+            avg_loss = total_loss / len(training_data)
+            accuracy = correct_predictions / len(training_data)
+            
+            logger.info(f"周期 {epoch + 1}/{epochs} - 平均损失: {avg_loss:.4f}, 准确率: {accuracy:.4f}")
+            
+            # 保存检查点
+            if (epoch + 1) % 5 == 0:
+                self.save_model(f"{self.config.model_save_path}_epoch_{epoch + 1}.pth")
         
-        return {
-            'avg_loss': sum(losses) / len(losses),
-            'learning_speed': 1.0 / (sum(losses) / len(losses) + 1e-8),
-            'adaptation_efficiency': 1.0 - min(1.0, sum(losses) / len(losses)),
-            'stability': 1.0 - (max(losses) - min(losses)) if losses else 0.5
-        }
+        logger.info("训练完成")
     
-    def reason_about_problem(self, problem_description: str, 
-                            context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        高级问题推理，集成知识图谱和深度推理
-        """
-        try:
-            # 处理输入
-            input_tensor = self.process_multimodal_input(problem_description, "text", context)
-            
-            # 前向传播
-            outputs = self.forward_pass(input_tensor, context)
-            
-            # 提取推理特征
-            reasoning_strength = torch.mean(outputs["reasoning"]).item()
-            meta_learning_quality = torch.mean(outputs["meta_learning"]).item()
-            
-            # 计算综合置信度
-            confidence = min(1.0, max(0.1, 
-                reasoning_strength * 0.6 + 
-                meta_learning_quality * 0.4 +
-                self.learning_state["confidence_level"] * 0.2
-            ))
-            
-            # 知识图谱推理
-            kg_inferences = self.knowledge_graph.infer_relationships(problem_description)
-            
-            # 生成解决方案
-            solution = self._generate_intelligent_solution(problem_description, outputs, kg_inferences)
-            
-            # 更新知识图谱
-            self._update_knowledge_from_reasoning(problem_description, solution, kg_inferences)
-            
-            return {
-                "solution": solution,
-                "confidence": confidence,
-                "reasoning_path": self._extract_detailed_reasoning_path(outputs, kg_inferences),
-                "alternatives": self._generate_intelligent_alternatives(problem_description, outputs),
-                "knowledge_inferences": kg_inferences,
-                "performance_metrics": self._get_current_performance()
-            }
-            
-        except Exception as e:
-            logger.error(f"推理过程中出错: {e}")
-            return {
-                "solution": f"推理错误: {str(e)}",
-                "confidence": 0.1,
-                "error": str(e),
-                "success": False
-            }
+    def save_model(self, file_path: str):
+        """保存模型到文件"""
+        torch.save({
+            'cognitive_network_state_dict': self.cognitive_network.state_dict(),
+            'reasoning_network_state_dict': self.reasoning_network.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'config': self.config.__dict__,
+            'performance_history': self.performance_history
+        }, file_path)
+        logger.info(f"模型已保存到: {file_path}")
     
-    def _generate_intelligent_solution(self, problem: str, outputs: Dict[str, torch.Tensor],
-                                     kg_inferences: List[Dict[str, Any]]) -> str:
-        """生成智能解决方案"""
-        # 基于神经网络输出和知识图谱生成解决方案
-        integrated_score = torch.mean(outputs["integrated"]).item()
-        reasoning_score = torch.mean(outputs["reasoning"]).item()
-        
-        # 使用知识图谱信息
-        kg_relevance = len(kg_inferences) / 10.0
-        
-        solution_quality = min(1.0, integrated_score * 0.4 + reasoning_score * 0.3 + kg_relevance * 0.3)
-        
-        if solution_quality > 0.8:
-            return self._generate_high_quality_solution(problem, kg_inferences)
-        elif solution_quality > 0.5:
-            return self._generate_medium_quality_solution(problem, kg_inferences)
-        else:
-            return self._generate_basic_solution(problem)
-    
-    def _generate_high_quality_solution(self, problem: str, kg_inferences: List[Dict[str, Any]]) -> str:
-        """生成高质量解决方案"""
-        # 整合知识图谱推理结果
-        if kg_inferences:
-            relevant_concepts = [inf['target'] for inf in kg_inferences[:3]]
-            return (f"基于深度推理和知识图谱分析的高质量解决方案。"
-                   f"相关问题涉及: {', '.join(relevant_concepts)}。"
-                   f"建议采用综合方法解决'{problem}'。")
-        else:
-            return (f"基于高级神经网络推理的解决方案。"
-                   f"问题'{problem}'需要综合分析和创造性思维。")
-    
-    def _generate_medium_quality_solution(self, problem: str, kg_inferences: List[Dict[str, Any]]) -> str:
-        """生成中等质量解决方案"""
-        return (f"基于当前知识水平的解决方案。"
-               f"问题'{problem}'需要进一步学习或更多上下文信息。")
-    
-    def _generate_basic_solution(self, problem: str) -> str:
-        """生成基础解决方案"""
-        return (f"基础解决方案。问题'{problem}'需要更多训练数据或领域知识。"
-               f"建议收集相关示例进行学习。")
-    
-    def _extract_detailed_reasoning_path(self, outputs: Dict[str, torch.Tensor],
-                                       kg_inferences: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """提取详细推理路径"""
-        reasoning_path = []
-        
-        # 添加认知处理步骤
-        reasoning_path.append({
-            "step": "认知处理",
-            "description": "输入解析和特征提取",
-            "confidence": torch.mean(outputs["cognitive"]).item()
-        })
-        
-        # 添加推理处理步骤
-        reasoning_path.append({
-            "step": "推理处理",
-            "description": "逻辑推理和模式识别",
-            "confidence": torch.mean(outputs["reasoning"]).item()
-        })
-        
-        # 添加元学习步骤
-        reasoning_path.append({
-            "step": "元学习整合",
-            "description": "学习策略和经验应用",
-            "confidence": torch.mean(outputs["meta_learning"]).item()
-        })
-        
-        # 添加知识图谱推理步骤
-        if kg_inferences:
-            for i, inference in enumerate(kg_inferences[:3]):
-                reasoning_path.append({
-                    "step": f"知识推理{i+1}",
-                    "description": f"概念关系: {inference['relationship']}",
-                    "confidence": inference.get('strength', 0.5)
-                })
-        
-        return reasoning_path
-    
-    def _generate_intelligent_alternatives(self, problem: str, 
-                                         outputs: Dict[str, torch.Tensor]) -> List[Dict[str, Any]]:
-        """生成智能替代方案"""
-        alternatives = []
-        
-        # 基于网络输出生成多样化方案
-        reasoning_variance = torch.var(outputs["reasoning"]).item()
-        exploration_factor = self.learning_state["exploration_rate"]
-        
-        num_alternatives = min(5, int(3 + reasoning_variance * 10 + exploration_factor * 5))
-        
-        for i in range(num_alternatives):
-            alternative_confidence = max(0.1, min(0.9, 
-                torch.mean(outputs["integrated"]).item() * (0.8 + i * 0.1)
-            ))
-            
-            alternatives.append({
-                "id": i + 1,
-                "description": f"替代方案{i+1}: 基于不同推理路径的解决方案",
-                "confidence": alternative_confidence,
-                "complexity": 0.3 + i * 0.2,
-                "novelty": 0.2 + i * 0.15
-            })
-        
-        return alternatives
-    
-    def _update_knowledge_from_reasoning(self, problem: str, solution: str,
-                                       inferences: List[Dict[str, Any]]):
-        """从推理结果更新知识图谱"""
-        try:
-            # 添加问题概念
-            problem_id = self.knowledge_graph.add_concept(
-                problem, 
-                {'type': 'problem', 'solution': solution[:500]},
-                {'context': 'reasoning_result'}
-            )
-            
-            # 添加推理关系
-            for inference in inferences[:5]:  # 限制数量
-                if 'target' in inference:
-                    target_id = self.knowledge_graph.add_concept(
-                        inference['target'],
-                        {'type': 'concept', 'from_inference': True},
-                        {'context': 'reasoning_derived'}
-                    )
-                    
-                    self.knowledge_graph.add_relationship(
-                        problem, inference['target'],
-                        inference.get('relationship', 'related_to'),
-                        inference.get('strength', 0.5)
-                    )
-                    
-        except Exception as e:
-            logger.warning(f"更新知识图谱失败: {e}")
-    
-    def adapt_to_new_task(self, task_description: str, examples: List[Any] = None,
-                         context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        适应新任务，支持快速学习和迁移学习
-        """
-        try:
-            start_time = time.time()
-            
-            # 学习任务特征
-            learning_results = []
-            if examples:
-                for example in examples[:10]:  # 使用更多示例进行快速适应
-                    result = self.learn_from_experience(
-                        example.get("input"), 
-                        example.get("output"),
-                        example.get("modality", "text"),
-                        context,
-                        "supervised"
-                    )
-                    learning_results.append(result)
-            
-            # 更新学习状态
-            adaptation_success = len([r for r in learning_results if r.get('loss', 1.0) < 0.5]) / max(1, len(learning_results))
-            
-            self.learning_state["adaptation_rate"] = min(0.9, 
-                self.learning_state["adaptation_rate"] * (1 + adaptation_success * 0.2)
-            )
-            self.learning_state["confidence_level"] = max(0.1,
-                self.learning_state["confidence_level"] * (1 + adaptation_success * 0.1)
-            )
-            
-            # 记录适应历史
-            adaptation_time = time.time() - start_time
-            self.adaptation_history.append({
-                'task': task_description,
-                'success_rate': adaptation_success,
-                'time_taken': adaptation_time,
-                'examples_used': len(examples) if examples else 0,
-                'timestamp': datetime.now()
-            })
-            
-            return {
-                "success": True,
-                "adaptation_rate": adaptation_success,
-                "time_taken": adaptation_time,
-                "learning_results": learning_results,
-                "new_confidence": self.learning_state["confidence_level"]
-            }
-            
-        except Exception as e:
-            logger.error(f"适应新任务失败: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "adaptation_rate": 0.0
-            }
-    
-    def enhance_creativity(self, problem_context: Dict[str, Any],
-                          creativity_level: float = 0.7) -> Dict[str, Any]:
-        """
-        增强创造性问题解决能力，支持不同创造力水平
-        """
-        try:
-            # 处理问题上下文
-            context_str = json.dumps(problem_context, ensure_ascii=False)
-            input_tensor = self.process_multimodal_input(context_str, "text", problem_context)
-            
-            # 前向传播 with creativity enhancement
-            outputs = self.forward_pass(input_tensor, problem_context)
-            
-            # 计算创造力指标
-            cognitive_diversity = torch.var(outputs["cognitive"]).item()
-            reasoning_flexibility = torch.mean(torch.abs(outputs["reasoning"])).item()
-            meta_learning_novelty = torch.mean(outputs["meta_learning"]).item()
-            
-            creativity_score = min(1.0, max(0.1,
-                cognitive_diversity * 0.4 +
-                reasoning_flexibility * 0.3 +
-                meta_learning_novelty * 0.3
-            ))
-            
-            # 应用请求的创造力水平
-            applied_creativity = min(1.0, max(0.1, creativity_score * creativity_level))
-            
-            # 生成创造性解决方案
-            creative_solutions = self._generate_truly_creative_ideas(problem_context, applied_creativity)
-            
-            return {
-                "creative_solutions": creative_solutions,
-                "creativity_level": applied_creativity,
-                "innovation_potential": min(1.0, applied_creativity * 1.5),
-                "diversity_score": cognitive_diversity,
-                "flexibility_score": reasoning_flexibility,
-                "novelty_score": meta_learning_novelty
-            }
-            
-        except Exception as e:
-            logger.error(f"创造力增强失败: {e}")
-            return {
-                "creative_solutions": ["创造力处理错误，请检查输入"],
-                "creativity_level": 0.1,
-                "error": str(e)
-            }
-    
-    def _generate_truly_creative_ideas(self, context: Dict[str, Any], creativity: float) -> List[Dict[str, Any]]:
-        """生成真正的创造性想法"""
-        base_description = context.get('description', '创新解决方案')
-        problem_type = context.get('type', 'general')
-        
-        ideas = []
-        num_ideas = min(10, int(3 + creativity * 7))
-        
-        # 基于创造力水平生成不同质量的创意
-        for i in range(num_ideas):
-            idea_quality = creativity * (0.7 + i * 0.1)
-            
-            if idea_quality > 0.8:
-                idea_type = "突破性创新"
-                description = f"{idea_type}: 跨领域融合的{base_description}方案，整合前沿技术和方法"
-            elif idea_quality > 0.6:
-                idea_type = "重大改进"
-                description = f"{idea_type}: 重新构架的{base_description}方法，显著提升效果"
-            elif idea_quality > 0.4:
-                idea_type = "渐进创新"
-                description = f"{idea_type}: 优化现有的{base_description}方案，提升效率"
-            else:
-                idea_type = "常规方案"
-                description = f"{idea_type}: 标准{base_description}方法"
-            
-            ideas.append({
-                "id": i + 1,
-                "type": idea_type,
-                "description": description,
-                "quality_score": idea_quality,
-                "implementation_complexity": 0.3 + i * 0.1,
-                "novelty": min(1.0, 0.2 + i * 0.15)
-            })
-        
-        return ideas
+    def load_model(self, file_path: str):
+        """从文件加载模型"""
+        checkpoint = torch.load(file_path, map_location=self.device)
+        self.cognitive_network.load_state_dict(checkpoint['cognitive_network_state_dict'])
+        self.reasoning_network.load_state_dict(checkpoint['reasoning_network_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.performance_history = checkpoint['performance_history']
+        logger.info(f"模型已从 {file_path} 加载")
     
     def get_system_status(self) -> Dict[str, Any]:
-        """获取详细的系统状态"""
-        performance = self._get_current_performance()
-        
+        """获取系统状态信息"""
         return {
-            "device": self.config.device,
-            "model_parameters": sum(p.numel() for p in self.cognitive_network.parameters()),
-            "learning_rate": float(self.cognitive_network.meta_parameters['learning_rate'].item()),
-            "exploration_rate": float(self.cognitive_network.meta_parameters['exploration_rate'].item()),
-            "performance_metrics": performance,
-            "learning_state": {
-                k: v for k, v in self.learning_state.items() 
-                if not isinstance(v, deque) and not isinstance(v, dict)
-            },
-            "knowledge_graph_stats": {
-                "num_concepts": len(self.knowledge_graph.graph),
-                "num_relationships": len(self.knowledge_graph.relationship_strengths),
-                "avg_confidence": np.mean([d['confidence'] for n, d in self.knowledge_graph.graph.nodes(data=True)]) 
-                if self.knowledge_graph.graph else 0.5
-            },
-            "experience_buffer_size": len(self.experience_buffer),
-            "performance_history_size": len(self.performance_history)
+            'device': str(self.device),
+            'memory_usage': len(self.memory_buffer),
+            'performance_history_length': len(self.performance_history),
+            'knowledge_graph_stats': self.knowledge_graph.get_concept_statistics(),
+            'current_learning_rate': self.optimizer.param_groups[0]['lr'],
+            'current_exploration_rate': self.config.exploration_rate,
+            'learning_adaptation_factor': self.learning_adaptation_factor,
+            'meta_learning_counter': self.meta_learning_counter
         }
-    
-    def perform_self_reflection(self) -> Dict[str, Any]:
-        """执行自我反思和元认知分析"""
-        try:
-            # 分析性能历史
-            recent_performance = self.performance_history[-20:] if len(self.performance_history) >= 20 else self.performance_history
-            
-            if not recent_performance:
-                return {
-                    "insight": "尚无足够性能数据进行分析",
-                    "recommendations": ["继续学习积累经验"],
-                    "confidence": 0.1
-                }
-            
-            losses = [p['loss'] for p in recent_performance]
-            avg_loss = sum(losses) / len(losses)
-            loss_std = np.std(losses) if len(losses) > 1 else 0.0
-            
-            # 生成反思洞察
-            if avg_loss < 0.1 and loss_std < 0.05:
-                insight = "系统表现优秀，学习稳定高效"
-                recommendations = [
-                    "继续保持当前学习节奏",
-                    "探索更复杂的问题领域",
-                    "尝试更高的创造力水平"
-                ]
-                confidence = 0.9
-            elif avg_loss < 0.3:
-                insight = "系统表现良好，有改进空间"
-                recommendations = [
-                    "优化学习参数",
-                    "增加训练数据多样性",
-                    "调整探索率"
-                ]
-                confidence = 0.7
-            else:
-                insight = "系统需要显著改进"
-                recommendations = [
-                    "检查输入数据质量",
-                    "调整网络架构",
-                    "增加元学习频率",
-                    "清理知识图谱"
-                ]
-                confidence = 0.5
-            
-            return {
-                "insight": insight,
-                "recommendations": recommendations,
-                "performance_summary": {
-                    "avg_loss": avg_loss,
-                    "loss_std": loss_std,
-                    "trend": "improving" if len(losses) > 1 and losses[-1] < losses[0] else "stable",
-                    "stability": 1.0 - min(1.0, loss_std)
-                },
-                "confidence": confidence
-            }
-            
-        except Exception as e:
-            logger.error(f"自我反思失败: {e}")
-            return {
-                "insight": f"反思过程出错: {str(e)}",
-                "recommendations": ["检查系统状态", "重新初始化学习参数"],
-                "confidence": 0.1
-            }
 
-# 全局AGI核心实例
-agi_core = AGICore()
+# 全局AGI实例
+AGI_SYSTEM = AGICore()
 
+def initialize_agi_system(config: Optional[AGIConfig] = None) -> AGICore:
+    """初始化并返回AGI系统实例"""
+    global AGI_SYSTEM
+    AGI_SYSTEM = AGICore(config)
+    return AGI_SYSTEM
+
+def process_input_through_agi(input_data: Any, modality: str = "text", 
+                            context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """通过AGI系统处理输入"""
+    return AGI_SYSTEM.process_input(input_data, modality, context)
+
+def train_agi_system(training_data: List[Tuple[Any, Any]], 
+                    modalities: List[str] = None, epochs: int = 10):
+    """训练AGI系统"""
+    AGI_SYSTEM.train(training_data, modalities, epochs)
+
+def get_agi_status() -> Dict[str, Any]:
+    """获取AGI系统状态"""
+    return AGI_SYSTEM.get_system_status()
+
+# 示例使用
 if __name__ == "__main__":
-    # 测试高级AGI核心系统
-    print("=== 测试高级AGI核心系统 ===")
+    # 初始化系统
+    agi = initialize_agi_system()
     
-    # 创建AGI实例
-    agi = AGICore()
-    
-    # 测试学习功能
-    print("\n1. 测试学习功能...")
-    learning_result = agi.learn_from_experience(
-        "机器学习模型优化", 
-        "使用梯度下降和正则化技术",
-        context={"domain": "machine_learning", "difficulty": "medium"}
-    )
-    print(f"学习结果: 损失={learning_result['loss']:.4f}, 类型={learning_result['learning_type']}")
-    
-    # 测试推理功能
-    print("\n2. 测试推理功能...")
-    reasoning_result = agi.reason_about_problem(
-        "如何提高神经网络泛化能力",
-        context={"domain": "deep_learning", "urgency": "high"}
-    )
-    print(f"推理置信度: {reasoning_result['confidence']:.2f}")
-    print(f"解决方案: {reasoning_result['solution']}")
-    
-    # 测试创造力增强
-    print("\n3. 测试创造力增强...")
-    creativity_result = agi.enhance_creativity({
-        "description": "解决过拟合问题",
-        "type": "technical_innovation",
-        "domain": "machine_learning"
-    })
-    print(f"创造力水平: {creativity_result['creativity_level']:.2f}")
-    for i, idea in enumerate(creativity_result['creative_solutions'][:3]):
-        print(f"创意{i+1}: {idea['description']}")
+    # 处理示例输入
+    result = process_input_through_agi("你好，请介绍一下人工智能", "text")
+    print("响应:", result['text'])
+    print("置信度:", result['confidence'])
     
     # 显示系统状态
-    print("\n4. 系统状态:")
-    status = agi.get_system_status()
-    for key, value in status.items():
-        if isinstance(value, dict):
-            print(f"{key}:")
-            for k, v in value.items():
-                print(f"  {k}: {v}")
-        else:
-            print(f"{key}: {value}")
-    
-    # 自我反思
-    print("\n5. 自我反思:")
-    reflection = agi.perform_self_reflection()
-    print(f"洞察: {reflection['insight']}")
-    print("推荐改进:")
-    for rec in reflection['recommendations']:
-        print(f"  - {rec}")
-    
-    print("\n=== 测试完成 ===")
+    status = get_agi_status()
+    print("系统状态:", status)

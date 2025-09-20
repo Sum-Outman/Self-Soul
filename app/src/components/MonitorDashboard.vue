@@ -1,17 +1,17 @@
 <template>
   <div class="monitor-dashboard">
-    <!-- 实时监视仪表盘 | Real-time Monitoring Dashboard -->
+    <!-- Real-time Monitoring Dashboard -->
     <div class="dashboard-header">
-      <h2>{{ $t('monitor.title') }}</h2>
+      <h2>Real-time Monitoring Dashboard</h2>
       <div class="controls">
         <button @click="refreshData" :disabled="isRefreshing" class="refresh-btn">
-          <span v-if="isRefreshing">{{ $t('monitor.refreshing') }}</span>
-          <span v-else>{{ $t('monitor.refresh') }}</span>
+          <span v-if="isRefreshing">Refreshing...</span>
+          <span v-else>Refresh</span>
         </button>
         <div class="auto-refresh">
           <label>
             <input type="checkbox" v-model="autoRefresh" />
-            {{ $t('monitor.autoRefresh') }} ({{ refreshInterval }}s)
+            Auto-refresh ({{ refreshInterval }}s)
           </label>
         </div>
       </div>
@@ -20,19 +20,19 @@
     <!-- 系统状态概览 | System Status Overview -->
     <div class="status-overview">
       <div class="status-card" :class="systemStatus">
-        <h3>{{ $t('monitor.systemStatus') }}</h3>
-        <p class="status-value">{{ $t(`monitor.status.${systemStatus}`) }}</p>
-        <p class="uptime">{{ $t('monitor.uptime') }}: {{ systemUptime }}</p>
+        <h3>System Status</h3>
+        <p class="status-value">{{ systemStatus === 'normal' ? 'Normal' : systemStatus === 'warning' ? 'Warning' : 'Error' }}</p>
+        <p class="uptime">Uptime: {{ systemUptime }}</p>
       </div>
       
       <div class="status-card">
-        <h3>{{ $t('monitor.activeModels') }}</h3>
+        <h3>Active Models</h3>
         <p class="metric-value">{{ activeModelsCount }}</p>
-        <p class="metric-label">{{ $t('monitor.totalModels') }}: {{ totalModelsCount }}</p>
+        <p class="metric-label">Total Models: {{ totalModelsCount }}</p>
       </div>
       
       <div class="status-card">
-        <h3>{{ $t('monitor.cpuUsage') }}</h3>
+        <h3>CPU Usage</h3>
         <div class="progress-container">
           <div class="progress-bar">
             <div class="progress-fill" :style="{ width: cpuUsage + '%' }"></div>
@@ -42,7 +42,7 @@
       </div>
       
       <div class="status-card">
-        <h3>{{ $t('monitor.memoryUsage') }}</h3>
+        <h3>Memory Usage</h3>
         <div class="progress-container">
           <div class="progress-bar">
             <div class="progress-fill" :style="{ width: memoryUsage + '%' }"></div>
@@ -54,50 +54,50 @@
 
     <!-- 模型性能指标 | Model Performance Metrics -->
     <div class="metrics-section">
-      <h3>{{ $t('monitor.modelMetrics') }}</h3>
-      <div class="metrics-grid">
-        <div class="metric-card" v-for="metric in modelMetrics" :key="metric.name">
-          <h4>{{ $t(`monitor.metrics.${metric.name}`) }}</h4>
-          <p class="metric-value">{{ metric.value }}</p>
-          <p class="metric-trend" :class="metric.trend">
-            <span v-if="metric.trend === 'up'">{{ $t('monitor.trend.up') }}</span>
-            <span v-else-if="metric.trend === 'down'">{{ $t('monitor.trend.down') }}</span>
-            <span v-else>{{ $t('monitor.trend.stable') }}</span>
-            {{ metric.change }}
-          </p>
+      <h3>Model Performance Metrics</h3>
+        <div class="metrics-grid">
+          <div class="metric-card" v-for="metric in modelMetrics" :key="metric.name">
+            <h4>{{ metric.name === 'accuracy' ? 'Accuracy' : metric.name === 'latency' ? 'Latency' : metric.name === 'throughput' ? 'Throughput' : 'Error Rate' }}</h4>
+            <p class="metric-value">{{ metric.value }}</p>
+            <p class="metric-trend" :class="metric.trend">
+              <span v-if="metric.trend === 'up'">Improving</span>
+              <span v-else-if="metric.trend === 'down'">Worsening</span>
+              <span v-else>Stable</span>
+              {{ metric.change }}
+            </p>
+          </div>
         </div>
-      </div>
     </div>
 
     <!-- 实时数据流 | Real-time Data Stream -->
     <div class="data-stream-section">
-      <h3>{{ $t('monitor.realtimeData') }}</h3>
-      <div class="stream-container">
-        <div class="stream-item" v-for="(item, index) in dataStream" :key="index">
-          <span class="timestamp">{{ item.timestamp }}</span>
-          <span class="model-name">{{ item.model }}</span>
-          <span class="event-type" :class="item.type">{{ $t(`monitor.eventTypes.${item.type}`) }}</span>
-          <span class="event-details">{{ item.details }}</span>
+      <h3>Real-time Data Stream</h3>
+        <div class="stream-container">
+          <div class="stream-item" v-for="(item, index) in dataStream" :key="index">
+            <span class="timestamp">{{ item.timestamp }}</span>
+            <span class="model-name">{{ item.model }}</span>
+            <span class="event-type" :class="item.type">{{ item.type === 'processing' ? 'Processing' : item.type === 'success' ? 'Success' : item.type === 'error' ? 'Error' : item.type === 'training' ? 'Training' : item.type === 'update' ? 'Update' : 'Coordination' }}</span>
+            <span class="event-details">{{ item.details }}</span>
+          </div>
         </div>
-      </div>
     </div>
 
     <!-- 图表可视化 | Chart Visualization -->
     <div class="charts-section">
-      <h3>{{ $t('monitor.performanceCharts') }}</h3>
-      <div class="charts-grid">
-        <div class="chart-container">
-          <h4>{{ $t('monitor.cpuMemoryChart') }}</h4>
-          <div class="chart-placeholder">
-            <p>{{ $t('monitor.chartPlaceholder') }}</p>
+      <h3>Performance Charts</h3>
+        <div class="charts-grid">
+          <div class="chart-container">
+            <h4>CPU & Memory Usage</h4>
+            <div class="chart-placeholder">
+              <p>Chart visualization placeholder</p>
+            </div>
           </div>
-        </div>
-        <div class="chart-container">
-          <h4>{{ $t('monitor.modelPerformanceChart') }}</h4>
-          <div class="chart-placeholder">
-            <p>{{ $t('monitor.chartPlaceholder') }}</p>
+          <div class="chart-container">
+            <h4>Model Performance</h4>
+            <div class="chart-placeholder">
+              <p>Chart visualization placeholder</p>
+            </div>
           </div>
-        </div>
       </div>
     </div>
   </div>
@@ -155,7 +155,7 @@ export default {
     async refreshData() {
       this.isRefreshing = true;
       try {
-        // 模拟数据刷新 | Simulate data refresh
+        // Simulate data refresh
         await new Promise(resolve => setTimeout(resolve, 1000));
         this.updateMetrics();
         this.addDataStreamItem();
@@ -166,17 +166,17 @@ export default {
       }
     },
     loadInitialData() {
-      // 加载初始数据 | Load initial data
+      // Load initial data
       this.systemUptime = this.calculateUptime();
       this.activeModelsCount = Math.floor(Math.random() * 5) + 3;
     },
     updateMetrics() {
-      // 更新指标数据 | Update metric data
+      // Update metric data
       this.cpuUsage = Math.floor(Math.random() * 30) + 30;
       this.memoryUsage = Math.floor(Math.random() * 40) + 40;
       this.activeModelsCount = Math.floor(Math.random() * 5) + 3;
       
-      // 更新模型指标 | Update model metrics
+      // Update model metrics
       this.modelMetrics.forEach(metric => {
         const change = Math.random() * 10 - 5;
         metric.change = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
@@ -184,7 +184,7 @@ export default {
       });
     },
     addDataStreamItem() {
-      // 添加新的数据流项目 | Add new data stream item
+      // Add new data stream item
       const models = ['Language', 'Audio', 'Vision', 'Knowledge', 'Manager', 'Sensor', 'Spatial'];
       const types = ['processing', 'success', 'error', 'training', 'update', 'coordination'];
       const details = [
@@ -207,13 +207,13 @@ export default {
         details: details[Math.floor(Math.random() * details.length)]
       });
       
-      // 保持数据流长度 | Keep data stream length
+      // Keep data stream length
       if (this.dataStream.length > 20) {
         this.dataStream.pop();
       }
     },
     calculateUptime() {
-      // 计算系统运行时间 | Calculate system uptime
+      // Calculate system uptime
       const hours = Math.floor(Math.random() * 24);
       const minutes = Math.floor(Math.random() * 60);
       const seconds = Math.floor(Math.random() * 60);

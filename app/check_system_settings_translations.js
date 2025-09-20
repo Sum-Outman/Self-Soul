@@ -2,13 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 
-// 从SystemSettings.vue中提取所有翻译键
+// Extract all translation keys from SystemSettings.vue
 function extractTranslationKeysFromFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const translationKeys = new Set();
     
-    // 匹配 $t('key') 和 $t("key") 模式
+    // Match $t('key') and $t("key") patterns
     const regex = /\$t\(['"]([^'"]+)['"]\)/g;
     let match;
     
@@ -18,22 +18,22 @@ function extractTranslationKeysFromFile(filePath) {
     
     return Array.from(translationKeys);
   } catch (error) {
-    console.error(`❌ 无法读取文件 ${filePath}:`, error.message);
+    console.error(`❌ Unable to read file ${filePath}:`, error.message);
     return [];
   }
 }
 
-// 检查翻译键在语言文件中的完整性
+// Check translation keys completeness in language files
 function checkTranslationCompleteness(translationKeys) {
-  console.log('🔍 检查SystemSettings.vue中使用的翻译键完整性...\n');
-  
-  const localesPath = path.join(__dirname, 'src', 'locales');
-  const languages = ['en', 'zh', 'de', 'ja', 'ru'];
-  
-  let allPassed = true;
-  
-  languages.forEach(lang => {
-    console.log(`📖 检查 ${lang.toUpperCase()} 语言文件...`);
+    console.log('🔍 Checking translation keys completeness in SystemSettings.vue...\n');
+    
+    const localesPath = path.join(__dirname, 'src', 'locales');
+    const languages = ['en']; // Only check English since interface is now English-only
+    
+    let allPassed = true;
+    
+    languages.forEach(lang => {
+      console.log(`📖 Checking ${lang.toUpperCase()} language file...`);
     
     try {
       const filePath = path.join(localesPath, `${lang}.json`);
@@ -43,7 +43,7 @@ function checkTranslationCompleteness(translationKeys) {
       let missingKeys = [];
       let langPassed = true;
       
-      // 检查所有必需的键
+      // Check all required keys
       translationKeys.forEach(key => {
         const keys = key.split('.');
         let current = translations;
@@ -60,15 +60,15 @@ function checkTranslationCompleteness(translationKeys) {
       });
       
       if (langPassed) {
-        console.log(`✅ ${lang.toUpperCase()} - 所有翻译键都存在`);
+        console.log(`✅ ${lang.toUpperCase()} - All translation keys exist`);
       } else {
-        console.log(`❌ ${lang.toUpperCase()} - 缺少 ${missingKeys.length} 个翻译键:`);
+        console.log(`❌ ${lang.toUpperCase()} - Missing ${missingKeys.length} translation keys:`);
         missingKeys.forEach(key => console.log(`   - ${key}`));
         allPassed = false;
       }
       
     } catch (error) {
-      console.log(`❌ ${lang.toUpperCase()} - 无法读取或解析语言文件: ${error.message}`);
+      console.log(`❌ ${lang.toUpperCase()} - Unable to read or parse language file: ${error.message}`);
       allPassed = false;
     }
     
@@ -78,28 +78,28 @@ function checkTranslationCompleteness(translationKeys) {
   return allPassed;
 }
 
-// 主函数
+// Main function
 function main() {
   const systemSettingsPath = path.join(__dirname, 'src', 'views', 'SystemSettings.vue');
   
-  console.log('🔍 从SystemSettings.vue中提取翻译键...');
+  console.log('🔍 Extracting translation keys from SystemSettings.vue...');
   const translationKeys = extractTranslationKeysFromFile(systemSettingsPath);
   
-  console.log('📋 找到的翻译键:');
+  console.log('📋 Found translation keys:');
   translationKeys.forEach(key => console.log(`   - ${key}`));
   console.log('');
   
-  // 检查完整性
+  // Check completeness
   const allComplete = checkTranslationCompleteness(translationKeys);
   
   if (allComplete) {
-    console.log('🎉 SystemSettings.vue中使用的所有翻译键在所有语言文件中都存在！');
+    console.log('🎉 All translation keys used in SystemSettings.vue exist in the English language file!');
   } else {
-    console.log('⚠️  部分语言文件缺少翻译键，需要修复后才能完全支持多语言。');
+    console.log('⚠️  Some translation keys are missing in the English language file, please fix.');
   }
   
   return allComplete;
 }
 
-// 运行检查
+// Run check
 main();

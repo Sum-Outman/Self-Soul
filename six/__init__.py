@@ -26,7 +26,7 @@ else:
     class_types = (type, types.ClassType)
     text_to_binary = lambda s, enc: s
 
-# 元类装饰器
+# Metaclass decorator
 def add_metaclass(metaclass):
     """Class decorator for creating a class with a metaclass."""
     def wrapper(cls):
@@ -42,15 +42,27 @@ def add_metaclass(metaclass):
         return metaclass(cls.__name__, cls.__bases__, orig_vars)
     return wrapper
 
-# 从moves模块导入
+# Import from moves module
 from . import moves
 
-# 添加兼容性方法
+# Add compatibility methods
 if PY2:
     iteritems = lambda d: d.iteritems()
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
+    int2byte = lambda i: chr(i) if isinstance(i, int) else bytes(i)
+    unichr = unichr
+    u = lambda s: unicode(s, "unicode_escape")
+    integer_types = (int, long)
+    def advance_iterator(it):
+        return it.next()
 else:
     iteritems = lambda d: d.items()
     iterkeys = lambda d: d.keys()
     itervalues = lambda d: d.values()
+    int2byte = lambda i: bytes([i])
+    unichr = chr
+    u = lambda s: s
+    integer_types = (int,)
+    def advance_iterator(it):
+        return next(it)

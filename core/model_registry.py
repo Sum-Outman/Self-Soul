@@ -133,7 +133,8 @@ class ModelRegistry:
             'prediction': 'core.models.prediction.model.PredictionModel',  # 预测模型
             'collaboration': 'core.models.collaboration.model.CollaborationModel', # 协作模型
             'optimization': 'core.models.optimization.model.OptimizationModel', # 优化模型
-            'autonomous': 'core.models.autonomous.model.AutonomousModel'   # 自主模型
+            'autonomous': 'core.models.autonomous.model.AutonomousModel',  # 自主模型
+            'value_alignment': 'core.value_alignment.ValueAlignment'        # 值对齐模型
         }
         # 增强模型依赖关系管理 | Enhanced model dependency management
         self.model_dependencies = {
@@ -148,16 +149,17 @@ class ModelRegistry:
             'sensor': ['emotion'],
             'computer': ['language', 'programming'],
             'motion': ['spatial', 'sensor', 'optimization'],
-            'knowledge': ['optimization'],
+            'knowledge': [],  # 修复循环依赖问题
             'programming': ['language', 'knowledge', 'optimization'],
             'emotion': ['knowledge'],
             'finance': ['knowledge', 'prediction'],
             'medical': ['knowledge', 'prediction'],
             'planning': ['knowledge', 'prediction', 'optimization'],
-            'prediction': ['knowledge', 'optimization'],
+            'prediction': ['knowledge'],  # 修复循环依赖问题
             'collaboration': ['knowledge', 'emotion', 'optimization'],
-            'optimization': ['knowledge'],
-            'autonomous': ['knowledge', 'planning', 'optimization', 'collaboration']
+            'optimization': ['prediction'],  # 修复循环依赖问题
+            'autonomous': ['knowledge', 'planning', 'optimization', 'collaboration'],
+            'value_alignment': ['knowledge', 'emotion']  # 添加value_alignment模型依赖
         }
         # 模型性能评估和训练状态 | Model performance evaluation and training status
         self.performance_metrics = {}

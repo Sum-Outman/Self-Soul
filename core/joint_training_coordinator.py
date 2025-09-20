@@ -33,9 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from .error_handling import error_handler
 
-# i18n module not implemented yet - using dummy function
-def _(text):
-    return text
+
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -96,8 +94,7 @@ class JointTrainingCoordinator:
         # 设置训练策略 | Set training strategy
         self.strategy = TrainingStrategy(parameters.get('training_strategy', 'standard'))
         
-        logger.info(_("联合训练协调器初始化完成，模型: {models}, 策略: {strategy}").format(
-            models=', '.join(model_ids), strategy=self.strategy.value))
+        logger.info(f"Joint training coordinator initialized, models: {', '.join(model_ids)}, strategy: {self.strategy.value}")
     
     def schedule_training(self, tasks: List[Dict[str, Any]]) -> Dict[str, Any]:
         """调度训练任务 | Schedule training tasks
@@ -129,22 +126,21 @@ class JointTrainingCoordinator:
             # 准备共享上下文 | Prepare shared context
             self._prepare_shared_context()
             
-            logger.info(_("成功调度 {count} 个训练任务 | Successfully scheduled {count} training tasks").format(
-                count=len(self.training_tasks)))
+            logger.info(f"Successfully scheduled {len(self.training_tasks)} training tasks")
             
             return {
                 'status': 'success',
                 'scheduled_tasks': len(self.training_tasks),
                 'strategy': self.strategy.value,
-                'message': _("训练任务已成功调度 | Training tasks successfully scheduled")
+                'message': "Training tasks successfully scheduled"
             }
             
         except Exception as e:
-            error_handler.handle_error(e, "JointTrainingCoordinator", _("调度训练任务失败 | Failed to schedule training tasks"))
+            error_handler.handle_error(e, "JointTrainingCoordinator", "Failed to schedule training tasks")
             return {
                 'status': 'failed',
                 'error': str(e),
-                'message': _("训练任务调度失败 | Training task scheduling failed")
+                'message': "Training task scheduling failed"
             }
     
     async def execute_training(self) -> Dict[str, Any]:
@@ -156,7 +152,7 @@ class JointTrainingCoordinator:
         start_time = time.time()
         
         try:
-            logger.info(_("开始执行联合训练 | Starting joint training execution"))
+            logger.info("Starting joint training execution")
             
             # 初始化通信队列（在正确的事件循环中） | Initialize communication queues (in the correct event loop)
             if not self._queues_initialized:
@@ -178,24 +174,23 @@ class JointTrainingCoordinator:
             training_time = time.time() - start_time
             overall_metrics = self._calculate_overall_metrics(results)
             
-            logger.info(_("联合训练完成，总时间: {time:.2f}s, 总体准确率: {accuracy:.2f}%").format(
-                time=training_time, accuracy=overall_metrics.get('accuracy', 0)))
+            logger.info(f"Joint training completed, total time: {training_time:.2f}s, overall accuracy: {overall_metrics.get('accuracy', 0):.2f}%")
             
             return {
                 'status': 'success',
                 'training_time': training_time,
                 'results': results,
                 'overall_metrics': overall_metrics,
-                'message': _("联合训练成功完成 | Joint training completed successfully")
+                'message': "Joint training completed successfully"
             }
             
         except Exception as e:
-            error_handler.handle_error(e, "JointTrainingCoordinator", _("执行联合训练失败 | Failed to execute joint training"))
+            error_handler.handle_error(e, "JointTrainingCoordinator", "Failed to execute joint training")
             return {
                 'status': 'failed',
                 'error': str(e),
                 'training_time': time.time() - start_time,
-                'message': _("联合训练执行失败 | Joint training execution failed")
+                'message': "Joint training execution failed"
             }
     
     async def _standard_joint_training(self) -> Dict[str, TrainingResult]:

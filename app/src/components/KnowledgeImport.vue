@@ -1,6 +1,6 @@
 <template>
   <div class="knowledge-import">
-    <h2>{{ $t('knowledge.importTitle') }}</h2>
+    <h2>Import Knowledge</h2>
     
     <div class="import-section">
       <div class="file-upload">
@@ -10,35 +10,41 @@
                :accept="supportedFormats"
                multiple>
         <button @click="triggerFileInput" class="upload-button">
-          {{ $t('knowledge.selectFiles') }}
+          Select Files
         </button>
-        <span class="file-info">{{ $t('knowledge.supportedFormats') }}: {{ supportedFormatsText }}</span>
+        <span class="file-info">Supported Formats: JSON, Text, PDF, DOCX</span>
       </div>
 
       <div v-if="selectedFiles.length > 0" class="selected-files">
-        <h3>{{ $t('knowledge.selectedFiles') }}</h3>
+        <h3>Selected Files</h3>
         <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
           <span class="file-name">{{ file.name }}</span>
           <span class="file-size">({{ formatFileSize(file.size) }})</span>
-          <button @click="removeFile(index)" class="remove-btn">{{ $t('common.delete') }}</button>
+          <button @click="removeFile(index)" class="remove-btn">Delete</button>
         </div>
       </div>
 
       <div class="import-options">
         <div class="option-group">
-          <label>{{ $t('knowledge.domain') }}:</label>
+          <label>Domain:</label>
           <select v-model="selectedDomain">
-            <option value="">{{ $t('knowledge.autoDetect') }}</option>
-            <option v-for="domain in domains" :key="domain" :value="domain">
-              {{ $t(`knowledge.domains.${domain}`) }}
-            </option>
+            <option value="">Auto Detect</option>
+            <option value="physics">Physics</option>
+            <option value="mathematics">Mathematics</option>
+            <option value="chemistry">Chemistry</option>
+            <option value="biology">Biology</option>
+            <option value="computer_science">Computer Science</option>
+            <option value="medicine">Medicine</option>
+            <option value="law">Law</option>
+            <option value="economics">Economics</option>
+            <option value="general">General Knowledge</option>
           </select>
         </div>
 
         <div class="option-group">
           <label>
             <input type="checkbox" v-model="overwriteExisting">
-            {{ $t('knowledge.overwriteExisting') }}
+            Overwrite Existing Knowledge
           </label>
         </div>
       </div>
@@ -46,41 +52,41 @@
       <button @click="startImport" 
               :disabled="isImporting || selectedFiles.length === 0"
               class="import-button">
-        {{ isImporting ? $t('knowledge.importing') : $t('knowledge.startImport') }}
+        {{ isImporting ? 'Importing...' : 'Start Import' }}
       </button>
 
       <div v-if="importResults.length > 0" class="import-results">
-        <h3>{{ $t('knowledge.importResults') }}</h3>
+        <h3>Import Results</h3>
         <div v-for="(result, index) in importResults" :key="index" 
              :class="['result-item', result.success ? 'success' : 'error']">
           <div class="result-file">{{ result.fileName }}</div>
           <div class="result-status">
-            {{ result.success ? $t('knowledge.importSuccess') : $t('knowledge.importError') }}
+            {{ result.success ? 'Import Successful' : 'Import Failed' }}
           </div>
           <div v-if="result.message" class="result-message">{{ result.message }}</div>
           <div v-if="result.domain" class="result-domain">
-            {{ $t('knowledge.domain') }}: {{ result.domain }}
+            Domain: {{ result.domain }}
           </div>
         </div>
       </div>
 
       <div v-if="importStats" class="import-stats">
-        <h3>{{ $t('knowledge.importStatistics') }}</h3>
+        <h3>Import Statistics</h3>
         <div class="stats-grid">
           <div class="stat-item">
-            <span class="stat-label">{{ $t('knowledge.totalFiles') }}:</span>
+            <span class="stat-label">Total Files:</span>
             <span class="stat-value">{{ importStats.totalFiles }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">{{ $t('knowledge.successful') }}:</span>
+            <span class="stat-label">Successful:</span>
             <span class="stat-value">{{ importStats.successful }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">{{ $t('knowledge.failed') }}:</span>
+            <span class="stat-label">Failed:</span>
             <span class="stat-value">{{ importStats.failed }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">{{ $t('knowledge.totalSize') }}:</span>
+            <span class="stat-label">Total Size:</span>
             <span class="stat-value">{{ formatFileSize(importStats.totalSize) }}</span>
           </div>
         </div>
@@ -90,15 +96,12 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref } from 'vue';
 import axios from 'axios';
 
 export default {
   name: 'KnowledgeImport',
   setup() {
-    const { t } = useI18n();
-    
     const fileInput = ref(null);
     const selectedFiles = ref([]);
     const selectedDomain = ref('');
@@ -108,18 +111,7 @@ export default {
     const importStats = ref(null);
 
     const supportedFormats = '.json,.txt,.pdf,.docx';
-    const domains = [
-      'physics', 'mathematics', 'chemistry', 'biology',
-      'computer_science', 'medicine', 'law', 'economics',
-      'general'
-    ];
-
-    const supportedFormatsText = computed(() => {
-      return t('knowledge.formatsJSON') + ', ' +
-             t('knowledge.formatsTXT') + ', ' +
-             t('knowledge.formatsPDF') + ', ' +
-             t('knowledge.formatsDOCX');
-    });
+    const supportedFormatsText = 'JSON, Text, PDF, DOCX';
 
     const triggerFileInput = () => {
       fileInput.value?.click();
@@ -127,7 +119,7 @@ export default {
 
     const handleFileSelect = (event) => {
       const files = Array.from(event.target.files);
-      // 过滤不支持的文件格式
+      // Filter out unsupported file formats
       const validFiles = files.filter(file => {
         const ext = file.name.toLowerCase().split('.').pop();
         return ['json', 'txt', 'pdf', 'docx'].includes(ext);
@@ -182,14 +174,14 @@ export default {
               fileName: file.name,
               success: true,
               domain: response.data.domain,
-              message: t('knowledge.importSuccessDetail', { length: response.data.content_length })
+              message: `Successfully imported (${response.data.content_length} characters)`
             });
           } else {
             stats.failed++;
             importResults.value.push({
               fileName: file.name,
               success: false,
-              message: response.data.error || t('knowledge.unknownError')
+              message: response.data.error || 'Unknown error occurred'
             });
           }
         } catch (error) {
@@ -197,7 +189,7 @@ export default {
           importResults.value.push({
             fileName: file.name,
             success: false,
-            message: error.response?.data?.error || error.message || t('knowledge.uploadError')
+            message: error.response?.data?.error || error.message || 'Upload error occurred'
           });
         }
       }
@@ -220,7 +212,7 @@ export default {
       importResults,
       importStats,
       supportedFormats,
-      domains,
+
       supportedFormatsText,
       triggerFileInput,
       handleFileSelect,

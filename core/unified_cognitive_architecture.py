@@ -14,7 +14,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, AutoModel
+import torch.optim as optim
 from core.error_handling import error_handler
 import time
 from typing import Dict, List, Any, Optional, Tuple
@@ -22,31 +22,87 @@ import logging
 import json
 from enum import Enum
 import re
+import random
 from .model_registry import model_registry
 
-class NeuralEmbeddingSpace:
-    """Neural Embedding Space - Maps multimodal data to unified representation"""
-    
-    def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-cased")
-        self.text_encoder = AutoModel.from_pretrained("bert-base-multilingual-cased")
-        self.image_encoder = None  # Reserved for image encoder
-        self.audio_encoder = None  # Reserved for audio encoder
+class CustomTokenizer:
+    """自定义文本标记器，不依赖预训练模型"""
+    def __init__(self, vocab_size=10000):
+        self.vocab_size = vocab_size
+        self.vocab = {}
+        self.rev_vocab = {}
+        self._initialize_vocab()
+        self.pad_token_id = 0
+        self.unk_token_id = 1
+        self.sep_token_id = 2
+        self.cls_token_id = 3
+        self.mask_token_id = 4
         
-        # Freeze pre-trained model parameters
-        for param in self.text_encoder.parameters():
-            param.requires_grad = False
+    def _initialize_vocab(self):
+        """初始化基础词汇表"""
+        # 添加特殊标记
+        special_tokens = ['[PAD]', '[UNK]', '[SEP]', '[CLS]', '[MASK]']
+        for i, token in enumerate(special_tokens):
+            self.vocab[token] = i
+            self.rev_vocab[i] = token
+        
+    def tokenize(self, text):
+        """文本标记化"""
+        # 简单的分词实现，可以根据需求扩展
+        text = text.lower()
+        tokens = re.findall(r'\w+|[.,!?;:"()\[\]{}]', text)
     
+    def enable_training(self):
+        """启用训练模式"""
+        self.training_mode = True
+        self.text_encoder.train()
+        
+    def disable_training(self):
+        """禁用训练模式"""
+        self.training_mode = False
+        self.text_encoder.eval()
+        
     def _encode_text(self, text):
         """Encode text data"""
         try:
             inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
-            with torch.no_grad():
+            
+            # 在训练模式下不使用no_grad
+            if self.training_mode:
                 outputs = self.text_encoder(**inputs)
-            return outputs.last_hidden_state.mean(dim=1).numpy()
+            else:
+                with torch.no_grad():
+                    outputs = self.text_encoder(**inputs)
+            
+            return outputs.last_hidden_state.mean(dim=1).detach().numpy()
         except Exception as e:
             error_handler.handle_error(e, "NeuralEmbeddingSpace", "Text encoding failed")
             return np.zeros((1, 768))  # Return default vector
+            
+    def train_step(self, text, target_embedding):
+        """执行一步训练"""
+        if not self.training_mode:
+            raise RuntimeError("Training mode must be enabled to train")
+            
+        try:
+            # 前向传播
+            inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+            output = self.text_encoder(**inputs)
+            predicted_embedding = output.last_hidden_state.mean(dim=1)
+            
+            # 计算损失
+            target_tensor = torch.tensor(target_embedding).unsqueeze(0)
+            loss = self.criterion(predicted_embedding, target_tensor)
+            
+            # 反向传播和优化
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            
+            return loss.item()
+        except Exception as e:
+            error_handler.handle_error(e, "NeuralEmbeddingSpace", "Training step failed")
+            return float('inf')
     
     def _encode_image(self, image_data):
         """Encode image data (reserved implementation)"""

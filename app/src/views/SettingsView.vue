@@ -241,7 +241,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
 
 export default {
@@ -390,8 +390,9 @@ export default {
     async loadModels() {
       this.loading = true;
       try {
-        const response = await axios.get('/api/models');
-        if (response.data.success) {
+        const response = await api.get('/api/models');
+        // 修改为检查status字段而不是success字段
+        if (response.data.status === 'success') {
           this.models = response.data.models;
         } else {
           const errorMsg = response.data.error || 'Unknown error';
@@ -603,7 +604,7 @@ export default {
     async toggleActivation(model) {
       try {
         // 先尝试API调用
-        const response = await axios.patch(`/api/models/${model.id}`, { active: !model.active });
+        const response = await api.patch(`/api/models/${model.id}`, { active: !model.active });
         if (response.data.success) {
           model.active = !model.active;
           const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
@@ -631,7 +632,7 @@ export default {
       
       try {
         // 尝试通过API设置主模型
-        const response = await axios.post('/api/models/set-primary', { model_id: model.id });
+          const response = await api.post('/api/models/set-primary', { model_id: model.id });
         
         if (response.data.success) {
           // 成功后更新所有模型的primary状态
@@ -678,7 +679,7 @@ export default {
         model.status = 'running';
         try {
           // 尝试API调用
-          await axios.post(`/api/models/${model.id}/start`);
+          await api.post(`/api/models/${model.id}/start`);
           // Notification is disabled in simplified UI
         } catch (error) {
           // API不可用，使用模拟成功结果
@@ -693,7 +694,7 @@ export default {
         model.status = 'stopped';
         try {
           // 尝试API调用
-          await axios.post(`/api/models/${model.id}/stop`);
+          await api.post(`/api/models/${model.id}/stop`);
           // Notification is disabled in simplified UI
         } catch (error) {
           // API不可用，使用模拟成功结果
@@ -709,7 +710,7 @@ export default {
       
       try {
         // 尝试API调用
-        await axios.post(`/api/models/${model.id}/restart`);
+          await api.post(`/api/models/${model.id}/restart`);
         setTimeout(() => {
           model.status = wasRunning ? 'running' : 'stopped';
           // Notification is disabled in simplified UI

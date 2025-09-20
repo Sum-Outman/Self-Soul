@@ -235,7 +235,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
 
 export default {
@@ -269,12 +269,11 @@ export default {
       if (!searchQuery.value.trim()) return;
 
       try {
-        const response = await axios.get('/api/knowledge/search', {
+        const response = await api.get('/api/knowledge/search', {
           params: {
             query: searchQuery.value,
             domain: searchDomain.value
-          },
-          timeout: 5000
+          }
         });
 
         if (response.data.success) {
@@ -325,7 +324,7 @@ export default {
     const loadKnowledgeStats = async () => {
       statsLoading.value = true;
       try {
-        const response = await axios.get('/api/knowledge/stats');
+        const response = await api.get('/api/knowledge/stats');
         if (response.data.success) {
           knowledgeStats.value = response.data;
         }
@@ -491,8 +490,7 @@ export default {
     const loadFiles = async () => {
       filesLoading.value = true;
       try {
-        const response = await axios.get('/api/knowledge/files', { 
-          timeout: 10000,
+        const response = await api.get('/api/knowledge/files', { 
           headers: {
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'

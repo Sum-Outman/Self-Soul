@@ -307,3 +307,7 @@ class DataFusion:
         except Exception as e:
             error_handler.handle_error(e, "DataFusion", "模态组融合失败 | Modality group fusion failed")
             return {"summary": "融合失败 | Fusion failed", "details": {}, "features": []}
+
+
+# 别名定义，兼容advanced_self_learning.py中的导入
+DataFusionEngine = DataFusion

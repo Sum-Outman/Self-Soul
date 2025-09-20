@@ -74,7 +74,7 @@ Args:
 Returns:
     返回值描述 (Return value description)
 """
-def __init__(self, model_registry, training_manager, coordinator):
+def __init__(self, model_registry=None, training_manager=None, coordinator=None):
         self.model_registry = model_registry
         self.training_manager = training_manager
         self.coordinator = coordinator

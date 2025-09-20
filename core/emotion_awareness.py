@@ -33,10 +33,10 @@ import matplotlib.pyplot as plt
 from core.error_handling import error_handler
 from core.data_processor import DataProcessor
 from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
-from core.value_alignment import ValueAlignmentSystem
-from core.advanced_reasoning import AdvancedReasoningSystem
-from core.agi_meta_learner import AGIMetaLearner
-from core.neural_architecture_optimizer import NeuralArchitectureOptimizer
+from core.value_alignment import ValueSystem as ValueAlignmentSystem
+from core.advanced_reasoning import AdvancedReasoningEngine as AdvancedReasoningSystem
+from core.meta_learning_system import MetaLearningSystem as AGIMetaLearner
+from core.optimization.model_optimizer import ModelOptimizer as NeuralArchitectureOptimizer
 from core.multimodal_processor import MultimodalProcessor
 from core.self_reflection_engine import SelfReflectionEngine
 from core.advanced_self_learning import AdvancedSelfLearningSystem

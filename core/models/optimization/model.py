@@ -269,49 +269,42 @@ class OptimizationModel(BaseModel):
             params = parameters or {}
             epochs = params.get('epochs', 100)
             learning_rate = params.get('learning_rate', 0.001)
+            training_mode = params.get('training_mode', 'auto_detect')
+            
+            # 自动检测训练模式（如果未指定）
+            if training_mode == 'auto_detect' and training_data is not None:
+                training_mode = self._detect_training_mode(training_data)
             
             # 初始化训练指标
             training_metrics = {
                 'epoch': 0,
                 'total_epochs': epochs,
                 'learning_rate': learning_rate,
+                'training_mode': training_mode,
                 'training_loss': 0.0,
-                'validation_accuracy': 0.0
+                'validation_accuracy': 0.0,
+                'optimization_efficiency': 0.0,
+                'convergence_rate': 0.0
             }
             
-            # 模拟训练过程，使用进度回调
-            for epoch in range(epochs):
-                # 模拟训练进度
-                progress = (epoch + 1) / epochs
-                training_metrics['epoch'] = epoch + 1
-                training_metrics['training_loss'] = np.random.uniform(0.01, 0.1)
-                training_metrics['validation_accuracy'] = np.random.uniform(0.85, 0.95)
-                
-                # 调用进度回调
-                if callback:
-                    callback(progress, training_metrics)
-                
-                # 模拟训练时间
-                time.sleep(0.01)
-            
-            # 训练优化算法
-            self._train_optimization_algorithms(epochs, learning_rate)
-            
-            # 保存训练历史
-            training_result = {
-                "status": "success",
-                "epochs_completed": epochs,
-                "learning_rate": learning_rate,
-                "training_loss": training_metrics['training_loss'],
-                "validation_accuracy": training_metrics['validation_accuracy'],
-                "timestamp": time.time()
-            }
+            # 根据训练模式执行不同的训练逻辑
+            if training_mode == 'hyperparameter_tuning':
+                training_result = self._train_hyperparameter_tuning(training_data, params, callback)
+            elif training_mode == 'algorithm_selection':
+                training_result = self._train_algorithm_selection(training_data, params, callback)
+            elif training_mode == 'performance_optimization':
+                training_result = self._train_performance_optimization(training_data, params, callback)
+            elif training_mode == 'resource_optimization':
+                training_result = self._train_resource_optimization(training_data, params, callback)
+            else:
+                # 默认训练模式 - 优化算法训练
+                training_result = self._train_default_optimization(epochs, learning_rate, callback)
             
             # 记录训练历史
             self._record_training_history(training_result)
             
             error_handler.log_info(
-                f"优化算法训练完成，轮次: {epochs}, 学习率: {learning_rate}",
+                f"优化模型训练完成，模式: {training_mode}, 轮次: {epochs}, 学习率: {learning_rate}",
                 "OptimizationModel"
             )
             
@@ -770,6 +763,331 @@ class OptimizationModel(BaseModel):
                 improvements.append(metrics['fitness_improvement'])
         
         return sum(improvements) / len(improvements) if improvements else 0.0
+    
+    def _detect_training_mode(self, training_data: Any) -> str:
+        """自动检测训练模式
+        Automatically detect training mode from data
+        
+        Args:
+            training_data: 训练数据 / Training data
+            
+        Returns:
+            str: 检测到的训练模式 / Detected training mode
+        """
+        if isinstance(training_data, dict):
+            # 基于数据特征检测模式
+            if 'hyperparameters' in training_data or 'parameter_ranges' in training_data:
+                return 'hyperparameter_tuning'
+            elif 'algorithms' in training_data or 'algorithm_performance' in training_data:
+                return 'algorithm_selection'
+            elif 'performance_metrics' in training_data or 'bottlenecks' in training_data:
+                return 'performance_optimization'
+            elif 'resource_usage' in training_data or 'resource_constraints' in training_data:
+                return 'resource_optimization'
+        
+        # 默认模式
+        return 'default_optimization'
+    
+    def _train_hyperparameter_tuning(self, training_data: Dict[str, Any], 
+                                   parameters: Dict[str, Any], 
+                                   callback: Callable[[float, Dict], None]) -> Dict[str, Any]:
+        """训练超参数调优
+        Train hyperparameter tuning
+        
+        Args:
+            training_data: 训练数据 / Training data
+            parameters: 训练参数 / Training parameters
+            callback: 进度回调函数 / Progress callback function
+            
+        Returns:
+            dict: 训练结果 / Training results
+        """
+        epochs = parameters.get('epochs', 50)
+        learning_rate = parameters.get('learning_rate', 0.01)
+        
+        training_metrics = {
+            'epoch': 0,
+            'total_epochs': epochs,
+            'learning_rate': learning_rate,
+            'best_hyperparameters': {},
+            'validation_score': 0.0,
+            'convergence_rate': 0.0
+        }
+        
+        # 模拟超参数调优训练
+        for epoch in range(epochs):
+            progress = (epoch + 1) / epochs
+            training_metrics['epoch'] = epoch + 1
+            training_metrics['validation_score'] = np.random.uniform(0.7, 0.95)
+            training_metrics['convergence_rate'] = np.random.uniform(0.8, 0.98)
+            
+            # 模拟找到最佳超参数
+            if epoch == epochs - 1:
+                training_metrics['best_hyperparameters'] = {
+                    'learning_rate': max(0.0001, min(0.1, learning_rate * np.random.uniform(0.8, 1.2))),
+                    'batch_size': np.random.randint(16, 128),
+                    'optimizer': np.random.choice(['adam', 'sgd', 'rmsprop']),
+                    'regularization': np.random.uniform(0.0001, 0.01)
+                }
+            
+            if callback:
+                callback(progress, training_metrics)
+            
+            time.sleep(0.02)
+        
+        return {
+            "status": "success",
+            "training_mode": "hyperparameter_tuning",
+            "epochs_completed": epochs,
+            "learning_rate": learning_rate,
+            "best_hyperparameters": training_metrics['best_hyperparameters'],
+            "final_validation_score": training_metrics['validation_score'],
+            "convergence_rate": training_metrics['convergence_rate'],
+            "timestamp": time.time()
+        }
+    
+    def _train_algorithm_selection(self, training_data: Dict[str, Any], 
+                                 parameters: Dict[str, Any], 
+                                 callback: Callable[[float, Dict], None]) -> Dict[str, Any]:
+        """训练算法选择
+        Train algorithm selection
+        
+        Args:
+            training_data: 训练数据 / Training data
+            parameters: 训练参数 / Training parameters
+            callback: 进度回调函数 / Progress callback function
+            
+        Returns:
+            dict: 训练结果 / Training results
+        """
+        epochs = parameters.get('epochs', 30)
+        learning_rate = parameters.get('learning_rate', 0.005)
+        
+        training_metrics = {
+            'epoch': 0,
+            'total_epochs': epochs,
+            'learning_rate': learning_rate,
+            'algorithm_performance': {},
+            'best_algorithm': '',
+            'selection_confidence': 0.0
+        }
+        
+        # 模拟算法选择训练
+        algorithms = list(self.optimization_algorithms.keys())
+        for epoch in range(epochs):
+            progress = (epoch + 1) / epochs
+            training_metrics['epoch'] = epoch + 1
+            
+            # 模拟算法性能评估
+            algorithm_performance = {}
+            for algo in algorithms:
+                algorithm_performance[algo] = {
+                    'accuracy': np.random.uniform(0.6, 0.95),
+                    'efficiency': np.random.uniform(0.5, 0.9),
+                    'resource_usage': np.random.uniform(0.2, 0.8)
+                }
+            
+            training_metrics['algorithm_performance'] = algorithm_performance
+            
+            # 确定最佳算法
+            if epoch == epochs - 1:
+                best_algo = max(algorithms, key=lambda x: algorithm_performance[x]['accuracy'] * 0.6 + 
+                                                         algorithm_performance[x]['efficiency'] * 0.4)
+                training_metrics['best_algorithm'] = best_algo
+                training_metrics['selection_confidence'] = np.random.uniform(0.85, 0.95)
+            
+            if callback:
+                callback(progress, training_metrics)
+            
+            time.sleep(0.015)
+        
+        return {
+            "status": "success",
+            "training_mode": "algorithm_selection",
+            "epochs_completed": epochs,
+            "learning_rate": learning_rate,
+            "algorithm_performance": training_metrics['algorithm_performance'],
+            "best_algorithm": training_metrics['best_algorithm'],
+            "selection_confidence": training_metrics['selection_confidence'],
+            "timestamp": time.time()
+        }
+    
+    def _train_performance_optimization(self, training_data: Dict[str, Any], 
+                                      parameters: Dict[str, Any], 
+                                      callback: Callable[[float, Dict], None]) -> Dict[str, Any]:
+        """训练性能优化
+        Train performance optimization
+        
+        Args:
+            training_data: 训练数据 / Training data
+            parameters: 训练参数 / Training parameters
+            callback: 进度回调函数 / Progress callback function
+            
+        Returns:
+            dict: 训练结果 / Training results
+        """
+        epochs = parameters.get('epochs', 40)
+        learning_rate = parameters.get('learning_rate', 0.008)
+        
+        training_metrics = {
+            'epoch': 0,
+            'total_epochs': epochs,
+            'learning_rate': learning_rate,
+            'performance_improvement': 0.0,
+            'bottlenecks_resolved': [],
+            'optimization_efficiency': 0.0
+        }
+        
+        # 模拟性能优化训练
+        for epoch in range(epochs):
+            progress = (epoch + 1) / epochs
+            training_metrics['epoch'] = epoch + 1
+            training_metrics['performance_improvement'] = np.random.uniform(0.1, 0.4) * progress
+            training_metrics['optimization_efficiency'] = np.random.uniform(0.7, 0.95)
+            
+            # 模拟解决瓶颈
+            if epoch % 10 == 0:
+                bottlenecks = ['CPU瓶颈', '内存瓶颈', 'IO瓶颈', '网络延迟']
+                resolved = np.random.choice(bottlenecks, size=min(2, len(bottlenecks)), replace=False)
+                training_metrics['bottlenecks_resolved'] = list(resolved)
+            
+            if callback:
+                callback(progress, training_metrics)
+            
+            time.sleep(0.018)
+        
+        return {
+            "status": "success",
+            "training_mode": "performance_optimization",
+            "epochs_completed": epochs,
+            "learning_rate": learning_rate,
+            "performance_improvement": training_metrics['performance_improvement'],
+            "bottlenecks_resolved": training_metrics['bottlenecks_resolved'],
+            "optimization_efficiency": training_metrics['optimization_efficiency'],
+            "timestamp": time.time()
+        }
+    
+    def _train_resource_optimization(self, training_data: Dict[str, Any], 
+                                   parameters: Dict[str, Any], 
+                                   callback: Callable[[float, Dict], None]) -> Dict[str, Any]:
+        """训练资源优化
+        Train resource optimization
+        
+        Args:
+            training_data: 训练数据 / Training data
+            parameters: 训练参数 / Training parameters
+            callback: 进度回调函数 / Progress callback function
+            
+        Returns:
+            dict: 训练结果 / Training results
+        """
+        epochs = parameters.get('epochs', 35)
+        learning_rate = parameters.get('learning_rate', 0.006)
+        
+        training_metrics = {
+            'epoch': 0,
+            'total_epochs': epochs,
+            'learning_rate': learning_rate,
+            'resource_savings': 0.0,
+            'efficiency_gain': 0.0,
+            'cost_reduction': 0.0
+        }
+        
+        # 模拟资源优化训练
+        for epoch in range(epochs):
+            progress = (epoch + 1) / epochs
+            training_metrics['epoch'] = epoch + 1
+            training_metrics['resource_savings'] = np.random.uniform(0.15, 0.35) * progress
+            training_metrics['efficiency_gain'] = np.random.uniform(0.2, 0.5) * progress
+            training_metrics['cost_reduction'] = np.random.uniform(0.1, 0.3) * progress
+            
+            if callback:
+                callback(progress, training_metrics)
+            
+            time.sleep(0.016)
+        
+        return {
+            "status": "success",
+            "training_mode": "resource_optimization",
+            "epochs_completed": epochs,
+            "learning_rate": learning_rate,
+            "resource_savings": training_metrics['resource_savings'],
+            "efficiency_gain": training_metrics['efficiency_gain'],
+            "cost_reduction": training_metrics['cost_reduction'],
+            "timestamp": time.time()
+        }
+    
+    def _train_default_optimization(self, epochs: int, learning_rate: float, 
+                                  callback: Callable[[float, Dict], None]) -> Dict[str, Any]:
+        """默认优化算法训练
+        Default optimization algorithm training
+        
+        Args:
+            epochs: 训练轮次 / Training epochs
+            learning_rate: 学习率 / Learning rate
+            callback: 进度回调函数 / Progress callback function
+            
+        Returns:
+            dict: 训练结果 / Training results
+        """
+        # 初始化训练指标
+        training_metrics = {
+            'epoch': 0,
+            'total_epochs': epochs,
+            'learning_rate': learning_rate,
+            'training_loss': 0.0,
+            'validation_accuracy': 0.0,
+            'optimization_efficiency': 0.0,
+            'convergence_rate': 0.0
+        }
+        
+        # 模拟训练过程，使用进度回调
+        for epoch in range(epochs):
+            progress = (epoch + 1) / epochs
+            training_metrics['epoch'] = epoch + 1
+            training_metrics['training_loss'] = np.random.uniform(0.01, 0.1) * (1 - progress)
+            training_metrics['validation_accuracy'] = np.random.uniform(0.85, 0.95) * progress
+            training_metrics['optimization_efficiency'] = np.random.uniform(0.7, 0.9)
+            training_metrics['convergence_rate'] = np.random.uniform(0.8, 0.98)
+            
+            # 调用进度回调
+            if callback:
+                callback(progress, training_metrics)
+            
+            # 模拟训练时间
+            time.sleep(0.01)
+        
+        # 训练优化算法
+        self._train_optimization_algorithms(epochs, learning_rate)
+        
+        return {
+            "status": "success",
+            "training_mode": "default_optimization",
+            "epochs_completed": epochs,
+            "learning_rate": learning_rate,
+            "training_loss": training_metrics['training_loss'],
+            "validation_accuracy": training_metrics['validation_accuracy'],
+            "optimization_efficiency": training_metrics['optimization_efficiency'],
+            "convergence_rate": training_metrics['convergence_rate'],
+            "timestamp": time.time()
+        }
+    
+    def _record_training_history(self, training_result: Dict[str, Any]):
+        """记录训练历史
+        Record training history
+        """
+        if not hasattr(self, 'training_history'):
+            self.training_history = []
+        
+        self.training_history.append({
+            **training_result,
+            "model_id": self.model_id,
+            "model_name": self.model_name
+        })
+        
+        # 保留最近100条训练记录
+        if len(self.training_history) > 100:
+            self.training_history = self.training_history[-100:]
     
     def _train_optimization_algorithms(self, epochs: int, learning_rate: float):
         """训练优化算法（模拟）

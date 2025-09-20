@@ -33,7 +33,7 @@ from typing import Dict, List, Any, Optional, Callable
 from .error_handling import error_handler
 from .model_registry import ModelRegistry
 from .meta_learning_system import MetaLearningSystem
-from .knowledge_integrator import KnowledgeIntegrator
+from .knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIntegrator
 from .autonomous_learning_manager import AutonomousLearningManager
 from .self_reflection_module import SelfReflectionModule
 from .adaptive_learning_engine import AdaptiveLearningEngine
@@ -3275,6 +3275,42 @@ class TrainingManager:
                     comparison['worst_performing'] = analysis['job_id']
         
         return comparison
+
+    def _initialize_model_interaction_matrix(self, model_ids):
+        """初始化模型交互矩阵 | Initialize model interaction matrix
+        
+        Args:
+            model_ids: 模型ID列表 | List of model IDs
+            
+        Returns:
+            模型交互矩阵，表示不同模型之间的交互关系 | Model interaction matrix representing relationships between models
+        """
+        try:
+            num_models = len(model_ids)
+            if num_models == 0:
+                return {}
+                
+            # 创建初始交互矩阵 | Create initial interaction matrix
+            # 使用字典嵌套字典的形式，表示模型之间的交互权重 | Using nested dictionaries to represent interaction weights between models
+            interaction_matrix = {}
+            
+            # 初始化全连接矩阵，所有模型之间都有基础交互权重 | Initialize fully connected matrix with base interaction weights between all models
+            for i, model_id in enumerate(model_ids):
+                interaction_matrix[model_id] = {}
+                for j, target_model_id in enumerate(model_ids):
+                    # 对角线元素（模型与自身的交互）设置为较高值 | Set diagonal elements (model self-interaction) to higher values
+                    if i == j:
+                        interaction_matrix[model_id][target_model_id] = 1.0
+                    else:
+                        # 非对角线元素初始化为随机小值，表示初始弱连接 | Initialize non-diagonal elements with random small values representing initial weak connections
+                        interaction_matrix[model_id][target_model_id] = random.uniform(0.1, 0.3)
+            
+            logger.info(f"已初始化包含 {num_models} 个模型的交互矩阵 | Initialized interaction matrix with {num_models} models")
+            return interaction_matrix
+        except Exception as e:
+            error_handler.handle_error(e, "TrainingManager", "初始化模型交互矩阵失败")
+            # 发生错误时返回空矩阵 | Return empty matrix in case of error
+            return {}
 
     def _update_agi_dashboard_metrics(self):
         """更新AGI仪表盘指标 | Update AGI dashboard metrics"""

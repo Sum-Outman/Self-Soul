@@ -354,7 +354,7 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
 import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters } from '@/utils/modelIdMapper';
 import TerminalWindow from '@/components/TerminalWindow.vue';
@@ -989,9 +989,7 @@ export default {
       
       statusPollingInterval.value = setInterval(async () => {
         try {
-          const response = await axios.get(`/api/training/status/${jobId}`, { 
-            timeout: 10000 // 10秒超时
-          });
+          const response = await api.get(`/api/training/status/${jobId}`);
           
           const status = response.data;
           

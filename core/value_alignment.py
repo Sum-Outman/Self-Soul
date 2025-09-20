@@ -19,10 +19,10 @@ import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from transformers import BertTokenizer, BertModel, AutoModelForSequenceClassification
 from sklearn.metrics.pairwise import cosine_similarity
+import re
 from core.error_handling import error_handler
-# Remove unimplemented dependencies, internalize AGI functionality
+# 移除对外部预训练模型的依赖，使用完全从零开始训练的自定义模型
 
 class ValueSystem:
     """AGI Value System - Universal value alignment system with dynamic evolution capability"""
@@ -33,30 +33,36 @@ class ValueSystem:
         self.value_violations = defaultdict(int)
         self.value_fulfillments = defaultdict(int)
         
-        # Try to load BERT model with fallback
-        try:
-            self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-            self.bert_model = BertModel.from_pretrained('bert-base-uncased')
-            error_handler.log_info("成功加载BERT模型", "ValueSystem")
-        except Exception as e:
-            error_handler.log_warning(f"无法加载BERT模型，使用简化版本: {str(e)}", "ValueSystem")
-            # 创建一个简单的替代实现
-            class SimpleTokenizer:
-                def __call__(self, text, **kwargs):
-                    return {'input_ids': [hash(w) % 1000 for w in text.lower().split()],
-                            'attention_mask': [1] * len(text.split())}
-                
-            class SimpleBertModel:
-                def __call__(self, input_ids, attention_mask=None, **kwargs):
-                    batch_size = len(input_ids)
-                    seq_len = len(input_ids[0]) if batch_size > 0 else 0
-                    # 返回一个简单的嵌入输出
-                    return type('BertOutput', (), {
-                        'last_hidden_state': torch.randn(batch_size, seq_len, 768)
-                    })
-            
-            self.tokenizer = SimpleTokenizer()
-            self.bert_model = SimpleBertModel()
+        # 初始化自定义Tokenizer和文本编码器，完全从零开始训练
+        self.tokenizer = self._create_custom_tokenizer()
+        self.text_encoder = self._create_custom_text_encoder()
+        
+        # 初始化词汇表和嵌入层
+        self.vocabulary = self._build_vocabulary()
+        self.word_embeddings = nn.Embedding(len(self.vocabulary), 128)
+        
+        # 禁用梯度计算，在启用训练模式时再开启
+        self.training_mode = False
+        for param in self.text_encoder.parameters():
+            param.requires_grad = False
+        for param in self.word_embeddings.parameters():
+            param.requires_grad = False
+        
+        self.encoder_output_dim = 768  # 保持与之前BERT输出维度一致
+        
+        # 初始化优化器和损失函数（用于价值系统训练）
+        self.optimizer = optim.Adam(
+            list(self.text_encoder.parameters()) + 
+            list(self.word_embeddings.parameters()),
+            lr=0.001
+        )
+        self.criterion = nn.MSELoss()
+        
+        # 训练相关的参数
+        self.current_epoch = 0
+        self.best_loss = float('inf')
+        self.patience = 5  # 早停耐心值
+        self.epochs_without_improvement = 0
         
         self.learning_rate = 0.1  # Base learning rate
         self.value_embeddings = self._initialize_value_embeddings()
@@ -217,7 +223,7 @@ class ValueSystem:
                 error_handler.log_warning("Unable to determine core_values length, using default output dimension", "ValueSystem")
             
             network_config = {
-                'input_dim': 768,  # BERT embedding dimension
+                'input_dim': self.encoder_output_dim,  # 使用自定义编码器的输出维度
                 'hidden_dims': [512, 256, 128],
                 'output_dim': output_dim,
                 'activation': 'relu',
@@ -356,15 +362,110 @@ class ValueSystem:
         return (semantic_score * 0.6 + agi_score * 0.4)
     
     def _get_embedding(self, text):
-        """Get text embedding using BERT"""
+        """使用自定义编码器获取文本嵌入"""
         try:
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-            with torch.no_grad():
-                outputs = self.bert_model(**inputs)
-            return outputs.last_hidden_state.mean(dim=1).squeeze().numpy()
+            # 获取token IDs
+            inputs = self.tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding=True)
+            input_ids = inputs['input_ids']
+            
+            # 转换为词嵌入
+            embeddings = self.word_embeddings(input_ids)
+            
+            # 使用自定义编码器
+            if self.training_mode:
+                outputs = self.text_encoder(embeddings)
+            else:
+                with torch.no_grad():
+                    outputs = self.text_encoder(embeddings)
+            
+            # 返回平均嵌入向量
+            return outputs.last_hidden_state.squeeze().detach().numpy()
         except Exception as e:
-            error_handler.handle_error(e, "ValueSystem", "BERT embedding generation failed")
-            return np.zeros(768)  # Return zero vector as fallback
+            error_handler.log_error(f"文本嵌入生成失败: {str(e)}", "ValueSystem")
+            return np.zeros(self.encoder_output_dim)  # 返回零向量作为降级方案
+        
+    def enable_training(self):
+        """启用训练模式"""
+        self.training_mode = True
+        for param in self.text_encoder.parameters():
+            param.requires_grad = True
+        for param in self.word_embeddings.parameters():
+            param.requires_grad = True
+        self.text_encoder.train()
+        error_handler.log_info("价值系统训练模式已启用", "ValueSystem")
+        
+    def disable_training(self):
+        """禁用训练模式"""
+        self.training_mode = False
+        for param in self.text_encoder.parameters():
+            param.requires_grad = False
+        for param in self.word_embeddings.parameters():
+            param.requires_grad = False
+        self.text_encoder.eval()
+        error_handler.log_info("价值系统训练模式已禁用", "ValueSystem")
+        
+    def train_step(self, text, target_embedding):
+        """执行一步训练"""
+        if not self.training_mode:
+            raise RuntimeError("必须先启用训练模式才能进行训练")
+            
+        try:
+            # 前向传播
+            inputs = self.tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding=True)
+            input_ids = inputs['input_ids']
+            
+            embeddings = self.word_embeddings(input_ids)
+            outputs = self.text_encoder(embeddings)
+            predicted_embedding = outputs.last_hidden_state.squeeze()
+            
+            # 计算损失
+            target_tensor = torch.tensor(target_embedding).float()
+            loss = self.criterion(predicted_embedding, target_tensor)
+            
+            # 反向传播和优化
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            
+            return loss.item()
+        except Exception as e:
+            error_handler.log_error(f"训练步骤失败: {str(e)}", "ValueSystem")
+            return float('inf')
+            
+    def save_model(self, filepath):
+        """保存模型权重"""
+        try:
+            torch.save({
+                'text_encoder_state_dict': self.text_encoder.state_dict(),
+                'word_embeddings_state_dict': self.word_embeddings.state_dict(),
+                'optimizer_state_dict': self.optimizer.state_dict(),
+                'vocabulary': self.vocabulary,
+                'current_epoch': self.current_epoch,
+                'best_loss': self.best_loss,
+                'encoder_output_dim': self.encoder_output_dim
+            }, filepath)
+            error_handler.log_info(f"模型已保存至: {filepath}", "ValueSystem")
+        except Exception as e:
+            error_handler.log_error(f"保存模型失败: {str(e)}", "ValueSystem")
+            
+    def load_model(self, filepath):
+        """加载模型权重"""
+        try:
+            checkpoint = torch.load(filepath)
+            self.text_encoder.load_state_dict(checkpoint['text_encoder_state_dict'])
+            self.word_embeddings.load_state_dict(checkpoint['word_embeddings_state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            self.vocabulary = checkpoint['vocabulary']
+            self.tokenizer.vocabulary = self.vocabulary
+            self.current_epoch = checkpoint.get('current_epoch', 0)
+            self.best_loss = checkpoint.get('best_loss', float('inf'))
+            
+            if 'encoder_output_dim' in checkpoint:
+                self.encoder_output_dim = checkpoint['encoder_output_dim']
+                
+            error_handler.log_info(f"模型已从: {filepath}加载", "ValueSystem")
+        except Exception as e:
+            error_handler.log_error(f"加载模型失败: {str(e)}", "ValueSystem")
     
     def _semantic_similarity(self, text1, text2):
         """Calculate semantic similarity between two texts"""

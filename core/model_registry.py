@@ -119,7 +119,7 @@ class ModelRegistry:
             'language': 'core.models.language.model.LanguageModel',        # B大语言模型
             'audio': 'core.models.audio.model.AudioProcessingModel',       # C音频处理模型
             'vision_image': 'core.models.vision.merged_model.UnifiedVisionModel',  # D图片视觉处理模型（已合并）
-            'vision_video': 'core.models.vision.video_model.VideoVisionModel',  # E视频流视觉处理模型
+            'vision_video': 'core.models.video.VideoVisionModel',  # E视频流视觉处理模型
             'spatial': 'core.models.spatial.merged_model.SpatialPerceptionModel',           # F双目空间定位感知模型（已合并）
             'sensor': 'core.models.sensor.model.SensorPerceptionModel',    # G传感器感知模型
             'computer': 'core.models.computer.model.ComputerModel',        # H计算机控制模型

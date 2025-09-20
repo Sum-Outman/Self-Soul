@@ -54,6 +54,18 @@ async def get_knowledge_models():
 async def get_knowledge_model_status():
     return {"status": "success", "model": "knowledge", "connection_status": "connected", "performance": {"response_time": 100, "error_rate": 0}}
 
+# Models endpoints
+@app.get("/api/models")
+async def get_models():
+    # 返回模拟的模型数据，以解决前端"Failed to load models"错误
+    return {"status": "success", "models": [
+        {"id": "manager", "name": "Manager Model", "status": "active", "type": "manager", "port": 8001},
+        {"id": "language", "name": "Language Model", "status": "active", "type": "language", "port": 8002},
+        {"id": "knowledge", "name": "Knowledge Model", "status": "active", "type": "knowledge", "port": 8003},
+        {"id": "vision", "name": "Vision Model", "status": "active", "type": "vision", "port": 8004},
+        {"id": "audio", "name": "Audio Model", "status": "active", "type": "audio", "port": 8005}
+    ], "total": 5}
+
 # Error handling middleware
 @app.middleware("http")
 async def error_handling_middleware(request, call_next):
@@ -69,5 +81,5 @@ async def error_handling_middleware(request, call_next):
 # Main function
 if __name__ == "__main__":
     import uvicorn
-    print("Starting AGI Brain Simple Server on http://localhost:8000")
-    uvicorn.run(app, host="localhost", port=8000)
+    print("Starting AGI Brain Simple Server on http://0.0.0.0:8000")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -832,6 +832,14 @@ class PlanningModel:
     def train(self, training_data=None, parameters=None, callback=None):
         """训练规划模型
         Train planning model
+        
+        Args:
+            training_data: 训练数据，可以是执行历史、规划场景或学习数据
+            parameters: 训练参数，如学习率、迭代次数、训练模式等
+            callback: 进度回调函数，接收进度(0.0-1.0)和训练状态
+            
+        Returns:
+            dict: 训练结果，包含指标和训练历史
         """
         try:
             error_handler.log_info("开始训练规划模型", "PlanningModel")
@@ -842,10 +850,17 @@ class PlanningModel:
                 'iterations': 10,
                 'learning_rate': 0.1,
                 'enable_learning': True,
-                'optimize_strategy': True
+                'optimize_strategy': True,
+                'training_mode': 'auto'  # auto, execution_history, strategy_optimization, simulation, adaptive
             }
             if parameters:
                 params.update(parameters)
+            
+            # 自动检测训练模式
+            # Auto detect training mode
+            if params['training_mode'] == 'auto':
+                params['training_mode'] = self._detect_training_mode(training_data)
+                error_handler.log_info(f"自动检测到训练模式: {params['training_mode']}", "PlanningModel")
             
             # 确保启用自主学习
             # Ensure autonomous learning is enabled
@@ -858,20 +873,17 @@ class PlanningModel:
                 'success_patterns_learned': 0,
                 'failure_patterns_learned': 0,
                 'strategy_optimizations': 0,
+                'planning_efficiency': 0.0,
+                'adaptation_effectiveness': 0.0,
+                'simulation_accuracy': 0.0,
                 'start_time': time.time(),
-                'progress': 0.0
+                'progress': 0.0,
+                'training_mode': params['training_mode']
             }
             
-            # 处理训练数据
-            # Process training data
-            if training_data and isinstance(training_data, list):
-                # 使用提供的训练数据
-                # Use provided training data
-                execution_data_list = training_data
-            else:
-                # 使用现有的执行历史作为训练数据
-                # Use existing execution history as training data
-                execution_data_list = list(self.execution_tracking.values())
+            # 根据训练模式处理训练数据
+            # Process training data based on training mode
+            processed_data = self._prepare_training_data(training_data, params['training_mode'])
             
             # 训练循环
             # Training loop
@@ -884,29 +896,20 @@ class PlanningModel:
                     callback(iteration_progress, {
                         'iteration': iteration + 1,
                         'total_iterations': params['iterations'],
-                        'status': 'training'
+                        'status': 'training',
+                        'mode': params['training_mode'],
+                        'metrics': training_metrics
                     })
                 
-                # 从执行数据中学习
-                # Learn from execution data
-                for execution_data in execution_data_list:
-                    if execution_data:
-                        # 为每个执行创建模拟计划ID
-                        # Create simulated plan ID for each execution
-                        plan_id = f"train_{int(time.time())}_{iteration}"
-                        learn_result = self.learn_from_execution(plan_id, execution_data)
-                        
-                        if learn_result.get('status') == 'success':
-                            training_metrics['success_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('success_patterns', []))
-                            training_metrics['failure_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+                # 根据训练模式执行训练
+                # Execute training based on training mode
+                iteration_metrics = self._execute_training_iteration(
+                    processed_data, params, iteration, training_metrics
+                )
                 
-                # 优化规划策略
-                # Optimize planning strategy
-                if params['optimize_strategy']:
-                    optimize_result = self.optimize_planning_strategy()
-                    if optimize_result.get('status') == 'success':
-                        training_metrics['strategy_optimizations'] += 1
-                
+                # 更新训练指标
+                # Update training metrics
+                training_metrics.update(iteration_metrics)
                 training_metrics['completed_iterations'] = iteration + 1
                 training_metrics['progress'] = (iteration + 1) / params['iterations']
                 
@@ -920,15 +923,24 @@ class PlanningModel:
             training_metrics['total_time'] = training_metrics['end_time'] - training_metrics['start_time']
             training_metrics['status'] = 'completed'
             
+            # 计算最终指标
+            # Calculate final metrics
+            training_metrics = self._calculate_final_metrics(training_metrics)
+            
             # 最终进度回调
             # Final progress callback
             if callback:
                 callback(1.0, {
                     'status': 'completed',
-                    'metrics': training_metrics
+                    'metrics': training_metrics,
+                    'training_mode': params['training_mode']
                 })
             
-            error_handler.log_info(f"规划模型训练完成，共进行 {params['iterations']} 次迭代", "PlanningModel")
+            error_handler.log_info(
+                f"规划模型训练完成，模式: {params['training_mode']}, 迭代: {params['iterations']}次, "
+                f"成功率: {training_metrics.get('success_rate', 0):.2%}", 
+                "PlanningModel"
+            )
             
             # 保存训练历史
             # Save training history
@@ -938,7 +950,8 @@ class PlanningModel:
                 'metrics': training_metrics,
                 'learning_data_summary': {
                     'success_patterns': len(getattr(self, 'learning_data', {}).get('success_patterns', [])),
-                    'failure_patterns': len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+                    'failure_patterns': len(getattr(self, 'learning_data', {}).get('failure_patterns', [])),
+                    'strategy_changes': training_metrics.get('strategy_optimizations', 0)
                 }
             }
             
@@ -964,11 +977,254 @@ class PlanningModel:
             return {
                 "status": "success",
                 "metrics": training_metrics,
-                "training_history": training_history
+                "training_history": training_history,
+                "training_mode": params['training_mode']
             }
             
         except Exception as e:
             error_handler.handle_error(e, "PlanningModel", "训练规划模型失败")
             if callback:
-                callback(0.0, {'status': 'failed', 'error': str(e)})
+                callback(0.0, {
+                    'status': 'failed', 
+                    'error': str(e),
+                    'training_mode': params.get('training_mode', 'unknown')
+                })
             return {"status": "failed", "error": str(e)}
+
+    def _detect_training_mode(self, training_data):
+        """自动检测训练模式
+        Auto detect training mode
+        """
+        if not training_data:
+            # 没有提供训练数据，使用执行历史模式
+            # No training data provided, use execution history mode
+            return "execution_history"
+        
+        if isinstance(training_data, list):
+            # 检查数据类型
+            # Check data type
+            if len(training_data) > 0:
+                first_item = training_data[0]
+                if isinstance(first_item, dict):
+                    # 执行历史数据
+                    # Execution history data
+                    if any('status' in item for item in first_item.values()):
+                        return "execution_history"
+                    # 规划场景数据
+                    # Planning scenario data
+                    elif any('steps' in item for item in first_item.values()):
+                        return "simulation"
+        
+        # 默认使用执行历史模式
+        # Default to execution history mode
+        return "execution_history"
+
+    def _prepare_training_data(self, training_data, training_mode):
+        """根据训练模式准备训练数据
+        Prepare training data based on training mode
+        """
+        if training_mode == "execution_history":
+            if training_data and isinstance(training_data, list):
+                return training_data
+            else:
+                # 使用现有的执行历史作为训练数据
+                # Use existing execution history as training data
+                return list(self.execution_tracking.values())
+        
+        elif training_mode == "strategy_optimization":
+            # 策略优化模式使用学习数据
+            # Strategy optimization mode uses learning data
+            if hasattr(self, 'learning_data'):
+                return self.learning_data
+            else:
+                return {}
+        
+        elif training_mode == "simulation":
+            # 模拟训练模式使用提供的模拟数据或生成默认数据
+            # Simulation training mode uses provided simulation data or generates default data
+            if training_data and isinstance(training_data, list):
+                return training_data
+            else:
+                # 生成默认模拟数据
+                # Generate default simulation data
+                return self._generate_simulation_data()
+        
+        elif training_mode == "adaptive":
+            # 自适应规划模式结合执行历史和学习数据
+            # Adaptive planning mode combines execution history and learning data
+            adaptive_data = {
+                'execution_history': list(self.execution_tracking.values()),
+                'learning_data': getattr(self, 'learning_data', {})
+            }
+            return adaptive_data
+        
+        else:
+            # 默认返回执行历史数据
+            # Default to execution history data
+            return list(self.execution_tracking.values())
+
+    def _execute_training_iteration(self, processed_data, params, iteration, training_metrics):
+        """执行训练迭代
+        Execute training iteration
+        """
+        iteration_metrics = {
+            'success_patterns_learned': 0,
+            'failure_patterns_learned': 0,
+            'strategy_optimizations': 0
+        }
+        
+        training_mode = params['training_mode']
+        
+        if training_mode == "execution_history":
+            # 从执行历史中学习
+            # Learn from execution history
+            for execution_data in processed_data:
+                if execution_data:
+                    plan_id = f"train_{int(time.time())}_{iteration}"
+                    learn_result = self.learn_from_execution(plan_id, execution_data)
+                    
+                    if learn_result.get('status') == 'success':
+                        iteration_metrics['success_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('success_patterns', []))
+                        iteration_metrics['failure_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+        
+        elif training_mode == "strategy_optimization":
+            # 优化规划策略
+            # Optimize planning strategy
+            if params['optimize_strategy']:
+                optimize_result = self.optimize_planning_strategy()
+                if optimize_result.get('status') == 'success':
+                    iteration_metrics['strategy_optimizations'] += 1
+        
+        elif training_mode == "simulation":
+            # 模拟训练：从模拟数据中学习
+            # Simulation training: learn from simulation data
+            for simulation_data in processed_data:
+                if simulation_data and 'steps' in simulation_data:
+                    # 模拟执行并学习
+                    # Simulate execution and learn
+                    plan_id = f"sim_{int(time.time())}_{iteration}"
+                    execution_results = {}
+                    
+                    for step in simulation_data.get('steps', []):
+                        # 模拟步骤执行
+                        # Simulate step execution
+                        execution_status = self._simulate_step_execution(step, None)
+                        execution_results[step.get('id', f'step_{len(execution_results)}')] = execution_status
+                    
+                    # 从模拟执行中学习
+                    # Learn from simulation execution
+                    learn_result = self.learn_from_execution(plan_id, execution_results)
+                    if learn_result.get('status') == 'success':
+                        iteration_metrics['success_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('success_patterns', []))
+                        iteration_metrics['failure_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+        
+        elif training_mode == "adaptive":
+            # 自适应训练：结合多种数据源
+            # Adaptive training: combine multiple data sources
+            execution_data = processed_data.get('execution_history', [])
+            learning_data = processed_data.get('learning_data', {})
+            
+            # 从执行历史中学习
+            # Learn from execution history
+            for exec_data in execution_data:
+                if exec_data:
+                    plan_id = f"adapt_{int(time.time())}_{iteration}"
+                    learn_result = self.learn_from_execution(plan_id, exec_data)
+                    
+                    if learn_result.get('status') == 'success':
+                        iteration_metrics['success_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('success_patterns', []))
+                        iteration_metrics['failure_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+            
+            # 优化策略
+            # Optimize strategy
+            if params['optimize_strategy']:
+                optimize_result = self.optimize_planning_strategy()
+                if optimize_result.get('status') == 'success':
+                    iteration_metrics['strategy_optimizations'] += 1
+        
+        # 更新总指标
+        # Update total metrics
+        training_metrics['success_patterns_learned'] += iteration_metrics['success_patterns_learned']
+        training_metrics['failure_patterns_learned'] += iteration_metrics['failure_patterns_learned']
+        training_metrics['strategy_optimizations'] += iteration_metrics['strategy_optimizations']
+        
+        return iteration_metrics
+
+    def _calculate_final_metrics(self, training_metrics):
+        """计算最终训练指标
+        Calculate final training metrics
+        """
+        total_patterns = training_metrics['success_patterns_learned'] + training_metrics['failure_patterns_learned']
+        
+        if total_patterns > 0:
+            training_metrics['success_rate'] = training_metrics['success_patterns_learned'] / total_patterns
+        else:
+            training_metrics['success_rate'] = 0.0
+        
+        # 计算规划效率（基于策略优化次数）
+        # Calculate planning efficiency (based on strategy optimizations)
+        if training_metrics['completed_iterations'] > 0:
+            training_metrics['planning_efficiency'] = min(
+                training_metrics['strategy_optimizations'] / training_metrics['completed_iterations'], 
+                1.0
+            )
+        
+        # 计算自适应有效性（基于学习模式）
+        # Calculate adaptation effectiveness (based on learning patterns)
+        if training_metrics['training_mode'] == 'adaptive':
+            total_learned = training_metrics['success_patterns_learned'] + training_metrics['failure_patterns_learned']
+            if total_learned > 0:
+                training_metrics['adaptation_effectiveness'] = min(
+                    training_metrics['success_patterns_learned'] / total_learned,
+                    1.0
+                )
+        
+        # 计算模拟准确性（基于模拟模式）
+        # Calculate simulation accuracy (based on simulation mode)
+        if training_metrics['training_mode'] == 'simulation':
+            total_simulated = training_metrics['success_patterns_learned'] + training_metrics['failure_patterns_learned']
+            if total_simulated > 0:
+                training_metrics['simulation_accuracy'] = training_metrics['success_patterns_learned'] / total_simulated
+        
+        return training_metrics
+
+    def _generate_simulation_data(self):
+        """生成模拟训练数据
+        Generate simulation training data
+        """
+        simulation_data = []
+        
+        # 生成一些基本的规划场景
+        # Generate some basic planning scenarios
+        scenarios = [
+            {
+                'name': '数据分析任务',
+                'steps': [
+                    {'id': 'step1', 'action': 'collect_data', 'description': '收集数据'},
+                    {'id': 'step2', 'action': 'process_data', 'description': '处理数据'},
+                    {'id': 'step3', 'action': 'analyze_data', 'description': '分析数据'},
+                    {'id': 'step4', 'action': 'generate_report', 'description': '生成报告'}
+                ]
+            },
+            {
+                'name': '系统优化任务',
+                'steps': [
+                    {'id': 'step1', 'action': 'assess_performance', 'description': '评估性能'},
+                    {'id': 'step2', 'action': 'identify_bottlenecks', 'description': '识别瓶颈'},
+                    {'id': 'step3', 'action': 'implement_optimizations', 'description': '实施优化'},
+                    {'id': 'step4', 'action': 'verify_improvements', 'description': '验证改进'}
+                ]
+            },
+            {
+                'name': '复杂决策任务',
+                'steps': [
+                    {'id': 'step1', 'action': 'gather_information', 'description': '收集信息'},
+                    {'id': 'step2', 'action': 'analyze_options', 'description': '分析选项'},
+                    {'id': 'step3', 'action': 'make_decision', 'description': '做出决策'},
+                    {'id': 'step4', 'action': 'implement_decision', 'description': '实施决策'},
+                    {'id': 'step5', 'action': 'evaluate_results', 'description': '评估结果'}
+                ]
+            }
+        ]
+        
+        return scenarios

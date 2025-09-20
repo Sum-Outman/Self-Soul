@@ -9,6 +9,7 @@ venv/
 ENV/
 env/
 agi_env_311/
+agi_env/
 .env
 .env.local
 .env.development.local

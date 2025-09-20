@@ -816,3 +816,159 @@ class PlanningModel:
             "learning_patterns_count": len(getattr(self, 'learning_data', {}).get('success_patterns', [])) + 
                                       len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
         }
+
+    """
+    train函数 - 中文函数描述
+    train Function - English function description
+
+    Args:
+        training_data: 训练数据，可以是执行历史、规划场景或学习数据
+        parameters: 训练参数，如学习率、迭代次数等
+        callback: 进度回调函数，接收进度(0.0-1.0)和训练状态
+        
+    Returns:
+        dict: 训练结果，包含指标和训练历史
+    """
+    def train(self, training_data=None, parameters=None, callback=None):
+        """训练规划模型
+        Train planning model
+        """
+        try:
+            error_handler.log_info("开始训练规划模型", "PlanningModel")
+            
+            # 默认参数
+            # Default parameters
+            params = {
+                'iterations': 10,
+                'learning_rate': 0.1,
+                'enable_learning': True,
+                'optimize_strategy': True
+            }
+            if parameters:
+                params.update(parameters)
+            
+            # 确保启用自主学习
+            # Ensure autonomous learning is enabled
+            if params['enable_learning']:
+                self.enable_autonomous_learning(True)
+            
+            training_metrics = {
+                'total_iterations': params['iterations'],
+                'completed_iterations': 0,
+                'success_patterns_learned': 0,
+                'failure_patterns_learned': 0,
+                'strategy_optimizations': 0,
+                'start_time': time.time(),
+                'progress': 0.0
+            }
+            
+            # 处理训练数据
+            # Process training data
+            if training_data and isinstance(training_data, list):
+                # 使用提供的训练数据
+                # Use provided training data
+                execution_data_list = training_data
+            else:
+                # 使用现有的执行历史作为训练数据
+                # Use existing execution history as training data
+                execution_data_list = list(self.execution_tracking.values())
+            
+            # 训练循环
+            # Training loop
+            for iteration in range(params['iterations']):
+                iteration_progress = iteration / params['iterations']
+                
+                # 更新进度回调
+                # Update progress callback
+                if callback:
+                    callback(iteration_progress, {
+                        'iteration': iteration + 1,
+                        'total_iterations': params['iterations'],
+                        'status': 'training'
+                    })
+                
+                # 从执行数据中学习
+                # Learn from execution data
+                for execution_data in execution_data_list:
+                    if execution_data:
+                        # 为每个执行创建模拟计划ID
+                        # Create simulated plan ID for each execution
+                        plan_id = f"train_{int(time.time())}_{iteration}"
+                        learn_result = self.learn_from_execution(plan_id, execution_data)
+                        
+                        if learn_result.get('status') == 'success':
+                            training_metrics['success_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('success_patterns', []))
+                            training_metrics['failure_patterns_learned'] += len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+                
+                # 优化规划策略
+                # Optimize planning strategy
+                if params['optimize_strategy']:
+                    optimize_result = self.optimize_planning_strategy()
+                    if optimize_result.get('status') == 'success':
+                        training_metrics['strategy_optimizations'] += 1
+                
+                training_metrics['completed_iterations'] = iteration + 1
+                training_metrics['progress'] = (iteration + 1) / params['iterations']
+                
+                # 短暂延迟以模拟训练过程
+                # Brief delay to simulate training process
+                time.sleep(0.1)
+            
+            # 训练完成
+            # Training completed
+            training_metrics['end_time'] = time.time()
+            training_metrics['total_time'] = training_metrics['end_time'] - training_metrics['start_time']
+            training_metrics['status'] = 'completed'
+            
+            # 最终进度回调
+            # Final progress callback
+            if callback:
+                callback(1.0, {
+                    'status': 'completed',
+                    'metrics': training_metrics
+                })
+            
+            error_handler.log_info(f"规划模型训练完成，共进行 {params['iterations']} 次迭代", "PlanningModel")
+            
+            # 保存训练历史
+            # Save training history
+            training_history = {
+                'timestamp': time.time(),
+                'parameters': params,
+                'metrics': training_metrics,
+                'learning_data_summary': {
+                    'success_patterns': len(getattr(self, 'learning_data', {}).get('success_patterns', [])),
+                    'failure_patterns': len(getattr(self, 'learning_data', {}).get('failure_patterns', []))
+                }
+            }
+            
+            # 保存到训练历史文件（如果存在data目录）
+            # Save to training history file (if data directory exists)
+            try:
+                import os
+                training_history_path = "data/training_history.json"
+                if os.path.exists("data"):
+                    if os.path.exists(training_history_path):
+                        with open(training_history_path, 'r', encoding='utf-8') as f:
+                            existing_history = json.load(f)
+                    else:
+                        existing_history = []
+                    
+                    existing_history.append(training_history)
+                    
+                    with open(training_history_path, 'w', encoding='utf-8') as f:
+                        json.dump(existing_history, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                error_handler.log_warning(f"无法保存训练历史: {str(e)}", "PlanningModel")
+            
+            return {
+                "status": "success",
+                "metrics": training_metrics,
+                "training_history": training_history
+            }
+            
+        except Exception as e:
+            error_handler.handle_error(e, "PlanningModel", "训练规划模型失败")
+            if callback:
+                callback(0.0, {'status': 'failed', 'error': str(e)})
+            return {"status": "failed", "error": str(e)}

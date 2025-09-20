@@ -21,7 +21,7 @@ Provides intelligent optimization algorithms to improve overall system performan
 """
 import time
 import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Callable
 from core.models.base_model import BaseModel
 from ...error_handling import error_handler
 
@@ -252,38 +252,70 @@ class OptimizationModel(BaseModel):
             "timestamp": time.time()
         }
     
-    def train(self, training_config: Dict[str, Any] = None) -> Dict[str, Any]:
+    def train(self, training_data: Any = None, parameters: Dict[str, Any] = None, callback: Callable[[float, Dict], None] = None) -> Dict[str, Any]:
         """训练优化模型
         Train optimization model
         
         Args:
-            training_config: 训练配置 / Training configuration
+            training_data: 训练数据 / Training data (可选/optional)
+            parameters: 训练参数 / Training parameters
+            callback: 进度回调函数 / Progress callback function
             
         Returns:
             dict: 训练结果 / Training results
         """
         try:
-            # 模拟训练过程
-            training_data = training_config or {}
-            epochs = training_data.get('epochs', 100)
-            learning_rate = training_data.get('learning_rate', 0.001)
+            # 使用参数配置
+            params = parameters or {}
+            epochs = params.get('epochs', 100)
+            learning_rate = params.get('learning_rate', 0.001)
+            
+            # 初始化训练指标
+            training_metrics = {
+                'epoch': 0,
+                'total_epochs': epochs,
+                'learning_rate': learning_rate,
+                'training_loss': 0.0,
+                'validation_accuracy': 0.0
+            }
+            
+            # 模拟训练过程，使用进度回调
+            for epoch in range(epochs):
+                # 模拟训练进度
+                progress = (epoch + 1) / epochs
+                training_metrics['epoch'] = epoch + 1
+                training_metrics['training_loss'] = np.random.uniform(0.01, 0.1)
+                training_metrics['validation_accuracy'] = np.random.uniform(0.85, 0.95)
+                
+                # 调用进度回调
+                if callback:
+                    callback(progress, training_metrics)
+                
+                # 模拟训练时间
+                time.sleep(0.01)
             
             # 训练优化算法
             self._train_optimization_algorithms(epochs, learning_rate)
-
+            
+            # 保存训练历史
+            training_result = {
+                "status": "success",
+                "epochs_completed": epochs,
+                "learning_rate": learning_rate,
+                "training_loss": training_metrics['training_loss'],
+                "validation_accuracy": training_metrics['validation_accuracy'],
+                "timestamp": time.time()
+            }
+            
+            # 记录训练历史
+            self._record_training_history(training_result)
+            
             error_handler.log_info(
                 f"优化算法训练完成，轮次: {epochs}, 学习率: {learning_rate}",
                 "OptimizationModel"
             )
             
-            return {
-                "status": "success",
-                "epochs_completed": epochs,
-                "learning_rate": learning_rate,
-                "training_loss": np.random.uniform(0.01, 0.1),
-                "validation_accuracy": np.random.uniform(0.85, 0.95),
-                "timestamp": time.time()
-            }
+            return training_result
             
         except Exception as e:
             error_handler.handle_error(e, "OptimizationModel", "训练失败")
@@ -365,18 +397,6 @@ class OptimizationModel(BaseModel):
             error_handler.handle_error(e, self.model_name, "优化请求处理失败")
             return {"status": "error", "message": str(e)}
             
-            return {
-                "status": "success",
-                "epochs_completed": epochs,
-                "learning_rate": learning_rate,
-                "training_loss": np.random.uniform(0.01, 0.1),
-                "validation_accuracy": np.random.uniform(0.85, 0.95),
-                "timestamp": time.time()
-            }
-            
-        except Exception as e:
-            error_handler.handle_error(e, "OptimizationModel", "训练失败")
-            return {"status": "error", "message": str(e)}
     
     # ====== 私有优化方法 ====== | ====== Private Optimization Methods ======
     

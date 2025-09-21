@@ -24,13 +24,14 @@ import torch
 import numpy as np
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModelForSequenceClassification
-from transformers import Trainer, TrainingArguments
 from tqdm import tqdm
 import logging
 from datetime import datetime
 
-# 设置日志
+# Import from-scratch training framework
+from core.training.from_scratch_training import AGIFromScratchModel, FromScratchDataset, FromScratchTrainer
+
+# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,10 +39,11 @@ logger = logging.getLogger(__name__)
 class LanguageDataset(Dataset):
     """Language model training dataset"""
     
-    def __init__(self, data_dir, tokenizer, max_length=512):
+    def __init__(self, data_dir, max_length=512):
         self.data = []
-        self.tokenizer = tokenizer
         self.max_length = max_length
+        self.vocab = self._build_vocab()
+        self.vocab_size = len(self.vocab)
         
         # Load English training data
         file_path = os.path.join(data_dir, "language_en.json")
@@ -51,6 +53,35 @@ class LanguageDataset(Dataset):
         
         logger.info(f"Loaded language training data: {len(self.data)} samples")
     
+    def _build_vocab(self):
+        """Build basic vocabulary for from-scratch training"""
+        # Basic vocabulary including common words and special tokens
+        vocab = {
+            '<PAD>': 0,
+            '<UNK>': 1,
+            '<BOS>': 2,
+            '<EOS>': 3,
+        }
+        
+        # Add common words
+        common_words = ['the', 'and', 'is', 'in', 'to', 'of', 'a', 'that', 'it', 'with', 'for', 'as', 'was', 'on', 'are', 'this', 'be', 'by', 'have', 'from']
+        for i, word in enumerate(common_words, start=len(vocab)):
+            vocab[word] = i
+        
+        return vocab
+    
+    def _text_to_ids(self, text):
+        """Convert text to token IDs using simple vocabulary"""
+        words = text.lower().split()
+        ids = [self.vocab.get(word, self.vocab['<UNK>']) for word in words]
+        
+        # Truncate or pad to max_length
+        if len(ids) > self.max_length:
+            ids = ids[:self.max_length]
+        else:
+            ids = ids + [self.vocab['<PAD>']] * (self.max_length - len(ids))
+        
+        return torch.tensor(ids, dtype=torch.long)
     
     def __len__(self):
         return len(self.data)
@@ -62,14 +93,8 @@ class LanguageDataset(Dataset):
         text = item['text']
         emotion_label = item.get('emotion_label', 'neutral')
         
-        # Encode text
-        encoding = self.tokenizer(
-            text,
-            truncation=True,
-            padding='max_length',
-            max_length=self.max_length,
-            return_tensors='pt'
-        )
+        # Convert text to token IDs
+        input_ids = self._text_to_ids(text)
         
         # Emotion label mapping
         emotion_mapping = {
@@ -78,9 +103,8 @@ class LanguageDataset(Dataset):
         }
         
         return {
-            'input_ids': encoding['input_ids'].squeeze(),
-            'attention_mask': encoding['attention_mask'].squeeze(),
-            'labels': encoding['input_ids'].squeeze(),
+            'input_ids': input_ids,
+            'labels': input_ids,  # For language modeling, labels are same as input
             'emotion_label': torch.tensor(emotion_mapping.get(emotion_label, 5))
         }
 
@@ -92,30 +116,22 @@ class LanguageModelTrainer:
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        # Initialize model and tokenizer
-        self.model = AutoModelForCausalLM.from_pretrained(
-            'gpt2-medium'
+        # Initialize from-scratch model for emotion classification
+        self.model = AGIFromScratchModel(
+            input_size=512,  # Input size based on sequence length
+            hidden_sizes=[256, 128],  # Hidden layers
+            output_size=8,  # Output for 8 emotions
+            model_type="emotion"
         ).to(self.device)
         
-        self.tokenizer = AutoTokenizer.from_pretrained('gpt2-medium')
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        
-        # Emotion classification head
-        self.emotion_classifier = nn.Sequential(
-            nn.Linear(768, 256),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(256, 8)  # 8 emotions
-        ).to(self.device)
-        
-        # Loss functions
-        self.lm_loss = nn.CrossEntropyLoss(ignore_index=-100)
+        # Loss function for emotion classification
         self.emotion_loss = nn.CrossEntropyLoss()
     
     
     def load_data(self, data_dir):
         """Load language data"""
-        dataset = LanguageDataset(data_dir, self.tokenizer)
+        dataset = LanguageDataset(data_dir)
+        self.vocab = dataset.vocab  # Store vocab for saving
         return dataset
     
     def create_data_loader(self, dataset, batch_size=8, shuffle=True):
@@ -131,97 +147,75 @@ class LanguageModelTrainer:
     def train_epoch(self, train_loader, optimizer):
         """Single epoch training"""
         self.model.train()
-        self.emotion_classifier.train()
         
-        total_lm_loss = 0
-        total_emotion_loss = 0
+        total_loss = 0
+        total_accuracy = 0
         
         for batch in tqdm(train_loader, desc="Training"):
             input_ids = batch['input_ids'].to(self.device)
-            attention_mask = batch['attention_mask'].to(self.device)
-            labels = batch['labels'].to(self.device)
             emotion_labels = batch['emotion_label'].to(self.device)
             
             optimizer.zero_grad()
             
-            # Language model forward pass
-            outputs = self.model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                labels=labels
-            )
+            # Forward pass - use input_ids as features for emotion classification
+            # Flatten the input sequence for the fully connected network
+            batch_size = input_ids.size(0)
+            features = input_ids.view(batch_size, -1).float()  # Flatten to [batch_size, 512]
             
-            lm_loss = outputs.loss
+            emotion_logits = self.model(features)
+            loss = self.emotion_loss(emotion_logits, emotion_labels)
             
-            # Emotion analysis
-            hidden_states = outputs.hidden_states[-1]  # Last layer hidden states
-            cls_embeddings = hidden_states[:, 0, :]  # CLS token embeddings
-            emotion_logits = self.emotion_classifier(cls_embeddings)
-            emotion_loss = self.emotion_loss(emotion_logits, emotion_labels)
-            
-            # Total loss
-            total_loss = lm_loss + 0.3 * emotion_loss  # Weighted loss
-            
-            total_loss.backward()
+            loss.backward()
             optimizer.step()
             
-            total_lm_loss += lm_loss.item()
-            total_emotion_loss += emotion_loss.item()
+            total_loss += loss.item()
+            
+            # Calculate accuracy
+            emotion_preds = emotion_logits.argmax(dim=1)
+            total_accuracy += (emotion_preds == emotion_labels).sum().item()
         
-        return total_lm_loss / len(train_loader), total_emotion_loss / len(train_loader)
+        avg_loss = total_loss / len(train_loader)
+        avg_accuracy = total_accuracy / len(train_loader.dataset)
+        
+        return avg_loss, avg_accuracy
     
     
     def evaluate(self, test_loader):
         """Model evaluation"""
         self.model.eval()
-        self.emotion_classifier.eval()
         
-        total_lm_loss = 0
-        total_emotion_loss = 0
-        emotion_accuracy = 0
+        total_loss = 0
+        total_accuracy = 0
         
         with torch.no_grad():
             for batch in tqdm(test_loader, desc="Evaluating"):
                 input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                labels = batch['labels'].to(self.device)
                 emotion_labels = batch['emotion_label'].to(self.device)
                 
-                # Language model forward pass
-                outputs = self.model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    labels=labels
-                )
+                # Forward pass - use input_ids as features for emotion classification
+                batch_size = input_ids.size(0)
+                features = input_ids.view(batch_size, -1).float()  # Flatten to [batch_size, 512]
                 
-                lm_loss = outputs.loss
+                emotion_logits = self.model(features)
+                loss = self.emotion_loss(emotion_logits, emotion_labels)
                 
-                # Emotion analysis
-                hidden_states = outputs.hidden_states[-1]
-                cls_embeddings = hidden_states[:, 0, :]
-                emotion_logits = self.emotion_classifier(cls_embeddings)
-                emotion_loss = self.emotion_loss(emotion_logits, emotion_labels)
+                total_loss += loss.item()
                 
-                # Calculate emotion accuracy
+                # Calculate accuracy
                 emotion_preds = emotion_logits.argmax(dim=1)
-                emotion_accuracy += (emotion_preds == emotion_labels).sum().item()
-                
-                total_lm_loss += lm_loss.item()
-                total_emotion_loss += emotion_loss.item()
+                total_accuracy += (emotion_preds == emotion_labels).sum().item()
         
-        avg_lm_loss = total_lm_loss / len(test_loader)
-        avg_emotion_loss = total_emotion_loss / len(test_loader)
-        emotion_acc = emotion_accuracy / len(test_loader.dataset)
+        avg_loss = total_loss / len(test_loader)
+        avg_accuracy = total_accuracy / len(test_loader.dataset)
         
-        return avg_lm_loss, avg_emotion_loss, emotion_acc
+        return avg_loss, avg_accuracy
     
     
     def save_model(self, path):
         """Save model"""
         torch.save({
             'model_state_dict': self.model.state_dict(),
-            'emotion_classifier_state_dict': self.emotion_classifier.state_dict(),
-            'tokenizer': self.tokenizer
+            'vocab': self.vocab if hasattr(self, 'vocab') else None
         }, path)
         logger.info(f"Language model saved to {path}")
     
@@ -243,27 +237,23 @@ class LanguageModelTrainer:
         test_loader = self.create_data_loader(test_dataset, batch_size=self.config['batch_size'])
         
         # Set up optimizer
-        optimizer = optim.AdamW([
-            {'params': self.model.parameters()},
-            {'params': self.emotion_classifier.parameters()}
-        ], lr=self.config['learning_rate'])
+        optimizer = optim.AdamW(self.model.parameters(), lr=self.config['learning_rate'])
         
         # Training loop
-        best_emotion_acc = 0
+        best_accuracy = 0
         for epoch in range(epochs):
-            train_lm_loss, train_emotion_loss = self.train_epoch(train_loader, optimizer)
-            test_lm_loss, test_emotion_loss, test_emotion_acc = self.evaluate(test_loader)
+            train_loss, train_accuracy = self.train_epoch(train_loader, optimizer)
+            test_loss, test_accuracy = self.evaluate(test_loader)
             
             logger.info(
                 f"Epoch {epoch+1}/{epochs} | "
-                f"Train LM Loss: {train_lm_loss:.4f} | Train Emotion Loss: {train_emotion_loss:.4f} | "
-                f"Test LM Loss: {test_lm_loss:.4f} | Test Emotion Loss: {test_emotion_loss:.4f} | "
-                f"Emotion Accuracy: {test_emotion_acc:.4f}"
+                f"Train Loss: {train_loss:.4f} | Train Accuracy: {train_accuracy:.4f} | "
+                f"Test Loss: {test_loss:.4f} | Test Accuracy: {test_accuracy:.4f}"
             )
             
             # Save best model
-            if test_emotion_acc > best_emotion_acc:
-                best_emotion_acc = test_emotion_acc
+            if test_accuracy > best_accuracy:
+                best_accuracy = test_accuracy
                 self.save_model(self.config['model_save_path'])
         
         logger.info("Language model training completed")

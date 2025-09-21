@@ -13,10 +13,8 @@
 """
 
 """
-联合训练协调器：管理多模型协同训练
 Joint Training Coordinator: Manages multi-model collaborative training
 
-提供多种训练策略和模型协同训练管理功能
 Provides multiple training strategies and model collaborative training management functionality
 """
 
@@ -32,32 +30,26 @@ from pathlib import Path
 from ..error_handling import error_handler
 from ..model_registry import model_registry
 
-# 配置日志记录器
+# Configure logger
 logger = logging.getLogger(__name__)
 
 
 """
-TrainingStrategy类 - 中文类描述
-TrainingStrategy Class - English class description
+TrainingStrategy Class
 """
 class TrainingStrategy(Enum):
-    """训练策略枚举
-    Training Strategy Enumeration
-    """
-    SEQUENTIAL = "sequential"      # 顺序训练
-    PARALLEL = "parallel"          # 并行训练  
-    ADAPTIVE = "adaptive"          # 自适应训练
-    PIPELINE = "pipeline"          # 流水线训练
+    """Training Strategy Enumeration"""
+    SEQUENTIAL = "sequential"      # Sequential training
+    PARALLEL = "parallel"          # Parallel training  
+    ADAPTIVE = "adaptive"          # Adaptive training
+    PIPELINE = "pipeline"          # Pipeline training
 
 """
-TrainingTask类 - 中文类描述
-TrainingTask Class - English class description
+TrainingTask Class
 """
 @dataclass
 class TrainingTask:
-    """训练任务数据类
-    Training Task Data Class
-    """
+    """Training Task Data Class"""
     model_id: str
     training_data: Any
     epochs: int = 10
@@ -67,13 +59,10 @@ class TrainingTask:
 
 
 """
-JointTrainingCoordinator类 - 中文类描述
-JointTrainingCoordinator Class - English class description
+JointTrainingCoordinator Class
 """
 class JointTrainingCoordinator:
-    """联合训练协调器类
-    Joint Training Coordinator Class
-    """
+    """Joint Training Coordinator Class"""
 
     def __init__(self, model_ids: List[str] = None, config: Dict = None):
         self.training_queue: List[TrainingTask] = []
@@ -82,37 +71,35 @@ class JointTrainingCoordinator:
         self.training_strategy = TrainingStrategy.ADAPTIVE
         self.performance_metrics = {}
         self.resource_allocations = {}
-        self.knowledge_assistant_enabled = True  # 是否启用知识库辅助训练
-        # Whether to enable knowledge base assisted training
+        self.knowledge_assistant_enabled = True  # Whether to enable knowledge base assisted training
         
-        # 存储传入的模型ID和配置 | Store passed model IDs and config
+        # Store passed model IDs and config
         self.model_ids = model_ids or []
         self.config = config or {}
         
-        # 根据配置初始化训练策略 | Initialize training strategy based on config
+        # Initialize training strategy based on config
         if config and "training_strategy" in config:
             try:
                 self.training_strategy = TrainingStrategy(config["training_strategy"])
             except ValueError:
-                logger.warning(f"无效的训练策略: {config['training_strategy']}, 使用默认策略")
+                logger.warning(f"Invalid training strategy: {config['training_strategy']}, using default strategy")
                 self.training_strategy = TrainingStrategy.ADAPTIVE
         
     def schedule_training(self, tasks: List[TrainingTask], 
                          strategy: TrainingStrategy = TrainingStrategy.ADAPTIVE) -> Dict[str, Any]:
-        """调度训练任务
-        Schedule training tasks
+        """Schedule training tasks
         
         Args:
-            tasks: 训练任务列表
-            strategy: 训练策略
+            tasks: List of training tasks
+            strategy: Training strategy
             
         Returns:
-            dict: 调度结果
+            dict: Scheduling result
         """
         self.training_strategy = strategy
         self.training_queue.extend(tasks)
         
-        # 根据策略优化任务顺序
+        # Optimize task order based on strategy
         if strategy == TrainingStrategy.ADAPTIVE:
             optimized_tasks = self._optimize_task_order(tasks)
             self.training_queue = optimized_tasks
@@ -127,11 +114,10 @@ class JointTrainingCoordinator:
         }
     
     async def execute_training(self) -> Dict[str, Any]:
-        """执行训练任务
-        Execute training tasks
+        """Execute training tasks
         
         Returns:
-            dict: 训练执行结果
+            dict: Training execution result
         """
         results = {}
         
@@ -145,19 +131,17 @@ class JointTrainingCoordinator:
             elif self.training_strategy == TrainingStrategy.PIPELINE:
                 results = await self._execute_pipeline()
                 
-            # 训练后优化和知识整合
+            # Post-training optimization and knowledge integration
             await self._post_training_optimization(results)
             
         except Exception as e:
-            error_handler.handle_error(e, "JointTrainingCoordinator", "联合训练执行失败")
+            error_handler.handle_error(e, "JointTrainingCoordinator", "Joint training execution failed")
             return {"status": "error", "message": str(e)}
         
         return {"status": "success", "results": results}
     
     async def _execute_sequential(self) -> Dict[str, Any]:
-        """顺序执行训练任务
-        Execute training tasks sequentially
-        """
+        """Execute training tasks sequentially"""
         results = {}
         for task in self.training_queue:
             if task.model_id not in self.active_tasks:
@@ -169,9 +153,7 @@ class JointTrainingCoordinator:
         return results
     
     async def _execute_parallel(self) -> Dict[str, Any]:
-        """并行执行训练任务  
-        Execute training tasks in parallel
-        """
+        """Execute training tasks in parallel"""
         tasks = []
         for task in self.training_queue:
             if task.model_id not in self.active_tasks:
@@ -190,14 +172,12 @@ class JointTrainingCoordinator:
         return results
     
     async def _execute_adaptive(self) -> Dict[str, Any]:
-        """自适应执行训练任务
-        Execute training tasks adaptively
-        """
+        """Execute training tasks adaptively"""
         results = {}
         manager_model = model_registry.get_model("manager")
         
         if manager_model and hasattr(manager_model, 'optimize_training_plan'):
-            # 使用管理模型优化训练计划
+            # Use manager model to optimize training plan
             training_plan = manager_model.optimize_training_plan(
                 [task.model_id for task in self.training_queue],
                 self.performance_metrics
@@ -219,20 +199,18 @@ class JointTrainingCoordinator:
                     self.completed_tasks[optimized_task.model_id] = result
                     self.active_tasks.remove(optimized_task.model_id)
         else:
-            # 回退到并行训练
+            # Fallback to parallel training
             results = await self._execute_parallel()
             
         return results
     
     async def _execute_pipeline(self) -> Dict[str, Any]:
-        """流水线执行训练任务
-        Execute training tasks in pipeline
-        """
+        """Execute training tasks in pipeline"""
         results = {}
-        # 实现基于数据流的流水线训练
-        # 这里需要根据模型依赖关系创建训练流水线
+        # Implement dataflow-based pipeline training
+        # Create training pipeline based on model dependencies
         for task in self.training_queue:
-            # 检查依赖是否完成
+            # Check if dependencies are completed
             if task.dependencies:
                 deps_ready = all(dep in self.completed_tasks for dep in task.dependencies)
                 if not deps_ready:
@@ -247,46 +225,42 @@ class JointTrainingCoordinator:
         return results
     
     async def _train_single_model(self, task: TrainingTask) -> Dict[str, Any]:
-        """训练单个模型
-        Train single model
+        """Train single model
         
         Args:
-            task: 训练任务
+            task: Training task
             
         Returns:
-            dict: 训练结果
+            dict: Training result
         """
         try:
             model = model_registry.get_model(task.model_id)
             if not model:
                 return {"status": "error", "message": f"Model {task.model_id} not found"}
             
-            # 检查模型是否支持训练
+            # Check if model supports training
             if not hasattr(model, 'train') or not callable(getattr(model, 'train')):
                 return {"status": "error", "message": f"Model {task.model_id} does not support training"}
             
             start_time = time.time()
             
-            # 知识库辅助训练（如果启用）
             # Knowledge base assisted training (if enabled)
             if self.knowledge_assistant_enabled:
                 knowledge_model = model_registry.get_model("knowledge")
                 if knowledge_model and hasattr(knowledge_model, 'assist_training'):
-                    # 获取相关知识辅助训练
                     # Get relevant knowledge to assist training
-                    # 获取训练数据元数据 | Get training data metadata
+                    # Get training data metadata
                     metadata = task.training_data.metadata if hasattr(task.training_data, 'metadata') else {}
                     
                     knowledge_context = await knowledge_model.assist_training(
                         model_id=task.model_id,
                         training_data_metadata=metadata
                     )
-                    # 将知识上下文注入训练数据
                     # Inject knowledge context into training data
                     if hasattr(task.training_data, 'enhance_with_knowledge'):
                         task.training_data.enhance_with_knowledge(knowledge_context)
             
-            # 调用模型的训练方法
+            # Call model's training method
             training_parameters = {
                 "epochs": task.epochs,
                 "batch_size": task.batch_size,
@@ -299,7 +273,7 @@ class JointTrainingCoordinator:
             
             training_time = time.time() - start_time
             
-            # 记录性能指标
+            # Record performance metrics
             self._update_performance_metrics(task.model_id, training_result, training_time)
             
             return {
@@ -310,36 +284,32 @@ class JointTrainingCoordinator:
             }
             
         except Exception as e:
-            error_handler.handle_error(e, "JointTrainingCoordinator", f"训练模型 {task.model_id} 失败")
+            error_handler.handle_error(e, "JointTrainingCoordinator", f"Training model {task.model_id} failed")
             return {"status": "error", "message": str(e)}
     
     
     def _optimize_task_order(self, tasks: List[TrainingTask]) -> List[TrainingTask]:
-        """优化任务顺序
-        Optimize task order
-        """
-        # 基于模型依赖关系和优先级排序
+        """Optimize task order"""
+        # Sort based on model dependencies and priority
         sorted_tasks = sorted(tasks, key=lambda x: (
-            -x.priority,  # 优先级降序
-            len(x.dependencies) if x.dependencies else 0  # 依赖少的优先
+            -x.priority,  # Priority descending
+            len(x.dependencies) if x.dependencies else 0  # Fewer dependencies first
         ))
         return sorted_tasks
     
     def _create_pipeline(self, tasks: List[TrainingTask]) -> List[TrainingTask]:
-        """创建训练流水线
-        Create training pipeline
-        """
-        # 基于模型依赖关系创建流水线
+        """Create training pipeline"""
+        # Create pipeline based on model dependencies
         pipeline_tasks = []
         processed_models = set()
         
-        # 首先处理无依赖的任务
+        # First process tasks without dependencies
         for task in tasks:
             if not task.dependencies or all(dep in processed_models for dep in task.dependencies):
                 pipeline_tasks.append(task)
                 processed_models.add(task.model_id)
         
-        # 然后处理有依赖的任务
+        # Then process tasks with dependencies
         remaining_tasks = [t for t in tasks if t not in pipeline_tasks]
         while remaining_tasks:
             for task in remaining_tasks[:]:
@@ -351,12 +321,10 @@ class JointTrainingCoordinator:
         return pipeline_tasks
     
     def _estimate_training_time(self) -> float:
-        """估计训练时间
-        Estimate training time
-        """
+        """Estimate training time"""
         total_time = 0
         for task in self.training_queue:
-            # 基于历史性能数据估计
+            # Estimate based on historical performance data
             avg_time = self.performance_metrics.get(task.model_id, {}).get('avg_training_time', 60)
             total_time += avg_time * task.epochs
         
@@ -364,9 +332,7 @@ class JointTrainingCoordinator:
     
     
     def _update_performance_metrics(self, model_id: str, result: Dict[str, Any], training_time: float):
-        """更新性能指标
-        Update performance metrics
-        """
+        """Update performance metrics"""
         if model_id not in self.performance_metrics:
             self.performance_metrics[model_id] = {}
         
@@ -381,22 +347,20 @@ class JointTrainingCoordinator:
     
 
     async def _post_training_optimization(self, results: Dict[str, Any]):
-        """训练后优化
-        Post-training optimization
-        """
-        # 更新知识库
+        """Post-training optimization"""
+        # Update knowledge base
         knowledge_model = model_registry.get_model("knowledge")
         if knowledge_model and hasattr(knowledge_model, 'integrate_training_results'):
             await knowledge_model.integrate_training_results(results)
         
-        # 优化模型协同
+        # Optimize model collaboration
         manager_model = model_registry.get_model("manager")
         if manager_model and hasattr(manager_model, 'optimize_model_collaboration'):
             await manager_model.optimize_model_collaboration(results, self.performance_metrics)
         
-        # 增强知识库学习能力
+        # Enhance knowledge base learning capability
         if knowledge_model and hasattr(knowledge_model, 'enhance_knowledge_learning'):
-            # 从训练结果中提取学习数据
+            # Extract learning data from training results
             learning_data = {
                 "text_sources": [],
                 "structured_sources": [],
@@ -407,18 +371,16 @@ class JointTrainingCoordinator:
                 if "training_data" in result and result["training_data"]:
                     learning_data["text_sources"].append({
                         "type": "training_result",
-                        "content": f"训练模型 {model_id} 的结果: {result}",
+                        "content": f"Training result for model {model_id}: {result}",
                         "domain": model_id
                     })
             
-            # 应用增强学习
+            # Apply enhanced learning
             enhancement_result = knowledge_model.enhance_knowledge_learning(learning_data)
-            logger.info(f"知识库增强学习完成: {enhancement_result}")
+            logger.info(f"Knowledge base enhancement completed: {enhancement_result}")
     
     def get_training_status(self) -> Dict[str, Any]:
-        """获取训练状态
-        Get training status
-        """
+        """Get training status"""
         return {
             "queue_size": len(self.training_queue),
             "active_tasks": list(self.active_tasks),
@@ -429,40 +391,36 @@ class JointTrainingCoordinator:
     
     
     def clear_queue(self):
-        """清空训练队列
-        Clear training queue
-        """
+        """Clear training queue"""
         self.training_queue.clear()
         self.active_tasks.clear()
         self.completed_tasks.clear()
 
     def get_available_models(self) -> List[str]:
-        """获取可用模型列表
-        Get available models list
+        """Get available models list
         
         Returns:
-            List[str]: 可用模型ID列表
+            List[str]: List of available model IDs
         """
         return [
-            "manager",           # A - 管理模型
-            "language",          # B - 大语言模型
-            "audio",             # C - 音频处理模型
-            "vision_image",      # D - 图片视觉处理模型
-            "vision_video",      # E - 视频流视觉处理模型
-            "spatial",           # F - 双目空间定位感知模型
-            "sensor",            # G - 传感器感知模型
-            "computer",          # H - 计算机控制模型
-            "motion",            # I - 运动和执行器控制模型
-            "knowledge",         # J - 知识库专家模型
-            "programming"        # K - 编程模型
+            "manager",           # A - Management model
+            "language",          # B - Large language model
+            "audio",             # C - Audio processing model
+            "vision_image",      # D - Image vision processing model
+            "vision_video",      # E - Video stream vision processing model
+            "spatial",           # F - Binocular spatial positioning perception model
+            "sensor",            # G - Sensor perception model
+            "computer",          # H - Computer control model
+            "motion",            # I - Motion and actuator control model
+            "knowledge",         # J - Knowledge base expert model
+            "programming"        # K - Programming model
         ]
 
     def get_model_groups(self) -> Dict[str, List[str]]:
-        """获取模型分组配置
-        Get model groups configuration
+        """Get model groups configuration
         
         Returns:
-            Dict[str, List[str]]: 模型分组字典
+            Dict[str, List[str]]: Model groups dictionary
         """
         return {
             "basic_models": ["language", "audio", "vision_image", "vision_video"],
@@ -473,30 +431,29 @@ class JointTrainingCoordinator:
         }
 
     def validate_model_combination(self, model_ids: List[str]) -> Dict[str, Any]:
-        """验证模型组合的有效性
-        Validate model combination effectiveness
+        """Validate model combination effectiveness
         
         Args:
-            model_ids: 要验证的模型ID列表
+            model_ids: List of model IDs to validate
             
         Returns:
-            Dict[str, Any]: 验证结果
+            Dict[str, Any]: Validation result
         """
         if not model_ids:
-            return {"valid": False, "message": "模型列表不能为空"}
+            return {"valid": False, "message": "Model list cannot be empty"}
         
-        # 检查所有模型是否可用
+        # Check if all models are available
         available_models = self.get_available_models()
         invalid_models = [model_id for model_id in model_ids if model_id not in available_models]
         
         if invalid_models:
             return {
                 "valid": False, 
-                "message": f"无效的模型ID: {invalid_models}",
+                "message": f"Invalid model IDs: {invalid_models}",
                 "invalid_models": invalid_models
             }
         
-        # 检查模型依赖关系
+        # Check model dependencies
         dependencies = self._get_model_dependencies()
         missing_deps = []
         
@@ -513,18 +470,17 @@ class JointTrainingCoordinator:
         if missing_deps:
             return {
                 "valid": False,
-                "message": "模型依赖关系不满足",
+                "message": "Model dependencies not satisfied",
                 "missing_dependencies": missing_deps
             }
         
-        return {"valid": True, "message": "模型组合有效"}
+        return {"valid": True, "message": "Model combination is valid"}
 
     def _get_model_dependencies(self) -> Dict[str, List[str]]:
-        """获取模型依赖关系
-        Get model dependencies
+        """Get model dependencies
         
         Returns:
-            Dict[str, List[str]]: 模型依赖关系字典
+            Dict[str, List[str]]: Model dependencies dictionary
         """
         return {
             "manager": ["language", "knowledge"],
@@ -535,11 +491,10 @@ class JointTrainingCoordinator:
         }
 
     def get_recommended_combinations(self) -> Dict[str, List[str]]:
-        """获取推荐的模型组合
-        Get recommended model combinations
+        """Get recommended model combinations
         
         Returns:
-            Dict[str, List[str]]: 推荐组合字典
+            Dict[str, List[str]]: Recommended combinations dictionary
         """
         return {
             "basic_interaction": ["manager", "language", "audio"],

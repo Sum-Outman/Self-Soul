@@ -3,6 +3,8 @@
  * 提供生产环境友好的错误处理机制
  */
 
+import { notify } from '../plugins/notification.js'
+
 class ErrorHandler {
   constructor() {
     this.isDevelopment = import.meta.env.MODE === 'development';
@@ -32,13 +34,10 @@ class ErrorHandler {
     }
 
     // 显示错误通知给用户
-    if (window && window.$app && window.$app.config.globalProperties.$notify) {
-      window.$app.config.globalProperties.$notify({
-        title: 'Error',
-        message: `[${context}] ${errorObj.message}`,
-        type: 'error'
-      });
-    }
+    notify.error({
+      title: 'Error',
+      message: `[${context}] ${errorObj.message}`
+    });
 
     // 添加到错误日志
     this.addToLogs(errorData);
@@ -68,13 +67,10 @@ class ErrorHandler {
     }
 
     // 显示警告通知给用户
-    if (window && window.$app && window.$app.config.globalProperties.$notify) {
-      window.$app.config.globalProperties.$notify({
-        title: 'Warning',
-        message: `[${context}] ${message}`,
-        type: 'warning'
-      });
-    }
+    notify.warning({
+      title: 'Warning',
+      message: `[${context}] ${message}`
+    });
 
     // 添加到日志
     this.addToLogs(warningData);

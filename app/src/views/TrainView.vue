@@ -78,7 +78,7 @@
                 @click="toggleModelSelection(model.id)"
                 :title="getModelTooltip(model.id)"
               >
-                {{ model.id.charAt(0).toUpperCase() + model.id.slice(1) }}
+                {{ model.name }}
                 <span v-if="isModelRequired(model.id)" class="required-indicator">*</span>
               </div>
             </div>

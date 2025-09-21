@@ -54,20 +54,98 @@ export default {
     const recognitionInProgress = ref(false);
     const isConnected = ref(false); // Server connection status, default disconnected
     
-    // Simulate checking server connection status
-    const checkServerConnection = () => {
+    // WebSocket connection
+    let ws = null;
+    let wsReconnectTimer = null;
+    const RECONNECT_INTERVAL = 5000;
+    const MAX_RECONNECT_ATTEMPTS = 5;
+    let reconnectAttempts = 0;
+    
+    // Initialize WebSocket connection
+    const initWebSocket = () => {
       try {
-        // This should be actual WebSocket connection check logic
-        // Currently using random simulation of connection status
-        const randomConnection = Math.random() > 0.3; // 70% probability of successful connection
-        isConnected.value = randomConnection;
+        // Close any existing connection
+        if (ws && ws.readyState !== WebSocket.CLOSED) {
+          ws.close();
+        }
         
-        // Check connection status every 5 seconds
-        setTimeout(checkServerConnection, 5000);
+        // Create new WebSocket connection (using main API gateway port 8000)
+        const wsUrl = `ws://${window.location.hostname || 'localhost'}:8000/ws`;
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('WebSocket connection established');
+          isConnected.value = true;
+          reconnectAttempts = 0;
+        };
+        
+        ws.onmessage = (event) => {
+          // Handle incoming messages from server
+          try {
+            const data = JSON.parse(event.data);
+            // Process server messages here
+          } catch (error) {
+            errorHandler.handleError('Error parsing WebSocket message:', error);
+          }
+        };
+        
+        ws.onclose = () => {
+          console.log('WebSocket connection closed');
+          isConnected.value = false;
+          
+          // Schedule reconnection
+          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+            wsReconnectTimer = setTimeout(initWebSocket, RECONNECT_INTERVAL);
+          } else {
+            console.error('Max reconnection attempts reached');
+          }
+        };
+        
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          errorHandler.handleError('WebSocket error:', error);
+          isConnected.value = false;
+        };
       } catch (error) {
-        errorHandler.handleError('Error checking server connection:', error);
+        errorHandler.handleError('Error initializing WebSocket:', error);
         isConnected.value = false;
+        
+        // Schedule reconnection
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          reconnectAttempts++;
+          console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+          wsReconnectTimer = setTimeout(initWebSocket, RECONNECT_INTERVAL);
+        }
       }
+    };
+    
+    // Check server connection status
+    const checkServerConnection = () => {
+      // Try to connect to the main API gateway
+      fetch(`http://${window.location.hostname || 'localhost'}:8000/api/status`, {
+        method: 'GET',
+        timeout: 3000
+      })
+        .then(response => {
+          if (response.ok) {
+            isConnected.value = true;
+            // If API connection is successful, try to establish WebSocket
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+              initWebSocket();
+            }
+          } else {
+            isConnected.value = false;
+          }
+        })
+        .catch(() => {
+          isConnected.value = false;
+        })
+        .finally(() => {
+          // Check connection status every 5 seconds
+          setTimeout(checkServerConnection, 5000);
+        });
     };
     
     // Initialize speech recognition
@@ -78,7 +156,7 @@ export default {
           speechRecognition.value = new SpeechRecognition()
           
           // Set speech recognition parameters
-          speechRecognition.value.lang = 'en-US' // Always use English
+          speechRecognition.value.lang = getSpeechLanguage() // Get language from user settings or browser
           speechRecognition.value.interimResults = true
           speechRecognition.value.maxAlternatives = 1
           speechRecognition.value.continuous = false
@@ -146,7 +224,15 @@ export default {
     
     // Speech recognition related methods
     const getSpeechLanguage = () => {
-      return 'en-US' // Always return English
+      // Get user language from localStorage or browser settings
+      const savedLanguage = localStorage.getItem('speechLanguage');
+      
+      if (savedLanguage) {
+        return savedLanguage;
+      }
+      
+      // Default to browser language or 'en-US'
+      return navigator.language || navigator.userLanguage || 'en-US';
     }
     
     const toggleVoiceInput = () => {
@@ -166,7 +252,7 @@ export default {
     const processVoiceCommand = (command) => {
       try {
         // Voice command processing
-          errorHandler.logInfo('Voice command:', command)
+        errorHandler.logInfo('Voice command:', command)
         showVoiceStatus.value = true
         voiceStatusMessage.value = `Recognized: ${command}`
         
@@ -184,8 +270,8 @@ export default {
           router.push('/settings')
         } else if (lowerCommand.includes('help')) {
           router.push('/help')
-        } else if (router.currentRoute.value.path === '/') {
-          // If on conversation page, send voice input to child component
+        } else {
+          // Always send voice input to child components regardless of current route
           window.dispatchEvent(new CustomEvent('voice-input', { detail: command }));
         }
         
@@ -209,7 +295,14 @@ export default {
     })
     
     onUnmounted(() => {
-      // Cleanup resources if needed
+      // Cleanup resources
+      if (wsReconnectTimer) {
+        clearTimeout(wsReconnectTimer);
+      }
+      
+      if (ws && ws.readyState !== WebSocket.CLOSED) {
+        ws.close();
+      }
     })
     
     return {

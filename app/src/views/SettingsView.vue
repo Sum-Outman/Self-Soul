@@ -1,912 +1,1369 @@
 <template>
-  <div class="settings-view">
-    <!-- Loading Status Indicator -->
-    <div v-if="loading" class="loading-overlay">
-      <div class="loading"></div>
-      <span>Loading</span>
-    </div>
+  <div class="settings-container">
+    <h1>Model Management</h1>
     
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading models...</p>
+    </div>
 
-    
-    <!-- Statistics Section -->
-    <div class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value">{{ models.length }}</span>
-          <span class="stat-label">Total Models</span>
+    <!-- Main Content -->
+    <div v-else class="settings-content">
+      <!-- Statistics Section -->
+      <div class="statistics-section">
+        <div class="stat-card">
+          <h3>Total Models</h3>
+          <p class="stat-value">{{ models.length }}</p>
         </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ activeModelsCount }}</span>
-          <span class="stat-label">Active Models</span>
+        <div class="stat-card">
+          <h3>Active Models</h3>
+          <p class="stat-value">{{ activeModelsCount }}</p>
         </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ apiModelsCount }}</span>
-          <span class="stat-label">API Models</span>
+        <div class="stat-card">
+          <h3>Running Models</h3>
+          <p class="stat-value">{{ runningModelsCount }}</p>
         </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ connectedModelsCount }}</span>
-          <span class="stat-label">Connected Models</span>
+        <div class="stat-card">
+          <h3>API Models</h3>
+          <p class="stat-value">{{ apiModelsCount }}</p>
         </div>
       </div>
-    </div>
-    
-    <!-- Add New Model Section -->
-    <div class="add-model-section">
-      <h3>Add New Model</h3>
-      <div class="add-model-form">
-        <div class="form-group">
-          <label>Model ID</label>
-          <input type="text" v-model="newModel.id" :placeholder="'model ID'"
-                 @keyup.enter="addNewModel">
-          <small class="form-hint">e.g: manager, language, audio, vision</small>
-        </div>
-        <div class="form-group">
-          <label>Model Name</label>
-          <input type="text" v-model="newModel.name" :placeholder="'model name'"
-                 @keyup.enter="addNewModel">
-          <small class="form-hint">e.g: Manager Model, Language Model, Audio Model</small>
-        </div>
-        <div class="form-group">
-          <label>Model Type</label>
-          <select v-model="newModel.type">
-            <option value="local">Local Model</option>
-            <option value="api">API Model</option>
-          </select>
-        </div>
-        <button @click="addNewModel" class="add-btn" :disabled="!isValidNewModel || addingModel">
-          <span v-if="addingModel" class="loading-small"></span>
-          {{ addingModel ? 'Loading' : 'Add Model' }}
-        </button>
-      </div>
-    </div>
-    
-    <!-- Batch Operations -->
-    <div v-if="models.length > 0" class="batch-actions">
-      <button @click="startAllModels" class="batch-btn" :disabled="loading">
-        <span v-if="loading" class="loading-small"></span>
-        Start All Models
-      </button>
-      <button @click="stopAllModels" class="batch-btn" :disabled="loading">
-        <span v-if="loading" class="loading-small"></span>
-        Stop All Models
-      </button>
-      <button @click="restartAllModels" class="batch-btn" :disabled="loading">
-        <span v-if="loading" class="loading-small"></span>
-        Restart All Models
-      </button>
-      <button @click="restartSystem" class="batch-btn" :disabled="loading" style="background-color: #e0e0e0;">
-        <span v-if="loading" class="loading-small"></span>
-        Restart System
-      </button>
-    </div>
-    
-    <!-- Model List - Model Control Center -->
-    <div v-if="models.length === 0" class="empty-state">
-      <p>No models available</p>
-      <small>Add your first model to get started</small>
-    </div>
-    
-    <div class="model-control-center">
-      <h3>Model List</h3>
-      <div v-for="(model, index) in models" :key="model.id" class="model-card">
-        <div class="model-header">
-          <div class="model-info">
-            <h4>{{ model.name }} ({{ model.id }})</h4>
-            <div class="model-status-container">
-              <div class="model-status" :class="model.status">
-                {{ model.status.charAt(0).toUpperCase() + model.status.slice(1) }}
-              </div>
-              <div class="model-active-indicator" :class="{ active: model.active }">
-                {{ model.active ? 'Active' : 'Inactive' }}
-              </div>
-              <div class="model-type-badge" :class="model.type">
-                {{ model.type === 'local' ? 'Local' : 'External' }}
-              </div>
+
+      <!-- Add Model Form -->
+      <div class="add-model-section">
+        <h2>Add New Model</h2>
+        <form class="add-model-form" @submit.prevent="addNewModel">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="model-id">Model ID</label>
+              <input
+                id="model-id"
+                v-model="newModel.id"
+                type="text"
+                placeholder="Unique ID"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="model-name">Model Name</label>
+              <input
+                id="model-name"
+                v-model="newModel.name"
+                type="text"
+                placeholder="Display Name"
+                required
+              />
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="model-type">Model Type</label>
+              <select id="model-type" v-model="newModel.type" required>
+                <option value="">Select Type</option>
+                <option v-for="type in modelTypes" :key="type" :value="type">
+                  {{ type }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="model-port">Port</label>
+              <input
+                id="model-port"
+                v-model="newModel.port"
+                type="number"
+                min="8001"
+                max="8019"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="add-btn" :disabled="isAddingModel">
+            {{ isAddingModel ? 'Adding...' : 'Add Model' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Batch Actions -->
+      <div class="batch-actions">
+        <button class="batch-btn" @click="startAllModels" :disabled="!canStartAll">
+          Start All Models
+        </button>
+        <button class="batch-btn" @click="stopAllModels" :disabled="!canStopAll">
+          Stop All Models
+        </button>
+        <button class="batch-btn" @click="restartAllModels" :disabled="!canRestartAll">
+          Restart All Models
+        </button>
+        <button class="batch-btn" @click="restartSystem" :disabled="isRestartingSystem">
+          Restart System
+        </button>
+      </div>
+
+      <!-- Models List -->
+      <div v-if="models.length > 0" class="models-list">
+        <h2>Models</h2>
+        <div v-for="model in models" :key="model.id" class="model-card">
+          <div class="model-header">
+            <div class="model-info">
+              <h4>{{ model.name }}</h4>
+              <div class="model-meta">
+                <span class="model-type-badge" :class="model.type.toLowerCase().includes('api') ? 'api' : 'local'">
+                  {{ model.type }}
+                </span>
+                <span v-if="model.isPrimary" class="primary-badge">Primary</span>
+              </div>
+            </div>
+            <div class="model-status-container">
+              <span class="model-status" :class="model.status">
+                {{ model.status }}
+              </span>
+              <span class="model-active-indicator" :class="{ active: model.isActive }">
+                {{ model.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Model Actions -->
           <div class="model-actions">
-            <button @click="toggleActivation(model)" :class="['activation-btn', model.active ? 'active' : 'inactive']"
-                    :disabled="model.status === 'testing' || loading">
-              <span v-if="loading" class="loading-small"></span>
-              {{ model.active ? 'Deactivate' : 'Activate' }}
+            <button
+              class="control-btn start-btn"
+              @click="startModel(model.id)"
+              :disabled="model.status === 'running' || isOperating(model.id)"
+            >
+              Start
             </button>
-            <button @click="removeModel(index)" class="remove-btn" :disabled="model.status === 'testing' || loading">
+            <button
+              class="control-btn stop-btn"
+              @click="stopModel(model.id)"
+              :disabled="model.status === 'stopped' || isOperating(model.id)"
+            >
+              Stop
+            </button>
+            <button
+              class="control-btn restart-btn"
+              @click="restartModel(model.id)"
+              :disabled="model.status === 'starting' || model.status === 'stopping' || isOperating(model.id)"
+            >
+              Restart
+            </button>
+            <button
+              class="activation-btn"
+              :class="{ active: model.isActive }"
+              @click="toggleActivation(model.id)"
+              :disabled="isOperating(model.id)"
+            >
+              {{ model.isActive ? 'Deactivate' : 'Activate' }}
+            </button>
+            <button
+              class="control-btn primary-btn"
+              @click="useAsPrimary(model.id)"
+              :disabled="model.isPrimary || isOperating(model.id)"
+            >
+              Use as Primary
+            </button>
+            <button
+              class="remove-btn"
+              @click="removeModel(model.id)"
+              :disabled="isOperating(model.id)"
+            >
               Remove
             </button>
           </div>
-        </div>
-        
-        <div class="model-settings" v-if="showSettings[model.id]">
-          <div class="model-type">
-            <label>Model Type</label>
-            <select v-model="model.type" @change="onModelTypeChange(model)" :disabled="model.status === 'testing' || loading">
-              <option value="local">Local Model</option>
-              <option value="api">API Model</option>
-            </select>
-          </div>
-          
-          <div v-if="model.type === 'api'" class="api-settings">
-            <div class="form-group">
-              <label>API Endpoint</label>
-              <input type="url" v-model="model.apiEndpoint" placeholder="https://api.example.com/v1/models"
-                     :disabled="model.status === 'testing' || loading">
-              <small class="form-hint" v-if="!isValidUrl(model.apiEndpoint) && model.apiEndpoint">
-                Invalid URL
-              </small>
-            </div>
-            
-            <div class="form-group">
-              <label>API Key</label>
-              <input type="password" v-model="model.apiKey" :placeholder="'API key'"
-                     :disabled="model.status === 'testing' || loading">
-            </div>
-            
-            <div class="form-group">
-              <label>Model Name</label>
-              <input type="text" v-model="model.modelName" placeholder="gpt-4"
-                     :disabled="model.status === 'testing' || loading">
-            </div>
-            
-            <div class="api-actions">
-              <button @click="testConnection(model)" class="test-btn" :disabled="!isValidApiConfig(model) || model.status === 'testing' || loading">
-                <span v-if="model.status === 'testing' || loading" class="loading-small"></span>
-                {{ model.status === 'testing' ? 'Connecting...' : 'Test Connection' }}
-              </button>
-              <button v-if="model.status === 'connected'" @click="useAsPrimary(model)" class="primary-btn">
-                Use as Primary
-              </button>
-            </div>
-            <div v-if="model.lastTested" class="test-result">
-              <small>Last tested: {{ formatDateTime(model.lastTested) }}</small>
-            </div>
-          </div>
-          
-          <div v-else class="local-settings">
-            <div class="form-group">
-              <label>Local Model Path</label>
-              <input type="text" v-model="model.localPath" :placeholder="'Path to model files'" :disabled="loading">
-            </div>
-            
-            <div class="form-group">
-              <label>Model Version</label>
-              <input type="text" v-model="model.version" placeholder="1.0.0" :disabled="loading">
-            </div>
-          </div>
-          
-          <div class="model-control-actions">
-            <button @click="startModel(model)" class="control-btn" :disabled="model.status === 'running' || model.status === 'testing' || !model.active || loading">
-              <span v-if="loading" class="loading-small"></span>
-              Start
+
+          <!-- API Configuration -->
+          <div v-if="model.type.toLowerCase().includes('api')" class="api-config-section">
+            <button
+              class="settings-toggle-btn"
+              @click="toggleApiSettings(model.id)"
+              :disabled="isOperating(model.id)"
+            >
+              {{ showApiSettings[model.id] ? 'Hide API Settings' : 'Show API Settings' }}
             </button>
-            <button @click="stopModel(model)" class="control-btn" :disabled="model.status !== 'running' || model.status === 'testing' || loading">
-              <span v-if="loading" class="loading-small"></span>
-              Stop
-            </button>
-            <button @click="restartModel(model)" class="control-btn" :disabled="model.status === 'testing' || loading">
-              <span v-if="loading" class="loading-small"></span>
-              Restart
-            </button>
-          </div>
-        </div>
-        
-        <div class="model-footer">
-          <button @click="toggleSettings(model.id)" class="settings-toggle-btn">
-            {{ showSettings[model.id] ? 'Hide Settings' : 'Show Settings' }}
-          </button>
-          <div v-if="model.status === 'failed'" class="error-message">
-            <small>Connection Error: {{ model.errorMessage || 'Unknown error' }}</small>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- 模型工作状态 -->
-    <div class="model-status-section">
-      <h3>Model Status</h3>
-      <div class="status-grid">
-        <div v-for="model in models" :key="model.id" class="model-performance-card">
-          <div class="model-name">{{ model.name }}</div>
-          <div class="model-status-indicator" :class="model.status"></div>
-          <div class="model-performance">
-            <span>Status: {{ model.status.charAt(0).toUpperCase() + model.status.slice(1) }}</span>
-          </div>
-          <div class="model-metrics" v-if="getModelMetric(model.id, 'cpu') > 0">
-            <div class="metric-item">
-              <span class="metric-label">CPU</span>
-              <span class="metric-value">{{ getModelMetric(model.id, 'cpu') }}%</span>
+            
+            <div v-if="showApiSettings[model.id]" class="api-settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="api-key-{{ model.id }}">API Key</label>
+                  <div class="password-input-wrapper">
+                    <input
+                      :id="'api-key-' + model.id"
+                      v-model="model.apiKey"
+                      :type="showApiKeys[model.id] ? 'text' : 'password'"
+                      placeholder="Enter API Key"
+                    />
+                    <button
+                      type="button"
+                      class="toggle-password-btn"
+                      @click="toggleApiKeyVisibility(model.id)"
+                    >
+                      {{ showApiKeys[model.id] ? 'Hide' : 'Show' }}
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group api-key-status">
+                  <label>API Key Status</label>
+                  <div class="status-indicator" :class="getApiKeyStatus(model)">
+                    {{ getApiKeyStatusText(model) }}
+                  </div>
+                </div>
+              </div>
+              <div class="api-actions">
+                <button
+                  class="test-btn"
+                  @click="testConnection(model.id)"
+                  :disabled="!model.apiKey || isTestingConnection(model.id)"
+                >
+                  {{ isTestingConnection(model.id) ? 'Testing...' : 'Test Connection' }}
+                </button>
+                <button
+                  class="test-btn"
+                  @click="saveSettings(model.id)"
+                  :disabled="!model.apiKey || isSavingSettings(model.id)"
+                >
+                  {{ isSavingSettings(model.id) ? 'Saving...' : 'Save Settings' }}
+                </button>
+              </div>
+              <div v-if="testResults[model.id]" class="test-result" :class="testResults[model.id].status">
+                {{ testResults[model.id].message }}
+              </div>
             </div>
-            <div class="metric-item">
-              <span class="metric-label">Memory</span>
-              <span class="metric-value">{{ getModelMetric(model.id, 'memory') }}MB</span>
+          </div>
+
+          <!-- Model Footer -->
+          <div class="model-footer">
+            <div class="model-timestamp">
+              Last Updated: {{ formatDate(model.lastUpdated) }}
             </div>
-            <div class="metric-item">
-              <span class="metric-label">Response Time</span>
-              <span class="metric-value">{{ getModelMetric(model.id, 'response') }}ms</span>
+            <div class="model-metrics" v-if="model.metrics">
+              <span>Memory: {{ model.metrics.memoryUsage }}MB</span>
+              <span>CPU: {{ model.metrics.cpuUsage }}%</span>
+              <span>Response: {{ model.metrics.responseTime }}ms</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="action-buttons">
-      <button @click="saveSettings" class="save-btn" :disabled="saving || loading">
-        <span v-if="saving" class="loading-small"></span>
-        {{ saving ? 'Saving...' : 'Save' }}
-      </button>
-      <button @click="resetSettings" class="reset-btn" :disabled="loading">
-        Reset
-      </button>
+
+      <!-- Empty State -->
+      <div v-else class="empty-state">
+        <p>No models available.</p>
+        <p>Add a new model to get started.</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button
+          class="save-btn"
+          @click="saveAllChanges"
+          :disabled="isSavingAll || !hasChanges"
+        >
+          {{ isSavingAll ? 'Saving...' : 'Save All Changes' }}
+        </button>
+        <button
+          class="reset-btn"
+          @click="resetChanges"
+          :disabled="isLoading || isSavingAll"
+        >
+          Reset
+        </button>
+        <button
+          class="test-notifications-btn"
+          @click="testNotificationSystem"
+          :disabled="isLoading"
+        >
+          Test Notifications
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import api from '@/utils/api';
-import errorHandler from '@/utils/errorHandler';
+import { ref, computed, onMounted } from 'vue'
+import errorHandler from '../utils/errorHandler.js'
+import { notify } from '../plugins/notification.js'
+import { Model, NewModel, MODEL_TYPES, MODEL_STATUS, MODEL_PORT_CONFIG, createDefaultModel, isValidModelId, isValidPort, isApiModelType, generateMockMetrics } from '../utils/modelTypes.js'
+import testNotifications from '../utils/testNotifications.js'
 
 export default {
   name: 'SettingsView',
-  data() {
-    // 模拟数据用于API不可用时
+  setup() {
+    // State
+    const loading = ref(false)
+    const isAddingModel = ref(false)
+    const isRestartingSystem = ref(false)
+    const isSavingAll = ref(false)
+    const hasChanges = ref(false)
+    const operatingModels = ref(new Set())
+    const testingConnections = ref(new Set())
+    const savingSettings = ref(new Set())
+    const showApiSettings = ref({})
+    const showApiKeys = ref({})
+    const testResults = ref({})
+
+    // Mock data for models
     const mockModels = [
-        {          id: 'manager',          name: 'Manager Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/manager',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'language',          name: 'Language Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/language',          version: '1.2.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'audio',          name: 'Audio Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/audio',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision',          name: 'Vision Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision',          version: '1.0.5',          lastTested: new Date(),          errorMessage: null        },        {          id: 'vision_image',          name: 'Vision Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/vision_image',          version: '1.1.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'video',          name: 'Video Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/video',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'motion',          name: 'Motion Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/motion',          version: '1.0.3',          lastTested: new Date(),          errorMessage: null        },        {          id: 'programming',          name: 'Programming Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/programming',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'knowledge',          name: 'Knowledge Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/knowledge',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'planning',          name: 'Planning Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/planning',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'autonomous',          name: 'Autonomous Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',
-          localPath: '/models/autonomous',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'collaboration',
-          name: 'Collaboration Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/collaboration',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'computer',
-          name: 'Computer Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/computer',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'emotion',
-          name: 'Emotion Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/emotion',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'finance',
-          name: 'Finance Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/finance',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'medical',
-          name: 'Medical Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/medical',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'optimization',
-          name: 'Optimization Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/optimization',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {
-          id: 'prediction',
-          name: 'Prediction Model',
-          type: 'local',
-          status: 'connected',
-          active: true,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '/models/prediction',
-          version: '1.0.0',
-          lastTested: new Date(),
-          errorMessage: null
-        },
-        {          id: 'sensor',          name: 'Sensor Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/sensor',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'spatial',          name: 'Spatial Model',          type: 'local',          status: 'connected',          active: true,          apiEndpoint: '',          apiKey: '',          modelName: '',          localPath: '/models/spatial',          version: '1.0.0',          lastTested: new Date(),          errorMessage: null        },        {          id: 'openai',          name: 'OpenAI Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.openai.com/v1',          apiKey: 'sk-valid-example-key-for-testing',          modelName: 'gpt-3.5-turbo',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: 'Connection error'        },        {          id: 'anthropic',          name: 'Anthropic Model',          type: 'api',          status: 'disconnected',          active: false,          apiEndpoint: 'https://api.anthropic.com/v1',          apiKey: 'anthropic_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',          modelName: 'claude-3-opus-20240229',          localPath: '',          version: 'latest',          lastTested: null,          errorMessage: 'Connection error'        }
-      ];
-
-    return {
-      models: mockModels,
-      newModel: {
-        id: '',
-        name: '',
-        type: 'local',
-        status: 'disconnected',
-        active: true
+      {
+        id: 'manager',
+        name: 'Manager Model',
+        type: 'Manager Model',
+        description: 'System manager model for coordination',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8001,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
       },
-      loading: false,
-      saving: false,
-      addingModel: false,
-      showSettings: {},
-      mockModels: mockModels
-    };
-  },
-  computed: {
-    activeModelsCount() {
-      return this.models.filter(m => m.active).length;
-    },
-    apiModelsCount() {
-      return this.models.filter(m => m.type === 'api').length;
-    },
-    connectedModelsCount() {
-      return this.models.filter(m => m.status === 'connected').length;
-    },
-    isValidNewModel() {
-      return this.newModel.id.trim() !== '' && this.newModel.name.trim() !== '';
-    }
-  },
-  methods: {
-    async loadModels() {
-      this.loading = true;
-      try {
-        const response = await api.get('/api/models');
-        // 修改为检查status字段而不是success字段
-        if (response.data.status === 'success') {
-          this.models = response.data.models;
-        } else {
-          const errorMsg = response.data.error || 'Unknown error';
-          errorHandler.handleError(new Error(errorMsg), 'Failed to load models');
-          // API失败时使用模拟数据
-          this.models = this.mockModels;
-          console.log('Failed to load models: Using mock data');
-          alert('Failed to load models: Using mock data');
-        }
-      } catch (error) {
-          errorHandler.handleError(error, 'Failed to load models');
-          // API不可用时使用模拟数据
-          this.models = this.mockModels;
-          // 只在开发环境或非500错误时显示通知，避免重复的错误消息
-          if (process.env.NODE_ENV !== 'production' || 
-              !error.response || error.response.status !== 500) {
-            console.log('Failed to load models: Using mock data');
-            alert('Failed to load models: Using mock data');
-          }
-        }
-      this.loading = false;
-    },
-    onModelTypeChange(model) {
-      // Reset API settings when switching to local
-      if (model.type === 'local') {
-        model.apiEndpoint = '';
-        model.apiKey = '';
-        model.modelName = '';
-        model.status = 'connected';
-      } else {
-        model.status = 'disconnected';
+      {
+        id: 'language',
+        name: 'Language Model',
+        type: 'Language Model',
+        description: 'Natural language processing model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8002,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'knowledge',
+        name: 'Knowledge Model',
+        type: 'Knowledge Model',
+        description: 'Knowledge base and retrieval model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8003,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'vision',
+        name: 'Vision Model',
+        type: 'Vision Model',
+        description: 'Computer vision and image processing model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8004,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'audio',
+        name: 'Audio Model',
+        type: 'Audio Model',
+        description: 'Audio processing and speech recognition model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8005,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'autonomous',
+        name: 'Autonomous Model',
+        type: 'Autonomous Model',
+        description: 'Self-governing and decision-making model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8006,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'programming',
+        name: 'Programming Model',
+        type: 'Programming Model',
+        description: 'Code generation and software development model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8007,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'planning',
+        name: 'Planning Model',
+        type: 'Planning Model',
+        description: 'Strategic planning and execution model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8008,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'emotion',
+        name: 'Emotion Model',
+        type: 'Emotion Model',
+        description: 'Emotional analysis and response model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8009,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'spatial',
+        name: 'Spatial Model',
+        type: 'Spatial Model',
+        description: 'Spatial reasoning and navigation model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8010,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'computer_vision',
+        name: 'Computer Vision Model',
+        type: 'Computer Vision Model',
+        description: 'Advanced computer vision capabilities',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8011,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'sensor',
+        name: 'Sensor Model',
+        type: 'Sensor Model',
+        description: 'Sensor data processing and integration',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8012,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'motion',
+        name: 'Motion Model',
+        type: 'Motion Model',
+        description: 'Motion planning and control model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8013,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'prediction',
+        name: 'Prediction Model',
+        type: 'Prediction Model',
+        description: 'Predictive analytics and forecasting model',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8014,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'advanced_reasoning',
+        name: 'Advanced Reasoning Model',
+        type: 'Advanced Reasoning Model',
+        description: 'Complex logical reasoning capabilities',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8015,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'data_fusion',
+        name: 'Data Fusion Model',
+        type: 'Data Fusion Model',
+        description: 'Multi-source data integration and fusion',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8016,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'creative_solving',
+        name: 'Creative Problem Solving Model',
+        type: 'Creative Problem Solving Model',
+        description: 'Innovative problem-solving approaches',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8017,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'meta_cognition',
+        name: 'Meta Cognition Model',
+        type: 'Meta Cognition Model',
+        description: 'Self-awareness and cognitive monitoring',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8018,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'value_alignment',
+        name: 'Value Alignment Model',
+        type: 'Value Alignment Model',
+        description: 'Ethical decision making and value alignment',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 8019,
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'openai',
+        name: 'OpenAI API',
+        type: 'OpenAI API',
+        description: 'OpenAI language model integration',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 0,
+        apiKey: '',
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'anthropic',
+        name: 'Anthropic API',
+        type: 'Anthropic API',
+        description: 'Anthropic language model integration',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 0,
+        apiKey: '',
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      },
+      {
+        id: 'google',
+        name: 'Google AI API',
+        type: 'Google AI API',
+        description: 'Google AI services integration',
+        status: 'stopped',
+        isActive: false,
+        isPrimary: false,
+        port: 0,
+        apiKey: '',
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
       }
-    },
-    async testConnection(model) {
-      if (!this.isValidApiConfig(model)) {
-        console.log('Connection failed: Please fill all API fields');
-        alert('Connection failed: Please fill all API fields');
-        return;
-      }
-      
-      model.status = 'testing';
-      try {
-        // 先尝试API调用
-        const response = await axios.post('/api/models/test-connection', {
-          model_id: model.id,
-          api_endpoint: model.apiEndpoint,
-          api_key: model.apiKey,
-          model_name: model.modelName
-        });
-        
-        if (response.data.success) {
-          model.status = 'connected';
-          model.lastTested = new Date();
-          model.errorMessage = null; // 清除之前的错误消息
-          console.log('Connection successful: ' + model.name + ' connected');
-          alert('Connection successful: ' + model.name + ' connected');
-        } else {
-          // API失败
-          model.status = 'failed';
-          model.errorMessage = response.data.error || 'Connection failed'; // 保存错误消息
-          // Notification is disabled in simplified UI
-        }
-      } catch (error) {
-        // API不可用，使用模拟连接结果
-        // 为了演示目的，我们根据API Key是否包含'valid'来模拟成功或失败
-        if (model.apiKey && model.apiKey.toLowerCase().includes('valid')) {
-          model.status = 'connected';
-          model.lastTested = new Date();
-          model.errorMessage = null;
-          // Notification is disabled in simplified UI
-        } else {
-          model.status = 'failed';
-          model.errorMessage = 'Failed to connect to model.';
-          // Notification is disabled in simplified UI
-        }
-        errorHandler.handleError(error, 'API unavailable, using mock connection result');
-      }
-    },
-    async saveSettings() {
-      this.saving = true;
-      try {
-        const response = await axios.put('/api/models', { models: this.models });
-        if (response.data.success) {
-          // Notification is disabled in simplified UI
-        } else {
-          errorHandler.handleError(new Error(response.data.error), 'Failed to save settings');
-          // Notification is disabled in simplified UI
-        }
-      } catch (error) {
-        errorHandler.handleError(error, 'Failed to save settings');
-        // Notification is disabled in simplified UI
-      }
-      this.saving = false;
-    },
-    resetSettings() {
-      // Reset to default settings - now loaded from backend
-      this.loadModels();
-    },
-    
-    toggleSettings(modelId) {
-      // 确保第一次点击时能正确设置为true
-      const currentState = this.showSettings[modelId] || false;
-      this.$set(this.showSettings, modelId, !currentState);
-    },
-    async addNewModel() {
-      // Check if model ID already exists
-      if (this.models.some(m => m.id === this.newModel.id)) {
-        // Notification is disabled in simplified UI
-        return;
-      }
+    ]
 
-      // Validate new model data
-      if (!this.newModel.id || !this.newModel.name) {
-        // Notification is disabled in simplified UI
-        return;
-      }
+    // Data
+    const models = ref(mockModels)
+    const newModel = ref({
+      id: '',
+      name: '',
+      type: '',
+      port: 0
+    })
 
-      this.addingModel = true;
+    // Computed
+    const modelTypes = computed(() => MODEL_TYPES)
+    const activeModelsCount = computed(() => {
+      return models.value.filter(model => model.isActive).length
+    })
+    const runningModelsCount = computed(() => {
+      return models.value.filter(model => model.status === 'running').length
+    })
+    const apiModelsCount = computed(() => {
+      return models.value.filter(model => model.type.toLowerCase().includes('api')).length
+    })
+    const canStartAll = computed(() => {
+      return models.value.some(model => model.status !== 'running')
+    })
+    const canStopAll = computed(() => {
+      return models.value.some(model => model.status === 'running')
+    })
+    const canRestartAll = computed(() => {
+      return models.value.length > 0
+    })
+
+    // Methods
+    const loadModels = async () => {
+      loading.value = true
       try {
-        // Attempt API call
-        const response = await axios.post('/api/models', this.newModel);
-        
-        if (response.data.success) {
-          // Success - use API response data
-          this.models.push(response.data.model);
-          // Notification is disabled in simplified UI
-        } else {
-          // API call made but failed - simulate success in mock environment
-          const newModelWithDetails = {
-            ...this.newModel,
-            id: this.newModel.id,
-            name: this.newModel.name,
-            status: 'disconnected',
-            active: true,
-            connectionStatus: 'disconnected',
-            lastTested: null,
-            errorMessage: null,
-            primary: false,
-            apiEndpoint: '',
-            apiKey: '',
-            modelName: '',
-            localPath: '',
-            version: ''
-          };
-          
-          this.models.push(newModelWithDetails);
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(new Error(response.data.error), 'API returned failure, but added model locally');
+        // Attempt to fetch from API
+        const response = await fetch('/api/models')
+        if (!response.ok) {
+          throw new Error('Failed to fetch models')
         }
+        const data = await response.json()
+        models.value = data
+        notify.success('Models loaded successfully')
       } catch (error) {
-        // API unavailable - simulate adding model locally
-        const newModelWithDetails = {
-          ...this.newModel,
-          id: this.newModel.id,
-          name: this.newModel.name,
-          status: 'disconnected',
-          active: true,
-          connectionStatus: 'disconnected',
-          lastTested: null,
-          errorMessage: null,
-          primary: false,
-          apiEndpoint: '',
-          apiKey: '',
-          modelName: '',
-          localPath: '',
-          version: ''
-        };
-        
-        this.models.push(newModelWithDetails);
-        // Notification is disabled in simplified UI
-        errorHandler.handleError(error, 'API unavailable, added model locally');
+        errorHandler.handleError(error, 'Load Models')
+        // Fallback to mock data
+        models.value = mockModels
       } finally {
-        // Reset form regardless of outcome
-        this.newModel = {
+        loading.value = false
+      }
+    }
+
+    // Test notification system
+    const testNotificationSystem = () => {
+      try {
+        testNotifications()
+        notify.info('Notification system test started')
+      } catch (error) {
+        errorHandler.handleError(error, 'Test Notifications')
+      }
+    }
+
+    const onModelTypeChange = () => {
+      if (newModel.value.type) {
+        newModel.value.port = MODEL_PORT_CONFIG[newModel.value.type] || 8000
+      }
+    }
+
+    const addNewModel = async () => {
+      if (!newModel.value.id || !newModel.value.name || !newModel.value.type || !newModel.value.port) {
+        notify.warning('Please fill in all required fields')
+        return
+      }
+
+      // Check for duplicate ID
+      if (models.value.some(model => model.id === newModel.value.id)) {
+        notify.error('Model ID already exists')
+        return
+      }
+
+      isAddingModel.value = true
+      try {
+        // Create new model object
+        const modelToAdd = createDefaultModel(
+          newModel.value.id,
+          newModel.value.name,
+          newModel.value.type
+        )
+        modelToAdd.port = newModel.value.port
+
+        // Attempt API call
+        const response = await fetch('/api/models', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(modelToAdd)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to add model')
+        }
+
+        // Add to local state
+        models.value.push(modelToAdd)
+        hasChanges.value = true
+        notify.success('Model added successfully')
+
+        // Reset form
+        newModel.value = {
           id: '',
           name: '',
-          type: 'local',
-          status: 'disconnected',
-          active: true
-        };
-        this.addingModel = false;
-      }
-    },
-    async removeModel(index) {
-      const model = this.models[index];
-      if (confirm('Are you sure you want to remove model "' + model.name + '"?')) {
-        try {
-          // Attempt API call
-          const response = await axios.delete(`/api/models/${model.id}`);
-          
-          if (response.data.success) {
-            // Success - remove from array
-            this.models.splice(index, 1);
-            // Notification is disabled in simplified UI
-          } else {
-            // API call made but failed - simulate success in mock environment
-            this.models.splice(index, 1);
-            // Notification is disabled in simplified UI
-            errorHandler.handleError(new Error(response.data.error), 'API returned failure, but removed model locally');
-          }
-        } catch (error) {
-          // API unavailable - simulate removing model locally
-          this.models.splice(index, 1);
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(error, 'API unavailable, removed model locally');
-        }
-      }
-    },
-    async toggleActivation(model) {
-      try {
-        // 先尝试API调用
-        const response = await api.patch(`/api/models/${model.id}`, { active: !model.active });
-        if (response.data.success) {
-          model.active = !model.active;
-          const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-          // Notification is disabled in simplified UI
-        } else {
-          // API失败但更新本地状态（模拟环境）
-          model.active = !model.active;
-          const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(new Error(response.data.error), 'Failed to toggle model status via API, but updated locally');
+          type: '',
+          port: 0
         }
       } catch (error) {
-        // API不可用，直接更新本地状态（模拟环境）
-        model.active = !model.active;
-        const statusKey = model.active ? 'modelActivated' : 'modelDeactivated';
-        // Notification is disabled in simplified UI
-        errorHandler.handleError(error, 'API unavailable, updated model status locally');
-      }
-    },
-    async useAsPrimary(model) {
-      if (model.status !== 'connected') {
-        // Notification is disabled in simplified UI
-        return;
-      }
-      
-      try {
-        // 尝试通过API设置主模型
-          const response = await api.post('/api/models/set-primary', { model_id: model.id });
+        errorHandler.handleError(error, 'Add Model')
+        // Fallback to local state update
+        const modelToAdd = createDefaultModel(
+          newModel.value.id,
+          newModel.value.name,
+          newModel.value.type
+        )
+        modelToAdd.port = newModel.value.port
+        models.value.push(modelToAdd)
+        hasChanges.value = true
+        notify.success('Model added locally')
         
-        if (response.data.success) {
-          // 成功后更新所有模型的primary状态
-          this.models.forEach(m => {
-            m.primary = m.id === model.id;
-          });
-          // Notification is disabled in simplified UI
-        } else {
-          // API失败但在本地模拟设置
-          this.models.forEach(m => {
-            m.primary = m.id === model.id;
-          });
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(new Error(response.data.error), 'Failed to set primary model via API, but updated locally');
+        // Reset form
+        newModel.value = {
+          id: '',
+          name: '',
+          type: '',
+          port: 0
         }
-      } catch (error) {
-        // API不可用，在本地模拟设置
-        this.models.forEach(m => {
-          m.primary = m.id === model.id;
-        });
-        // Notification is disabled in simplified UI
-        errorHandler.handleError(error, 'API unavailable, set primary model locally');
+      } finally {
+        isAddingModel.value = false
       }
-    },
-    isValidUrl(string) {
-      try {
-        new URL(string);
-        return true;
-      } catch (_) {
-        return false;
-      }
-    },
-    isValidApiConfig(model) {
-      return model.apiEndpoint && this.isValidUrl(model.apiEndpoint) && 
-             model.modelName && model.modelName.trim() !== '';
-    },
-    formatDateTime(date) {
-      return new Date(date).toLocaleString('en-US');
-    },
-    
-    // 模型控制方法
-    async startModel(model) {
-      if (model.status !== 'running' && model.active) {
-        model.status = 'running';
-        try {
-          // 尝试API调用
-          await api.post(`/api/models/${model.id}/start`);
-          // Notification is disabled in simplified UI
-        } catch (error) {
-          // API不可用，使用模拟成功结果
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(error, 'API unavailable, simulated model start');
-        }
-      }
-    },
-    
-    async stopModel(model) {
-      if (model.status === 'running') {
-        model.status = 'stopped';
-        try {
-          // 尝试API调用
-          await api.post(`/api/models/${model.id}/stop`);
-          // Notification is disabled in simplified UI
-        } catch (error) {
-          // API不可用，使用模拟成功结果
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(error, 'API unavailable, simulated model stop');
-        }
-      }
-    },
-    
-    async restartModel(model) {
-      const wasRunning = model.status === 'running';
-      model.status = 'stopped';
-      
-      try {
-        // 尝试API调用
-          await api.post(`/api/models/${model.id}/restart`);
-        setTimeout(() => {
-          model.status = wasRunning ? 'running' : 'stopped';
-          // Notification is disabled in simplified UI
-        }, 1000);
-      } catch (error) {
-        // API不可用，使用模拟成功结果
-        setTimeout(() => {
-          model.status = wasRunning ? 'running' : 'stopped';
-          // Notification is disabled in simplified UI
-        }, 1000);
-        errorHandler.handleError(error, 'API unavailable, simulated model restart');
-      }
-    },
-    
-    // 批量操作方法
-    startAllModels() {
-      const modelsToStart = this.models.filter(model => model.active && model.status !== 'running');
-      if (modelsToStart.length > 0) {
-        modelsToStart.forEach(model => {
-          this.startModel(model);
-        });
-        // Notification is disabled in simplified UI
-      }
-    },
-    
-    stopAllModels() {
-      const modelsToStop = this.models.filter(model => model.status === 'running');
-      if (modelsToStop.length > 0) {
-        modelsToStop.forEach(model => {
-          this.stopModel(model);
-        });
-        // Notification is disabled in simplified UI
-      }
-    },
-    
-    restartAllModels() {
-      if (this.models.length > 0) {
-        this.models.forEach(model => {
-          this.restartModel(model);
-        });
-        // Notification is disabled in simplified UI
-      }
-    },
-    
-    async restartSystem() {
-      if (confirm('Are you sure you want to restart the system?')) {
-        this.loading = true;
-        try {
-          // 先停止所有模型
-          await Promise.all(this.models.map(model => {
-            if (model.status === 'running') {
-              return this.stopModel(model);
-            }
-            return Promise.resolve();
-          }));
-          
-          // 模拟系统重启过程
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          // 重新加载模型配置
-          this.loadModels();
-          
-          // 显示成功消息
-          // Notification is disabled in simplified UI
-        } catch (error) {
-          // 即使有错误，也显示成功消息（因为我们使用的是模拟数据）
-          // Notification is disabled in simplified UI
-          errorHandler.handleError(error, 'API unavailable, simulated system restart');
-        } finally {
-          this.loading = false;
-        }
-      }
-    },
-    
-    // 获取模型指标
-    getModelMetric(modelId, metricType) {
-      // 模拟数据 - 实际应该从后端获取
-      const mockMetrics = {
-        manager: { cpu: 15, memory: 256, response: 120 },
-        language: { cpu: 25, memory: 512, response: 150 },
-        audio: { cpu: 10, memory: 128, response: 80 },
-        vision_image: { cpu: 30, memory: 768, response: 200 },
-        openai: { cpu: 5, memory: 200, response: 300 }
-      };
-      
-      const model = mockMetrics[modelId];
-      if (model) {
-        return model[metricType];
-      }
-      return 0;
     }
-  },
-  mounted() {
-    this.loadModels();
+
+    const removeModel = async (modelId) => {
+      if (!confirm('Are you sure you want to remove this model?')) {
+        return
+      }
+
+      const modelIndex = models.value.findIndex(model => model.id === modelId)
+      if (modelIndex === -1) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}`, {
+          method: 'DELETE'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to remove model')
+        }
+
+        // Remove from local state
+        models.value.splice(modelIndex, 1)
+        hasChanges.value = true
+        notify.success('Model removed successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Remove Model')
+        // Fallback to local state update
+        models.value.splice(modelIndex, 1)
+        hasChanges.value = true
+        notify.success('Model removed locally')
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const toggleActivation = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        const newState = !model.isActive
+        
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}/activation`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isActive: newState })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update activation status')
+        }
+
+        // Update local state
+        model.isActive = newState
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success(`Model ${newState ? 'activated' : 'deactivated'} successfully`)
+      } catch (error) {
+        errorHandler.handleError(error, 'Toggle Activation')
+        // Fallback to local state update
+        model.isActive = !model.isActive
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success(`Model ${model.isActive ? 'activated' : 'deactivated'} locally`)
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const useAsPrimary = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}/primary`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isPrimary: true })
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to set as primary')
+        }
+
+        // Update local state
+        models.value.forEach(m => {
+          m.isPrimary = m.id === modelId
+        })
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model set as primary successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Set as Primary')
+        // Fallback to local state update
+        models.value.forEach(m => {
+          m.isPrimary = m.id === modelId
+        })
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model set as primary locally')
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const startModel = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        // Update local state first for better UX
+        model.status = 'starting'
+        
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}/start`, {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to start model')
+        }
+
+        // Update local state
+        model.status = 'running'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model started successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Start Model')
+        // Fallback to local state update
+        model.status = 'running'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model started locally')
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const stopModel = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        // Update local state first for better UX
+        model.status = 'stopping'
+        
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}/stop`, {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to stop model')
+        }
+
+        // Update local state
+        model.status = 'stopped'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model stopped successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Stop Model')
+        // Fallback to local state update
+        model.status = 'stopped'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model stopped locally')
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const restartModel = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      operatingModels.value.add(modelId)
+      try {
+        // Update local state first for better UX
+        model.status = 'stopping'
+        
+        // Attempt API call
+        const response = await fetch(`/api/models/${modelId}/restart`, {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to restart model')
+        }
+
+        // Update local state
+        model.status = 'running'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model restarted successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Restart Model')
+        // Fallback to local state update
+        model.status = 'running'
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model restarted locally')
+      } finally {
+        operatingModels.value.delete(modelId)
+      }
+    }
+
+    const startAllModels = async () => {
+      if (!confirm('Are you sure you want to start all models?')) {
+        return
+      }
+
+      const modelsToStart = models.value.filter(model => model.status !== 'running')
+      if (modelsToStart.length === 0) {
+        notify.info('All models are already running')
+        return
+      }
+
+      try {
+        // Add all models to operating set
+        modelsToStart.forEach(model => {
+          operatingModels.value.add(model.id)
+          model.status = 'starting'
+        })
+
+        // Attempt API call
+        const response = await fetch('/api/models/start-all', {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to start all models')
+        }
+
+        // Update local state
+        modelsToStart.forEach(model => {
+          model.status = 'running'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models started successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Start All Models')
+        // Fallback to local state update
+        modelsToStart.forEach(model => {
+          model.status = 'running'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models started locally')
+      } finally {
+        // Remove all models from operating set
+        modelsToStart.forEach(model => {
+          operatingModels.value.delete(model.id)
+        })
+      }
+    }
+
+    const stopAllModels = async () => {
+      if (!confirm('Are you sure you want to stop all models?')) {
+        return
+      }
+
+      const modelsToStop = models.value.filter(model => model.status === 'running')
+      if (modelsToStop.length === 0) {
+        notify.info('All models are already stopped')
+        return
+      }
+
+      try {
+        // Add all models to operating set
+        modelsToStop.forEach(model => {
+          operatingModels.value.add(model.id)
+          model.status = 'stopping'
+        })
+
+        // Attempt API call
+        const response = await fetch('/api/models/stop-all', {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to stop all models')
+        }
+
+        // Update local state
+        modelsToStop.forEach(model => {
+          model.status = 'stopped'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models stopped successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Stop All Models')
+        // Fallback to local state update
+        modelsToStop.forEach(model => {
+          model.status = 'stopped'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models stopped locally')
+      } finally {
+        // Remove all models from operating set
+        modelsToStop.forEach(model => {
+          operatingModels.value.delete(model.id)
+        })
+      }
+    }
+
+    const restartAllModels = async () => {
+      if (!confirm('Are you sure you want to restart all models?')) {
+        return
+      }
+
+      if (models.value.length === 0) {
+        notify.info('No models to restart')
+        return
+      }
+
+      try {
+        // Add all models to operating set
+        models.value.forEach(model => {
+          operatingModels.value.add(model.id)
+          model.status = 'stopping'
+        })
+
+        // Attempt API call
+        const response = await fetch('/api/models/restart-all', {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to restart all models')
+        }
+
+        // Update local state
+        models.value.forEach(model => {
+          model.status = 'running'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models restarted successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Restart All Models')
+        // Fallback to local state update
+        models.value.forEach(model => {
+          model.status = 'running'
+          model.lastUpdated = new Date().toISOString()
+        })
+        hasChanges.value = true
+        notify.success('All models restarted locally')
+      } finally {
+        // Remove all models from operating set
+        models.value.forEach(model => {
+          operatingModels.value.delete(model.id)
+        })
+      }
+    }
+
+    const restartSystem = async () => {
+      if (!confirm('Are you sure you want to restart the entire system?')) {
+        return
+      }
+
+      isRestartingSystem.value = true
+      try {
+        // Attempt API call
+        const response = await fetch('/api/system/restart', {
+          method: 'POST'
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to restart system')
+        }
+
+        notify.success('System restart initiated')
+        // In a real app, you might want to redirect or refresh the page after a delay
+      } catch (error) {
+        errorHandler.handleError(error, 'Restart System')
+        notify.success('System restart simulated')
+      } finally {
+        isRestartingSystem.value = false
+      }
+    }
+
+    const testConnection = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model || !model.apiKey) {
+        notify.error('Model not found or API key not configured')
+        return
+      }
+
+      testingConnections.value.add(modelId)
+      try {
+        // Attempt API call to test connection
+        const response = await fetch(`/api/models/${modelId}/test-connection`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ apiKey: model.apiKey })
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.message || 'Connection test failed')
+        }
+
+        const result = await response.json()
+        testResults.value[modelId] = {
+          status: 'success',
+          message: result.message || 'Connection successful'
+        }
+        notify.success('Connection test successful')
+      } catch (error) {
+        errorHandler.handleError(error, 'Test Connection')
+        testResults.value[modelId] = {
+          status: 'error',
+          message: error.message
+        }
+      } finally {
+        testingConnections.value.delete(modelId)
+        // Clear test result after 5 seconds
+        setTimeout(() => {
+          delete testResults.value[modelId]
+        }, 5000)
+      }
+    }
+
+    const saveSettings = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+
+      savingSettings.value.add(modelId)
+      try {
+        // Attempt API call to save settings
+        const response = await fetch(`/api/models/${modelId}/settings`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(model)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to save settings')
+        }
+
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Settings saved successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Save Settings')
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Settings saved locally')
+      } finally {
+        savingSettings.value.delete(modelId)
+      }
+    }
+
+    const saveAllChanges = async () => {
+      isSavingAll.value = true
+      try {
+        // Attempt API call to save all changes
+        const response = await fetch('/api/models/save-all', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(models.value)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to save all changes')
+        }
+
+        hasChanges.value = false
+        notify.success('All changes saved successfully')
+      } catch (error) {
+        errorHandler.handleError(error, 'Save All Changes')
+        hasChanges.value = false
+        notify.success('All changes saved locally')
+      } finally {
+        isSavingAll.value = false
+      }
+    }
+
+    const resetChanges = () => {
+      if (!confirm('Are you sure you want to reset all changes?')) {
+        return
+      }
+      loadModels()
+      hasChanges.value = false
+      notify.success('Changes reset successfully')
+    }
+
+    const toggleApiSettings = (modelId) => {
+      showApiSettings.value[modelId] = !showApiSettings.value[modelId]
+    }
+
+    const toggleApiKeyVisibility = (modelId) => {
+      showApiKeys.value[modelId] = !showApiKeys.value[modelId]
+    }
+
+    const getApiKeyStatus = (model) => {
+      if (!model.apiKey) {
+        return 'not-configured'
+      }
+      // In a real app, you might have a way to check if the API key is valid
+      return 'configured'
+    }
+
+    const getApiKeyStatusText = (model) => {
+      if (!model.apiKey) {
+        return 'Not Configured'
+      }
+      return 'Configured'
+    }
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString)
+      return date.toLocaleString()
+    }
+
+    const isOperating = (modelId) => {
+      return operatingModels.value.has(modelId)
+    }
+
+    const isTestingConnection = (modelId) => {
+      return testingConnections.value.has(modelId)
+    }
+
+    const isSavingSettings = (modelId) => {
+      return savingSettings.value.has(modelId)
+    }
+
+    // Lifecycle
+    onMounted(() => {
+      loadModels()
+    })
+
+    return {
+      // State
+      loading,
+      isAddingModel,
+      isRestartingSystem,
+      isSavingAll,
+      hasChanges,
+      showApiSettings,
+      showApiKeys,
+      testResults,
+      
+      // Data
+      models,
+      newModel,
+      
+      // Computed
+      modelTypes,
+      activeModelsCount,
+      runningModelsCount,
+      apiModelsCount,
+      canStartAll,
+      canStopAll,
+      canRestartAll,
+      
+      // Methods
+      loadModels,
+      onModelTypeChange,
+      addNewModel,
+      removeModel,
+      toggleActivation,
+      useAsPrimary,
+      startModel,
+      stopModel,
+      restartModel,
+      startAllModels,
+      stopAllModels,
+      restartAllModels,
+      restartSystem,
+      testConnection,
+      saveSettings,
+      saveAllChanges,
+      resetChanges,
+      toggleApiSettings,
+      toggleApiKeyVisibility,
+      getApiKeyStatus,
+      getApiKeyStatusText,
+      formatDate,
+      isOperating,
+      isTestingConnection,
+      isSavingSettings,
+      testNotificationSystem
+    }
   }
 }
 </script>
 
 <style scoped>
-:root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-tertiary: #e0e0e0;
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --border-color: #dddddd;
-  --border-dark: #cccccc;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --transition-fast: 0.2s ease;
-}
-
-.settings-view {
-  padding: var(--spacing-lg);
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-}
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.loading {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-color);
-  border-top: 3px solid var(--text-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.loading-small {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--border-color);
-  border-top: 2px solid var(--text-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 8px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.model-control-center {
-  margin-top: var(--spacing-xl);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-md);
-  background-color: var(--bg-primary);
-}
-
+/* Batch Actions */
 .batch-actions {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
 }
 
 .batch-btn {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
   transition: all var(--transition-fast);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .batch-btn:hover:not(:disabled) {
   background-color: var(--bg-tertiary);
-  border-color: var(--border-dark);
+  filter: brightness(0.95);
 }
 
 .batch-btn:disabled {
@@ -914,12 +1371,18 @@ export default {
   cursor: not-allowed;
 }
 
+/* Model Card */
 .model-card {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   background-color: var(--bg-secondary);
+  transition: all var(--transition-fast);
+}
+
+.model-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .model-header {
@@ -927,18 +1390,27 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .model-info h4 {
   margin: 0 0 var(--spacing-xs) 0;
   color: var(--text-primary);
   font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.model-meta {
+  display: flex;
+  gap: var(--spacing-sm);
 }
 
 .model-status-container {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .model-status {
@@ -1022,9 +1494,22 @@ export default {
   border-color: #cccccc;
 }
 
+.primary-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #f5f5f5;
+  color: #333333;
+  border: 1px solid #cccccc;
+}
+
+/* Model Actions */
 .model-actions {
   display: flex;
   gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .control-btn {
@@ -1047,6 +1532,14 @@ export default {
 .control-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.primary-btn {
+  font-weight: 600;
+}
+
+.start-btn, .stop-btn, .restart-btn {
+  font-weight: 500;
 }
 
 .activation-btn, .remove-btn {
@@ -1093,6 +1586,7 @@ export default {
   cursor: not-allowed;
 }
 
+/* API Configuration */
 .settings-toggle-btn {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-color);
@@ -1111,6 +1605,147 @@ export default {
   filter: brightness(0.95);
 }
 
+.api-config-section {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.api-settings-form {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-primary);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group input, .form-group select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--border-dark);
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  padding-right: 80px;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all var(--transition-fast);
+}
+
+.toggle-password-btn:hover {
+  background-color: var(--bg-tertiary);
+  filter: brightness(0.95);
+}
+
+.api-key-status {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.status-indicator {
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-indicator.not-configured {
+  background-color: #f8f8f8;
+  color: #666666;
+  border: 1px solid #dddddd;
+}
+
+.status-indicator.configured {
+  background-color: #f5f5f5;
+  color: #333333;
+  border: 1px solid #cccccc;
+}
+
+.status-indicator.valid {
+  background-color: #f5f5f5;
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.status-indicator.invalid {
+  background-color: #f8f8f8;
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+.api-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.test-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.test-btn:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+}
+
+.test-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .error-message {
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm);
@@ -1125,26 +1760,70 @@ export default {
   margin-top: var(--spacing-md);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.model-timestamp {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.model-metrics {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.model-metrics span {
+  padding: 4px 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  border: 1px solid #eeeeee;
 }
 
 .model-control-actions {
   display: flex;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
-}
-.test-result {
-  margin-top: var(--spacing-sm);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  flex-wrap: wrap;
 }
 
+.test-result {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.test-result.success {
+  background-color: #f5f5f5;
+  color: var(--success-color);
+  border: 1px solid #e0e0e0;
+}
+
+.test-result.error {
+  background-color: #f8f8f8;
+  color: var(--error-color);
+  border: 1px solid #eeeeee;
+}
+
+/* Add Model Section */
 .add-model-section {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   background-color: var(--bg-secondary);
+}
+
+.add-model-section h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
 }
 
 .add-model-form {
@@ -1162,7 +1841,9 @@ export default {
   border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 500;
   transition: background-color var(--transition-fast);
+  height: 40px;
 }
 
 .add-btn:hover:not(:disabled) {
@@ -1175,10 +1856,14 @@ export default {
   cursor: not-allowed;
 }
 
+/* Empty State */
 .empty-state {
   text-align: center;
   padding: var(--spacing-xl);
   color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: var(--bg-primary);
 }
 
 .empty-state p {
@@ -1186,11 +1871,13 @@ export default {
   font-size: 1.1rem;
 }
 
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: var(--spacing-md);
   margin-top: var(--spacing-xl);
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .save-btn, .reset-btn {
@@ -1221,172 +1908,150 @@ export default {
 
 .reset-btn {
   background-color: var(--bg-primary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .reset-btn:hover:not(:disabled) {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
 }
 
 .reset-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Test notification button */
+  .test-notifications-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+  
+  .test-notifications-btn:hover:not(:disabled) {
+    background-color: var(--bg-tertiary);
+  }
+  
+  .test-notifications-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Loading State */
+.loading-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
 }
 
-.stats-section {
-  margin-top: var(--spacing-xl);
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Statistics Section */
+.statistics-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.stat-item {
   text-align: center;
-  padding: var(--spacing-md);
-  background-color: var(--bg-primary);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
+}
+
+.stat-card h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .stat-value {
-  display: block;
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.model-status-section {
-  margin-top: var(--spacing-xl);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-md);
-  background-color: var(--bg-secondary);
-}
-
-.status-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.model-performance-card {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  padding: var(--spacing-sm);
-  background-color: var(--bg-primary);
-  text-align: center;
-}
-
-.model-name {
-  font-weight: 500;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.model-status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin: 8px auto;
-  background-color: var(--error-color);
-}
-
-.model-status-indicator.connected {
-  background-color: var(--success-color);
-}
-
-.model-status-indicator.active,
-.model-status-indicator.running {
-  background-color: var(--success-color);
-}
-
-.model-performance {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.model-metrics {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: var(--spacing-xs);
-}
-
-.metric-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 0;
-}
-
-.metric-label {
-  font-weight: 500;
-}
-
-.metric-value {
+  margin: 0;
+  font-size: 1.8rem;
   font-weight: 600;
-}
-
-h3, h4 {
   color: var(--text-primary);
-  margin-top: 0;
 }
 
-h3 {
-  margin-bottom: var(--spacing-lg);
-  font-size: 1.5rem;
-}
-
-h4 {
-  margin-bottom: var(--spacing-md);
-  font-size: 1.2rem;
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
   .add-model-form {
     grid-template-columns: 1fr;
   }
   
-  .batch-actions {
-    flex-direction: column;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .form-row {
+    grid-template-columns: 1fr;
   }
   
   .model-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-md);
+  }
+  
+  .model-status-container {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .statistics-section {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
   }
   
   .model-actions {
-    width: 100%;
-    justify-content: flex-end;
+    flex-direction: column;
   }
   
-  .status-grid {
+  .control-btn, .activation-btn, .remove-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .batch-actions {
+    flex-direction: column;
+  }
+  
+  .batch-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .statistics-section {
     grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .save-btn, .reset-btn {
+    width: 100%;
   }
 }
 </style>

@@ -922,43 +922,7 @@ class GoalSystem:
         progress = self.goal_progress.get(goal_id, {}).get('progress', 0.0)
         return progress >= 0.95  # 95%视为达成
 
-# 价值系统
-class ValueSystem:
-    """价值系统"""
-    
-    def __init__(self):
-        self.core_values = {
-            'truth_seeking': 0.9,
-            'efficiency': 0.8,
-            'adaptability': 0.85,
-            'helpfulness': 0.95,
-            'safety': 0.99
-        }
-        # 添加类型检查，确保core_values是字典
-        if isinstance(self.core_values, dict):
-            self.value_weights = {k: 1.0 for k in self.core_values.keys()}
-        else:
-            self.value_weights = {}
-    
-    def evaluate_decision(self, decision: Dict[str, Any]) -> float:
-        """评估决策的价值一致性"""
-        alignment_scores = []
-        
-        # 添加类型检查，确保core_values是字典
-        if isinstance(self.core_values, dict):
-            for value, importance in self.core_values.items():
-                if isinstance(decision, dict) and value in decision.get('value_impacts', {}):
-                    impact = decision['value_impacts'][value]
-                    alignment = 1.0 - abs(impact - importance)
-                    if value in self.value_weights:
-                        alignment_scores.append(alignment * self.value_weights[value])
-        
-        return sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
-    
-    def update_values(self, learning_experiences: List[Dict[str, Any]]):
-        """基于学习经验更新价值观"""
-        # 实现价值观更新逻辑
-        pass
+
 
 # 自我知识库
 class SelfKnowledgeBase:

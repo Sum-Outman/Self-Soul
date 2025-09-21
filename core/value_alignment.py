@@ -13,16 +13,46 @@
 """
 import numpy as np
 import time
+import logging
 from datetime import datetime
 from collections import defaultdict, deque
 import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics.pairwise import cosine_similarity
 import re
 from core.error_handling import error_handler
-# 移除对外部预训练模型的依赖，使用完全从零开始训练的自定义模型
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+
+def cosine_similarity(vec1, vec2):
+    """Compute cosine similarity between two vectors or matrices"""
+    if isinstance(vec1, list) and isinstance(vec2, list):
+        # Handle list inputs
+        vec1 = np.array(vec1)
+        vec2 = np.array(vec2)
+    
+    if vec1.ndim == 1 and vec2.ndim == 1:
+        # Single vectors
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return dot_product / (norm1 * norm2)
+    elif vec1.ndim == 2 and vec2.ndim == 2:
+        # Matrices - compute pairwise similarity
+        norms1 = np.linalg.norm(vec1, axis=1, keepdims=True)
+        norms2 = np.linalg.norm(vec2, axis=1, keepdims=True)
+        dot_products = np.dot(vec1, vec2.T)
+        norms_product = norms1 * norms2.T
+        with np.errstate(divide='ignore', invalid='ignore'):
+            similarity = np.where(norms_product != 0, dot_products / norms_product, 0.0)
+        return similarity
+    else:
+        raise ValueError("Input vectors must be both 1D or both 2D")
+# Remove dependency on external pre-trained models, use custom models trained from scratch
 
 class ValueSystem:
     """AGI Value System - Universal value alignment system with dynamic evolution capability"""
@@ -33,24 +63,24 @@ class ValueSystem:
         self.value_violations = defaultdict(int)
         self.value_fulfillments = defaultdict(int)
         
-        # 初始化自定义Tokenizer和文本编码器，完全从零开始训练
+        # Initialize custom Tokenizer and text encoder, trained completely from scratch
         self.tokenizer = self._create_custom_tokenizer()
         self.text_encoder = self._create_custom_text_encoder()
         
-        # 初始化词汇表和嵌入层
+        # Initialize vocabulary and embedding layers
         self.vocabulary = self._build_vocabulary()
         self.word_embeddings = nn.Embedding(len(self.vocabulary), 128)
         
-        # 禁用梯度计算，在启用训练模式时再开启
+        # Disable gradient computation, enable when training mode is activated
         self.training_mode = False
         for param in self.text_encoder.parameters():
             param.requires_grad = False
         for param in self.word_embeddings.parameters():
             param.requires_grad = False
         
-        self.encoder_output_dim = 768  # 保持与之前BERT输出维度一致
+        self.encoder_output_dim = 768  # Maintain consistency with previous BERT output dimension
         
-        # 初始化优化器和损失函数（用于价值系统训练）
+        # Initialize optimizer and loss function (for value system training)
         self.optimizer = optim.Adam(
             list(self.text_encoder.parameters()) + 
             list(self.word_embeddings.parameters()),
@@ -58,10 +88,13 @@ class ValueSystem:
         )
         self.criterion = nn.MSELoss()
         
-        # 训练相关的参数
+        # Initialize learning rate
+        self.learning_rate = 0.001
+        
+        # Training-related parameters
         self.current_epoch = 0
         self.best_loss = float('inf')
-        self.patience = 5  # 早停耐心值
+        self.patience = 5  # Early stopping patience value
         self.epochs_without_improvement = 0
         
         self.learning_rate = 0.1  # Base learning rate
@@ -174,13 +207,13 @@ class ValueSystem:
     def _initialize_value_embeddings(self):
         """Initialize value embedding vectors"""
         embeddings = {}
-        # 确保core_values是字典类型
+        # Ensure core_values is a dictionary type
         if not isinstance(self.core_values, dict):
-            error_handler.log_warning("core_values不是字典类型，返回空嵌入", "ValueSystem")
+            error_handler.log_warning("core_values is not a dictionary type, returning empty embedding", "ValueSystem")
             return embeddings
         
         for value_name, value_info in self.core_values.items():
-            # 创建嵌入时确保value_info包含必要的键且值类型正确
+            # Ensure value_info contains necessary keys and correct value types when creating embeddings
             if isinstance(value_info, dict) and 'description' in value_info and isinstance(value_info.get('positive_examples'), list):
                 text = f"{value_info['description']} {' '.join(value_info['positive_examples'])}"
                 embeddings[value_name] = self._get_embedding(text)
@@ -188,18 +221,18 @@ class ValueSystem:
     
     def _initialize_value_weights(self):
         """Initialize value weights"""
-        # 确保core_values是字典类型
+        # Ensure core_values is a dictionary type
         if not isinstance(self.core_values, dict):
-            error_handler.log_warning("core_values不是字典类型，使用默认权重", "ValueSystem")
+            error_handler.log_warning("core_values is not a dictionary type, using default weights", "ValueSystem")
             return {'safety': 0.9, 'helpfulness': 0.8, 'honesty': 0.85, 'fairness': 0.75, 'autonomy_respect': 0.7, 'privacy': 0.8}
         
-        # 构建权重字典，确保只处理包含priority键的有效条目
+        # Build weight dictionary, ensuring only valid entries with 'priority' key are processed
         weights = {}
         for value_name, value_info in self.core_values.items():
             if isinstance(value_info, dict) and 'priority' in value_info:
                 weights[value_name] = value_info['priority']
         
-        # 如果没有有效的权重，返回默认值
+        # If no valid weights, return default values
         if not weights:
             weights = {'safety': 0.9, 'helpfulness': 0.8, 'honesty': 0.85, 'fairness': 0.75, 'autonomy_respect': 0.7, 'privacy': 0.8}
         
@@ -210,27 +243,27 @@ class ValueSystem:
         try:
             # Create optimized value assessment network using neural architecture optimizer
             
-            # 增强的类型检查和错误处理
+            # Enhanced type checking and error handling
             try:
-                # 安全地获取core_values的长度
+                # Safely get the length of core_values
                 if isinstance(self.core_values, (dict, list, set)):
                     output_dim = len(self.core_values)
                 else:
-                    output_dim = 6  # 默认输出维度
+                    output_dim = 6  # Default output dimension
             except (TypeError, AttributeError):
-                # 捕获任何可能的类型错误，确保系统稳定
+                # Catch any possible type errors to ensure system stability
                 output_dim = 6
                 error_handler.log_warning("Unable to determine core_values length, using default output dimension", "ValueSystem")
             
             network_config = {
-                'input_dim': self.encoder_output_dim,  # 使用自定义编码器的输出维度
+                'input_dim': self.encoder_output_dim,  # Use custom encoder output dimension
                 'hidden_dims': [512, 256, 128],
                 'output_dim': output_dim,
                 'activation': 'relu',
                 'dropout': 0.2
             }
             
-            # 确保architecture_optimizer存在
+            # Ensure architecture_optimizer exists
             if not hasattr(self, 'architecture_optimizer') or self.architecture_optimizer is None:
                 self.architecture_optimizer = self._create_architecture_optimizer()
                 error_handler.log_info("Architecture optimizer automatically created", "ValueSystem")
@@ -274,17 +307,17 @@ class ValueSystem:
                 network_input = torch.tensor(action_embedding).float().unsqueeze(0)
                 with torch.no_grad():
                     network_output = self.dynamic_value_network(network_input)
-                # 确保core_values是字典且value_name存在
+                # Ensure core_values is a dictionary and value_name exists
                 if isinstance(self.core_values, dict) and value_name in self.core_values:
                     value_names = list(self.core_values.keys())
                     if value_name in value_names:
                         neural_score = network_output[0][value_names.index(value_name)].item()
                     else:
                         neural_score = 0.5
-                        error_handler.log_warning(f"core_values中找不到值名称: {value_name}", "ValueSystem")
+                        error_handler.log_warning(f"Value name not found in core_values: {value_name}", "ValueSystem")
                 else:
                     neural_score = 0.5
-                    error_handler.log_warning("core_values不是字典类型", "ValueSystem")
+                    error_handler.log_warning("core_values is not a dictionary type", "ValueSystem")
             else:
                 neural_score = 0.5
 
@@ -325,7 +358,7 @@ class ValueSystem:
         
         # Calculate similarity with positive examples
         positive_similarities = []
-        # 确保core_values是字典且value_name存在且包含positive_examples
+        # Ensure core_values is a dictionary, value_name exists, and contains positive_examples
         if isinstance(self.core_values, dict) and value_name in self.core_values:
             value_info = self.core_values[value_name]
             if isinstance(value_info, dict) and isinstance(value_info.get('positive_examples'), list):
@@ -333,13 +366,13 @@ class ValueSystem:
                     similarity = self._semantic_similarity(action_text, example)
                     positive_similarities.append(similarity)
             else:
-                error_handler.log_warning(f"值信息{value_name}格式不正确，缺少positive_examples", "ValueSystem")
+                error_handler.log_warning(f"Value info {value_name} format incorrect, missing positive_examples", "ValueSystem")
         else:
-            error_handler.log_warning(f"core_values中找不到值名称: {value_name}或core_values不是字典类型", "ValueSystem")
+            error_handler.log_warning(f"Value name not found in core_values: {value_name} or core_values is not a dictionary type", "ValueSystem")
         
         # Calculate similarity with negative examples
         negative_similarities = []
-        # 确保core_values是字典且value_name存在且包含negative_examples
+        # Ensure core_values is a dictionary, value_name exists, and contains negative_examples
         if isinstance(self.core_values, dict) and value_name in self.core_values:
             value_info = self.core_values[value_name]
             if isinstance(value_info, dict) and isinstance(value_info.get('negative_examples'), list):
@@ -347,9 +380,9 @@ class ValueSystem:
                     similarity = self._semantic_similarity(action_text, example)
                     negative_similarities.append(similarity)
             else:
-                error_handler.log_warning(f"值信息{value_name}格式不正确，缺少negative_examples", "ValueSystem")
+                error_handler.log_warning(f"Value info {value_name} format incorrect, missing negative_examples", "ValueSystem")
         else:
-            error_handler.log_warning(f"core_values中找不到值名称: {value_name}或core_values不是字典类型", "ValueSystem")
+            error_handler.log_warning(f"Value name not found in core_values: {value_name} or core_values is not a dictionary type", "ValueSystem")
         
         # Combine with AGI deep analysis
         agi_score = deep_analysis.get('value_scores', {}).get(value_name, 0.5)
@@ -362,55 +395,55 @@ class ValueSystem:
         return (semantic_score * 0.6 + agi_score * 0.4)
     
     def _get_embedding(self, text):
-        """使用自定义编码器获取文本嵌入"""
+        """Get text embedding using custom encoder"""
         try:
-            # 获取token IDs
+            # Get token IDs
             inputs = self.tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding=True)
             input_ids = inputs['input_ids']
             
-            # 转换为词嵌入
+            # Convert to word embeddings
             embeddings = self.word_embeddings(input_ids)
             
-            # 使用自定义编码器
+            # Use custom encoder
             if self.training_mode:
                 outputs = self.text_encoder(embeddings)
             else:
                 with torch.no_grad():
                     outputs = self.text_encoder(embeddings)
             
-            # 返回平均嵌入向量
+            # Return average embedding vector
             return outputs.last_hidden_state.squeeze().detach().numpy()
         except Exception as e:
-            error_handler.log_error(f"文本嵌入生成失败: {str(e)}", "ValueSystem")
-            return np.zeros(self.encoder_output_dim)  # 返回零向量作为降级方案
+            error_handler.log_error(f"Text embedding generation failed: {str(e)}", "ValueSystem")
+            return np.zeros(self.encoder_output_dim)  # Return zero vector as fallback
         
     def enable_training(self):
-        """启用训练模式"""
+        """Enable training mode"""
         self.training_mode = True
         for param in self.text_encoder.parameters():
             param.requires_grad = True
         for param in self.word_embeddings.parameters():
             param.requires_grad = True
         self.text_encoder.train()
-        error_handler.log_info("价值系统训练模式已启用", "ValueSystem")
+        error_handler.log_info("Value system training mode enabled", "ValueSystem")
         
     def disable_training(self):
-        """禁用训练模式"""
+        """Disable training mode"""
         self.training_mode = False
         for param in self.text_encoder.parameters():
             param.requires_grad = False
         for param in self.word_embeddings.parameters():
             param.requires_grad = False
         self.text_encoder.eval()
-        error_handler.log_info("价值系统训练模式已禁用", "ValueSystem")
+        error_handler.log_info("Value system training mode disabled", "ValueSystem")
         
     def train_step(self, text, target_embedding):
-        """执行一步训练"""
+        """Execute one training step"""
         if not self.training_mode:
-            raise RuntimeError("必须先启用训练模式才能进行训练")
+            raise RuntimeError("Training mode must be enabled before training")
             
         try:
-            # 前向传播
+            # Forward propagation
             inputs = self.tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding=True)
             input_ids = inputs['input_ids']
             
@@ -418,22 +451,22 @@ class ValueSystem:
             outputs = self.text_encoder(embeddings)
             predicted_embedding = outputs.last_hidden_state.squeeze()
             
-            # 计算损失
+            # Calculate loss
             target_tensor = torch.tensor(target_embedding).float()
             loss = self.criterion(predicted_embedding, target_tensor)
             
-            # 反向传播和优化
+            # Backward propagation and optimization
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
             
             return loss.item()
         except Exception as e:
-            error_handler.log_error(f"训练步骤失败: {str(e)}", "ValueSystem")
+            error_handler.log_error(f"Training step failed: {str(e)}", "ValueSystem")
             return float('inf')
             
     def save_model(self, filepath):
-        """保存模型权重"""
+        """Save model weights"""
         try:
             torch.save({
                 'text_encoder_state_dict': self.text_encoder.state_dict(),
@@ -444,12 +477,12 @@ class ValueSystem:
                 'best_loss': self.best_loss,
                 'encoder_output_dim': self.encoder_output_dim
             }, filepath)
-            error_handler.log_info(f"模型已保存至: {filepath}", "ValueSystem")
+            error_handler.log_info(f"Model saved to: {filepath}", "ValueSystem")
         except Exception as e:
-            error_handler.log_error(f"保存模型失败: {str(e)}", "ValueSystem")
+            error_handler.log_error(f"Failed to save model: {str(e)}", "ValueSystem")
             
     def load_model(self, filepath):
-        """加载模型权重"""
+        """Load model weights"""
         try:
             checkpoint = torch.load(filepath)
             self.text_encoder.load_state_dict(checkpoint['text_encoder_state_dict'])
@@ -463,9 +496,9 @@ class ValueSystem:
             if 'encoder_output_dim' in checkpoint:
                 self.encoder_output_dim = checkpoint['encoder_output_dim']
                 
-            error_handler.log_info(f"模型已从: {filepath}加载", "ValueSystem")
+            error_handler.log_info(f"Model loaded from: {filepath}", "ValueSystem")
         except Exception as e:
-            error_handler.log_error(f"加载模型失败: {str(e)}", "ValueSystem")
+            error_handler.log_error(f"Failed to load model: {str(e)}", "ValueSystem")
     
     def _semantic_similarity(self, text1, text2):
         """Calculate semantic similarity between two texts"""
@@ -482,15 +515,15 @@ class ValueSystem:
         # Use AGI core for deep reasoning
         deep_analysis = self.agi_core.analyze_action(str(action), context)
         
-        # 确保core_values是字典类型
+        # Ensure core_values is a dictionary type
         if not isinstance(self.core_values, dict):
-            error_handler.log_warning("core_values不是字典类型，使用默认值", "ValueSystem")
+            error_handler.log_warning("core_values is not a dictionary type, using default values", "ValueSystem")
             return {
                 'total_alignment_score': 0.5,
                 'value_breakdown': {},
                 'violations': [],
                 'fulfillments': [],
-                'recommendation': "需要人工审查",
+                'recommendation': "Requires manual review",
                 'deep_analysis': deep_analysis
             }
         
@@ -499,16 +532,16 @@ class ValueSystem:
                 value_name, action, context, deep_analysis
             )
             
-            # 确保value_weights是字典且value_name存在
+            # Ensure value_weights is a dictionary and value_name exists
             if isinstance(self.value_weights, dict) and value_name in self.value_weights:
                 value_scores[value_name] = score * self.value_weights[value_name]
             else:
                 value_scores[value_name] = score
-                error_handler.log_warning(f"权重字典中不存在{value_name}，使用未加权分数", "ValueSystem")
+                error_handler.log_warning(f"Value name {value_name} not found in weights dictionary, using unweighted score", "ValueSystem")
             
             if is_violation:
                 violations.append(value_name)
-                # 确保value_violations是字典
+                # Ensure value_violations is a dictionary
                 if isinstance(self.value_violations, dict):
                     if value_name not in self.value_violations:
                         self.value_violations[value_name] = 0
@@ -516,21 +549,21 @@ class ValueSystem:
             
             if is_fulfillment:
                 fulfillments.append(value_name)
-                # 确保value_fulfillments是字典
+                # Ensure value_fulfillments is a dictionary
                 if isinstance(self.value_fulfillments, dict):
                     if value_name not in self.value_fulfillments:
                         self.value_fulfillments[value_name] = 0
                     self.value_fulfillments[value_name] += 1
         
-        # 确保value_weights是字典类型且有值，否则使用安全的默认值计算总分
+        # Ensure value_weights is a dictionary type and has values, otherwise use safe default value to calculate total score
         try:
             if isinstance(self.value_weights, dict) and self.value_weights:
                 total_score = sum(value_scores.values()) / sum(self.value_weights.values())
             else:
-                # 如果value_weights无效，使用value_scores的平均值
+                # If value_weights is invalid, use average of value_scores
                 total_score = sum(value_scores.values()) / len(value_scores) if value_scores else 0.5
         except (TypeError, ZeroDivisionError):
-            # 捕获任何可能的类型错误或除零错误
+            # Catch any possible type errors or division by zero errors
             total_score = 0.5
         
         # Adaptive learning: Adjust weights based on AGI analysis
@@ -548,20 +581,20 @@ class ValueSystem:
     def _assess_value_alignment(self, value_name, action, context, deep_analysis):
         """Evaluate alignment of specific value - Using enhanced AGI evaluation method"""
         try:
-            # 确保core_values是字典类型
+            # Ensure core_values is a dictionary type
             if not isinstance(self.core_values, dict):
-                error_handler.log_warning(f"core_values不是有效的字典类型", "ValueSystem")
+                error_handler.log_warning(f"core_values is not a valid dictionary type", "ValueSystem")
                 return 0.5, False, False
             
-            # 确保value_name在core_values中
+            # Ensure value_name exists in core_values
             if value_name not in self.core_values:
-                error_handler.log_warning(f"core_values中不存在值名称: {value_name}", "ValueSystem")
+                error_handler.log_warning(f"Value name not found in core_values: {value_name}", "ValueSystem")
                 return 0.5, False, False
             
-            # 确保value_info是字典类型
+            # Ensure value_info is a dictionary type
             value_info = self.core_values[value_name]
             if not isinstance(value_info, dict):
-                error_handler.log_warning(f"值信息{value_name}不是字典类型", "ValueSystem")
+                error_handler.log_warning(f"Value info {value_name} is not a dictionary type", "ValueSystem")
                 return 0.5, False, False
             
             # Use enhanced value assessment method
@@ -570,14 +603,14 @@ class ValueSystem:
             # Use AGI core for deep semantic analysis to determine violation/satisfaction
             action_text = str(action)
             positive_similarities = []
-            # 确保positive_examples存在且是列表
+            # Ensure positive_examples exists and is a list
             if isinstance(self.core_values[value_name].get('positive_examples'), list):
                 for example in self.core_values[value_name]['positive_examples']:
                     similarity = self._semantic_similarity(action_text, example)
                     positive_similarities.append(similarity)
             
             negative_similarities = []
-            # 确保negative_examples存在且是列表
+            # Ensure negative_examples exists and is a list
             if isinstance(self.core_values[value_name].get('negative_examples'), list):
                 for example in self.core_values[value_name]['negative_examples']:
                     similarity = self._semantic_similarity(action_text, example)
@@ -586,14 +619,14 @@ class ValueSystem:
             # Use multimodal processor for more accurate violation/satisfaction detection
             multimodal_features = self._process_multimodal_input(action, context)
             
-            # 确保multimodal_features是字典类型
+            # Ensure multimodal_features is a dictionary type
             if isinstance(multimodal_features, dict):
                 violation_score = multimodal_features.get(f'{value_name}_violation', 0.0)
                 fulfillment_score = multimodal_features.get(f'{value_name}_fulfillment', 0.0)
             else:
                 violation_score = 0.0
                 fulfillment_score = 0.0
-                error_handler.log_warning("multimodal_features不是字典类型", "ValueSystem")
+                error_handler.log_warning("multimodal_features is not a dictionary type", "ValueSystem")
             
             # Combine semantic similarity and multimodal analysis
             max_positive = max(positive_similarities) if positive_similarities else 0
@@ -631,20 +664,20 @@ class ValueSystem:
     
     def _adaptive_learning(self, deep_analysis, value_scores):
         """Adaptive learning mechanism"""
-        # 确保value_weights和deep_analysis是字典类型
+        # Ensure value_weights and deep_analysis are dictionary types
         if not isinstance(self.value_weights, dict):
-            error_handler.log_warning("value_weights不是字典类型，初始化默认值", "ValueSystem")
+            error_handler.log_warning("value_weights is not a dictionary type, initializing default values", "ValueSystem")
             self.value_weights = {'safety': 0.9, 'helpfulness': 0.8, 'honesty': 0.85, 'fairness': 0.75, 'autonomy_respect': 0.7, 'privacy': 0.8}
         
         if not isinstance(deep_analysis, dict):
-            error_handler.log_warning("deep_analysis不是字典类型", "ValueSystem")
+            error_handler.log_warning("deep_analysis is not a dictionary type", "ValueSystem")
             deep_analysis = {}
             
         for value_name, score in value_scores.items():
-            # 确保value_name在value_weights中
+            # Ensure value_name exists in value_weights
             if value_name not in self.value_weights:
                 self.value_weights[value_name] = 0.5
-                error_handler.log_warning(f"value_weights中不存在{value_name}，使用默认值", "ValueSystem")
+                error_handler.log_warning(f"value_name {value_name} not found in value_weights, using default value", "ValueSystem")
             
             # Adjust weights based on confidence of AGI analysis
             confidence_dict = deep_analysis.get('confidence', {})
@@ -652,7 +685,7 @@ class ValueSystem:
                 agi_confidence = confidence_dict.get(value_name, 0.5)
             else:
                 agi_confidence = 0.5
-                error_handler.log_warning("confidence不是字典类型", "ValueSystem")
+                error_handler.log_warning("confidence is not a dictionary type", "ValueSystem")
                 
             adjustment = (score - 0.5) * self.learning_rate * agi_confidence
             
@@ -756,11 +789,11 @@ class ValueSystem:
             def _calculate_value_similarity(self, text, value_name):
                 """Calculate similarity between text and value examples"""
                 try:
-                    # 确保core_values是字典且value_name存在
+                    # Ensure core_values is a dictionary and value_name exists
                     if not isinstance(self.core_values, dict) or value_name not in self.core_values:
                         return 0.5
                     
-                    # 确保value_info是字典且包含positive_examples
+                    # Ensure value_info is a dictionary and contains positive_examples
                     value_info = self.core_values[value_name]
                     if not isinstance(value_info, dict) or 'positive_examples' not in value_info or not isinstance(value_info['positive_examples'], list):
                         return 0.5
@@ -1129,6 +1162,97 @@ class ValueSystem:
                 return nn.Sequential(*layers)
         
         return SimpleArchitectureOptimizer()
+        
+    def _create_custom_tokenizer(self):
+        """Create custom tokenizer - AGI-level internal implementation"""
+        class SimpleTokenizer:
+            def __init__(self):
+                # Basic tokenization rules
+                self.special_tokens = {'[PAD]': 0, '[UNK]': 1, '[CLS]': 2, '[SEP]': 3}
+                self.max_length = 512
+            
+            def tokenize(self, text):
+                # Simple whitespace tokenization with basic preprocessing
+                text = text.lower().strip()
+                text = re.sub(r'[.,!?;]', '', text)  # Remove punctuation
+                tokens = text.split()
+                return tokens[:self.max_length]  # Truncate to max length
+            
+            def convert_tokens_to_ids(self, tokens):
+                # Simple token to ID mapping (mock implementation)
+                # In a real implementation, this would use a proper vocabulary
+                return [hash(token) % 10000 + len(self.special_tokens) for token in tokens]  # Simple hash-based mapping
+            
+            def encode(self, text, truncation=True, padding=False, max_length=None):
+                # Combine tokenization and ID conversion
+                tokens = self.tokenize(text)
+                if truncation and max_length and len(tokens) > max_length:
+                    tokens = tokens[:max_length]
+                ids = self.convert_tokens_to_ids(tokens)
+                return ids
+            
+            def decode(self, ids):
+                # Simple ID to token mapping (mock implementation)
+                # In a real implementation, this would use the inverse of the vocabulary
+                tokens = [f'token_{id}' if id >= len(self.special_tokens) else list(self.special_tokens.keys())[id] for id in ids]
+                return ' '.join(tokens)
+        
+        return SimpleTokenizer()
+        
+    def _create_custom_text_encoder(self):
+        """Create custom text encoder - AGI-level internal implementation"""
+        # Create a simple text encoder neural network
+        class SimpleTextEncoder(nn.Module):
+            def __init__(self):
+                super(SimpleTextEncoder, self).__init__()
+                self.encoder_layer = nn.TransformerEncoderLayer(d_model=768, nhead=8)
+                self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=3)
+                self.output_layer = nn.Linear(768, 768)  # Maintain consistent output dimension
+            
+            def forward(self, x):
+                # Simple forward pass
+                x = self.transformer_encoder(x)
+                x = self.output_layer(x)
+                return x
+        
+        return SimpleTextEncoder()
+        
+    def _build_vocabulary(self):
+        """Build vocabulary from core values and examples"""
+        # Extract words from core values and their examples
+        words = set()
+        
+        # Ensure core_values is a dictionary
+        if isinstance(self.core_values, dict):
+            for value_name, value_info in self.core_values.items():
+                # Add value name to vocabulary
+                words.add(value_name)
+                
+                # Add words from description
+                if isinstance(value_info, dict) and 'description' in value_info:
+                    description = value_info['description']
+                    for word in re.findall(r'\w+', description.lower()):
+                        words.add(word)
+                
+                # Add words from examples
+                for example_type in ['positive_examples', 'negative_examples']:
+                    if isinstance(value_info, dict) and example_type in value_info:
+                        examples = value_info[example_type]
+                        if isinstance(examples, list):
+                            for example in examples:
+                                if isinstance(example, str):
+                                    for word in re.findall(r'\w+', example.lower()):
+                                        words.add(word)
+        
+        # Add special tokens
+        words.add('[PAD]')
+        words.add('[UNK]')
+        words.add('[CLS]')
+        words.add('[SEP]')
+        
+        # Convert to a dictionary mapping words to IDs
+        vocabulary = {word: idx for idx, word in enumerate(sorted(words))}
+        return vocabulary
 
 class EthicalReasoner:
     """Ethical reasoner - Use deep learning and AGI core for ethical decision-making reasoning"""
@@ -1137,11 +1261,116 @@ class EthicalReasoner:
         self.ethical_frameworks = self._load_ethical_frameworks()
         self.case_studies = deque(maxlen=1000)
         self.ethical_dilemmas_resolved = 0
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        self.bert_model = BertModel.from_pretrained('bert-base-uncased')
+        
+        # Initialize custom Tokenizer and text encoder, trained completely from scratch
+        self.tokenizer = self._create_custom_tokenizer()
+        self.text_encoder = self._create_custom_text_encoder()
+        self.vocabulary = self._build_vocabulary()
+        self.word_embeddings = nn.Embedding(len(self.vocabulary), 128)
+        
+        # Disable gradient computation by default
+        for param in self.text_encoder.parameters():
+            param.requires_grad = False
+        for param in self.word_embeddings.parameters():
+            param.requires_grad = False
+        
+        self.encoder_output_dim = 768  # Maintain consistent output dimension
+        
         self.agi_core = AGICore()  # Integrate AGI core for deep ethical reasoning
         self.knowledge_integrator = AGIKnowledgeIntegrator()  # Knowledge integration for ethical common sense reasoning
         self.learning_rate = 0.05  # Ethical learning rate
+        
+    def _create_custom_tokenizer(self):
+        """Create custom tokenizer - AGI-level internal implementation"""
+        class SimpleTokenizer:
+            def __init__(self):
+                # Basic tokenization rules
+                self.special_tokens = {'[PAD]': 0, '[UNK]': 1, '[CLS]': 2, '[SEP]': 3}
+                self.max_length = 512
+                
+            def tokenize(self, text):
+                # Simple whitespace tokenization with basic preprocessing
+                text = text.lower().strip()
+                text = re.sub(r'[.,!?;]', '', text)  # Remove punctuation
+                tokens = text.split()
+                return tokens[:self.max_length]  # Truncate to max length
+                
+            def __call__(self, text, return_tensors="pt", max_length=512, truncation=True, padding=True):
+                # Basic tokenization with padding and truncation
+                tokens = self.tokenize(text)
+                token_ids = [self.special_tokens.get(token, 1) for token in tokens]  # Use [UNK] for unknown tokens
+                
+                # Handle padding and truncation
+                if truncation and len(token_ids) > max_length:
+                    token_ids = token_ids[:max_length]
+                
+                if padding and len(token_ids) < max_length:
+                    token_ids.extend([0] * (max_length - len(token_ids)))
+                
+                # Return in requested format
+                if return_tensors == "pt":
+                    return {'input_ids': torch.tensor([token_ids])}
+                else:
+                    return {'input_ids': [token_ids]}
+        
+        return SimpleTokenizer()
+    
+    def _create_custom_text_encoder(self):
+        """Create custom text encoder - AGI-level internal implementation"""
+        # Create a simple text encoder neural network
+        class SimpleTextEncoder(nn.Module):
+            def __init__(self):
+                super(SimpleTextEncoder, self).__init__()
+                self.encoder_layer = nn.TransformerEncoderLayer(d_model=768, nhead=8)
+                self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=3)
+                self.output_layer = nn.Linear(768, 768)  # Maintain consistent output dimension
+            
+            def forward(self, x):
+                # Simple forward pass
+                x = self.transformer_encoder(x)
+                x = self.output_layer(x)
+                return x
+        
+        return SimpleTextEncoder()
+    
+    def _build_vocabulary(self):
+        """Build vocabulary from ethical frameworks and examples"""
+        # Extract words from ethical frameworks and their examples
+        words = set()
+        
+        # Ensure ethical_frameworks is a dictionary
+        if isinstance(self.ethical_frameworks, dict):
+            for framework_name, framework_info in self.ethical_frameworks.items():
+                # Add framework name to vocabulary
+                words.add(framework_name)
+                
+                # Add words from description and key principle
+                for text_field in ['description', 'key_principle']:
+                    if isinstance(framework_info, dict) and text_field in framework_info:
+                        text = framework_info[text_field]
+                        if isinstance(text, str):
+                            for word in re.findall(r'\w+', text.lower()):
+                                words.add(word)
+                
+                # Add words from examples
+                for example_type in ['positive_examples', 'negative_examples']:
+                    if isinstance(framework_info, dict) and example_type in framework_info:
+                        examples = framework_info[example_type]
+                        if isinstance(examples, list):
+                            for example in examples:
+                                if isinstance(example, str):
+                                    for word in re.findall(r'\w+', example.lower()):
+                                        words.add(word)
+        
+        # Add special tokens
+        words.add('[PAD]')
+        words.add('[UNK]')
+        words.add('[CLS]')
+        words.add('[SEP]')
+        
+        # Convert to a dictionary mapping words to IDs
+        vocabulary = {word: idx for idx, word in enumerate(sorted(words))}
+        return vocabulary
     
     def _load_ethical_frameworks(self):
         """Load enhanced ethical frameworks"""
@@ -1224,15 +1453,24 @@ class EthicalReasoner:
         }
     
     def _get_embedding(self, text):
-        """Get text embedding using BERT"""
+        """Get text embedding using custom encoder"""
         try:
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            # Get token IDs using custom tokenizer
+            inputs = self.tokenizer.encode(text, max_length=512, truncation=True, padding=True)
+            input_ids = torch.tensor([inputs])
+            
+            # Convert to word embeddings
+            embeddings = self.word_embeddings(input_ids)
+            
+            # Use custom encoder
             with torch.no_grad():
-                outputs = self.bert_model(**inputs)
-            return outputs.last_hidden_state.mean(dim=1).squeeze().numpy()
+                outputs = self.text_encoder(embeddings)
+            
+            # Return average embedding vector
+            return outputs.mean(dim=1).squeeze().detach().numpy()
         except Exception as e:
-            error_handler.handle_error(e, "EthicalReasoner", "BERT embedding generation failed")
-            return np.zeros(768)
+            error_handler.handle_error(e, "EthicalReasoner", "Custom embedding generation failed")
+            return np.zeros(self.encoder_output_dim)  # Return zero vector as fallback
     
     def _semantic_similarity(self, text1, text2):
         """Calculate semantic similarity"""
@@ -1315,9 +1553,9 @@ class EthicalReasoner:
         }
     
     def _evaluate_deontological(self, dilemma, context, deep_analysis):
-        """深度义务论评估"""
+        """Deep deontological evaluation"""
         try:
-            # 确保deep_analysis是字典类型
+            # Ensure deep_analysis is a dictionary type
             if not isinstance(deep_analysis, dict):
                 error_handler.log_warning("deep_analysis is not a dictionary type", "EthicalReasoner")
                 deep_analysis = {}
@@ -1331,7 +1569,7 @@ class EthicalReasoner:
             rule_violations = rule_analysis.get('violations', [])
             rule_compliance = rule_analysis.get('compliance', [])
             
-            # 确保rule_violations和rule_compliance是可迭代的
+            # Ensure rule_violations and rule_compliance are iterable
             if not isinstance(rule_violations, (list, dict, set)):
                 rule_violations = []
                 error_handler.log_warning("rule_violations is not iterable", "EthicalReasoner")
@@ -1380,9 +1618,9 @@ class EthicalReasoner:
             }
     
     def _evaluate_virtue(self, dilemma, context, deep_analysis):
-        """深度美德伦理评估"""
+        """Deep virtue ethics evaluation"""
         try:
-            # 确保deep_analysis是字典类型
+            # Ensure deep_analysis is a dictionary type
             if not isinstance(deep_analysis, dict):
                 error_handler.log_warning("deep_analysis is not a dictionary type", "EthicalReasoner")
                 deep_analysis = {}
@@ -1395,7 +1633,7 @@ class EthicalReasoner:
             virtues_demonstrated = virtue_analysis.get('virtues', [])
             vices_demonstrated = virtue_analysis.get('vices', [])
             
-            # 确保virtues_demonstrated和vices_demonstrated是可迭代的
+            # Ensure virtues_demonstrated and vices_demonstrated are iterable
             if not isinstance(virtues_demonstrated, (list, dict, set)):
                 virtues_demonstrated = []
                 error_handler.log_warning("virtues is not iterable", "EthicalReasoner")
@@ -1445,9 +1683,9 @@ class EthicalReasoner:
             }
     
     def _evaluate_rights_based(self, dilemma, context, deep_analysis):
-        """深度权利基础评估"""
+        """Deep rights-based evaluation"""
         try:
-            # 确保deep_analysis是字典类型
+            # Ensure deep_analysis is a dictionary type
             if not isinstance(deep_analysis, dict):
                 error_handler.log_warning("deep_analysis is not a dictionary type", "EthicalReasoner")
                 deep_analysis = {}
@@ -1460,7 +1698,7 @@ class EthicalReasoner:
             rights_violations = rights_analysis.get('violations', [])
             rights_protections = rights_analysis.get('protections', [])
             
-            # 确保rights_violations和rights_protections是可迭代的
+            # Ensure rights_violations and rights_protections are iterable
             if not isinstance(rights_violations, (list, dict, set)):
                 rights_violations = []
                 error_handler.log_warning("violations is not iterable", "EthicalReasoner")
@@ -1490,7 +1728,6 @@ class EthicalReasoner:
                 'recommendation': recommendation,
                 'confidence': confidence,
                 'reasoning': f"Rights violations: {len(rights_violations)}, Rights protections: {len(rights_protections)}, Confidence: {confidence:.2f} ({'Recommended' if recommendation else 'Not recommended'})",
-                
                 'semantic_analysis': {
                     'positive_similarity': positive_similarity,
                     'negative_similarity': negative_similarity
@@ -1511,9 +1748,9 @@ class EthicalReasoner:
             }
     
     def _evaluate_care_ethics(self, dilemma, context, deep_analysis):
-        """深度关怀伦理评估"""
+        """Deep care ethics evaluation"""
         try:
-            # 确保deep_analysis是字典类型
+            # Ensure deep_analysis is a dictionary type
             if not isinstance(deep_analysis, dict):
                 error_handler.log_warning("deep_analysis is not a dictionary type", "EthicalReasoner")
                 deep_analysis = {}
@@ -1526,7 +1763,7 @@ class EthicalReasoner:
             care_demonstrated = care_analysis.get('care_actions', [])
             neglect_demonstrated = care_analysis.get('neglect_actions', [])
             
-            # 确保care_demonstrated和neglect_demonstrated是可迭代的
+            # Ensure care_demonstrated and neglect_demonstrated are iterable
             if not isinstance(care_demonstrated, (list, dict, set)):
                 care_demonstrated = []
                 error_handler.log_warning("care_actions is not iterable", "EthicalReasoner")
@@ -1577,7 +1814,7 @@ class EthicalReasoner:
             }
     
     def _reach_deep_consensus(self, framework_evaluations, deep_analysis):
-        """基于深度学习的共识达成"""
+        """Reach consensus based on deep learning"""
         try:
             # 确保framework_evaluations是字典类型
             if not isinstance(framework_evaluations, dict):

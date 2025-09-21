@@ -25,6 +25,11 @@ import re
 import random
 from .model_registry import model_registry
 
+# 添加SimpleOutput类用于模型输出
+class SimpleOutput:
+    def __init__(self, last_hidden_state):
+        self.last_hidden_state = last_hidden_state
+
 class CustomTokenizer:
     """自定义文本标记器，不依赖预训练模型"""
     def __init__(self, vocab_size=10000):
@@ -50,8 +55,40 @@ class CustomTokenizer:
         """文本标记化"""
         # 简单的分词实现，可以根据需求扩展
         text = text.lower()
-        tokens = re.findall(r'\w+|[.,!?;:"()\[\]{}]', text)
+        tokens = re.findall(r'\w+|[.,!?;":()\[\]{}]', text)
+        return tokens
+
+# 添加完整的NeuralEmbeddingSpace类定义
+class NeuralEmbeddingSpace:
+    """Neural Embedding Space - Unified representation for all data types"""
     
+    def __init__(self):
+        self.tokenizer = CustomTokenizer()
+        self.text_encoder = self._create_text_encoder()
+        self.criterion = nn.MSELoss()
+        self.optimizer = optim.Adam(self.text_encoder.parameters(), lr=1e-4)
+        self.training_mode = False
+        
+    def _create_text_encoder(self):
+        """Create simple transformer-based text encoder"""
+        class SimpleTextEncoder(nn.Module):
+            def __init__(self):
+                super(SimpleTextEncoder, self).__init__()
+                self.embedding = nn.Embedding(10000, 768)
+                encoder_layer = nn.TransformerEncoderLayer(d_model=768, nhead=8)
+                self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=2)
+                
+            def forward(self, input_ids, attention_mask=None):
+                embedded = self.embedding(input_ids)
+                # Transformer expects shape (seq_len, batch, feature)
+                embedded = embedded.permute(1, 0, 2)
+                output = self.transformer(embedded)
+                # Return to (batch, seq_len, feature)
+                output = output.permute(1, 0, 2)
+                return SimpleOutput(last_hidden_state=output)
+        
+        return SimpleTextEncoder()
+        
     def enable_training(self):
         """启用训练模式"""
         self.training_mode = True
@@ -65,14 +102,24 @@ class CustomTokenizer:
     def _encode_text(self, text):
         """Encode text data"""
         try:
-            inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+            # Tokenize text
+            tokens = self.tokenizer.tokenize(text)
+            # Convert tokens to IDs (simple implementation)
+            input_ids = [self.tokenizer.vocab.get(token, self.tokenizer.unk_token_id) for token in tokens]
+            # Truncate or pad to 512 tokens
+            if len(input_ids) > 512:
+                input_ids = input_ids[:512]
+            else:
+                input_ids += [self.tokenizer.pad_token_id] * (512 - len(input_ids))
+            # Convert to tensor
+            input_tensor = torch.tensor([input_ids])
             
-            # 在训练模式下不使用no_grad
+            # Inference
             if self.training_mode:
-                outputs = self.text_encoder(**inputs)
+                outputs = self.text_encoder(input_tensor)
             else:
                 with torch.no_grad():
-                    outputs = self.text_encoder(**inputs)
+                    outputs = self.text_encoder(input_tensor)
             
             return outputs.last_hidden_state.mean(dim=1).detach().numpy()
         except Exception as e:
@@ -85,16 +132,27 @@ class CustomTokenizer:
             raise RuntimeError("Training mode must be enabled to train")
             
         try:
-            # 前向传播
-            inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
-            output = self.text_encoder(**inputs)
+            # Tokenize text
+            tokens = self.tokenizer.tokenize(text)
+            # Convert tokens to IDs
+            input_ids = [self.tokenizer.vocab.get(token, self.tokenizer.unk_token_id) for token in tokens]
+            # Truncate or pad to 512 tokens
+            if len(input_ids) > 512:
+                input_ids = input_ids[:512]
+            else:
+                input_ids += [self.tokenizer.pad_token_id] * (512 - len(input_ids))
+            # Convert to tensor
+            input_tensor = torch.tensor([input_ids])
+            
+            # Forward pass
+            output = self.text_encoder(input_tensor)
             predicted_embedding = output.last_hidden_state.mean(dim=1)
             
-            # 计算损失
+            # Calculate loss
             target_tensor = torch.tensor(target_embedding).unsqueeze(0)
             loss = self.criterion(predicted_embedding, target_tensor)
             
-            # 反向传播和优化
+            # Backward pass and optimization
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

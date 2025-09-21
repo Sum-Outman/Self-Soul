@@ -38,7 +38,16 @@ const routes = [
     name: 'Settings',
     component: () => import('../views/SettingsView.vue')
   },
-  {    path: '/help',    name: 'Help',    component: () => import('../views/HelpView.vue')  },
+  {
+    path: '/help',
+    name: 'Help',    
+    component: () => import('../views/HelpView.vue')
+  },
+  {
+    path: '/notification-test',
+    name: 'NotificationTest',
+    component: () => import('../components/NotificationTester.vue')
+  },
   // 确保所有未知路径重定向到首页
   {
     path: '/:pathMatch(.*)*',
@@ -54,7 +63,10 @@ const router = createRouter({
 
 // 添加全局前置守卫确保正确加载
 router.beforeEach((to, from, next) => {
-  console.log(`Navigating to: ${to.path}`)
+  // 只在开发环境下输出日志
+  if (import.meta.env.DEV) {
+    console.log(`Navigating to: ${to.path}`)
+  }
   next()
 })
 

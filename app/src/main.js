@@ -16,37 +16,21 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './assets/main.css'
+import './assets/notificationStyles.css'
 
-// Simple notification plugin
-const notifyPlugin = {
-  install(app) {
-    app.config.globalProperties.$notify = function(options) {
-      const title = options.title || '';
-      const message = options.message || '';
-      const type = options.type || 'info';
-      
-      console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
-      
-      // 创建一个简单的通知元素
-      if (process.env.NODE_ENV !== 'production') {
-        alert(`${title}: ${message}`);
-      }
-    };
-  }
-};
+// Import professional notification plugin
+import notificationPlugin from './plugins/notification.js'
 
 // 确保DOM完全加载后再挂载应用
 document.addEventListener('DOMContentLoaded', () => {
     const app = createApp(App)
     app.use(router)
-    app.use(notifyPlugin) // Add notification plugin
+    app.use(notificationPlugin) // Add professional notification plugin
   
     // 确保挂载点存在
     const appContainer = document.getElementById('app');
     if (appContainer) {
       app.mount('#app')
-      // 设置全局应用引用，便于错误处理器访问通知功能
-      window.$app = app;
       console.log('AGI Brain System has been successfully mounted!')
     } else {
       console.error('Error: Application mount point not found!')

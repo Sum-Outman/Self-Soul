@@ -30,8 +30,8 @@
       </div>
       <!-- Model Configuration Type Indicator -->
       <div class="model-configuration-type">
-        <span class="config-type-badge" :class="model.externalConfig ? 'external' : 'local'">
-          {{ model.externalConfig ? 'External API' : 'Local Model' }}
+        <span class="config-type-badge" :class="model && model.externalConfig ? 'external' : 'local'">
+          {{ model && model.externalConfig ? 'External API' : 'Local Model' }}
         </span>
       </div>
 
@@ -1556,8 +1556,7 @@ export default {
 }
 
 .batch-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .batch-btn:disabled {
@@ -1576,7 +1575,8 @@ export default {
 }
 
 .model-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #333333;
 }
 
 .model-header {
@@ -1719,8 +1719,7 @@ export default {
 }
 
 .control-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .control-btn:disabled {
@@ -1757,7 +1756,7 @@ export default {
 }
 
 .activation-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
+  background-color: #e6e6e6;
 }
 
 .activation-btn:disabled {
@@ -1771,8 +1770,7 @@ export default {
 }
 
 .remove-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .remove-btn:disabled {
@@ -1795,8 +1793,7 @@ export default {
 }
 
 .settings-toggle-btn:hover {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .api-config-section {
@@ -1871,8 +1868,7 @@ export default {
 }
 
 .toggle-password-btn:hover {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .api-key-status {
@@ -1903,14 +1899,14 @@ export default {
 
 .status-indicator.valid {
   background-color: #f5f5f5;
-  color: var(--success-color);
-  border: 1px solid var(--success-color);
+  color: #333333;
+  border: 1px solid #cccccc;
 }
 
 .status-indicator.invalid {
   background-color: #f8f8f8;
-  color: var(--error-color);
-  border: 1px solid var(--error-color);
+  color: #666666;
+  border: 1px solid #dddddd;
 }
 
 .api-actions {
@@ -1932,7 +1928,7 @@ export default {
 }
 
 .test-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
+  background-color: #e6e6e6;
 }
 
 .test-btn:disabled {
@@ -1995,13 +1991,13 @@ export default {
 
 .test-result.success {
   background-color: #f5f5f5;
-  color: var(--success-color);
+  color: #333333;
   border: 1px solid #e0e0e0;
 }
 
 .test-result.error {
   background-color: #f8f8f8;
-  color: var(--error-color);
+  color: #666666;
   border: 1px solid #eeeeee;
 }
 
@@ -2041,8 +2037,7 @@ export default {
 }
 
 .add-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .add-btn:disabled {
@@ -2091,8 +2086,7 @@ export default {
 }
 
 .save-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-  filter: brightness(0.95);
+  background-color: #e6e6e6;
 }
 
 .save-btn:disabled {
@@ -2106,7 +2100,7 @@ export default {
 }
 
 .reset-btn:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
+  background-color: #e6e6e6;
 }
 
 .reset-btn:disabled {
@@ -2126,8 +2120,8 @@ export default {
   
   .model-config-type.external {
     background-color: #f5f5f5;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
+    color: #333333;
+    border: 1px solid #cccccc;
   }
   
   .model-config-type.local {
@@ -2150,8 +2144,8 @@ export default {
   }
   
   .test-notifications-btn:hover:not(:disabled) {
-    background-color: var(--bg-tertiary);
-  }
+  background-color: #e6e6e6;
+}
   
   .test-notifications-btn:disabled {
     opacity: 0.6;
@@ -2169,7 +2163,7 @@ export default {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top: 3px solid var(--primary-color);
+  border-top: 3px solid #333333;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16px;

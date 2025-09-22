@@ -349,6 +349,9 @@ export default {
           // Clear local storage
           try {
             localStorage.removeItem('agi_messages');
+            // Clear conversation history
+            const sessionId = this.getSessionId();
+            localStorage.removeItem(`conversation_${sessionId}`);
           } catch (error) {
             errorHandler.handleError(error, 'Failed to clear messages');
           }
@@ -565,19 +568,24 @@ export default {
         
         let response;
         if (type === 'text') {
-          // Use A Management Model to process text input - real API call
-          response = await api.post('/api/process/text', {
-            text: input,
-            model_id: "manager",
-            context: {
-              language: 'en-US', // Set to English
-              input_type: 'text',
-              timestamp: new Date().toISOString(),
-              session_id: this.getSessionId()
-            }
+          // Get conversation history from local storage
+          const sessionId = this.getSessionId();
+          let conversationHistory = JSON.parse(localStorage.getItem(`conversation_${sessionId}`) || '[]');
+          
+          // Use new chat API endpoint
+          response = await api.post('/api/chat', {
+            message: input,
+            session_id: sessionId,
+            conversation_history: conversationHistory
           }, {
             timeout: 30000 // 30 seconds timeout
           });
+          
+          // Save updated conversation history to local storage
+          if (response && response.data && response.data.status === 'success') {
+            localStorage.setItem(`conversation_${sessionId}`, JSON.stringify(response.data.data.conversation_history));
+            return response.data.data.response;
+          }
         } else if (type === 'image') {
           // 图像处理 - 在handleImageUpload中处理
           return await this.processImageInput(input);
@@ -590,7 +598,7 @@ export default {
         }
         
         if (response && response.data && response.data.status === 'success') {
-          return response.data.data;
+          return response.data.data.response || response.data.data;
         } else {
           throw new Error(response?.data?.detail || 'Failed to process your request');
         }

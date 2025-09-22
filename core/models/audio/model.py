@@ -33,12 +33,11 @@ from core.context_memory import ContextMemoryManager
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 
 
-"""AudioModel Class - English class description"""
 class AudioProcessingModel(BaseModel):
     """Advanced Audio Processing Model
     
-    Function: Speech recognition, intonation analysis, audio synthesis,
-              music recognition, noise identification
+    Capabilities: Speech recognition, intonation analysis, audio synthesis,
+                  music recognition, noise identification
     """
     
     def __init__(self, config: Dict[str, Any] = None):

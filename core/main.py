@@ -21,12 +21,14 @@ Licensed under the Apache License, Version 2.0
 """
 import os
 import sys
+import time
 import tempfile
 import asyncio
 import uvicorn
 import threading
 import argparse
 from datetime import datetime
+import uuid
 
 # Add the root directory to sys.path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -125,6 +127,99 @@ def load_model_modes_from_settings():
                 _model_modes[model_id] = "local"
     except Exception as e:
         error_handler.handle_error(e, "Model Mode", "Failed to load model mode information")
+
+# ========== Autonomous Learning API Endpoints ==========
+
+@app.post("/api/knowledge/auto-learning/start")
+async def start_auto_learning(request: Request):
+    """
+    Start autonomous learning process
+    
+    Request Body:
+        - domains: Optional list of domains to focus on
+        - priority: Learning priority (balanced, exploration, exploitation)
+        
+    Returns:
+        Status of the operation
+    """
+    try:
+        # Parse request body
+        request_data = await request.json()
+        domains = request_data.get("domains", [])
+        priority = request_data.get("priority", "balanced")
+        
+        # Log the start of autonomous learning
+        error_handler.log_info(f"Starting autonomous learning with parameters: domains={domains}, priority={priority}", "API")
+        
+        # Start the autonomous learning cycle with specified parameters
+        success = autonomous_learning_manager.start_autonomous_learning_cycle(domains=domains, priority=priority)
+        
+        # Generate a unique session ID
+        session_id = f"auto_learn_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+        
+        if success:
+            return {"success": True, "message": "Autonomous learning started successfully", "session_id": session_id}
+        else:
+            return {"success": False, "message": "Autonomous learning is already running", "session_id": None}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to start autonomous learning")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/knowledge/auto-learning/stop")
+async def stop_auto_learning():
+    """
+    Stop autonomous learning process
+    
+    Returns:
+        Status of the operation
+    """
+    try:
+        # Log the stop of autonomous learning
+        error_handler.log_info("Stopping autonomous learning", "API")
+        
+        # Stop the autonomous learning cycle
+        success = autonomous_learning_manager.stop_autonomous_learning_cycle()
+        
+        if success:
+            return {"success": True, "message": "Autonomous learning stopped successfully"}
+        else:
+            return {"success": False, "message": "Autonomous learning was not running"}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to stop autonomous learning")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/knowledge/auto-learning/progress")
+async def get_auto_learning_progress():
+    """
+    Get the progress of the current autonomous learning session
+    
+    Returns:
+        Progress, status and recent logs
+    """
+    try:
+        # Get progress from autonomous learning manager
+        progress_info = autonomous_learning_manager.get_learning_progress()
+        
+        # Ensure all required fields are present
+        progress = progress_info.get("progress", 0)
+        status = progress_info.get("status", "idle")
+        logs = progress_info.get("logs", [])
+        
+        return {
+            "success": True,
+            "progress": progress,
+            "status": status,
+            "logs": logs
+        }
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get auto learning progress")
+        # Return default values on error
+        return {
+            "success": True,
+            "progress": 0,
+            "status": "idle",
+            "logs": []
+        }
 
 def get_all_models_mode():
     """
@@ -596,6 +691,55 @@ async def process_text(input_data: dict):
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to process text input")
         raise HTTPException(status_code=500, detail="Failed to process text input")
+
+# Chat API endpoint
+@app.post("/api/chat")
+async def chat_with_model(input_data: dict):
+    """
+    Chat with the language model
+
+    Args:
+        input_data: Dictionary containing chat information
+            - message: User's message
+            - session_id: Unique session identifier
+            - conversation_history: Optional conversation history
+            
+    Returns:
+        Chat response and updated conversation context
+    """
+    try:
+        # Get language model
+        language_model = model_registry.get_model("language")
+        if not language_model:
+            raise HTTPException(status_code=500, detail="Language model not loaded")
+        
+        # Extract input data
+        message = input_data.get("message", "")
+        session_id = input_data.get("session_id", f"session_{datetime.now().timestamp()}")
+        conversation_history = input_data.get("conversation_history", [])
+        
+        # Process message with language model
+        response = language_model._generate_response(message, {"neutral": 0.5})
+        
+        # Update conversation history
+        conversation_history.append({"role": "user", "content": message})
+        conversation_history.append({"role": "assistant", "content": response})
+        
+        # Limit conversation history to 50 messages
+        if len(conversation_history) > 50:
+            conversation_history = conversation_history[-50:]
+        
+        return {
+            "status": "success",
+            "data": {
+                "response": response,
+                "conversation_history": conversation_history,
+                "session_id": session_id
+            }
+        }
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to process chat request")
+        raise HTTPException(status_code=500, detail="Failed to process chat request")
 
 # Process video input
 @app.post("/api/process/video")

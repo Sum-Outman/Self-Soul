@@ -86,10 +86,10 @@ class AdvancedSelfLearningSystem:
             self._load_learning_history()
             self._initialize_meta_learning()
         else:
-            # For from-scratch training, only initialize from-scratch templates
+            # For from-scratch training, only initialize from-scratch protocols
             print("Starting from-scratch training mode, skipping loading of existing knowledge and history")
         
-        self._initialize_from_scratch_templates()
+        self._initialize_from_scratch_protocols()
         
         self.logger = logging.getLogger(__name__)
         self.logger.info("Advanced self-learning system initialized")

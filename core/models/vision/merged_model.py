@@ -1273,7 +1273,7 @@ class UnifiedVisionModel(BaseModel):
             return {"error": str(e)}
     
     def joint_training(self, other_models, joint_config=None):
-        """联合训练：与其他模型协同训练 | Joint training: Train collaboratively with other models"""
+        """Joint training: Train collaboratively with other models"""
         try:
             if joint_config is None:
                 joint_config = {
@@ -1289,13 +1289,13 @@ class UnifiedVisionModel(BaseModel):
                 "start_time": datetime.now().isoformat()
             }
             
-            # 模拟联合训练过程 | Simulate joint training process
+            # Simulate joint training process
             for epoch in range(joint_config["epochs"]):
                 epoch_results = {}
                 
                 for model in other_models:
                     if hasattr(model, 'model_id'):
-                        # 模拟每个模型的训练贡献 | Simulate each model's training contribution
+                        # Simulate each model's training contribution
                         contribution_score = 0.7 + 0.1 * (epoch / joint_config["epochs"])
                         epoch_results[model.model_id] = {
                             "contribution": contribution_score,
@@ -1304,11 +1304,11 @@ class UnifiedVisionModel(BaseModel):
                         }
                 
                 joint_training_results[f"epoch_{epoch+1}"] = epoch_results
-                time.sleep(0.05)  # 模拟训练时间 | Simulate training time
+                time.sleep(0.05)  # Simulate training time
             
             joint_training_results["end_time"] = datetime.now().isoformat()
             joint_training_results["overall_success"] = True
-            joint_training_results["collaborative_gain"] = 1.25  # 25%的性能提升 | 25% performance improvement
+            joint_training_results["collaborative_gain"] = 1.25  # 25% performance improvement
             
             return {
                 "success": True,
@@ -1322,11 +1322,11 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"联合训练失败: {e} / Joint training failed: {e}")
+            self.logger.error(f"Joint training failed: {e}")
             return {"error": str(e)}
     
     def get_model_status(self):
-        """获取模型状态信息 | Get model status information"""
+        """Get model status information"""
         return {
             "model_id": self.model_id,
             "status": "active",
@@ -1358,47 +1358,47 @@ class UnifiedVisionModel(BaseModel):
         }
     
     def _load_object_recognition(self):
-        """加载对象识别模型 | Load object recognition model"""
+        """Load object recognition model"""
         return {"status": "loaded", "type": "resnet50"}
     
     def _load_scene_recognition(self):
-        """加载场景识别模型 | Load scene recognition model"""
+        """Load scene recognition model"""
         return {"status": "loaded", "type": "scene_classifier"}
     
     def _load_face_recognition(self):
-        """加载人脸识别模型 | Load face recognition model"""
+        """Load face recognition model"""
         return {"status": "loaded", "type": "face_detector"}
     
     def _load_text_recognition(self):
-        """加载文本识别模型 | Load text recognition model"""
+        """Load text recognition model"""
         return {"status": "loaded", "type": "text_recognizer"}
     
     def _load_neutral_generation(self):
-        """加载中性情感生成模型 | Load neutral emotion generation model"""
+        """Load neutral emotion generation model"""
         return {"status": "loaded", "type": "neutral_generator"}
     
     def _load_happy_generation(self):
-        """加载快乐情感生成模型 | Load happy emotion generation model"""
+        """Load happy emotion generation model"""
         return {"status": "loaded", "type": "happy_generator"}
     
     def _load_sad_generation(self):
-        """加载悲伤情感生成模型 | Load sad emotion generation model"""
+        """Load sad emotion generation model"""
         return {"status": "loaded", "type": "sad_generator"}
     
     def _load_angry_generation(self):
-        """加载愤怒情感生成模型 | Load angry emotion generation model"""
+        """Load angry emotion generation model"""
         return {"status": "loaded", "type": "angry_generator"}
     
     def _enhance_recognition_with_agi(self, recognition_result):
-        """使用AGI模块增强外部API识别结果 | Enhance external API recognition results with AGI modules"""
+        """Enhance external API recognition results with AGI modules"""
         try:
             if not all(hasattr(self, attr) for attr in ['neuro_symbolic_reasoner', 'emotion_awareness_module', 'unified_cognitive_architecture', 'context_memory_manager']):
                 return {"agi_enhancement": "agi_modules_not_available"}
             
-            # 使用上下文记忆管理器检索相关历史经验
+            # Use context memory manager to retrieve relevant historical experience
             historical_context = self.context_memory_manager.retrieve_visual_context(recognition_result)
             
-            # 使用神经符号推理器进行深度分析和推理
+            # Use neuro-symbolic reasoner for deep analysis and reasoning
             symbolic_analysis = self.neuro_symbolic_reasoner.analyze_visual_scene(
                 objects=recognition_result.get("objects", []),
                 scene_context=recognition_result.get("scene", ""),
@@ -1406,7 +1406,7 @@ class UnifiedVisionModel(BaseModel):
                 historical_context=historical_context
             )
             
-            # 使用情感意识模块进行多层次情感分析
+            # Use emotion awareness module for multi-level emotional analysis
             emotion_analysis = self.emotion_awareness_module.analyze_image_emotion(
                 objects=recognition_result.get("objects", []),
                 colors=recognition_result.get("dominant_colors", []),
@@ -1415,7 +1415,7 @@ class UnifiedVisionModel(BaseModel):
                 symbolic_insights=symbolic_analysis
             )
             
-            # 使用统一认知架构进行综合认知推理
+            # Use unified cognitive architecture for comprehensive cognitive reasoning
             cognitive_analysis = self.unified_cognitive_architecture.integrate_visual_understanding(
                 visual_data=recognition_result,
                 symbolic_analysis=symbolic_analysis,
@@ -1423,7 +1423,7 @@ class UnifiedVisionModel(BaseModel):
                 historical_context=historical_context
             )
             
-            # 使用自学习模块从增强结果中学习
+            # Use self-learning module to learn from enhancement results
             learning_outcome = self.self_learning_module.learn_from_enhancement(
                 original_result=recognition_result,
                 enhanced_result=cognitive_analysis,
@@ -1434,7 +1434,7 @@ class UnifiedVisionModel(BaseModel):
                 }
             )
             
-            # 更新上下文记忆
+            # Update context memory
             self.context_memory_manager.update_visual_context(
                 recognition_result, 
                 cognitive_analysis,
@@ -1452,18 +1452,18 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"AGI增强识别失败: {str(e)} | AGI enhancement failed: {str(e)}")
-            # 使用AGI错误处理模块
+            self.logger.error(f"AGI enhancement failed: {str(e)}")
+            # Use AGI error handling module
             error_handling = self._handle_error_with_agi(e, "enhance_recognition")
             return {"agi_enhancement": "error", "error": str(e), "error_handling": error_handling}
     
     def _analyze_image_with_agi(self, image_array, detection_results, class_id, confidence, color_features, texture_features):
-        """使用AGI模块进行高级图像分析 | Perform advanced image analysis with AGI modules"""
+        """Perform advanced image analysis with AGI modules"""
         try:
             if not all(hasattr(self, attr) for attr in ['neuro_symbolic_reasoner', 'emotion_awareness_module', 'context_memory_manager', 'unified_cognitive_architecture', 'self_learning_module']):
                 return {"agi_analysis": "agi_modules_not_available"}
             
-            # 提取视觉特征用于AGI分析
+            # Extract visual features for AGI analysis
             visual_features = {
                 "detected_objects": detection_results.get("objects", []),
                 "object_count": detection_results.get("object_count", 0),
@@ -1474,23 +1474,23 @@ class UnifiedVisionModel(BaseModel):
                 "image_data_hash": hash(image_array.tobytes()) if hasattr(image_array, 'tobytes') else hash(str(image_array))
             }
             
-            # 使用上下文记忆管理器检索相关历史经验
+            # Use context memory manager to retrieve relevant historical experience
             historical_context = self.context_memory_manager.retrieve_visual_context(visual_features)
             
-            # 使用情感意识模块进行多层次情感分析
+            # Use emotion awareness module for multi-level emotional analysis
             emotion_context = self.emotion_awareness_module.analyze_visual_emotion(
                 visual_features=visual_features,
                 historical_context=historical_context
             )
             
-            # 使用神经符号推理器进行深度逻辑推理
+            # Use neuro-symbolic reasoner for deep logical reasoning
             symbolic_reasoning = self.neuro_symbolic_reasoner.reason_about_visual_scene(
                 visual_features=visual_features,
                 emotional_context=emotion_context,
                 historical_context=historical_context
             )
             
-            # 使用统一认知架构进行综合认知处理
+            # Use unified cognitive architecture for comprehensive cognitive processing
             integrated_understanding = self.unified_cognitive_architecture.process_visual_input(
                 visual_data=visual_features,
                 emotional_context=emotion_context,
@@ -1498,7 +1498,7 @@ class UnifiedVisionModel(BaseModel):
                 historical_context=historical_context
             )
             
-            # 使用自学习模块从分析中学习
+            # Use self-learning module to learn from analysis
             learning_outcome = self.self_learning_module.learn_from_analysis(
                 analysis_data=integrated_understanding,
                 context={
@@ -1513,14 +1513,14 @@ class UnifiedVisionModel(BaseModel):
                 }
             )
             
-            # 更新上下文记忆
+            # Update context memory
             memory_update = self.context_memory_manager.update_visual_context(
                 visual_features,
                 integrated_understanding,
                 learning_outcome
             )
             
-            # 如果学习成果显著，主动优化模型参数
+            # If learning outcome is significant, proactively optimize model parameters
             if learning_outcome.get("significant_improvement", False):
                 self._optimize_model_parameters(learning_outcome)
             
@@ -1536,18 +1536,18 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"AGI图像分析失败: {str(e)} | AGI image analysis failed: {str(e)}")
-            # 使用AGI错误处理模块
+            self.logger.error(f"AGI image analysis failed: {str(e)}")
+            # Use AGI error handling module
             error_handling = self._handle_error_with_agi(e, "image_analysis")
             return {"agi_analysis": "error", "error": str(e), "error_handling": error_handling}
     
     def _record_learning_experience(self, image_info, detection_results, class_id, confidence, agi_analysis):
-        """记录学习经验用于自我改进 | Record learning experience for self-improvement"""
+        """Record learning experience for self-improvement"""
         try:
             if not hasattr(self, 'self_learning_module'):
                 return {"learning_recorded": False, "reason": "self_learning_module_not_available"}
             
-            # 构建学习经验数据
+            # Build learning experience data
             learning_experience = {
                 "image_metadata": {
                     "width": image_info.get("width"),
@@ -1564,7 +1564,7 @@ class UnifiedVisionModel(BaseModel):
                 }
             }
             
-            # 记录学习经验
+            # Record learning experience
             learning_result = self.self_learning_module.record_experience(
                 experience_type="visual_processing",
                 experience_data=learning_experience,
@@ -1574,21 +1574,21 @@ class UnifiedVisionModel(BaseModel):
             return {"learning_recorded": True, "learning_id": learning_result.get("learning_id", "unknown")}
             
         except Exception as e:
-            self.logger.warning(f"学习经验记录失败: {str(e)} | Learning experience recording failed: {str(e)}")
+            self.logger.warning(f"Learning experience recording failed: {str(e)}")
             return {"learning_recorded": False, "error": str(e)}
     
     def _handle_error_with_agi(self, error, operation_type):
-        """使用AGI模块进行智能错误处理 | Intelligent error handling with AGI modules"""
+        """Intelligent error handling with AGI modules"""
         try:
             if hasattr(self, 'neuro_symbolic_reasoner') and hasattr(self, 'self_learning_module'):
-                # 分析错误原因
+                # Analyze error cause
                 error_analysis = self.neuro_symbolic_reasoner.analyze_error(
                     error_message=str(error),
                     operation_type=operation_type,
                     context={"model_id": self.model_id}
                 )
                 
-                # 从错误中学习
+                # Learn from error
                 learning_opportunity = self.self_learning_module.learn_from_error(
                     error_type=type(error).__name__,
                     error_message=str(error),
@@ -1596,40 +1596,39 @@ class UnifiedVisionModel(BaseModel):
                     analysis=error_analysis
                 )
                 
-                self.logger.info(f"AGI错误处理完成: {error_analysis.get('recommendation', '无具体建议')} | AGI error handling completed")
+                self.logger.info(f"AGI error handling completed: {error_analysis.get('recommendation', 'No specific recommendation')}")
                 return {"error_handled": True, "analysis": error_analysis, "learning": learning_opportunity}
             
             return {"error_handled": False, "reason": "agi_modules_not_available"}
             
         except Exception as e:
-            self.logger.error(f"AGI错误处理本身失败: {str(e)} | AGI error handling itself failed: {str(e)}")
+            self.logger.error(f"AGI error handling itself failed: {str(e)}")
             return {"error_handled": False, "error": str(e)}
     
     def cleanup(self):
-        """清理模型资源 | Clean up model resources"""
+        """Clean up model resources"""
         try:
             if hasattr(self, 'classification_model'):
                 del self.classification_model
             if hasattr(self, 'detection_model'):
                 del self.detection_model
             
-            # 在对象销毁时避免使用logger，因为内置函数可能已被清理
             # Avoid using logger during object destruction as built-in functions may be cleaned up
             try:
-                self.logger.info("视觉模型资源清理完成 | Vision模型资源清理完成")
+                self.logger.info("Vision model resources cleanup completed")
             except:
-                pass  # 忽略日志记录错误 | Ignore logging errors
+                pass  # Ignore logging errors
             
-            return {"success": True, "message": "资源清理成功 / Resources cleaned successfully"}
+            return {"success": True, "message": "Resources cleaned successfully"}
         except Exception as e:
             try:
-                self.logger.error(f"资源清理失败: {e} / Resource cleanup failed: {e}")
+                self.logger.error(f"Resource cleanup failed: {e}")
             except:
-                pass  # 忽略日志记录错误 | Ignore logging errors
+                pass  # Ignore logging errors
             return {"error": str(e)}
     
     def _init_agi_modules(self):
-        """初始化AGI认知模块 | Initialize AGI cognitive modules"""
+        """Initialize AGI cognitive modules"""
         try:
             self.self_learning_module = SelfLearningModule()
             self.emotion_awareness_module = EmotionAwarenessModule()
@@ -1637,42 +1636,42 @@ class UnifiedVisionModel(BaseModel):
             self.context_memory_manager = ContextMemoryManager()
             self.unified_cognitive_architecture = UnifiedCognitiveArchitecture()
             self._setup_agi_collaboration()
-            self.logger.info("AGI模块初始化完成 | AGI modules initialized")
+            self.logger.info("AGI modules initialized successfully")
         except Exception as e:
-            self.logger.error(f"AGI模块初始化失败: {str(e)} | AGI module initialization failed: {str(e)}")
+            self.logger.error(f"AGI module initialization failed: {str(e)}")
 
     def _setup_agi_collaboration(self):
-        """设置AGI模块之间的协作关系 | Set up collaboration between AGI modules"""
+        """Set up collaboration between AGI modules"""
         try:
             if hasattr(self, 'neuro_symbolic_reasoner') and hasattr(self, 'context_memory_manager'):
                 self.neuro_symbolic_reasoner.set_memory_manager(self.context_memory_manager)
             if hasattr(self, 'self_learning_module') and hasattr(self, 'neuro_symbolic_reasoner'):
                 self.self_learning_module.set_reasoner(self.neuro_symbolic_reasoner)
-            self.logger.info("AGI模块协作设置完成 | AGI module collaboration setup completed")
+            self.logger.info("AGI module collaboration setup completed")
         except Exception as e:
-            self.logger.error(f"AGI模块协作设置失败: {str(e)} | AGI module collaboration setup failed: {str(e)}")
+            self.logger.error(f"AGI module collaboration setup failed: {str(e)}")
 
     def __del__(self):
-        """析构函数：确保资源清理 | Destructor: Ensure resource cleanup"""
+        """Destructor: Ensure resource cleanup"""
         self.cleanup()
 
-# 模型注册和导出 | Model registration and export
+# Model registration and export
 def create_vision_model(config=None):
-    """创建视觉模型实例 | Create vision model instance"""
+    """Create vision model instance"""
     return UnifiedVisionModel(config)
 
-# 单元测试 | Unit tests
+# Unit tests
 if __name__ == "__main__":
-    # 测试模型基本功能 | Test basic model functionality
+    # Test basic model functionality
     model = UnifiedVisionModel()
     
-    # 测试状态获取 | Test status retrieval
+    # Test status retrieval
     status = model.get_model_status()
-    print("模型状态:", status)
+    print("Model status:", status)
     
-    # 测试图像加载 | Test image loading
+    # Test image loading
     test_image = np.ones((100, 100, 3), dtype=np.uint8) * 255
     image_info = model.load_image(test_image)
-    print("图像加载结果:", image_info.get("success", False))
+    print("Image loading result:", image_info.get("success", False))
     
-    print("视觉模型测试完成 | Vision model testing completed")
+    print("Vision model testing completed")

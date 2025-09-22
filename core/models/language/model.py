@@ -20,6 +20,7 @@ Function Description:
 - Implements emotion analysis and emotional response generation
 - Provides both local and external API operation modes
 - Supports joint training and knowledge base integration
+- Uses from-scratch training without external pre-trained models
 """
 
 import logging
@@ -41,64 +42,59 @@ from core.context_memory import ContextMemoryManager
 
 
 """
-FromScratchTrainer类 - 从零开始训练语言模型
 FromScratchTrainer Class - Train language model from scratch
 """
 class FromScratchTrainer:
-    """从零开始训练的语言模型训练器
-    Language model trainer from scratch
+    """Language model trainer from scratch
     
-    不依赖外部预训练模型，完全从零构建语言模型
     No dependency on external pre-trained models, build language model completely from scratch
     """
     
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
-        self.vocabulary = {}  # 词汇表
+        self.vocabulary = {}  # Vocabulary
         self.vocab_size = 0
-        self.word_to_index = {}  # 词到索引的映射
-        self.index_to_word = {}  # 索引到词的映射
+        self.word_to_index = {}  # Word to index mapping
+        self.index_to_word = {}  # Index to word mapping
         self.embedding_dim = self.config.get('embedding_dim', 100)
         self.window_size = self.config.get('window_size', 2)
         self.min_count = self.config.get('min_count', 2)
-        self.embeddings = None  # 词嵌入矩阵
+        self.embeddings = None  # Word embedding matrix
         self.logger = logging.getLogger(__name__)
         
-        # 初始化简单的语言模型参数
+        # Initialize simple language model parameters
         self.learning_rate = self.config.get('learning_rate', 0.01)
         self.epochs = self.config.get('epochs', 10)
         
-        # 标记序列预测模型参数
+        # Token sequence prediction model parameters
         self.hidden_size = self.config.get('hidden_size', 128)
         self.sequence_length = self.config.get('sequence_length', 10)
         
-        # 初始化权重矩阵
-        self.W1 = None  # 输入到隐藏层的权重
-        self.b1 = None  # 隐藏层偏置
-        self.W2 = None  # 隐藏层到输出层的权重
-        self.b2 = None  # 输出层偏置
+        # Initialize weight matrices
+        self.W1 = None  # Input to hidden layer weights
+        self.b1 = None  # Hidden layer bias
+        self.W2 = None  # Hidden layer to output layer weights
+        self.b2 = None  # Output layer bias
         
     def build_vocabulary(self, training_data: List[str]):
-        """构建词汇表
-        Build vocabulary from training data
-        """
+        """Build vocabulary from training data"""
         self.logger.info("Building vocabulary from scratch...")
         
-        # 统计词频
+        # Count word frequencies
         word_counts = Counter()
         for sentence in training_data:
             words = sentence.lower().split()
             word_counts.update(words)
         
-        # 过滤低频词
+        # Filter low-frequency words
         filtered_words = {word for word, count in word_counts.items() if count >= self.min_count}
         
-        # 添加特殊标记
+        # Add special tokens
         special_tokens = ['<PAD>', '<UNK>', '<SOS>', '<EOS>']
         for token in special_tokens:
             filtered_words.add(token)
         
-        # 构建映射
+        # Build mappings
         self.word_to_index = {word: i for i, word in enumerate(filtered_words)}
         self.index_to_word = {i: word for word, i in self.word_to_index.items()}
         self.vocab_size = len(self.word_to_index)
@@ -106,62 +102,51 @@ class FromScratchTrainer:
         self.logger.info(f"Vocabulary built with size: {self.vocab_size}")
         
     def initialize_model(self):
-        """初始化模型参数
-        Initialize model parameters
-        """
+        """Initialize model parameters"""
         if self.vocab_size == 0:
             raise ValueError("Vocabulary must be built before initializing the model")
         
-        # 初始化词嵌入
+        # Initialize word embeddings
         self.embeddings = np.random.rand(self.vocab_size, self.embedding_dim) - 0.5
         
-        # 初始化序列预测模型权重
+        # Initialize sequence prediction model weights
         self.W1 = np.random.rand(self.embedding_dim * self.window_size, self.hidden_size) - 0.5
         self.b1 = np.zeros((1, self.hidden_size))
         self.W2 = np.random.rand(self.hidden_size, self.vocab_size) - 0.5
         self.b2 = np.zeros((1, self.vocab_size))
         
     def tokenize(self, text: str) -> List[int]:
-        """文本标记化
-        Tokenize text into indices
-        """
+        """Tokenize text into indices"""
         words = text.lower().split()
         return [self.word_to_index.get(word, self.word_to_index['<UNK>']) for word in words]
         
     def detokenize(self, indices: List[int]) -> str:
-        """去标记化
-        Convert indices back to text
-        """
+        """Convert indices back to text"""
         words = [self.index_to_word.get(idx, '<UNK>') for idx in indices]
         return ' '.join(words)
         
     def softmax(self, x):
-        """Softmax激活函数
-        Softmax activation function
-        """
-        e_x = np.exp(x - np.max(x))  # 防止数值溢出
+        """Softmax activation function"""
+        e_x = np.exp(x - np.max(x))  # Prevent numerical overflow
         return e_x / e_x.sum(axis=1, keepdims=True)
         
     def forward(self, x):
-        """前向传播
-        Forward propagation
-        """
-        # 查找词嵌入
+        """Forward propagation"""
+        # Look up word embeddings
         embedded = np.array([self.embeddings[idx] for idx in x.flatten()])
         embedded = embedded.reshape(x.shape[0], -1)
         
-        # 隐藏层计算
+        # Hidden layer computation
         h = np.tanh(np.dot(embedded, self.W1) + self.b1)
         
-        # 输出层计算
+        # Output layer computation
         logits = np.dot(h, self.W2) + self.b2
         probabilities = self.softmax(logits)
         
         return probabilities, h
         
     def train(self, training_data: List[str]):
-        """训练模型
-        Train the model from scratch
+        """Train the model from scratch
         """
         if not self.word_to_index:
             self.build_vocabulary(training_data)
@@ -171,7 +156,7 @@ class FromScratchTrainer:
         
         self.logger.info("Starting from-scratch model training...")
         
-        # 准备训练数据
+        # Prepare training data
         sequences = []
         targets = []
         
@@ -182,62 +167,62 @@ class FromScratchTrainer:
                     sequences.append(tokens[i:i+self.window_size])
                     targets.append(tokens[i+self.window_size])
         
-        # 转换为numpy数组
+        # Convert to numpy arrays
         sequences = np.array(sequences)
         targets = np.array(targets)
         
-        # 获取配置的批次大小，如果未配置则默认为32
+        # Get configured batch size, default to 32 if not configured
         batch_size = self.config.get('batch_size', 32)
         num_batches = len(sequences) // batch_size
         
-        # 设置学习率衰减参数
+        # Set learning rate decay parameters
         decay_rate = self.config.get('decay_rate', 0.9)
         decay_steps = self.config.get('decay_steps', 3)
         
-        # 训练循环
+        # Training loop
         for epoch in range(self.epochs):
             total_loss = 0
             
-            # 随机打乱数据
+            # Randomly shuffle data
             indices = np.arange(len(sequences))
             np.random.shuffle(indices)
             sequences = sequences[indices]
             targets = targets[indices]
             
-            # 应用学习率衰减
+            # Apply learning rate decay
             if epoch > 0 and epoch % decay_steps == 0:
                 self.learning_rate *= decay_rate
                 self.logger.info(f"Learning rate decayed to: {self.learning_rate}")
             
-            # 批次训练
+            # Batch training
             for batch in range(num_batches):
                 start_idx = batch * batch_size
                 end_idx = min((batch + 1) * batch_size, len(sequences))
                 
-                # 获取批次数据
+                # Get batch data
                 x_batch = sequences[start_idx:end_idx]
                 y_batch = targets[start_idx:end_idx]
                 
-                # 初始化目标矩阵
+                # Initialize target matrix
                 y_true = np.zeros((len(x_batch), self.vocab_size))
                 for i, target in enumerate(y_batch):
                     y_true[i, target] = 1
                 
-                # 前向传播
+                # Forward propagation
                 y_pred, h = self.forward(x_batch)
                 
-                # 计算损失
+                # Calculate loss
                 loss = -np.sum(y_true * np.log(y_pred + 1e-10)) / len(x_batch)
                 total_loss += loss
                 
-                # 反向传播
+                # Backward propagation
                 d_loss = y_pred - y_true
                 d_W2 = np.dot(h.T, d_loss) / len(x_batch)
                 d_b2 = np.sum(d_loss, axis=0, keepdims=True) / len(x_batch)
                 
-                d_h = np.dot(d_loss, self.W2.T) * (1 - h**2)  # tanh导数
+                d_h = np.dot(d_loss, self.W2.T) * (1 - h**2)  # tanh derivative
                 
-                # 计算d_W1的批次梯度
+                # Calculate batch gradient for d_W1
                 d_W1 = np.zeros_like(self.W1)
                 for i in range(len(x_batch)):
                     input_flat = x_batch[i].flatten()
@@ -245,13 +230,13 @@ class FromScratchTrainer:
                 
                 d_b1 = np.sum(d_h, axis=0, keepdims=True) / len(x_batch)
                 
-                # 更新权重
+                # Update weights
                 self.W1 -= self.learning_rate * d_W1
                 self.b1 -= self.learning_rate * d_b1
                 self.W2 -= self.learning_rate * d_W2
                 self.b2 -= self.learning_rate * d_b2
             
-            # 处理剩余的数据
+            # Process remaining data
             if len(sequences) % batch_size > 0:
                 start_idx = num_batches * batch_size
                 x_batch = sequences[start_idx:]
@@ -284,103 +269,100 @@ class FromScratchTrainer:
                 self.W2 -= self.learning_rate * d_W2
                 self.b2 -= self.learning_rate * d_b2
             
-            # 打印训练进度
+            # Print training progress
             avg_loss = total_loss / (num_batches + (1 if len(sequences) % batch_size > 0 else 0))
             self.logger.info(f"Epoch {epoch+1}/{self.epochs}, Loss: {avg_loss:.4f}, Learning Rate: {self.learning_rate}")
         
         self.logger.info("From-scratch model training completed")
         
     def generate_text(self, seed_text: str, max_length: int = 50) -> str:
-        """生成文本
-        Generate text using the trained model
+        """Generate text using the trained model
         
         Args:
-            seed_text: 种子文本，用于启动生成过程
-            max_length: 生成文本的最大长度
+            seed_text: Seed text to start the generation process
+            max_length: Maximum length of generated text
         
         Returns:
-            生成的文本字符串
+            Generated text string
         """
         if self.embeddings is None:
             raise ValueError("Model must be trained before generating text")
         
-        # 初始化生成文本
+        # Initialize generated text
         tokens = self.tokenize(seed_text)
         if not tokens:
-            # 如果种子文本无法标记化，使用一个随机标记作为起始点
+            # If seed text cannot be tokenized, use a random token as starting point
             start_token = random.choice(list(self.word_to_index.values()))
             tokens = [start_token]
         
-        # 生成新文本
+        # Generate new text
         for _ in range(max_length):
-            # 获取最后window_size个标记
+            # Get last window_size tokens
             window = tokens[-self.window_size:] if len(tokens) >= self.window_size else tokens
             window = [self.word_to_index['<PAD>']] * (self.window_size - len(window)) + window
             window = np.array(window).reshape(1, -1)
             
-            # 预测下一个标记
+            # Predict next token
             probabilities, _ = self.forward(window)
             
-            # 应用温度参数来控制随机性
+            # Apply temperature parameter to control randomness
             if hasattr(self, 'temperature') and self.temperature > 0:
-                # 对概率取对数并按温度缩放
+                # Take log of probabilities and scale by temperature
                 log_probs = np.log(probabilities + 1e-10) / self.temperature
-                # 重新应用softmax
+                # Re-apply softmax
                 adjusted_probs = np.exp(log_probs) / np.sum(np.exp(log_probs), axis=1, keepdims=True)
-                # 根据调整后的概率选择下一个标记
+                # Select next token based on adjusted probabilities
                 next_token_idx = np.random.choice(self.vocab_size, p=adjusted_probs[0])
             else:
-                # 使用原始概率（默认行为）
+                # Use original probabilities (default behavior)
                 next_token_idx = np.random.choice(self.vocab_size, p=probabilities[0])
             
-            # 如果生成了结束标记，停止生成
+            # Stop generation if end token is generated
             if next_token_idx == self.word_to_index.get('<EOS>', -1):
                 break
             
-            # 避免重复标记
+            # Avoid repeated tokens
             if next_token_idx == tokens[-1] and len(tokens) > 1:
-                # 如果连续重复，尝试选择概率第二高的标记
+                # If consecutive repetition, try selecting second highest probability token
                 sorted_indices = np.argsort(probabilities[0])[::-1]
-                for idx in sorted_indices[1:5]:  # 查看前5个概率最高的标记
+                for idx in sorted_indices[1:5]:  # Look at top 5 highest probability tokens
                     if idx != tokens[-1]:
                         next_token_idx = idx
                         break
             
             tokens.append(next_token_idx)
         
-        # 转换回文本
+        # Convert back to text
         generated_text = self.detokenize(tokens)
         
-        # 清理生成的文本（移除特殊标记）
+        # Clean generated text (remove special tokens)
         special_tokens = ['<PAD>', '<UNK>', '<SOS>', '<EOS>']
         for token in special_tokens:
             generated_text = generated_text.replace(token, '')
         
-        # 移除多余的空格
+        # Remove extra spaces
         generated_text = ' '.join(generated_text.split())
         
         return generated_text
         
     def set_temperature(self, temperature: float):
-        """设置文本生成的温度参数
-        Set temperature parameter for text generation
+        """Set temperature parameter for text generation
         
         Args:
-            temperature: 控制生成文本随机性的温度值，值越高随机性越大
+            temperature: Temperature value controlling text generation randomness, higher values increase randomness
         """
-        self.temperature = max(0.1, min(2.0, temperature))  # 限制温度值在合理范围内
+        self.temperature = max(0.1, min(2.0, temperature))  # Limit temperature value within reasonable range
         
     def analyze_sentiment(self, text: str) -> Dict[str, float]:
-        """简单的情感分析
-        Simple sentiment analysis
+        """Simple sentiment analysis
         
         Args:
-            text: 要分析情感的文本
+            text: Text to analyze for sentiment
             
         Returns:
-            情感状态字典，包含positive、negative和neutral三个键及其对应的概率值
+            Emotion state dictionary containing positive, negative, and neutral keys with their probability values
         """
-        # 初始化情感词汇集合 - 扩展的情感词典
+        # Initialize sentiment vocabulary set - extended sentiment dictionary
         positive_words = {
             "good", "great", "excellent", "happy", "pleased", "wonderful", 
             "amazing", "love", "like", "thank", "thanks", "awesome", 
@@ -399,7 +381,7 @@ class FromScratchTrainer:
             "terrible", "pathetic", "miserable", "depressing", "regret"
         }
         
-        # 否定词列表 - 用于处理否定修饰的情感词
+        # Negation words list - for handling negated sentiment words
         negation_words = {
             "not", "never", "no", "none", "neither", "nor", "hardly", 
             "scarcely", "barely", "seldom", "rarely", "don't", "didn't", 
@@ -410,60 +392,60 @@ class FromScratchTrainer:
         if not text:
             return {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
             
-        # 初始化情感分数
+        # Initialize sentiment scores
         sentiment_scores = {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
         
-        # 转换文本为小写并分割成词
+        # Convert text to lowercase and split into words
         words = text.lower().split()
         
-        # 计算情感词数量，考虑否定词的影响
+        # Count sentiment words considering negation effects
         positive_count = 0
         negative_count = 0
         negation_active = False
         
         for i, word in enumerate(words):
-            # 检查是否是否定词
+            # Check if it's a negation word
             if word in negation_words:
                 negation_active = True
                 continue
             
-            # 检查是否是积极词
+            # Check if it's a positive word
             if word in positive_words:
                 if negation_active:
-                    # 否定词后面跟着积极词，转换为消极情感
+                    # Negative word followed by positive word, convert to negative sentiment
                     negative_count += 1
                     negation_active = False
                 else:
                     positive_count += 1
                 continue
             
-            # 检查是否是消极词
+            # Check if it's a negative word
             if word in negative_words:
                 if negation_active:
-                    # 否定词后面跟着消极词，转换为积极情感
+                    # Negative word followed by negative word, convert to positive sentiment
                     positive_count += 1
                     negation_active = False
                 else:
                     negative_count += 1
                 continue
             
-            # 重置否定状态（如果当前词不是情感词）
+            # Reset negation state (if current word is not a sentiment word)
             if not (i < len(words) - 1 and words[i+1] in positive_words | negative_words):
                 negation_active = False
         
-        # 如果有积极或消极词汇，更新情感分数
+        # If there are positive or negative words, update sentiment scores
         if positive_count > 0 or negative_count > 0:
             total_sentiment_words = positive_count + negative_count
             
-            # 根据文本长度调整情感权重
+            # Adjust sentiment weight based on text length
             text_length = len(words)
             length_factor = min(1.0, max(0.3, 5.0 / text_length)) if text_length > 0 else 1.0
             
-            # 计算积极和消极得分
+            # Calculate positive and negative scores
             positive_score = (positive_count / total_sentiment_words) * 0.8 * length_factor
             negative_score = (negative_count / total_sentiment_words) * 0.8 * length_factor
             
-            # 分配得分，保持总分和为1
+            # Assign scores, keeping total sum equal to 1
             sentiment_scores["positive"] = positive_score
             sentiment_scores["negative"] = negative_score
             sentiment_scores["neutral"] = 1.0 - positive_score - negative_score
@@ -471,28 +453,26 @@ class FromScratchTrainer:
         return sentiment_scores
         
     def detect_language(self, text: str) -> Dict[str, Any]:
-        """简单的语言检测（主要针对英语）
-        Simple language detection (primarily for English)
+        """Simple language detection (primarily for English)
         
         Args:
-            text: 要检测语言的文本
+            text: Text to detect language for
             
         Returns:
-            语言检测结果，包含检测到的语言和置信度
+            Language detection result containing detected language and confidence
         """
-        # 根据系统要求，始终返回英语
+        # According to system requirements, always return English
         return {"language": "en", "confidence": 0.8}
         
     def summarize_text(self, text: str, max_length: int) -> str:
-        """改进的文本摘要
-        Improved text summarization
+        """Improved text summarization
         
         Args:
-            text: 要摘要的文本
-            max_length: 摘要的最大长度
+            text: Text to summarize
+            max_length: Maximum length of summary
             
         Returns:
-            生成的文本摘要
+            Generated text summary
         """
         if not text or max_length <= 0:
             return ""
@@ -500,36 +480,36 @@ class FromScratchTrainer:
         if len(text) <= max_length:
             return text
             
-        # 简单的摘要方法：基于句子重要性的提取
-        # 1. 将文本分割成句子
+        # Simple summarization method: extract based on sentence importance
+        # 1. Split text into sentences
         sentences = []
         current_sentence = ""
         
-        # 简单的句子分割逻辑（基于常见的句子结束符号）
+        # Simple sentence segmentation logic (based on common sentence ending symbols)
         for char in text:
             current_sentence += char
             if char in ['.', '!', '?', '。', '！', '？']:
                 sentences.append(current_sentence)
                 current_sentence = ""
         
-        # 添加最后一个句子（如果有的话）
+        # Add the last sentence (if any)
         if current_sentence.strip():
             sentences.append(current_sentence)
             
         if not sentences:
-            # 如果无法分割句子，回退到简单截断
+            # If unable to split sentences, fallback to simple truncation
             return text[:max_length] + "..."
             
-        # 2. 计算每个句子的得分
-        # 这里使用简单的规则：句子位置和长度作为重要性指标
+        # 2. Calculate score for each sentence
+        # Using simple rules: sentence position and length as importance indicators
         sentence_scores = []
         for i, sentence in enumerate(sentences):
-            # 位置权重：首句和尾句通常更重要
+            # Position weight: first and last sentences are usually more important
             position_score = 1.0
             if i == 0 or i == len(sentences) - 1:
                 position_score = 1.5
                 
-            # 长度权重：适中长度的句子通常包含更多信息
+            # Length weight: sentences of moderate length usually contain more information
             length = len(sentence)
             length_score = 1.0
             if 10 <= length <= 100:
@@ -537,23 +517,23 @@ class FromScratchTrainer:
             elif length > 100:
                 length_score = 0.8
             
-            # 综合得分
+            # Comprehensive score
             score = position_score * length_score
             sentence_scores.append((sentence, score))
             
-        # 3. 按得分排序并选择前几个句子，直到达到最大长度
+        # 3. Sort by score and select top sentences until max_length is reached
         sentence_scores.sort(key=lambda x: x[1], reverse=True)
         
         summary = ""
         selected_sentences = []
         
         for sentence, _ in sentence_scores:
-            # 尝试添加当前句子
+            # Try to add current sentence
             temp_summary = summary + (" " if summary else "") + sentence
             
-            # 如果添加后超过最大长度，停止
+            # If adding exceeds max length, stop
             if len(temp_summary) > max_length:
-                # 如果还没有选择任何句子，回退到简单截断
+                # If no sentences have been selected yet, fallback to simple truncation
                 if not selected_sentences:
                     return text[:max_length] + "..."
                 break
@@ -561,43 +541,40 @@ class FromScratchTrainer:
             summary = temp_summary
             selected_sentences.append(sentence)
             
-        # 4. 重新排序所选句子，保持原始文本顺序
+        # 4. Reorder selected sentences to maintain original text order
         if selected_sentences:
-            # 创建句子到索引的映射
+            # Create sentence to index mapping
             sentence_to_index = {sentence: i for i, sentence in enumerate(sentences)}
-            # 按原始顺序排序
+            # Sort by original order
             selected_sentences.sort(key=lambda x: sentence_to_index[x])
-            # 重新构建摘要
+            # Rebuild summary
             summary = " ".join(selected_sentences)
             
-        # 5. 确保不超过最大长度
+        # 5. Ensure not exceeding max length
         if len(summary) > max_length:
             summary = summary[:max_length] + "..."
             
         return summary.strip()
         
     def translate_text(self, text: str, target_language: str) -> str:
-        """简单的文本翻译（由于系统要求，主要是将输入文本作为输出）
-        Simple text translation (primarily returns input text due to system requirements)
+        """Simple text translation (primarily returns input text due to system requirements)
         
         Args:
-            text: 要翻译的文本
-            target_language: 目标语言
+            text: Text to translate
+            target_language: Target language
             
         Returns:
-            翻译后的文本（实际上是原始文本）
+            Translated text (actually the original text)
         """
-        # 根据系统要求，返回原始文本
+        # According to system requirements, return original text
         return text
 
 
 """
-LanguageModel类 - 中文类描述
-LanguageModel Class - English class description
+LanguageModel Class - Core Language Model Implementation
 """
 class LanguageModel(BaseModel):
-    """大语言模型核心
-    Core Language Model
+    """Core Language Model Implementation
     
     Function: Handles multilingual interaction, implements emotion reasoning and context understanding
     """
@@ -627,7 +604,7 @@ class LanguageModel(BaseModel):
         self.emotion_decay_rate = 0.95  # Emotion decay rate
         
         # Model operation mode
-        self.model_mode = "local"  # local 或 api
+        self.model_mode = "local"  # local or api
         self.api_config = {}
         
         # Emotion reasoning cache
@@ -663,7 +640,7 @@ class LanguageModel(BaseModel):
                 "last_updated": self._get_timestamp()
             }
         
-        # 初始化从零开始的训练器
+        # Initialize from-scratch trainer
         self.from_scratch_trainer = FromScratchTrainer({
             'embedding_dim': 100,
             'window_size': 2,
@@ -679,7 +656,7 @@ class LanguageModel(BaseModel):
         
         self.logger.info("Language model initialized")
         
-        # 加载外部API配置（如果存在）| Load external API config if exists
+        # Load external API config if exists
         if config and "api_config" in config:
             self._load_api_config(config["api_config"])
 
@@ -687,7 +664,7 @@ class LanguageModel(BaseModel):
 
 
     def _init_agi_modules(self):
-        """初始化AGI认知模块 | Initialize AGI cognitive modules"""
+        """Initialize AGI cognitive modules"""
         try:
             # Ensure singleton pattern to avoid repeated initialization
             if not hasattr(self, 'self_learning_module'):
@@ -742,18 +719,18 @@ class LanguageModel(BaseModel):
                 )
             
             if hasattr(self, 'unified_cognitive_architecture') and hasattr(self, 'context_memory_manager'):
-                # 统一认知架构与上下文记忆的集成
+                # Integration of unified cognitive architecture with context memory
                 self.unified_cognitive_architecture.connect_memory_manager(self.context_memory_manager)
             
-            # AGI增强：添加更多模块间的数据流连接
+            # AGI Enhancement: Add more data flow connections between modules
             if hasattr(self, 'neuro_symbolic_reasoner') and hasattr(self, 'self_learning_module'):
-                # 当推理器产生新洞察时，通知自学习模块
+                # Notify self-learning module when reasoner produces new insights
                 self.neuro_symbolic_reasoner.set_insight_callback(
                     lambda insight: self.self_learning_module.record_insight(insight)
                 )
             
             if hasattr(self, 'context_memory_manager') and hasattr(self, 'emotion_awareness_module'):
-                # 当上下文记忆更新时，通知情感意识模块
+                # Notify emotion awareness module when context memory is updated
                 self.context_memory_manager.set_memory_update_callback(
                     lambda memory_data: self.emotion_awareness_module.update_context(memory_data)
                 )
@@ -762,7 +739,7 @@ class LanguageModel(BaseModel):
             
         except Exception as e:
             self.logger.error(f"AGI data flow initialization failed: {str(e)}")
-            # AGI增强：即使数据流初始化失败，也继续运行但记录详细错误
+            # AGI Enhancement: Continue running even if data flow initialization fails, but log detailed error
             self._log_detailed_error("agi_data_flow_init", str(e))
 
     def initialize(self) -> Dict[str, Any]:
@@ -858,28 +835,30 @@ class LanguageModel(BaseModel):
             }
         except Exception as e:
             self.logger.error(f"Language processing error: {str(e)}")
-            # AGI增强：错误学习 | AGI Enhancement: Error learning
+            # AGI Enhancement: Error learning
             if hasattr(self, 'self_learning_module'):
                 self.self_learning_module.record_error(str(e), "language_processing")
             return {"success": False, "error": str(e)}
 
     def _preprocess_text(self, text: str) -> str:
-        """文本预处理 | Text preprocessing"""
-        # 此处可添加拼写检查、规范化等 | Can add spell check, normalization, etc.
+        """Text preprocessing
+        
+        Args:
+            text: Input text to preprocess
+            
+        Returns:
+            Preprocessed text string
+        """
+        # Can add spell check, normalization, etc.
         return text.strip()
 
-    """
-    _update_history函数 - 中文函数描述
-    _update_history Function - English function description
-
-    Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
-    """
     def _update_history(self, text: str, context: Dict[str, Any]):
-        """更新对话历史 | Update conversation history"""
+        """Update conversation history
+        
+        Args:
+            text: Input text to add to history
+            context: Context information associated with the text
+        """
         if len(self.conversation_history) >= self.max_history_length:
             self.conversation_history.pop(0)
         
@@ -890,33 +869,41 @@ class LanguageModel(BaseModel):
         })
 
     def _generate_response(self, text: str, emotion_state: Dict[str, float]) -> str:
-        """生成响应（支持本地/API模式）| Generate response (supports local/API mode)"""
+        """Generate response (supports local/API mode)
+        
+        Args:
+            text: Input text to generate response for
+            emotion_state: Current emotion state for response personalization
+            
+        Returns:
+            Generated response string
+        """
         if self.model_mode == "api":
             return self._call_external_api(text, emotion_state)
         
-        # 本地模型实现 | Local model implementation
-        # 基础情感响应 | Basic emotion response
+        # Local model implementation
+        # Basic emotion response
         if emotion_state:
             dominant_emotion = max(emotion_state, key=emotion_state.get)
             emotion_intensity = emotion_state[dominant_emotion]
             
-            # 更新自身情感状态 | Update self emotion state
+            # Update self emotion state
             self._update_emotion_state(emotion_state)
         else:
-            # 如果没有情感数据，使用默认情感
+            # If no emotion data, use default emotion
             dominant_emotion = "neutral"
             emotion_intensity = 0.5
             emotion_state = {"neutral": 0.5}
         
         # Prefer neural network for response generation
-            if self.conversation_model is not None and self.conversation_tokenizer is not None:
-                try:
-                    return self._generate_neural_response(text, emotion_state)
-                except Exception as e:
-                    self.logger.warning(f"Neural response failed, falling back to local: {str(e)}")
-                    # Continue with local response
-            else:
-                self.logger.info("Neural models not initialized, using local response")
+        if self.conversation_model is not None and self.conversation_tokenizer is not None:
+            try:
+                return self._generate_neural_response(text, emotion_state)
+            except Exception as e:
+                self.logger.warning(f"Neural response failed, falling back to local: {str(e)}")
+                # Continue with local response
+        else:
+            self.logger.info("Neural models not initialized, using local response")
         
         # English response templates
         response_templates = {
@@ -963,29 +950,29 @@ class LanguageModel(BaseModel):
         self.logger.info("Starting language model training")
         self.is_training = True
         
-        # 联合训练模式 | Joint training mode
-        if parameters and "joint_training" in parameters:
+            # Joint training mode
+            if parameters and "joint_training" in parameters:
             return self._joint_training(training_data, parameters)
         
         try:
-            # 检查训练数据 | Check training data
+            # Check training data
             if not training_data:
                 return {"success": False, "error": "Missing training data"}
             
-            # 解析训练参数 | Parse training parameters
+            # Parse training parameters
             batch_size = parameters.get("batch_size", 32) if parameters else 32
             learning_rate = parameters.get("learning_rate", 0.001) if parameters else 0.001
             max_epochs = parameters.get("max_epochs", 10) if parameters else 10
             validation_split = parameters.get("validation_split", 0.2) if parameters else 0.2
             
-            # 准备训练数据 | Prepare training data
+            # Prepare training data
             conversations = training_data.get("conversations", [])
             emotion_data = training_data.get("emotion_data", [])
             
             if not conversations and not emotion_data:
                 return {"success": False, "error": "Training data is empty"}
             
-            # 开始真实训练过程 | Start real training process
+            # Start real training process
             self.logger.info(f"Starting language model training: {len(conversations)} conversations, {len(emotion_data)} emotion samples")
             
             # 更新从零开始训练器的参数
@@ -993,7 +980,7 @@ class LanguageModel(BaseModel):
                 self.from_scratch_trainer.learning_rate = learning_rate
                 self.from_scratch_trainer.epochs = max_epochs
                 
-                # 构建词汇表（如果尚未构建）
+                # Build vocabulary if not already built
                 if self.from_scratch_trainer.vocab_size == 0:
                     self.logger.info("Building vocabulary for from-scratch trainer")
                     training_sentences = []
@@ -1005,7 +992,7 @@ class LanguageModel(BaseModel):
                     
                     self.from_scratch_trainer.build_vocabulary(training_sentences)
                 
-                # 训练从零开始的模型
+                # Train from-scratch model
                 self.logger.info("Starting from-scratch model training")
                 training_sentences = []
                 for conv in conversations:
@@ -1014,10 +1001,10 @@ class LanguageModel(BaseModel):
                     elif isinstance(conv, str):
                         training_sentences.append(conv)
                 
-                # 训练模型
+                # Train model
                 self.from_scratch_trainer.train(training_sentences)
                 
-                # 从从零开始训练器中获取训练指标
+                # Get training metrics from from-scratch trainer
                 from_scratch_metrics = {
                     "training_samples": len(training_sentences),
                     "epochs_completed": max_epochs
@@ -1279,26 +1266,20 @@ class LanguageModel(BaseModel):
             return self._generate_local_response(text, emotion_state)  # 回退到本地响应 | Fallback to local response
             
     
-    """
-    _update_emotion_state函数 - 中文函数描述
-    _update_emotion_state Function - English function description
-
-    Args:
-        params: 参数描述 (Parameter description)
-        
-    Returns:
-        返回值描述 (Return value description)
-    """
     def _update_emotion_state(self, new_emotion: Dict[str, float]):
-        """更新情感状态 | Update emotion state"""
+        """Update emotion state with decay and fusion
+        
+        Args:
+            new_emotion: New emotion state to incorporate
+        """
         for emotion in self.emotion_state:
-            # 情感衰减 | Emotion decay
+            # Emotion decay
             self.emotion_state[emotion] *= self.emotion_decay_rate
-            # 融合新情感 | Fuse new emotion
+            # Fuse new emotion
             if emotion in new_emotion:
                 self.emotion_state[emotion] += (1 - self.emotion_decay_rate) * new_emotion[emotion]
                 
-        # 归一化 | Normalize
+        # Normalize emotion values
         total = sum(self.emotion_state.values())
         for emotion in self.emotion_state:
             self.emotion_state[emotion] /= total
@@ -1669,18 +1650,15 @@ class LanguageModel(BaseModel):
                     "last_updated": self._get_timestamp()
                 }
             }
-    """
-    execute_task函数 - 中文函数描述
-    execute_task Function - English function description
-
-    Args:
-        task_data: 任务数据，包含任务类型和参数 (Task data containing task type and parameters)
-        
-    Returns:
-        任务执行结果 (Task execution result)
-    """
     def execute_task(self, task_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute language-related tasks using from-scratch trained model"""
+        """Execute language-related tasks using from-scratch trained model
+        
+        Args:
+            task_data: Task data containing task type and parameters
+            
+        Returns:
+            Task execution result dictionary
+        """
         try:
             task_type = task_data.get("type", "process_text")
             task_params = task_data.get("params", {})

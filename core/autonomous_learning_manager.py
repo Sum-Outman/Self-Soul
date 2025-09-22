@@ -44,6 +44,7 @@ class AutonomousConfig:
     training_interval: int = 3600  # 训练间隔（秒）
     optimization_interval: int = 1800  # 优化间隔（秒）
     monitoring_interval: int = 300  # 监控间隔（秒）
+    learning_interval: int = 300  # 学习循环间隔（秒）
     min_improvement_threshold: float = 0.1  # 最小改进阈值
     max_training_iterations: int = 10  # 最大训练迭代次数
     enable_continuous_learning: bool = True  # 启用持续学习
@@ -75,6 +76,14 @@ class AutonomousLearningManager:
         self.model_references = {}
         self.knowledge_model = None
         self.language_model = None
+        
+        # 添加学习进度和状态跟踪
+        self.learning_progress = 0.0
+        self.current_learning_status = 'idle'  # idle, running, paused, completed
+        self.learning_domains = []
+        self.learning_priority = 'balanced'
+        self.learning_logs = []
+        self.max_logs = 50
         
         # 初始化模型引用
         self._initialize_model_references()
@@ -116,29 +125,125 @@ class AutonomousLearningManager:
         """创建性能评估器
         Create performance evaluator
         """
+        def evaluate_model(model, task):
+            """评估模型性能
+            Evaluate model performance
+            """
+            try:
+                # 获取模型的实际性能指标
+                if hasattr(model, 'get_performance_metrics'):
+                    metrics = model.get_performance_metrics()
+                    # 计算综合性能分数
+                    if metrics:
+                        score = 0
+                        weight_sum = 0
+                        
+                        # 为不同指标分配权重
+                        weights = {
+                            'accuracy': 0.3,
+                            'precision': 0.2,
+                            'recall': 0.2,
+                            'f1_score': 0.2,
+                            'speed': 0.1
+                        }
+                        
+                        for metric, value in metrics.items():
+                            if metric in weights and isinstance(value, (int, float)):
+                                score += value * weights[metric]
+                                weight_sum += weights[metric]
+                        
+                        return score / weight_sum if weight_sum > 0 else 0.5
+                
+                # 如果没有具体性能指标，使用基础评估
+                if hasattr(model, 'evaluate'):
+                    result = model.evaluate(task)
+                    if isinstance(result, (int, float)):
+                        return min(max(result, 0), 1)  # 确保在0-1范围内
+                
+                # 默认返回中间值
+                return 0.5
+            except Exception as e:
+                error_handler.handle_error(e, "AutonomousLearningManager", "性能评估失败")
+                return 0.3  # 出错时返回较低分数
+        
         # 返回性能评估器实例
-        # Return performance evaluator instance
-        return {
-            'evaluate': lambda model, task: random.uniform(0.5, 1.0)  # 示例实现
-        }
+        return {'evaluate': evaluate_model}
     
     def _create_learning_strategy(self):
         """创建学习策略
         Create learning strategy
         """
+        def select_next_task(model, performance):
+            """根据模型性能和类型选择下一个学习任务
+            Select next learning task based on model performance and type
+            """
+            try:
+                model_id = model.model_id if hasattr(model, 'model_id') else 'unknown'
+                
+                # 根据模型类型和性能选择不同的学习任务
+                # 性能较低的模型应该优先进行基础训练
+                if performance < 0.4:
+                    if model_id == 'knowledge':
+                        return 'foundational_knowledge_acquisition'
+                    elif model_id in ['language', 'vision_image', 'vision_video']:
+                        return 'basic_skill_training'
+                    else:
+                        return 'fundamental_concept_learning'
+                elif performance < 0.7:
+                    # 中等性能模型进行知识增强和实践训练
+                    if model_id == 'knowledge':
+                        return 'knowledge_integration'
+                    elif model_id == 'language':
+                        return 'contextual_understanding_training'
+                    elif model_id in ['vision_image', 'vision_video']:
+                        return 'complex_pattern_recognition'
+                    elif model_id in ['planning', 'prediction']:
+                        return 'scenario_based_training'
+                    else:
+                        return 'task_specific_enhancement'
+                else:
+                    # 高性能模型进行高级学习和创新
+                    if model_id == 'knowledge':
+                        return 'knowledge_creation'
+                    elif model_id == 'autonomous':
+                        return 'meta_learning_optimization'
+                    elif model_id == 'programming':
+                        return 'advanced_algorithm_exploration'
+                    else:
+                        return 'cross_domain_knowledge_transfer'
+            except Exception as e:
+                error_handler.handle_error(e, "AutonomousLearningManager", "学习任务选择失败")
+                return 'knowledge_enhancement'  # 默认返回知识增强任务
+        
         # 返回学习策略实例
-        # Return learning strategy instance
-        return {
-            'select_next_task': lambda model, performance: 'knowledge_enhancement'
-        }
+        return {'select_next_task': select_next_task}
     
-    def start_autonomous_learning_cycle(self):
+    def start_autonomous_learning_cycle(self, domains=None, priority='balanced'):
         """启动自主学习循环
         Start autonomous learning cycle
+        
+        Args:
+            domains: 要关注的知识领域列表
+            priority: 学习优先级 (balanced, exploration, exploitation)
+        
+        Returns:
+            bool: 是否成功启动
         """
         if self.running:
             error_handler.log_info("自主学习循环已在运行中", "AutonomousLearningManager")
             return False
+        
+        # 设置学习参数
+        self.learning_domains = domains or []
+        self.learning_priority = priority
+        
+        # 重置进度和状态
+        self.learning_progress = 0.0
+        self.current_learning_status = 'running'
+        self.learning_logs = []
+        
+        # 添加启动日志
+        self._add_learning_log(f"开始自主学习，领域: {self.learning_domains}, 优先级: {self.learning_priority}")
         
         self.running = True
         self.learning_thread = threading.Thread(target=self._learning_cycle)
@@ -153,6 +258,9 @@ class AutonomousLearningManager:
         Stop autonomous learning cycle
         """
         self.running = False
+        self.current_learning_status = 'idle'
+        self._add_learning_log("自主学习已停止")
+        
         if self.learning_thread and self.learning_thread.is_alive():
             self.learning_thread.join(timeout=5.0)
             
@@ -163,36 +271,65 @@ class AutonomousLearningManager:
         """自主学习循环的内部实现
         Internal implementation of autonomous learning cycle
         """
-        while self.running:
-            try:
-                # 检查每个模型的状态和性能
-                # Check status and performance of each model
-                self._evaluate_all_models()
-                
-                # 选择最需要改进的模型和任务
-                # Select the model and task that needs improvement the most
-                model_id, task = self._select_next_improvement_target()
-                
-                if model_id and task:
-                    # 执行改进任务
-                    # Execute improvement task
-                    self._execute_improvement_task(model_id, task)
-                
-                # 生成学习报告
-                # Generate learning report
-                self._generate_learning_report()
-                
-                # 等待下一个学习周期
-                # Wait for the next learning cycle
-                for _ in range(self.config.learning_interval // 1000):
-                    if not self.running:
-                        break
-                    time.sleep(1)
-            except Exception as e:
-                error_handler.handle_error(e, "AutonomousLearningManager", "自主学习循环出错")
-                # 继续运行，即使发生错误
-                # Continue running even if an error occurs
-                time.sleep(5)
+        try:
+            total_cycles = self.config.max_training_iterations
+            current_cycle = 0
+            
+            while self.running and current_cycle < total_cycles:
+                try:
+                    current_cycle += 1
+                    
+                    # 更新进度
+                    self.learning_progress = min((current_cycle / total_cycles) * 100, 100)
+                    
+                    # 检查每个模型的状态和性能
+                    # Check status and performance of each model
+                    self._evaluate_all_models()
+                    
+                    # 选择最需要改进的模型和任务
+                    # Select the model and task that needs improvement the most
+                    model_id, task = self._select_next_improvement_target()
+                    
+                    if model_id and task:
+                        # 执行改进任务
+                        # Execute improvement task
+                        self._execute_improvement_task(model_id, task)
+                        
+                        # 添加任务执行日志
+                        self._add_learning_log(f"已完成 {task} 任务对模型 {model_id}")
+                    
+                    # 生成学习报告
+                    # Generate learning report
+                    self._generate_learning_report()
+                    
+                    # 等待下一个学习周期
+                    # Wait for the next learning cycle
+                    wait_time = self.config.learning_interval
+                    for i in range(wait_time // 1000):
+                        if not self.running:
+                            break
+                        time.sleep(1)
+                        # 每1秒小幅度更新进度
+                        self.learning_progress = min(self.learning_progress + (100/(total_cycles*wait_time)), 100)
+                except Exception as e:
+                    error_handler.handle_error(e, "AutonomousLearningManager", "自主学习循环出错")
+                    self._add_learning_log(f"学习循环出错: {str(e)}")
+                    # 继续运行，即使发生错误
+                    # Continue running even if an error occurs
+                    time.sleep(5)
+            
+            # 学习完成
+            if self.running:
+                self.learning_progress = 100
+                self.current_learning_status = 'completed'
+                self._add_learning_log("自主学习完成")
+                self.running = False
+        except Exception as e:
+            error_handler.handle_error(e, "AutonomousLearningManager", "自主学习循环严重错误")
+            self._add_learning_log(f"学习循环严重错误: {str(e)}")
+            self.learning_progress = 0
+            self.current_learning_status = 'idle'
+            self.running = False
         
     def _evaluate_all_models(self):
         """评估所有模型的性能
@@ -567,4 +704,44 @@ class AutonomousLearningManager:
             'training_priority': 0
         })
         
+        # 重置进度和状态
+        self.learning_progress = 0.0
+        self.current_learning_status = 'idle'
+        self.learning_domains = []
+        self.learning_priority = 'balanced'
+        self.learning_logs = []
+        
         error_handler.log_info("重置自主学习过程", "AutonomousLearningManager")
+    
+    def get_learning_progress(self):
+        """获取自主学习进度
+        Get autonomous learning progress
+        
+        Returns:
+            dict: 包含进度、状态和日志的字典
+        """
+        return {
+            "progress": round(self.learning_progress, 2),
+            "status": self.current_learning_status,
+            "logs": self.learning_logs.copy(),
+            "domains": self.learning_domains,
+            "priority": self.learning_priority
+        }
+    
+    def _add_learning_log(self, message):
+        """添加学习日志
+        Add learning log
+        
+        Args:
+            message: 日志消息
+        """
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "message": message
+        }
+        
+        self.learning_logs.append(log_entry)
+        
+        # 限制日志数量
+        if len(self.learning_logs) > self.max_logs:
+            self.learning_logs = self.learning_logs[-self.max_logs:]

@@ -913,7 +913,7 @@ class KnowledgeModel(BaseModel):
                                     break
                             if target_exists:
                                 valid_relationships.append(rel)
-                    # 更新关系列表 | Update relationship list
+                    # Update relationship list
                     details["related"] = valid_relationships
                     relationships_optimized += original_count - len(valid_relationships)
         
@@ -1514,12 +1514,14 @@ class KnowledgeModel(BaseModel):
             return {"error": str(e)}
 
     def train_knowledge_model(self, training_data: List[Dict[str, Any]], epochs: int = 5) -> Dict[str, Any]:
-        """训练知识库模型 | Train knowledge base model
-        参数:
-            training_data: 训练数据 | Training data
-            epochs: 训练轮次 | Training epochs
-        返回:
-            训练结果 | Training results
+        """Train knowledge base model
+        
+        Args:
+            training_data: Training data
+            epochs: Training epochs
+            
+        Returns:
+            Training results
         """
         try:
             training_results = {
@@ -1529,9 +1531,8 @@ class KnowledgeModel(BaseModel):
                 "status": "success"
             }
             
-            # 这里应该实现具体的模型训练逻辑
-            # Concrete model training logic should be implemented here
-            # 简单示例：使用训练数据更新知识库 | Simple example: Update knowledge base using training data
+               # Concrete model training logic should be implemented here
+               # Simple example: Update knowledge base using training data
             concepts_trained = 0
             
             for _ in range(epochs):
@@ -1542,34 +1543,34 @@ class KnowledgeModel(BaseModel):
                     relationships = data_item.get("relationships", [])
                     
                     if concept:
-                        # 检查概念是否已存在 | Check if concept exists
+                        # Check if concept exists
                         concept_exists = False
                         for check_domain, check_concepts in self.knowledge_graph.items():
                             if concept in check_concepts:
                                 concept_exists = True
-                                # 更新现有概念 | Update existing concept
+                                # Update existing concept
                                 self.update_knowledge(concept, attributes, check_domain)
                                 break
                         
                         if not concept_exists:
-                            # 添加新概念 | Add new concept
+                            # Add new concept
                             self.add_knowledge(concept, attributes, relationships, domain)
                         
                         concepts_trained += 1
             
-            # 更新知识嵌入 | Update knowledge embeddings
+            # Update knowledge embeddings
             if self.embedding_model:
                 self.build_knowledge_embeddings()
             
             training_results["concepts_trained"] = concepts_trained
             training_results["improvement_metrics"] = {
-                "confidence_improvement": 0.1,  # 示例值 | Example value
-                "coverage_improvement": 0.05   # 示例值 | Example value
+                "confidence_improvement": 0.1,  # Example value
+                "coverage_improvement": 0.05   # Example value
             }
             
             return training_results
         except Exception as e:
-            self.logger.error(f"训练知识库模型失败: {str(e)} | Training knowledge base model failed: {str(e)}")
+            self.logger.error(f"Training knowledge base model failed: {str(e)}")
             return {"status": "error", "message": str(e)}
 
     def validate_knowledge(self, validation_data: List[Dict[str, Any]]) -> Dict[str, Any]:

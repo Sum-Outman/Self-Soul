@@ -93,12 +93,58 @@ class ExternalModelProxy:
             return False
             
     def process(self, input_data):
-        """处理输入数据（占位符实现）
-        Process input data (placeholder implementation)
+        """处理输入数据
+        Process input data
         """
-        # 实际实现应该调用外部API
-        # Actual implementation should call external API
-        return {"result": f"External model {self.model_id} processed input", "status": "success"}
+        try:
+            if self.status != "connected":
+                error_handler.log_warning(f"尝试使用未连接的外部模型: {self.model_id}", "ExternalModelProxy")
+                return {"error": "Model not connected", "status": "error"}
+            
+            # 根据不同模型类型处理输入数据
+            model_type = self.api_config.get('model_type', 'general')
+            headers = {
+                'Authorization': f'Bearer {self.api_config.get("api_key", "")}',
+                'Content-Type': 'application/json'
+            }
+            
+            # 准备请求数据
+            request_data = {
+                'input': input_data,
+                'model': self.api_config.get('model_name', self.model_id)
+            }
+            
+            # 添加特定模型类型的参数
+            if model_type == 'language':
+                request_data['temperature'] = self.api_config.get('temperature', 0.7)
+                request_data['max_tokens'] = self.api_config.get('max_tokens', 1000)
+            elif model_type == 'vision':
+                # 图像处理需要特殊处理
+                pass
+            
+            # 调用外部API
+            import requests
+            response = requests.post(
+                self.api_config['url'],
+                headers=headers,
+                json=request_data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                # 更新性能指标
+                self.performance_metrics['last_response_time'] = time.time()
+                self.performance_metrics['success_rate'] = (self.performance_metrics.get('success_rate', 0) * 9 + 1) / 10  # 平滑计算
+                return {"result": result, "status": "success"}
+            else:
+                error_handler.log_warning(f"外部模型调用失败: {self.model_id}, 状态码: {response.status_code}", "ExternalModelProxy")
+                self.performance_metrics['error_count'] = self.performance_metrics.get('error_count', 0) + 1
+                return {"error": f"API call failed with status {response.status_code}", "status": "error"}
+        except Exception as e:
+            error_handler.handle_error(e, "ExternalModelProxy", f"处理外部模型请求失败: {self.model_id}")
+            self.performance_metrics['error_count'] = self.performance_metrics.get('error_count', 0) + 1
+            return {"error": str(e), "status": "error"}
         
     def get_status(self):
         """获取模型状态

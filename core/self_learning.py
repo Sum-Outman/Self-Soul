@@ -1204,14 +1204,50 @@ def set_learning_goals(goals: Dict[str, List[Dict[str, Any]]]) -> bool:
 def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
     """获取学习目标"""
     return agi_self_learning_system.get_learning_goals()
+
+
+# 下面是兼容性支持，为了支持旧版本的代码
+class SelfLearningModule:
+    """
+    兼容性类 - 提供与旧版自我学习模块兼容的接口
+    这是一个简单的适配器，将调用转发到新的AGI自我学习系统
+    """
+    
+    def __init__(self):
+        self.initialized = False
+        self.learning_enabled = True
+        self.last_learning_time = None
+        self.learning_stats = {
+            'total_learning_sessions': 0,
+            'successful_learnings': 0,
+            'failed_learnings': 0,
+            'total_knowledge_gained': 0
+        }
+        self.knowledge_base = {
+            'concepts': {},
+            'patterns': defaultdict(list),
+            'rules': [],
+            'relationships': {},
+            'q_values': {}
+        }
+        self.experience_replay = deque(maxlen=1000)
+        self.max_experience_size = 1000
+        self.learning_rate = 0.1
+        self.discount_factor = 0.9
+        self.advanced_system = None
+    
+    def initialize(self) -> bool:
+        """初始化自我学习模块"""
+        # 使用新系统的初始化结果
+        global agi_self_learning_system
+        result = agi_self_learning_system.initialize()
+        if result:
+            self.initialized = True
+            self.last_learning_time = datetime.now()
+        return result
     
     def learn_from_interaction(self, interaction_data: Dict[str, Any]) -> bool:
-        """
-        从单个交互中学习
-        参数:
-            interaction_data: 包含交互详情的字典
-        返回: 学习成功为True，否则为False
-        """
+        """从单个交互中学习"""
         if not self.initialized:
             logger.warning("自我学习模块未初始化")
             return False
@@ -1223,17 +1259,14 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
         try:
             self.learning_stats['total_learning_sessions'] += 1
             
-            # 使用高级系统（如果可用）
-            if self.advanced_system:
-                success = self.advanced_system.process_interaction(interaction_data)
-            else:
-                # 基础学习逻辑
-                success = self._advanced_learning(interaction_data)
+            # 转发到新系统
+            result = agi_self_learning_system.learn_from_interaction(interaction_data)
+            success = result.get('success', False)
             
             if success:
                 self.learning_stats['successful_learnings'] += 1
                 # 更新知识增益统计
-                knowledge_gained = self._calculate_knowledge_gain(interaction_data)
+                knowledge_gained = result.get('knowledge_gain', 0.0)
                 self.learning_stats['total_knowledge_gained'] += knowledge_gained
             else:
                 self.learning_stats['failed_learnings'] += 1
@@ -1250,161 +1283,6 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
             self.learning_stats['failed_learnings'] += 1
             return False
     
-    def _advanced_learning(self, interaction_data: Dict[str, Any]) -> bool:
-        """
-        高级学习实现
-        参数:
-            interaction_data: 要从中学习的交互数据
-        返回: 成功为True
-        """
-        try:
-            interaction_type = interaction_data.get('type', 'unknown')
-            logger.info(f"从交互中学习: {interaction_type}")
-            
-            # 提取关键信息
-            context = interaction_data.get('context', {})
-            input_data = interaction_data.get('input', {})
-            output_data = interaction_data.get('output', {})
-            feedback = interaction_data.get('feedback', {})
-            
-            # 1. 模式识别
-            self._identify_patterns(input_data, output_data, context)
-            
-            # 2. 概念学习
-            self._learn_concepts(input_data, output_data)
-            
-            # 3. 规则提取
-            self._extract_rules(input_data, output_data, feedback)
-            
-            # 4. 关系建立
-            self._establish_relationships(input_data, output_data, context)
-            
-            # 5. 强化学习更新
-            if feedback and 'reward' in feedback:
-                self._reinforcement_learning_update(input_data, output_data, feedback['reward'])
-            
-            logger.info(f"成功从 {interaction_type} 交互中学习")
-            return True
-            
-        except Exception as e:
-            logger.error(f"高级学习错误: {e}")
-            return False
-    
-    def _identify_patterns(self, input_data: Any, output_data: Any, context: Dict[str, Any]):
-        """识别输入输出中的模式"""
-        if isinstance(input_data, dict) and isinstance(output_data, dict):
-            # 识别键值模式
-            for key in set(input_data.keys()) & set(output_data.keys()):
-                if input_data[key] == output_data[key]:
-                    pattern_id = f"pattern_{hashlib.md5(str(key).encode()).hexdigest()[:8]}"
-                    self.knowledge_base['patterns'][pattern_id].append({
-                        'input': input_data,
-                        'output': output_data,
-                        'context': context,
-                        'timestamp': datetime.now().isoformat()
-                    })
-    
-    def _learn_concepts(self, input_data: Any, output_data: Any):
-        """学习输入输出中的概念"""
-        if isinstance(input_data, dict):
-            for key, value in input_data.items():
-                concept_id = f"concept_{hashlib.md5(str(key).encode()).hexdigest()[:8]}"
-                if concept_id not in self.knowledge_base['concepts']:
-                    self.knowledge_base['concepts'][concept_id] = {
-                        'name': key,
-                        'examples': [],
-                        'properties': {},
-                        'frequency': 0
-                    }
-                self.knowledge_base['concepts'][concept_id]['frequency'] += 1
-                self.knowledge_base['concepts'][concept_id]['examples'].append({
-                    'value': value,
-                    'timestamp': datetime.now().isoformat()
-                })
-    
-    def _extract_rules(self, input_data: Any, output_data: Any, feedback: Dict[str, Any]):
-        """从输入输出中提取规则"""
-        if isinstance(input_data, dict) and isinstance(output_data, dict):
-            rule = {
-                'condition': input_data,
-                'action': output_data,
-                'feedback': feedback,
-                'confidence': 1.0,
-                'usage_count': 0,
-                'success_count': 0
-            }
-            rule_id = hashlib.md5(str(rule).encode()).hexdigest()[:16]
-            self.knowledge_base['rules'].append(rule)
-    
-    def _establish_relationships(self, input_data: Any, output_data: Any, context: Dict[str, Any]):
-        """建立输入输出之间的关系"""
-        if isinstance(input_data, dict) and isinstance(output_data, dict):
-            for input_key in input_data.keys():
-                for output_key in output_data.keys():
-                    rel_id = f"rel_{hashlib.md5((input_key + '_' + output_key).encode()).hexdigest()[:8]}"
-                    if rel_id not in self.knowledge_base['relationships']:
-                        self.knowledge_base['relationships'][rel_id] = {
-                            'source': input_key,
-                            'target': output_key,
-                            'strength': 0.0,
-                            'examples': [],
-                            'contexts': []
-                        }
-                    self.knowledge_base['relationships'][rel_id]['strength'] += 0.1
-                    self.knowledge_base['relationships'][rel_id]['examples'].append({
-                        'input_value': input_data[input_key],
-                        'output_value': output_data[output_key]
-                    })
-                    self.knowledge_base['relationships'][rel_id]['contexts'].append(context)
-    
-    def _reinforcement_learning_update(self, input_data: Any, output_data: Any, reward: float):
-        """强化学习更新"""
-        # 简化的Q学习更新
-        state = str(input_data)
-        action = str(output_data)
-        
-        # 更新Q值（简化实现）
-        q_value = self.knowledge_base.get('q_values', {}).get(state, {}).get(action, 0.0)
-        new_q_value = q_value + self.learning_rate * (reward + self.discount_factor * 0 - q_value)
-        
-        if 'q_values' not in self.knowledge_base:
-            self.knowledge_base['q_values'] = {}
-        if state not in self.knowledge_base['q_values']:
-            self.knowledge_base['q_values'][state] = {}
-        
-        self.knowledge_base['q_values'][state][action] = new_q_value
-    
-    def _calculate_knowledge_gain(self, interaction_data: Dict[str, Any]) -> float:
-        """计算知识增益"""
-        # 基于交互复杂性和新颖性计算知识增益
-        complexity = self._estimate_complexity(interaction_data)
-        novelty = self._estimate_novelty(interaction_data)
-        return complexity * novelty
-    
-    def _estimate_complexity(self, interaction_data: Dict[str, Any]) -> float:
-        """估计交互复杂性"""
-        input_data = interaction_data.get('input', {})
-        if isinstance(input_data, dict):
-            return min(len(input_data) / 10.0, 1.0)
-        return 0.1
-    
-    def _estimate_novelty(self, interaction_data: Dict[str, Any]) -> float:
-        """估计交互新颖性"""
-        # 基于与已有知识的相似度计算新颖性
-        input_data = interaction_data.get('input', {})
-        if not self.knowledge_base['concepts']:
-            return 1.0  # 第一个交互，完全新颖
-        
-        # 简化的新颖性计算
-        novelty = 1.0
-        if isinstance(input_data, dict):
-            for key in input_data.keys():
-                concept_exists = any(c['name'] == key for c in self.knowledge_base['concepts'].values())
-                if concept_exists:
-                    novelty *= 0.8  # 已知概念降低新颖性
-        
-        return novelty
-    
     def _store_experience(self, interaction_data: Dict[str, Any], success: bool):
         """存储学习经验"""
         experience = {
@@ -1420,45 +1298,49 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
         if len(self.experience_replay) > self.max_experience_size:
             self.experience_replay = self.experience_replay[-self.max_experience_size:]
     
+    def _calculate_knowledge_gain(self, interaction_data: Dict[str, Any]) -> float:
+        """计算知识增益"""
+        # 简化的知识增益计算
+        input_data = interaction_data.get('input', {})
+        if isinstance(input_data, dict):
+            return min(len(input_data) / 10.0, 1.0)
+        return 0.1
+    
     def get_learning_status(self) -> Dict[str, Any]:
-        """
-        获取当前学习状态和统计信息
-        返回: 包含学习状态的字典
-        """
+        """获取当前学习状态和统计信息"""
+        # 获取新系统的状态并转换为旧格式
+        new_status = agi_self_learning_system.get_learning_status()
+        
         return {
             'initialized': self.initialized,
             'learning_enabled': self.learning_enabled,
             'last_learning_time': self.last_learning_time.isoformat() if self.last_learning_time else None,
             'statistics': self.learning_stats.copy(),
-            'advanced_system_available': self.advanced_system is not None,
-            'knowledge_base_size': len(self.knowledge_base['concepts']) + len(self.knowledge_base['rules']),
-            'experience_replay_size': len(self.experience_replay)
+            'advanced_system_available': new_status['integration_status']['emotion_system_available'] or \
+                                          new_status['integration_status']['value_system_available'],
+            'knowledge_base_size': new_status['knowledge_architecture']['semantic_memory']['total_concepts'] + \
+                                   new_status['knowledge_architecture']['procedural_memory']['total_rules'],
+            'experience_replay_size': new_status['memory_usage']['experience_replay_size']
         }
     
     def get_knowledge_summary(self) -> Dict[str, Any]:
-        """
-        获取知识库摘要
-        返回: 知识库摘要
-        """
+        """获取知识库摘要"""
+        # 获取新系统的知识摘要并转换为旧格式
+        new_summary = agi_self_learning_system._get_knowledge_summary()
+        
+        # 简化实现，返回近似的结果
         return {
-            'total_concepts': len(self.knowledge_base['concepts']),
-            'total_patterns': sum(len(patterns) for patterns in self.knowledge_base['patterns'].values()),
-            'total_rules': len(self.knowledge_base['rules']),
-            'total_relationships': len(self.knowledge_base['relationships']),
-            'most_common_concepts': sorted(
-                [(c['name'], c['frequency']) for c in self.knowledge_base['concepts'].values()],
-                key=lambda x: x[1],
-                reverse=True
-            )[:5]
+            'total_concepts': new_summary['semantic_memory']['total_concepts'],
+            'total_patterns': new_summary['semantic_memory']['total_patterns'],
+            'total_rules': new_summary['procedural_memory']['total_rules'],
+            'total_relationships': new_summary['causal_models']['total_models'],
+            'most_common_concepts': []  # 为了兼容性返回空列表
         }
     
     def enable_learning(self, enable: bool = True) -> None:
-        """
-        启用或禁用学习
-        参数:
-            enable: True启用，False禁用
-        """
+        """启用或禁用学习"""
         self.learning_enabled = enable
+        agi_self_learning_system.enable_learning(enable)
         logger.info(f"学习功能{'启用' if enable else '禁用'}")
     
     def reset_learning_stats(self) -> None:
@@ -1469,15 +1351,21 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
             'failed_learnings': 0,
             'total_knowledge_gained': 0
         }
+        agi_self_learning_system.reset_learning_stats()
         logger.info("学习统计信息已重置")
     
     def clear_knowledge_base(self) -> None:
         """清空知识库"""
-        self._initialize_knowledge_base()
+        self.knowledge_base = {
+            'concepts': {},
+            'patterns': defaultdict(list),
+            'rules': [],
+            'relationships': {},
+            'q_values': {}
+        }
+        self.experience_replay.clear()
+        agi_self_learning_system.clear_knowledge_base()
         logger.info("知识库已清空")
-
-# 类名映射以保持兼容性
-SelfLearningModule = AGISelfLearningSystem
 
 # 全局实例便于访问
 self_learning_module = SelfLearningModule()
@@ -1496,7 +1384,7 @@ def get_learning_status() -> Dict[str, Any]:
 
 def get_knowledge_summary() -> Dict[str, Any]:
     """获取知识库摘要"""
-    return self.learning_module.get_knowledge_summary()
+    return self_learning_module.get_knowledge_summary()
 
 def enable_learning(enable: bool = True) -> None:
     """启用或禁用学习"""

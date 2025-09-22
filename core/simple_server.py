@@ -3,9 +3,20 @@ import sys
 import os
 from datetime import datetime
 
+# Install required dependencies first
+print("Installing required dependencies...")
+try:
+    import subprocess
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'uvicorn==0.14.0', 'fastapi==0.68.0'])
+    print("Dependencies installed successfully.")
+except Exception as e:
+    print(f"Failed to install all dependencies: {e}")
+    print("Attempting to continue with available packages...")
+
 # Add the root directory to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Now import the required modules
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse

@@ -23,7 +23,11 @@ const routes = [
     component: () => import('../views/HomeView.vue'),
     alias: ['/index.html', '/home', '/main']
   },
-  {    path: '/training',    name: 'Training',    component: () => import('../views/TrainView.vue')  },
+  {
+    path: '/training',
+    name: 'Training',
+    component: () => import('../views/TrainView.vue')
+  },
   {
     path: '/knowledge',
     name: 'Knowledge',

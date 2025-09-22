@@ -78,9 +78,18 @@
     <div v-else-if="activeTab === 'manage'" class="content">
       <div class="manage-header">
         <h3>Manage Files</h3>
-        <button @click="loadFiles" class="refresh-btn">
-          Refresh
-        </button>
+        <div class="header-controls">
+          <button @click="loadFiles" class="refresh-btn">
+            Refresh
+          </button>
+          <div class="auto-learning-toggle">
+            <span>Auto Learning: </span>
+            <label class="switch">
+              <input type="checkbox" v-model="autoLearningEnabled" @change="toggleAutoLearning">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
       </div>
 
       <div v-if="filesLoading" class="loading">
@@ -137,9 +146,26 @@
       </div>
 
       <div v-else class="no-files">
-        No files available
+          No files available
+        </div>
+        
+        <!-- Auto learning progress section -->
+        <el-card v-if="autoLearningStatus !== 'idle'" class="mt-4">
+          <template #header>
+            <div class="card-header">
+              <span>Learning Progress</span>
+              <el-button size="small" type="text" @click="openLearningModal">View Details</el-button>
+            </div>
+          </template>
+          <div class="learning-progress">
+            <el-progress :percentage="autoLearningProgress" :status="getProgressStatus()"></el-progress>
+            <div class="progress-info">
+              <span class="status-text">{{ getStatusText() }}</span>
+              <span class="progress-percentage">{{ autoLearningProgress }}%</span>
+            </div>
+          </div>
+        </el-card>
       </div>
-    </div>
 
     <!-- Stats Tab -->
     <div v-else-if="activeTab === 'stats'" class="content">
@@ -175,6 +201,78 @@
         </div>
       </div>
     </div>
+
+    <!-- Auto learning details modal -->
+    <el-dialog title="Auto Learning Details" v-model="showLearningModal" width="60%" top="10%">
+      <div class="learning-modal-content">
+        <!-- Learning status -->
+        <div class="learning-status">
+          <h3>Current Status: <span class="status-badge" :class="getStatusClass()">{{ getStatusText() }}</span></h3>
+          <el-progress :percentage="autoLearningProgress" :status="getProgressStatus()" class="mt-2"></el-progress>
+        </div>
+        
+        <!-- Learning logs -->
+        <div class="learning-logs mt-4">
+          <h3>Activity Logs</h3>
+          <div class="logs-container" ref="logsContainer">
+            <div v-for="log in learningLogs" :key="log.timestamp" class="log-item">
+              <span class="log-time">{{ formatTime(log.timestamp) }}</span>
+              <span class="log-source">{{ log.source }}:</span>
+              <span class="log-message">{{ log.message }}</span>
+            </div>
+            <div v-if="learningLogs.length === 0" class="no-logs">No logs available</div>
+          </div>
+        </div>
+        
+        <!-- Learning history -->
+        <div class="learning-history mt-6">
+          <h3>Learning History</h3>
+          <div v-if="!Array.isArray(autoLearningHistory)" class="no-history">No history available</div>
+          <div v-else-if="autoLearningHistory.length === 0" class="no-history">No history available</div>
+          <el-table v-else :data="autoLearningHistory" style="width: 100%" size="small">
+            <el-table-column prop="timestamp" label="Start Time" width="180">
+              <template #default="{ row }">
+                {{ row && row.timestamp ? formatDateTime(row.timestamp) : '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="domains" label="Domains" width="150">
+              <template #default="{ row }">
+                <span v-if="row && row.domains">
+                  <el-tag v-for="domain in row.domains" :key="domain" size="small" class="mr-1">
+                    {{ domain }}
+                  </el-tag>
+                </span>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="status" label="Status">
+              <template #default="{ row }">
+                <el-tag v-if="row && row.status" :type="getStatusTagType(row.status)">
+                  {{ row.status }}
+                </el-tag>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="progress" label="Progress" width="100">
+              <template #default="{ row }">
+                {{ row && row.progress !== undefined ? row.progress : '-' }}%
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="closeLearningModal">Close</el-button>
+          <el-button v-if="autoLearningStatus === 'running'" type="warning" @click="stopAutoLearning">
+            Stop Learning
+          </el-button>
+          <el-button v-if="autoLearningStatus !== 'running'" type="primary" @click="startAutoLearning">
+            Start New Session
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
 
     <!-- Delete confirmation modal -->
     <div v-if="showDeleteModal" class="modal-overlay">
@@ -398,6 +496,14 @@ export default {
     const itemsPerPage = ref(10);
     const showDeleteModal = ref(false);
     const fileToDelete = ref(null);
+    
+    // Auto learning related refs
+    const autoLearningEnabled = ref(false);
+    const autoLearningStatus = ref('idle'); // idle, running, paused, completed
+    const autoLearningProgress = ref(0);
+    const autoLearningHistory = ref([]);
+    const showLearningModal = ref(false);
+    const learningLogs = ref([]);
     
     // File preview related refs
     const showPreviewModal = ref(false);
@@ -796,6 +902,231 @@ export default {
       showDeleteModal.value = false;
       fileToDelete.value = null;
     };
+    
+    // Auto learning control methods
+    const toggleAutoLearning = async () => {
+      if (autoLearningEnabled.value) {
+        await startAutoLearning();
+      } else {
+        await stopAutoLearning();
+      }
+    };
+    
+    const startAutoLearning = async () => {
+      try {
+        autoLearningStatus.value = 'running';
+        autoLearningProgress.value = 0;
+        learningLogs.value = [];
+        
+        // Start auto learning on server
+        const response = await api.post('/api/knowledge/auto-learning/start', {
+          domains: filterDomain.value ? [filterDomain.value] : [],
+          priority: 'balanced'
+        });
+        
+        if (response.data.success) {
+          showSystemMessage('Auto learning started successfully');
+          addLearningLog('System', 'Auto learning started');
+          
+          // Add learning history
+          addLearningHistoryItem({
+            id: response.data.session_id || 'learn_' + Date.now(),
+            timestamp: new Date().toISOString(),
+            status: 'running',
+            domains: filterDomain.value ? [filterDomain.value] : ['general'],
+            progress: 0
+          });
+          
+          // Start polling for progress updates
+          startProgressPolling();
+        } else {
+          throw new Error('Failed to start auto learning');
+        }
+      } catch (error) {
+        errorHandler.handleError(error, 'Auto learning start failed');
+        showSystemMessage('Failed to start auto learning: ' + error.message);
+        autoLearningEnabled.value = false;
+        autoLearningStatus.value = 'idle';
+      }
+    };
+    
+    const stopAutoLearning = async () => {
+      try {
+        autoLearningStatus.value = 'paused';
+        
+        // Try to stop auto learning on server
+        try {
+          const response = await api.post('/api/knowledge/auto-learning/stop');
+          
+          if (response.data.success) {
+            showSystemMessage('Auto learning stopped successfully');
+            addLearningLog('System', 'Auto learning stopped');
+          }
+        } catch (error) {
+          // If API call fails, just show message
+          showSystemMessage('Auto learning stopped locally');
+        }
+        
+        autoLearningStatus.value = 'idle';
+      } catch (error) {
+        errorHandler.handleError(error, 'Stop learning error');
+      }
+    };
+    
+    // Progress polling function to get real updates from server
+    let progressPollingInterval = null;
+    
+    const startProgressPolling = () => {
+      // Clear any existing interval
+      if (progressPollingInterval) {
+        clearInterval(progressPollingInterval);
+      }
+      
+      // Start polling every 2 seconds
+      progressPollingInterval = setInterval(async () => {
+        try {
+          if (autoLearningStatus.value !== 'running') {
+            clearInterval(progressPollingInterval);
+            return;
+          }
+          
+          const response = await api.get('/api/knowledge/auto-learning/progress');
+          if (response.data && response.data.progress !== undefined) {
+            autoLearningProgress.value = response.data.progress;
+            
+            // Add real logs if available
+            if (response.data.logs && response.data.logs.length > 0) {
+              response.data.logs.forEach(log => {
+                addLearningLog('System', log);
+              });
+            }
+            
+            // Check if completed
+            if (response.data.progress >= 100 || response.data.status === 'completed') {
+              autoLearningProgress.value = 100;
+              autoLearningStatus.value = 'completed';
+              
+              // Add completion log
+              addLearningLog('System', 'Auto learning completed');
+              
+              // Update learning history
+              if (autoLearningHistory.value.length > 0) {
+                const lastItem = autoLearningHistory.value[autoLearningHistory.value.length - 1];
+                lastItem.status = 'completed';
+                lastItem.progress = 100;
+                lastItem.end_time = new Date().toISOString();
+              }
+              
+              // Refresh files to show any new knowledge
+              setTimeout(() => {
+                loadFiles();
+                showSystemMessage('Knowledge base updated through auto learning');
+              }, 1000);
+              
+              clearInterval(progressPollingInterval);
+            }
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'Auto learning progress update failed');
+          // Continue polling even if there's an error
+        }
+      }, 2000);
+    };
+    
+    const addLearningLog = (source, message) => {
+      const log = {
+        timestamp: new Date().toISOString(),
+        source,
+        message
+      };
+      learningLogs.value.push(log);
+      
+      // Keep only last 100 logs
+      if (learningLogs.value.length > 100) {
+        learningLogs.value.shift();
+      }
+    };
+    
+    const addLearningHistoryItem = (item) => {
+      autoLearningHistory.value.push(item);
+      
+      // Keep only last 10 learning sessions
+      if (autoLearningHistory.value.length > 10) {
+        autoLearningHistory.value.shift();
+      }
+    };
+    
+    const openLearningModal = () => {
+      showLearningModal.value = true;
+    };
+    
+    const closeLearningModal = () => {
+      showLearningModal.value = false;
+    };
+    
+    // Helper methods for auto learning status and formatting
+    const getStatusText = () => {
+      const statusMap = {
+        'idle': 'Idle',
+        'running': 'Running',
+        'paused': 'Paused',
+        'completed': 'Completed'
+      };
+      return statusMap[autoLearningStatus.value] || 'Unknown';
+    };
+    
+    const getProgressStatus = () => {
+      if (autoLearningStatus.value === 'completed') {
+        return 'success';
+      }
+      if (autoLearningStatus.value === 'running') {
+        return 'primary';
+      }
+      if (autoLearningStatus.value === 'paused') {
+        return 'warning';
+      }
+      return '';
+    };
+    
+    const getStatusClass = () => {
+      const statusClassMap = {
+        'idle': 'status-idle',
+        'running': 'status-running',
+        'paused': 'status-paused',
+        'completed': 'status-completed'
+      };
+      return statusClassMap[autoLearningStatus.value] || '';
+    };
+    
+    const getStatusTagType = (status) => {
+      const tagTypeMap = {
+        'idle': 'default',
+        'running': 'primary',
+        'paused': 'warning',
+        'completed': 'success'
+      };
+      return tagTypeMap[status] || 'default';
+    };
+    
+    const formatTime = (timestamp) => {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    };
+    
+    const formatDateTime = (timestamp) => {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
 
     // File upload handling
     const handleFileUpload = async (event) => {
@@ -948,7 +1279,25 @@ export default {
       uploadProgress,
       currentUploadFile,
       selectedDomain,
-      handleFileUpload
+      handleFileUpload,
+      // Auto learning related refs and methods
+      autoLearningEnabled,
+      autoLearningStatus,
+      autoLearningProgress,
+      autoLearningHistory,
+      showLearningModal,
+      learningLogs,
+      toggleAutoLearning,
+      startAutoLearning,
+      stopAutoLearning,
+      openLearningModal,
+      closeLearningModal,
+      getStatusText,
+      getProgressStatus,
+      getStatusClass,
+      getStatusTagType,
+      formatTime,
+      formatDateTime
     };
   }
 };
@@ -1783,6 +2132,239 @@ export default {
   
   .modal-actions button {
     width: 100%;
+  }
+}
+
+/* Auto Learning Styles */
+.auto-learning-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-md);
+}
+
+/* Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4285f4;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #4285f4;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Learning Progress Styles */
+.learning-progress {
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  border: 1px solid #e0e0e0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+  font-size: 14px;
+}
+
+.status-text {
+  color: #333;
+  font-weight: 500;
+}
+
+.progress-percentage {
+  color: #666;
+  font-size: 13px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-idle {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.status-running {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-paused {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-completed {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+/* Learning Modal Styles */
+.learning-modal-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.learning-status {
+  margin-bottom: var(--spacing-lg);
+}
+
+.learning-status h3 {
+  margin-bottom: var(--spacing-sm);
+  color: #333;
+  font-size: 16px;
+}
+
+.learning-logs {
+  margin-bottom: var(--spacing-xl);
+}
+
+.learning-logs h3 {
+  margin-bottom: var(--spacing-md);
+  color: #333;
+  font-size: 16px;
+}
+
+.logs-container {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.log-time {
+  color: #999;
+  margin-right: var(--spacing-md);
+  min-width: 80px;
+  font-size: 12px;
+}
+
+.log-source {
+  font-weight: 500;
+  margin-right: var(--spacing-sm);
+  color: #666;
+  min-width: 80px;
+}
+
+.log-message {
+  color: #333;
+  flex: 1;
+}
+
+.no-logs,
+.no-history {
+  text-align: center;
+  color: #999;
+  padding: var(--spacing-lg);
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+}
+
+.learning-history {
+  margin-top: var(--spacing-lg);
+}
+
+.learning-history h3 {
+  margin-bottom: var(--spacing-md);
+  color: #333;
+  font-size: 16px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+}
+
+/* Responsive adjustments for auto learning */
+@media (max-width: 768px) {
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .auto-learning-toggle {
+    justify-content: center;
+    margin-left: 0;
+  }
+  
+  .log-item {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .log-time,
+  .log-source {
+    min-width: auto;
   }
 }
 </style>

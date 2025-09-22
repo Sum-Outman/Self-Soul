@@ -1,36 +1,38 @@
 <template>
   <div id="app">
-    <!-- System Top Menu Bar -->
-    <div class="top-menu-bar">
+    <!-- Top Navigation Bar -->
+    <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">AGI Brain System</span>
+        <span class="system-title">Self Brain</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->
-        <router-link to="/" class="menu-link">Interaction</router-link>
+        <router-link to="/" class="menu-link">Home</router-link>
         <router-link to="/training" class="menu-link">Training</router-link>
         <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
         <router-link to="/settings" class="menu-link">Settings</router-link>
         <router-link to="/help" class="menu-link">Help</router-link>
         
         <!-- Server Connection Status -->
-        <div class="connection-status">
-          <span class="status-indicator" :class="{ 'connected': isConnected, 'disconnected': !isConnected }"></span>
-          <span class="status-text">{{ isConnected ? 'Connected' : 'Disconnected' }}</span>
+        <div class="connection-status" :style="{ color: connectionColor }">
+          {{ connectionStatus }}
         </div>
       </div>
-    </div>
+    </nav>
 
     <router-view/>
     
     <!-- Voice Input Floating Button -->
-    <div class="voice-input-container" v-if="showVoiceInput">
-      <button @click="toggleVoiceInput" class="voice-btn" :class="{ 'listening': recognitionInProgress }">
-        <span v-if="!recognitionInProgress">🎤</span>
-        <span v-else class="pulse-animation">🎤</span>
-      </button>
-      <div class="voice-status" v-if="recognitionInProgress">Listening...</div>
-    </div>
+    <button 
+      v-if="showVoiceInput" 
+      class="voice-btn"
+      @click="toggleVoiceInput"
+      :class="{ 'listening': isVoiceInputActive }"
+      aria-label="Voice Input"
+    >
+      <span v-if="!isVoiceInputActive">🎤</span>
+      <span v-else class="pulse-animation">🎤</span>
+    </button>
   </div>
 </template>
 
@@ -38,164 +40,78 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import errorHandler from '@/utils/errorHandler'
+import api from '@/utils/api.js'
 
 export default {
   name: 'App',
   emits: ['voice-input'],
-  components: {
-    // 按需导入组件
-  },
+  components: {},
   setup(props, { emit }) {
     const router = useRouter();
     const showVoiceInput = ref(true);
-    const showVoiceStatus = ref(false);
-    const voiceStatusMessage = ref('');
-    const speechRecognition = ref(null);
-    const recognitionInProgress = ref(false);
-    const isConnected = ref(false); // Server connection status, default disconnected
+    const isVoiceInputActive = ref(false);
+    const isConnected = ref(false);
+    const connectionStatus = ref('Connecting...');
+    const connectionColor = ref('#ff9800'); // Orange
+    let speechRecognition = null;
+    let connectionInterval = null;
     
-    // WebSocket connection
-    let ws = null;
-    let wsReconnectTimer = null;
-    const RECONNECT_INTERVAL = 5000;
-    const MAX_RECONNECT_ATTEMPTS = 5;
-    let reconnectAttempts = 0;
-    
-    // Initialize WebSocket connection
-    const initWebSocket = () => {
-      try {
-        // Close any existing connection
-        if (ws && ws.readyState !== WebSocket.CLOSED) {
-          ws.close();
-        }
-        
-        // Create new WebSocket connection (using main API gateway port 8000)
-        const wsUrl = `ws://${window.location.hostname || 'localhost'}:8000/ws`;
-        ws = new WebSocket(wsUrl);
-        
-        ws.onopen = () => {
-          console.log('WebSocket connection established');
-          isConnected.value = true;
-          reconnectAttempts = 0;
-        };
-        
-        ws.onmessage = (event) => {
-          // Handle incoming messages from server
-          try {
-            const data = JSON.parse(event.data);
-            // Process server messages here
-          } catch (error) {
-            errorHandler.handleError('Error parsing WebSocket message:', error);
-          }
-        };
-        
-        ws.onclose = () => {
-          console.log('WebSocket connection closed');
-          isConnected.value = false;
-          
-          // Schedule reconnection
-          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            reconnectAttempts++;
-            console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
-            wsReconnectTimer = setTimeout(initWebSocket, RECONNECT_INTERVAL);
-          } else {
-            console.error('Max reconnection attempts reached');
-          }
-        };
-        
-        ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          errorHandler.handleError('WebSocket error:', error);
-          isConnected.value = false;
-        };
-      } catch (error) {
-        errorHandler.handleError('Error initializing WebSocket:', error);
-        isConnected.value = false;
-        
-        // Schedule reconnection
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-          reconnectAttempts++;
-          console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
-          wsReconnectTimer = setTimeout(initWebSocket, RECONNECT_INTERVAL);
-        }
-      }
-    };
+    // WebSocket connection will be initialized on demand when needed
+    // to avoid unnecessary connections
     
     // Check server connection status
     const checkServerConnection = () => {
-      // Try to connect to the main API gateway
-      fetch(`http://${window.location.hostname || 'localhost'}:8000/api/status`, {
-        method: 'GET',
-        timeout: 3000
-      })
+      api.get('/health') // 使用统一的API实例和相对路径
         .then(response => {
-          if (response.ok) {
-            isConnected.value = true;
-            // If API connection is successful, try to establish WebSocket
-            if (!ws || ws.readyState === WebSocket.CLOSED) {
-              initWebSocket();
-            }
-          } else {
-            isConnected.value = false;
+          isConnected.value = true;
+          connectionStatus.value = 'Connected to Main API';
+          connectionColor.value = '#4CAF50'; // Green
+          
+          // If there's a new server message, show notification
+          if (response.data && response.data.status) {
+            console.log('Server connection established');
           }
         })
-        .catch(() => {
+        .catch(error => {
           isConnected.value = false;
-        })
-        .finally(() => {
-          // Check connection status every 5 seconds
-          setTimeout(checkServerConnection, 5000);
+          connectionStatus.value = 'Main API Disconnected';
+          connectionColor.value = '#f44336'; // Red
+          console.error('Server connection error:', error);
         });
     };
     
     // Initialize speech recognition
     const initSpeechRecognition = () => {
       try {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-          const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
-          speechRecognition.value = new SpeechRecognition()
+        // Prefer standard SpeechRecognition API over webkit prefix
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (SpeechRecognition) {
+          speechRecognition = new SpeechRecognition()
           
           // Set speech recognition parameters
-          speechRecognition.value.lang = getSpeechLanguage() // Get language from user settings or browser
-          speechRecognition.value.interimResults = true
-          speechRecognition.value.maxAlternatives = 1
-          speechRecognition.value.continuous = false
+          speechRecognition.continuous = false
+          speechRecognition.interimResults = false
+          speechRecognition.lang = 'en-US'
           
           // Handle speech recognition results
-          speechRecognition.value.onresult = (event) => {
-            const transcript = event.results[0][0].transcript
-            processVoiceCommand(transcript)
+          speechRecognition.onresult = (event) => {
+            const speechResult = event.results[0][0].transcript
+            processVoiceCommand(speechResult)
           }
           
           // Handle speech recognition errors
-          speechRecognition.value.onerror = (event) => {
-            errorHandler.handleError('Speech recognition error:', event.error)
-            recognitionInProgress.value = false
-            showVoiceStatus.value = true
-            voiceStatusMessage.value = `Speech recognition error: ${event.error}`
-            setTimeout(() => {
-              showVoiceStatus.value = false
-            }, 3000)
+          speechRecognition.onerror = (error) => {
+            console.error('Speech recognition error:', error)
+            isVoiceInputActive.value = false
           }
           
           // Handle speech recognition end
-          speechRecognition.value.onend = () => {
-            recognitionInProgress.value = false
-            showVoiceStatus.value = true
-            voiceStatusMessage.value = 'Speech recognition ended'
-            setTimeout(() => {
-              showVoiceStatus.value = false
-            }, 2000)
-          }
-          
-          // Handle speech recognition start
-          speechRecognition.value.onstart = () => {
-            recognitionInProgress.value = true
-            showVoiceStatus.value = true
-            voiceStatusMessage.value = 'Listening...'
+          speechRecognition.onend = () => {
+            isVoiceInputActive.value = false
           }
         } else {
-          errorHandler.handleWarning('Speech recognition is not supported in this browser')
+          console.warn('Web Speech API is not supported in this browser.')
+          showVoiceInput.value = false
         }
       } catch (error) {
         errorHandler.handleError('Error initializing speech recognition:', error)
@@ -222,64 +138,47 @@ export default {
       }
     }
     
-    // Speech recognition related methods
-    const getSpeechLanguage = () => {
-      // Get user language from localStorage or browser settings
-      const savedLanguage = localStorage.getItem('speechLanguage');
-      
-      if (savedLanguage) {
-        return savedLanguage;
-      }
-      
-      // Default to browser language or 'en-US'
-      return navigator.language || navigator.userLanguage || 'en-US';
-    }
-    
+    // Toggle voice input state
     const toggleVoiceInput = () => {
-      if (!speechRecognition.value) return
-      
-      if (recognitionInProgress.value) {
-        speechRecognition.value.stop()
+      if (isVoiceInputActive.value) {
+        if (speechRecognition) {
+          speechRecognition.stop()
+        }
+        isVoiceInputActive.value = false
       } else {
-        speechRecognition.value.lang = getSpeechLanguage()
-        speechRecognition.value.start()
-        recognitionInProgress.value = true
-        showVoiceStatus.value = true
-        voiceStatusMessage.value = 'Listening...'
+        if (speechRecognition) {
+          speechRecognition.start()
+          isVoiceInputActive.value = true
+        } else {
+          console.warn('Speech recognition is not available')
+        }
       }
     }
     
+    // Process voice commands
     const processVoiceCommand = (command) => {
-      try {
-        // Voice command processing
-        errorHandler.logInfo('Voice command:', command)
-        showVoiceStatus.value = true
-        voiceStatusMessage.value = `Recognized: ${command}`
-        
-        // Simple command processing logic
-        const lowerCommand = command.toLowerCase()
-        
-        // Navigation commands - only to valid routes
-        if (lowerCommand.includes('home')) {
-          router.push('/')
-        } else if (lowerCommand.includes('train')) {
-          router.push('/training')
-        } else if (lowerCommand.includes('knowledge')) {
-          router.push('/knowledge')
-        } else if (lowerCommand.includes('settings')) {
-          router.push('/settings')
-        } else if (lowerCommand.includes('help')) {
-          router.push('/help')
-        } else {
-          // Always send voice input to child components regardless of current route
-          window.dispatchEvent(new CustomEvent('voice-input', { detail: command }));
-        }
-        
-        setTimeout(() => {
-          showVoiceStatus.value = false
-        }, 3000)
-      } catch (error) {
-        errorHandler.handleError('Error processing voice command:', error)
+      // Basic navigation commands
+      if (command.toLowerCase().includes('home')) {
+        router.push('/')
+      } else if (command.toLowerCase().includes('training')) {
+        router.push('/training')
+      } else if (command.toLowerCase().includes('knowledge')) {
+        router.push('/knowledge')
+      } else if (command.toLowerCase().includes('settings')) {
+        router.push('/settings')
+      } else if (command.toLowerCase().includes('help')) {
+        router.push('/help')
+      }
+      // System commands
+      else if (command.toLowerCase().includes('connect')) {
+        checkServerConnection()
+      } else if (command.toLowerCase().includes('refresh')) {
+        location.reload()
+      }
+      // Send to current view for processing
+      else {
+        // Emit global event for the active view component to handle
+        window.dispatchEvent(new CustomEvent('voice-command', { detail: command }))
       }
     }
     
@@ -290,25 +189,37 @@ export default {
     
     // Life cycle hooks
     onMounted(() => {
-      checkServerConnection();
-      initSpeechRecognition();
+      // Register error handler
+      window.addEventListener('error', errorHandler.handleError)
+      window.addEventListener('unhandledrejection', errorHandler.handlePromiseRejection)
+      
+      // Periodically check server connection
+      connectionInterval = setInterval(() => {
+        checkServerConnection()
+      }, 5000); // Check every 5 seconds
+      
+      // Initialize speech recognition
+      initSpeechRecognition()
+      
+      // Check connection immediately
+      checkServerConnection()
     })
     
     onUnmounted(() => {
-      // Cleanup resources
-      if (wsReconnectTimer) {
-        clearTimeout(wsReconnectTimer);
-      }
+      // Clear interval
+      clearInterval(connectionInterval)
       
-      if (ws && ws.readyState !== WebSocket.CLOSED) {
-        ws.close();
-      }
+      // Remove event listeners
+      window.removeEventListener('error', errorHandler.handleError)
+      window.removeEventListener('unhandledrejection', errorHandler.handlePromiseRejection)
     })
     
     return {
       showVoiceInput,
-      recognitionInProgress,
+      isVoiceInputActive,
       isConnected,
+      connectionStatus,
+      connectionColor,
       toggleVoiceInput
     }
   }
@@ -411,14 +322,14 @@ body {
 }
 
 .status-indicator.connected {
-    background-color: #4CAF50; /* Green indicates connected */
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-  }
+  background-color: #4CAF50; /* Green indicates connected */
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
 
-  .status-indicator.disconnected {
-    background-color: #F44336; /* Red indicates disconnected */
-    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
-  }
+.status-indicator.disconnected {
+  background-color: #F44336; /* Red indicates disconnected */
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
 
 .status-text {
   font-size: 14px;

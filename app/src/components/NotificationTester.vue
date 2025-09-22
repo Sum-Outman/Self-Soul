@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { notify } from '../utils/notify'
+import { notify } from '../plugins/notification.js'
 
 export default {
   name: 'NotificationTester',

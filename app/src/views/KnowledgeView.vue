@@ -1,13 +1,13 @@
 <template>
   <div class="knowledge-view">
-    <div class="header">
-      <div class="header-actions">
-        <button :class="{ active: activeTab === 'import' }" @click="activeTab = 'import'">Import</button>
-        <button :class="{ active: activeTab === 'browse' }" @click="activeTab = 'browse'">Browse</button>
-        <button :class="{ active: activeTab === 'manage' }" @click="activeTab = 'manage'">Manage</button>
-        <button :class="{ active: activeTab === 'stats' }" @click="activeTab = 'stats'">Statistics</button>
+      <div class="header">
+        <div class="header-actions">
+          <button :class="{ active: activeTab === 'import' }" @click="activeTab = 'import'">Import</button>
+          <button :class="{ active: activeTab === 'browse' }" @click="activeTab = 'browse'">Browse</button>
+          <button :class="{ active: activeTab === 'manage' }" @click="activeTab = 'manage'">Manage</button>
+          <button :class="{ active: activeTab === 'stats' }" @click="activeTab = 'stats'">Statistics</button>
+        </div>
       </div>
-    </div>
 
     <!-- Import Tab -->
     <div v-if="activeTab === 'import'" class="content">
@@ -235,6 +235,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
 
@@ -633,7 +634,7 @@ export default {
         }
 
         // Try to load actual file content from server
-        const response = await axios.get(`/api/knowledge/files/${file.id}/preview`, {
+        const response = await api.get(`/api/knowledge/files/${file.id}/preview`, {
           timeout: 10000,
           headers: {
             'Cache-Control': 'no-cache'
@@ -703,16 +704,15 @@ export default {
         
         // Try to download from server with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
         
-        const response = await fetch(`/api/knowledge/files/${file.id}/download`, {
-          method: 'GET',
-          signal: controller.signal
+        // 由于需要blob响应类型，这里不使用封装的api实例，直接使用axios
+        const response = await axios.get(`/api/knowledge/files/${file.id}/download`, {
+          responseType: 'blob',
+          signal: controller.signal,
+          timeout: 30000 // 30秒超时
         });
         
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
+        if (response.status !== 200) {
           throw new Error(`Download failed: ${response.status}`);
         }
         
@@ -776,7 +776,7 @@ export default {
         }
         
         // Try to delete from server
-        const response = await axios.delete(`/api/knowledge/files/${fileToDelete.value.id}`, { timeout: 5000 });
+        const response = await api.delete(`/api/knowledge/files/${fileToDelete.value.id}`, { timeout: 5000 });
         
         if (response.data.success) {
           // Remove file from list
@@ -853,8 +853,8 @@ export default {
           }
           
           // Try to upload to server
-          try {
-            const response = await axios.post('/api/knowledge/upload', formData, {
+        try {
+          const response = await api.post('/api/knowledge/upload', formData, {
               timeout: 30000, // 30 seconds timeout
               onUploadProgress: (event) => {
                 if (event.total) {

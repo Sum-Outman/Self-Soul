@@ -3,31 +3,31 @@ import errorHandler from './errorHandler';
 
 // 创建axios实例
 const api = axios.create({
-  // 根据系统要求，主API网关端口为8000
-  baseURL: 'http://localhost:8000',
+  // 使用相对路径，让Vite代理配置生效
+  baseURL: '/',
   timeout: 10000, // 10秒超时
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   }
 });
 
 // 请求拦截器
 api.interceptors.request.use(
-  config => {
+  (config) => {
     // 可以在这里添加认证token等
     return config;
   },
-  error => {
+  (error) => {
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器
 api.interceptors.response.use(
-  response => {
+  (response) => {
     return response;
   },
-  error => {
+  (error) => {
     // 统一处理错误
     if (error.code === 'ECONNREFUSED') {
       errorHandler.handleError(

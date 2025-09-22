@@ -54,29 +54,29 @@
       <!-- 联合训练特定选项 -->
       <div v-if="trainingMode === 'joint'" class="joint-training-options">
         <div class="option">
-          <label>{{ $t('training.strategy') }}:</label>
+          <label>Training Strategy:</label>
           <select v-model="trainingStrategy">
-            <option value="standard">{{ $t('training.strategyStandard') }}</option>
-            <option value="knowledge_assisted">{{ $t('training.strategyKnowledge') }}</option>
-            <option value="progressive">{{ $t('training.strategyProgressive') }}</option>
-            <option value="adaptive">{{ $t('training.strategyAdaptive') }}</option>
+            <option value="standard">Standard</option>
+            <option value="knowledge_assisted">Knowledge Assisted</option>
+            <option value="progressive">Progressive</option>
+            <option value="adaptive">Adaptive</option>
           </select>
         </div>
 
         <div class="option">
-          <label>{{ $t('training.knowledgeAssist') }}:</label>
+          <label>Knowledge Assistance:</label>
           <input type="checkbox" v-model="knowledgeAssist">
         </div>
 
         <div class="option">
           <button @click="loadRecommendedCombinations" class="recommend-btn">
-            {{ $t('training.loadRecommendations') }}
+            Load Recommendations
           </button>
         </div>
 
         <!-- 推荐组合显示 -->
         <div v-if="recommendedCombinations.length > 0" class="recommended-combinations">
-          <h4>{{ $t('training.recommendedCombinations') }}</h4>
+          <h4>Recommended Combinations</h4>
           <div v-for="(combo, index) in recommendedCombinations" :key="index" class="combo-item">
             <input type="radio" :id="'combo-' + index" :value="combo.models" v-model="selectedCombination">
             <label :for="'combo-' + index">
@@ -88,31 +88,31 @@
       </div>
 
       <div class="option">
-        <label>{{ $t('training.epochs') }}:</label>
-        <input type="number" v-model.number="epochs" min="1" max="1000">
-      </div>
+          <label>Epochs:</label>
+          <input type="number" v-model.number="epochs" min="1" max="1000">
+        </div>
 
       <div class="option">
-        <label>{{ $t('training.learningRate') }}:</label>
-        <input type="number" v-model.number="learningRate" step="0.001" min="0.0001" max="1">
-      </div>
+          <label>Learning Rate:</label>
+          <input type="number" v-model.number="learningRate" step="0.001" min="0.0001" max="1">
+        </div>
 
       <div class="option">
-        <label>{{ $t('training.batchSize') }}:</label>
-        <input type="number" v-model.number="batchSize" min="1" max="1024">
-      </div>
+          <label>Batch Size:</label>
+          <input type="number" v-model.number="batchSize" min="1" max="1024">
+        </div>
 
       <div class="option">
-        <label>{{ $t('training.validationSplit') }}:</label>
-        <input type="number" v-model.number="validationSplit" step="0.01" min="0" max="0.5">
-      </div>
+          <label>Validation Split:</label>
+          <input type="number" v-model.number="validationSplit" step="0.01" min="0" max="0.5">
+        </div>
     </div>
 
     <div class="actions">
       <button @click="startTraining" :disabled="isTraining">
-        {{ isTraining ? $t('training.trainingInProgress') : $t('training.startTraining') }}
-      </button>
-      <button @click="stopTraining" :disabled="!isTraining">{{ $t('training.stopTraining') }}</button>
+          {{ isTraining ? 'Training in Progress' : 'Start Training' }}
+        </button>
+        <button @click="stopTraining" :disabled="!isTraining">Stop Training</button>
     </div>
 
     <div class="training-progress" v-if="isTraining">
@@ -151,6 +151,7 @@
 </template>
 
 <script>
+import api from '@/utils/api.js';
 export default {
   name: 'TrainingControlPanel',
   data() {
@@ -251,15 +252,13 @@ export default {
       try {
         // 构建查询参数
         const params = new URLSearchParams({
-          models: this.selectedModels.join(','),
-          strategy: this.trainingStrategy,
-          knowledgeAssist: this.knowledgeAssist.toString()
-        });
-        
-        // 调用后端API获取推荐的联合训练组合 (GET方法)
-        const response = await fetch(`/api/joint-training/recommendations?${params}`);
-        
-        const result = await response.json();
+            models: this.selectedModels.join(','),
+            strategy: this.trainingStrategy,
+            knowledgeAssist: this.knowledgeAssist.toString()
+          });
+          
+          // 调用后端API获取推荐的联合训练组合 (GET方法)
+          const response = await api.get(`/api/joint-training/recommendations?${params}`);
         
         if (result.status === 'success') {
           this.recommendedCombinations = result.data.recommendations || result.data;
@@ -315,18 +314,10 @@ export default {
           : '/api/train';
         
         // 调用后端API启动训练
-        const response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(trainingConfig)
-        });
+        const response = await api.post(apiEndpoint, trainingConfig);
         
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-          this.jobId = result.job_id;
+        if (response.data.status === 'success') {
+            this.jobId = response.data.job_id;
           this.$notify({
             title: 'Training Started',
             message: `Training job ${this.jobId} has started`,
@@ -354,11 +345,10 @@ export default {
       
       this.pollingInterval = setInterval(async () => {
         try {
-          const response = await fetch(`/api/training/status/${this.jobId}`);
-          const result = await response.json();
-          
-          if (result.status === 'success') {
-            const status = result.data;
+            const response = await api.get(`/api/training/status/${this.jobId}`);
+            
+            if (response.data.status === 'success') {
+              const status = response.data.data;
             
             // 更新训练进度
             if (status.progress !== undefined) {
@@ -398,12 +388,12 @@ export default {
     
     async loadTrainingResults() {
       try {
-        const response = await fetch('/api/training/history');
-        const result = await response.json();
+        // 使用api实例获取训练历史
+        const response = await api.get('/api/training/history');
         
-        if (result.status === 'success') {
+        if (response.data.status === 'success') {
           // 查找当前任务的训练结果
-          const currentJob = result.data.find(job => job.job_id === this.jobId);
+          const currentJob = response.data.data.find(job => job.job_id === this.jobId);
           if (currentJob && currentJob.metrics) {
             this.trainingMetrics = Object.entries(currentJob.metrics).map(([modelId, metrics]) => ({
               model: modelId,
@@ -415,6 +405,8 @@ export default {
         }
       } catch (error) {
         console.error('Failed to load training results:', error);
+        // 如果后端API不存在，设置一个空的训练指标数组
+        this.trainingMetrics = [];
       }
     },
     
@@ -454,20 +446,14 @@ export default {
         }
         
         // 调用后端API进行真实连接测试 | Call backend API for real connection test
-        const response = await fetch('/api/test-connection', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            modelId: modelId,
-            endpoint: config.endpoint,
-            apiKey: config.apiKey,
-            modelName: config.modelName
-          })
+        const response = await api.post('/api/test-connection', {
+          modelId: modelId,
+          endpoint: config.endpoint,
+          apiKey: config.apiKey,
+          modelName: config.modelName
         });
         
-        const result = await response.json();
+        const result = response.data;
         
         if (result.success) {
           this.$set(this.connectionStatus, modelId, {
@@ -494,16 +480,10 @@ export default {
     async saveModelConfig(modelId, config) {
       try {
         // 保存模型配置到后端 | Save model configuration to backend
-        await fetch('/api/save-model-config', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            modelId: modelId,
-            config: config,
-            source: 'external'
-          })
+        await api.post('/api/save-model-config', {
+          modelId: modelId,
+          config: config,
+          source: 'external'
         });
       } catch (error) {
         console.error('保存配置失败 | Failed to save configuration:', error);
@@ -514,8 +494,8 @@ export default {
       try {
         // 为每个模型加载已保存的配置 | Load saved configuration for each model
         for (const model of this.availableModels) {
-          const response = await fetch(`/api/model-config/${model.id}`);
-          const result = await response.json();
+          const response = await api.get(`/api/model-config/${model.id}`);
+          const result = response.data;
           
           if (result.success && result.data) {
             const config = result.data;

@@ -64,7 +64,7 @@
 <script>
 import RealTimeInput from '@/components/RealTimeInput.vue';
 import UserGuide from '@/components/UserGuide.vue';
-import axios from 'axios';
+import api from '@/utils/api.js';
 import errorHandler from '@/utils/errorHandler';
 
 export default {
@@ -360,18 +360,27 @@ export default {
           // Set backend API base URL
           this.backendStatus = 'connecting';
           this.modelConnectionStatus = 'connecting';
-          errorHandler.logInfo('Connecting to backend service...');
+          errorHandler.logInfo('Connecting to FastAPI backend service...');
           
-          // Simulate WebSocket connection success (in real environment would connect to actual backend)
-          setTimeout(() => {
-            errorHandler.logInfo('WebSocket connection successful');
+          // Make actual HTTP request to health check endpoint
+          // Using relative path instead of hardcoded URL
+          const response = await api.get('/health', {
+            timeout: 5000 // 5 seconds timeout
+          });
+          
+          // Log full response for debugging
+          console.log('Health check response:', response);
+          
+          // Check if response is successful
+          if (response && response.data && (response.data.status === 'healthy' || response.data.status === 'ok')) {
+            errorHandler.logInfo('FastAPI backend connection successful');
             this.backendConnected = true;
             this.backendStatus = 'connected';
             this.modelConnectionStatus = 'connected';
             
             // Set management model to active status
             this.managementModel = {
-              name: 'A Management Model',
+              name: 'Management Model',
               status: 'active',
               lastActive: new Date().toISOString()
             };
@@ -379,7 +388,7 @@ export default {
             // Update connectedText
             this.connectedText = 'Connected';
             
-            // Update all models status to connected
+            // Update all models status to active
             this.models.forEach(model => {
               model.status = 'active';
               model.lastActive = new Date().toISOString();
@@ -389,52 +398,60 @@ export default {
             this.activeModels = this.activeModelsCount;
             
             // Add connection success system message
-            this.addSystemMessage('Backend service connected successfully');
-          }, 1000);
+            this.addSystemMessage('FastAPI backend service connected successfully');
+          } else {
+            throw new Error('Invalid response from backend');
+          }
         } catch (error) {
-          errorHandler.handleError(error, 'Connection test failed');
+          errorHandler.handleError(error, 'Connection to FastAPI backend failed');
+          this.backendConnected = false;
+          this.backendStatus = 'error';
           this.modelConnectionStatus = 'error';
-          // Even if there's an error, simulate successful connection to ensure interface can be used normally
+          this.addSystemMessage('Failed to connect to FastAPI backend. Falling back to demo mode.');
+          
+          // Fallback to mock mode to ensure interface can be used normally
           setTimeout(() => {
             this.backendConnected = true;
             this.backendStatus = 'connected';
-          this.modelConnectionStatus = 'connected';
-          
-          // Set management model to active status
-          this.managementModel = {
-            name: 'A Management Model',
-            status: 'active',
-            lastActive: new Date().toISOString()
-          };
-          
-          // Update connectedText
-          this.connectedText = 'Connected';
-          
-          this.models.forEach(model => {
-            model.status = 'active';
-            model.lastActive = new Date().toISOString();
-          });
-          
-          // Update active model count
-          this.activeModels = this.activeModelsCount;
-          
-          this.addSystemMessage('Backend service connected successfully');
-        }, 1500);
-      }
-    },
+            this.modelConnectionStatus = 'connected';
+            
+            // Set management model to active status
+            this.managementModel = {
+              name: 'Management Model',
+              status: 'active',
+              lastActive: new Date().toISOString()
+            };
+            
+            // Update connectedText
+            this.connectedText = 'Demo Mode';
+            
+            this.models.forEach(model => {
+              model.status = 'active';
+              model.lastActive = new Date().toISOString();
+            });
+            
+            // Update active model count
+            this.activeModels = this.activeModelsCount;
+          }, 1500);
+        }
+      },
     
     async testHttpConnection() {
       try {
-        // 模拟HTTP连接成功
-        setTimeout(() => {
-          errorHandler.logInfo('HTTP connection established');
+          // Use relative path for health check endpoint
+          const response = await api.get('/health', {
+            timeout: 5000
+          });
+        
+        if (response.status === 200) {
+          errorHandler.logInfo('HTTP connection established to FastAPI backend');
           this.backendConnected = true;
           this.backendStatus = 'connected';
           this.modelConnectionStatus = 'connected';
           
           // 设置管理模型为活跃状态
           this.managementModel = {
-            name: 'A Management Model',
+            name: 'Management Model',
             status: 'active',
             lastActive: new Date().toISOString()
           };
@@ -450,13 +467,41 @@ export default {
           // 更新活跃模型数量
           this.activeModels = this.activeModelsCount;
           
-          this.addSystemMessage('Backend service connected successfully');
-        }, 1000);
+          this.addSystemMessage('FastAPI backend connected successfully');
+        } else {
+          throw new Error(`Invalid response status: ${response.status}`);
+        }
       } catch (error) {
-        errorHandler.handleError(error, 'HTTP connection failed');
+        errorHandler.handleError(error, 'HTTP connection to FastAPI backend failed');
         this.backendConnected = false;
         this.backendStatus = 'error';
         this.modelConnectionStatus = 'error';
+        this.addSystemMessage('Failed to connect to FastAPI backend. Falling back to demo mode.');
+        
+        // 回退到演示模式
+        setTimeout(() => {
+          this.backendConnected = true;
+          this.backendStatus = 'connected';
+          this.modelConnectionStatus = 'connected';
+          
+          // 设置管理模型为活跃状态
+          this.managementModel = {
+            name: 'Management Model',
+            status: 'active',
+            lastActive: new Date().toISOString()
+          };
+          
+          // 更新connectedText为演示模式
+          this.connectedText = 'Demo Mode';
+          
+          this.models.forEach(model => {
+            model.status = 'active';
+            model.lastActive = new Date().toISOString();
+          });
+          
+          // 更新活跃模型数量
+          this.activeModels = this.activeModelsCount;
+        }, 1500);
       }
     },
     
@@ -521,14 +566,17 @@ export default {
         let response;
         if (type === 'text') {
           // Use A Management Model to process text input - real API call
-          response = await axios.post('/api/manager/process', {
-            message: input,
-            language: 'en-US', // Set to English
-            input_type: 'text',
-            timestamp: new Date().toISOString(),
-            session_id: this.getSessionId()
+          response = await api.post('/api/process/text', {
+            text: input,
+            model_id: "manager",
+            context: {
+              language: 'en-US', // Set to English
+              input_type: 'text',
+              timestamp: new Date().toISOString(),
+              session_id: this.getSessionId()
+            }
           }, {
-            timeout: 30000 // 30秒超时
+            timeout: 30000 // 30 seconds timeout
           });
         } else if (type === 'image') {
           // 图像处理 - 在handleImageUpload中处理
@@ -541,10 +589,10 @@ export default {
           return await this.processAudioInput(input);
         }
         
-        if (response && response.data && response.data.success) {
-          return response.data.response;
+        if (response && response.data && response.data.status === 'success') {
+          return response.data.data;
         } else {
-          throw new Error(response?.data?.error || 'Failed to process your request');
+          throw new Error(response?.data?.detail || 'Failed to process your request');
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process user input');
@@ -567,7 +615,7 @@ export default {
     // 处理图像输入
     async processImageInput(imageData) {
       try {
-        const response = await axios.post('/api/vision/process', {
+        const response = await api.post('/api/process/image', {
           image: imageData,
           language: 'en-US',
           session_id: this.getSessionId()
@@ -575,10 +623,10 @@ export default {
           timeout: 60000
         });
         
-        if (response.data.success) {
-          return response.data.analysis;
+        if (response.data.status === 'success') {
+          return response.data.data;
         } else {
-          throw new Error(response.data.error || 'Failed to process image');
+          throw new Error(response.data.detail || 'Failed to process image');
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process image');
@@ -589,7 +637,7 @@ export default {
     // 处理视频输入
     async processVideoInput(videoData) {
       try {
-        const response = await axios.post('/api/vision/process-video', {
+        const response = await api.post('/api/process/video', {
           video: videoData,
           language: 'en-US',
           session_id: this.getSessionId()
@@ -597,10 +645,10 @@ export default {
           timeout: 120000
         });
         
-        if (response.data.success) {
-          return response.data.analysis;
+        if (response.data.status === 'success') {
+          return response.data.data;
         } else {
-          throw new Error(response.data.error || 'Failed to process video');
+          throw new Error(response.data.detail || 'Failed to process video');
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process video');
@@ -611,7 +659,7 @@ export default {
     // Process audio input
     async processAudioInput(audioData) {
       try {
-        const response = await axios.post('/api/audio/process', {
+        const response = await api.post('/api/process/audio', {
           audio: audioData,
           language: 'en-US',
           session_id: this.getSessionId()
@@ -619,10 +667,10 @@ export default {
           timeout: 45000
         });
         
-        if (response.data.success) {
-          return response.data.transcription;
+        if (response.data.status === 'success') {
+          return response.data.data;
         } else {
-          throw new Error(response.data.error || 'Failed to process audio');
+          throw new Error(response.data.detail || 'Failed to process audio');
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process audio');
@@ -1004,7 +1052,7 @@ How else can I help you?`;
           this.saveMessages();
           
           // Send to backend API for video processing
-          const response = await axios.post('/api/process/video', formData, {
+          const response = await api.post('/api/process/video', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },
@@ -1105,7 +1153,7 @@ How else can I help you?`;
           this.saveMessages();
           
           // Send to backend API for image processing
-          const response = await axios.post('/api/process/image', formData, {
+          const response = await api.post('/api/process/image', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },

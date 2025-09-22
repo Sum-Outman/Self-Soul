@@ -97,7 +97,7 @@
 
 <script>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api.js';
 
 export default {
   name: 'KnowledgeImport',
@@ -162,7 +162,7 @@ export default {
         formData.append('overwrite', overwriteExisting.value);
 
         try {
-          const response = await axios.post('/api/knowledge/import', formData, {
+          const response = await api.post('/api/knowledge/import', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }

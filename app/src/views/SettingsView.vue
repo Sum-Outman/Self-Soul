@@ -1,6 +1,5 @@
 <template>
   <div class="settings-container">
-    <h1>Model Management</h1>
     
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
@@ -284,6 +283,7 @@ import errorHandler from '../utils/errorHandler.js'
 import { notify } from '../plugins/notification.js'
 import { Model, NewModel, MODEL_TYPES, MODEL_STATUS, MODEL_PORT_CONFIG, createDefaultModel, isValidModelId, isValidPort, isApiModelType, generateMockMetrics } from '../utils/modelTypes.js'
 import testNotifications from '../utils/testNotifications.js'
+import api from '../utils/api.js'
 
 export default {
   name: 'SettingsView',
@@ -308,36 +308,51 @@ export default {
         name: 'Manager Model',
         type: 'Manager Model',
         description: 'System manager model for coordination',
-        status: 'stopped',
-        isActive: false,
+        status: 'running',
+        isActive: true,
         isPrimary: false,
         port: 8001,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        metrics: {
+          memoryUsage: 128,
+          cpuUsage: 5,
+          responseTime: 15
+        }
       },
       {
         id: 'language',
         name: 'Language Model',
         type: 'Language Model',
         description: 'Natural language processing model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
+        status: 'running',
+        isActive: true,
+        isPrimary: true,
         port: 8002,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        metrics: {
+          memoryUsage: 512,
+          cpuUsage: 12,
+          responseTime: 80
+        }
       },
       {
         id: 'knowledge',
         name: 'Knowledge Model',
         type: 'Knowledge Model',
         description: 'Knowledge base and retrieval model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
+        status: 'running',
+        isActive: true,
+        isPrimary: true,
         port: 8003,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        metrics: {
+          memoryUsage: 256,
+          cpuUsage: 8,
+          responseTime: 30
+        }
       },
       {
         id: 'vision',
@@ -358,7 +373,7 @@ export default {
         description: 'Audio processing and speech recognition model',
         status: 'stopped',
         isActive: false,
-        isPrimary: false,
+        isPrimary: true,
         port: 8005,
         lastUpdated: new Date().toISOString(),
         version: '1.0.0'
@@ -382,7 +397,7 @@ export default {
         description: 'Code generation and software development model',
         status: 'stopped',
         isActive: false,
-        isPrimary: false,
+        isPrimary: true,
         port: 8007,
         lastUpdated: new Date().toISOString(),
         version: '1.0.0'
@@ -606,13 +621,10 @@ export default {
     const loadModels = async () => {
       loading.value = true
       try {
-        // Attempt to fetch from API
-        const response = await fetch('/api/models')
-        if (!response.ok) {
-          throw new Error('Failed to fetch models')
-        }
-        const data = await response.json()
-        models.value = data
+        // Use api instance to fetch models
+        const response = await api.get('/api/models')
+        // 确保response.data是数组
+        models.value = Array.isArray(response.data) ? response.data : mockModels
         notify.success('Models loaded successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Load Models')
@@ -661,21 +673,11 @@ export default {
         )
         modelToAdd.port = newModel.value.port
 
-        // Attempt API call
-        const response = await fetch('/api/models', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(modelToAdd)
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to add model')
-        }
+        // Use api instance for POST request
+        const response = await api.post('/api/models', modelToAdd)
 
         // Add to local state
-        models.value.push(modelToAdd)
+        models.value.push(response.data)
         hasChanges.value = true
         notify.success('Model added successfully')
 
@@ -698,7 +700,7 @@ export default {
         models.value.push(modelToAdd)
         hasChanges.value = true
         notify.success('Model added locally')
-        
+
         // Reset form
         newModel.value = {
           id: '',
@@ -724,14 +726,8 @@ export default {
 
       operatingModels.value.add(modelId)
       try {
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}`, {
-          method: 'DELETE'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to remove model')
-        }
+        // Use api instance for DELETE request
+        await api.delete(`/api/models/${modelId}`)
 
         // Remove from local state
         models.value.splice(modelIndex, 1)
@@ -759,18 +755,8 @@ export default {
       try {
         const newState = !model.isActive
         
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}/activation`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ isActive: newState })
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to update activation status')
-        }
+        // Use api instance for PUT request
+        await api.put(`/api/models/${modelId}/activation`, { isActive: newState })
 
         // Update local state
         model.isActive = newState
@@ -798,18 +784,8 @@ export default {
 
       operatingModels.value.add(modelId)
       try {
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}/primary`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ isPrimary: true })
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to set as primary')
-        }
+        // Use api instance for PUT request
+        await api.put(`/api/models/${modelId}/primary`, { isPrimary: true })
 
         // Update local state
         models.value.forEach(m => {
@@ -844,14 +820,8 @@ export default {
         // Update local state first for better UX
         model.status = 'starting'
         
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}/start`, {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to start model')
-        }
+        // Use api instance for POST request
+        await api.post(`/api/models/${modelId}/start`)
 
         // Update local state
         model.status = 'running'
@@ -882,14 +852,8 @@ export default {
         // Update local state first for better UX
         model.status = 'stopping'
         
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}/stop`, {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to stop model')
-        }
+        // Use api instance for POST request
+        await api.post(`/api/models/${modelId}/stop`)
 
         // Update local state
         model.status = 'stopped'
@@ -920,14 +884,8 @@ export default {
         // Update local state first for better UX
         model.status = 'stopping'
         
-        // Attempt API call
-        const response = await fetch(`/api/models/${modelId}/restart`, {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to restart model')
-        }
+        // Use api instance for POST request
+        await api.post(`/api/models/${modelId}/restart`)
 
         // Update local state
         model.status = 'running'
@@ -964,14 +922,8 @@ export default {
           model.status = 'starting'
         })
 
-        // Attempt API call
-        const response = await fetch('/api/models/start-all', {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to start all models')
-        }
+        // Use api instance for POST request
+        await api.post('/api/models/start-all')
 
         // Update local state
         modelsToStart.forEach(model => {
@@ -1015,14 +967,8 @@ export default {
           model.status = 'stopping'
         })
 
-        // Attempt API call
-        const response = await fetch('/api/models/stop-all', {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to stop all models')
-        }
+        // Use api instance for POST request
+        await api.post('/api/models/stop-all')
 
         // Update local state
         modelsToStop.forEach(model => {
@@ -1065,14 +1011,8 @@ export default {
           model.status = 'stopping'
         })
 
-        // Attempt API call
-        const response = await fetch('/api/models/restart-all', {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to restart all models')
-        }
+        // Use api instance for POST request
+        await api.post('/api/models/restart-all')
 
         // Update local state
         models.value.forEach(model => {
@@ -1105,14 +1045,8 @@ export default {
 
       isRestartingSystem.value = true
       try {
-        // Attempt API call
-        const response = await fetch('/api/system/restart', {
-          method: 'POST'
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to restart system')
-        }
+        // Use api instance for POST request
+        await api.post('/api/system/restart')
 
         notify.success('System restart initiated')
         // In a real app, you might want to redirect or refresh the page after a delay
@@ -1133,24 +1067,12 @@ export default {
 
       testingConnections.value.add(modelId)
       try {
-        // Attempt API call to test connection
-        const response = await fetch(`/api/models/${modelId}/test-connection`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ apiKey: model.apiKey })
-        })
+        // Use api instance for POST request
+        const response = await api.post(`/api/models/${modelId}/test-connection`, { apiKey: model.apiKey })
 
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || 'Connection test failed')
-        }
-
-        const result = await response.json()
         testResults.value[modelId] = {
           status: 'success',
-          message: result.message || 'Connection successful'
+          message: response.data.message || 'Connection successful'
         }
         notify.success('Connection test successful')
       } catch (error) {
@@ -1177,18 +1099,8 @@ export default {
 
       savingSettings.value.add(modelId)
       try {
-        // Attempt API call to save settings
-        const response = await fetch(`/api/models/${modelId}/settings`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(model)
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to save settings')
-        }
+        // Use api instance for PUT request
+        await api.put(`/api/models/${modelId}/settings`, model)
 
         model.lastUpdated = new Date().toISOString()
         hasChanges.value = true
@@ -1206,18 +1118,8 @@ export default {
     const saveAllChanges = async () => {
       isSavingAll.value = true
       try {
-        // Attempt API call to save all changes
-        const response = await fetch('/api/models/save-all', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(models.value)
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to save all changes')
-        }
+        // Use api instance for POST request
+        await api.post('/api/models/save-all', models.value)
 
         hasChanges.value = false
         notify.success('All changes saved successfully')

@@ -48,16 +48,22 @@ export default defineConfig({
     hmr: {
       overlay: true // 显示错误覆盖层
     },
-    // 代理配置，使前端能连接到后端API
+    // 设置代理配置，确保前端可以访问后端API
     proxy: {
       '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/health': {
         target: 'http://localhost:8000',
         changeOrigin: true
       },
       '/ws': {
         target: 'ws://localhost:8000',
         ws: true,
-        changeOrigin: true
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ws/, '')
       }
     }
   }

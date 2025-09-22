@@ -136,6 +136,12 @@
             <label>Batch Size:</label>
             <input type="number" v-model.number="parameters.batchSize" min="1" max="1024">
           </div>
+          <div class="parameter" style="grid-column: span 2;">
+            <label>
+              <input type="checkbox" v-model="parameters.fromScratch">
+              Train from Scratch (No Pretrained Models)
+            </label>
+          </div>
           <div class="parameter">
             <label>Learning Rate:</label>
             <input type="number" v-model.number="parameters.learningRate" step="0.001" min="0.0001" max="1">
@@ -352,6 +358,486 @@
   </div>
 </template>
 
+<style scoped>
+.train-view {
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.status-messages {
+  margin-bottom: 20px;
+}
+
+.message {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message.error {
+  background-color: #f8f0f0;
+  color: #d32f2f;
+  border: 1px solid #f8d7da;
+}
+
+.message.success {
+  background-color: #f0f8f0;
+  color: #2e7d32;
+  border: 1px solid #d4edda;
+}
+
+.message.warning {
+  background-color: #fdf7e6;
+  color: #f57c00;
+  border: 1px solid #fff3cd;
+}
+
+.message.info {
+  background-color: #f0f4f8;
+  color: #1976d2;
+  border: 1px solid #cce7ff;
+}
+
+.control-panel {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.control-panel h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #111;
+  font-weight: 600;
+}
+
+.control-panel h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #222;
+  font-weight: 500;
+}
+
+.mode-selection, .model-selection, .dataset-selection, .parameter-settings, .strategy-selection {
+  margin-bottom: 24px;
+}
+
+.mode-options, .strategy-options {
+  display: flex;
+  gap: 12px;
+}
+
+.mode-options button, .strategy-options .strategy-option {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.mode-options button:hover, .strategy-options .strategy-option:hover {
+  background-color: #f5f5f5;
+  border-color: #bbb;
+}
+
+.mode-options button.active, .strategy-options .strategy-option.selected {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.model-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.model-option {
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.model-option:hover {
+  border-color: #999;
+  background-color: #f9f9f9;
+}
+
+.model-option.selected {
+  border-color: #333;
+  background-color: #f0f0f0;
+  font-weight: 500;
+}
+
+.model-option.required {
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.model-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dataset-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 12px;
+  background-color: #fff;
+  min-width: 200px;
+}
+
+.upload-btn, .start-btn, .stop-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.upload-btn {
+  background-color: #666;
+  color: white;
+}
+
+.upload-btn:hover {
+  background-color: #555;
+}
+
+.start-btn {
+  background-color: #333;
+  color: white;
+  padding: 10px 24px;
+  font-size: 16px;
+}
+
+.start-btn:hover:not(:disabled) {
+  background-color: #222;
+}
+
+.stop-btn {
+  background-color: #666;
+  color: white;
+  padding: 10px 24px;
+  font-size: 16px;
+  margin-left: 12px;
+}
+
+.stop-btn:hover:not(:disabled) {
+  background-color: #555;
+}
+
+.start-btn:disabled, .stop-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.parameter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.parameter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.parameter label {
+  font-size: 14px;
+  color: #444;
+  font-weight: 500;
+}
+
+.parameter input[type="number"], .parameter select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.validation-feedback {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.validation-feedback.valid {
+  background-color: #f0f8f0;
+  color: #2e7d32;
+  border: 1px solid #d4edda;
+}
+
+.validation-feedback.invalid {
+  background-color: #f8f0f0;
+  color: #d32f2f;
+  border: 1px solid #f8d7da;
+}
+
+.model-dependencies {
+  margin-top: 16px;
+}
+
+.dependency-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dependency-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.dependency-arrow {
+  color: #999;
+}
+
+.training-progress {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.progress-container {
+  height: 30px;
+  background-color: #f0f0f0;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #333;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  transition: width 0.3s ease;
+}
+
+.progress-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+}
+
+.terminal-section {
+  margin-top: 24px;
+}
+
+.model-evaluation {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.evaluation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.metric-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.confusion-matrix {
+  margin-top: 24px;
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: auto repeat(auto-fit, minmax(60px, 1fr));
+  gap: 4px;
+}
+
+.matrix-header {
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.matrix-cell {
+  padding: 12px 8px;
+  text-align: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.matrix-cell.highlight {
+  background-color: #f0f0f0;
+  font-weight: 500;
+}
+
+.training-history {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th, .history-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.history-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.history-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.history-table button {
+  padding: 4px 8px;
+  margin-right: 8px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.history-table button:hover {
+  background-color: #f5f5f5;
+  border-color: #999;
+}
+
+.knowledge-assist-options {
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.knowledge-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.knowledge-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.knowledge-option label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.knowledge-option input[type="range"] {
+  flex: 1;
+}
+
+.recommended-combinations {
+  margin-bottom: 16px;
+}
+
+.combination-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.combination-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.combination-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #999;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+</style>
+
 <script>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import api from '@/utils/api';
@@ -402,34 +888,38 @@ export default {
         modelsLoading.value = true;
         modelsError.value = null;
         
-        // 直接使用模拟模型列表
-        availableModels.value = [
-          { id: 'A', name: 'Manager Model', backendId: 'manager' },
-          { id: 'B', name: 'Language Model', backendId: 'language' },
-          { id: 'C', name: 'Audio Model', backendId: 'audio' },
-          { id: 'D', name: 'Vision Image Model', backendId: 'vision_image' },
-          { id: 'E', name: 'Vision Video Model', backendId: 'vision_video' },
-          { id: 'F', name: 'Spatial Model', backendId: 'spatial' },
-          { id: 'G', name: 'Sensor Model', backendId: 'sensor' },
-          { id: 'H', name: 'Computer Control Model', backendId: 'computer_control' },
-          { id: 'I', name: 'Motion Control Model', backendId: 'motion_control' },
-          { id: 'J', name: 'Knowledge Model', backendId: 'knowledge' },
-          { id: 'K', name: 'Programming Model', backendId: 'programming' },
-          { id: 'L', name: 'Planning Model', backendId: 'planning' },
-          { id: 'M', name: 'Autonomous Model', backendId: 'autonomous' },
-          { id: 'N', name: 'Collaboration Model', backendId: 'collaboration' },
-          { id: 'O', name: 'Finance Model', backendId: 'finance' },
-          { id: 'P', name: 'Medical Model', backendId: 'medical' },
-          { id: 'Q', name: 'Optimization Model', backendId: 'optimization' },
-          { id: 'R', name: 'Prediction Model', backendId: 'prediction' },
-          { id: 'S', name: 'Emotion Model', backendId: 'emotion' }
-        ];
+        // 调用FastAPI后端获取模型列表
+        const response = await api.get('/api/models');
+        
+        // 使用后端返回的真实模型数据
+        availableModels.value = response.data.models.map((model, index) => {
+          // 使用字母A-Z作为前端显示ID
+          const frontendId = String.fromCharCode(65 + index); // 65 is ASCII for 'A'
+          return {
+            id: frontendId,
+            name: model.name,
+            backendId: model.id
+          };
+        });
         
         // 显示信息提示
         showInfo('Models loaded successfully');
       } catch (error) {
-        // 即使在纯前端模式下也处理任何可能的错误
-        showError('Failed to load models');
+        // 如果后端不可用，使用模拟数据作为回退
+        console.warn('Failed to connect to backend, using mock data');
+        availableModels.value = [
+          { id: 'A', name: 'Manager Model', backendId: 'manager' },
+          { id: 'B', name: 'Language Model', backendId: 'language' },
+          { id: 'C', name: 'Audio Model', backendId: 'audio' },
+          { id: 'D', name: 'Vision Model', backendId: 'vision' },
+          { id: 'E', name: 'Knowledge Model', backendId: 'knowledge' },
+          { id: 'F', name: 'Planning Model', backendId: 'planning' },
+          { id: 'G', name: 'Programming Model', backendId: 'programming' },
+          { id: 'H', name: 'Prediction Model', backendId: 'prediction' },
+          { id: 'I', name: 'Advanced Reasoning Model', backendId: 'advanced_reasoning' },
+          { id: 'J', name: 'Data Fusion Model', backendId: 'data_fusion' }
+        ];
+        showError('Failed to connect to backend, using demo mode');
       } finally {
         modelsLoading.value = false;
       }
@@ -760,38 +1250,35 @@ export default {
       if (files.length === 0) return;
       
       try {
-        // 使用模拟上传体验（避免API请求）
-        const mockDatasetId = `mock_${Date.now()}`;
-        const mockDatasetName = files[0].name;
+        addLog(`Uploading dataset: ${files[0].name}`);
         
-        // 添加模拟数据集
-        datasets.value.push({
-          id: mockDatasetId,
-          name: mockDatasetName
+        // 创建FormData
+        const formData = new FormData();
+        formData.append('file', files[0]);
+        
+        // 调用FastAPI后端的数据集上传接口
+        const response = await api.post('/api/datasets/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          timeout: 30000 // 30秒超时
         });
         
-        selectedDataset.value = mockDatasetId;
+        // 添加新上传的数据集
+        const newDataset = {
+          id: response.data.dataset_id,
+          name: response.data.dataset_name
+        };
         
-        // 显示模拟成功消息
-        addLog(`Dataset upload successful: ${mockDatasetName}`);
-        showInfo('Using mock dataset for training');
+        datasets.value.push(newDataset);
+        selectedDataset.value = newDataset.id;
+        
+        // 显示成功消息
+        addLog(`Dataset upload successful: ${newDataset.name}`);
+        showInfo('Dataset uploaded successfully');
       } catch (error) {
-        addLog(`Dataset upload failed: ${error.message}`);
-        // 确保即使在模拟过程中出现错误也有回退
-        const mockDatasetId = `mock_${Date.now()}`;
-        const mockDatasetName = files[0].name;
-        
-        // 添加模拟数据集
-        datasets.value.push({
-          id: mockDatasetId,
-          name: mockDatasetName
-        });
-        
-        selectedDataset.value = mockDatasetId;
-        
-        // 显示模拟成功消息
-          addLog(`Dataset upload successful: ${mockDatasetName}`);
-          showInfo('Using mock dataset for training');
+        addLog(`Dataset upload failed: ${error.message || 'Unknown error'}`);
+        showError('Failed to upload dataset. Please try again.');
       }
     };
     
@@ -819,24 +1306,46 @@ export default {
         // 添加开始日志
         addLog(`Training started in ${trainingMode.value} mode with models: ${selectedModels.value.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ')} using dataset: ${datasets.value.find(d => d.id === selectedDataset.value).name}`);
         
-        // 使用模拟训练
-        addLog('Using mock training implementation');
-        currentJobId.value = Date.now().toString();
+        // 准备训练请求数据
+        const trainingData = {
+          models: selectedModels.value.map(modelId => {
+            const model = availableModels.value.find(m => m.id === modelId);
+            return model ? model.backendId : modelId;
+          }),
+          dataset_id: selectedDataset.value,
+          parameters: {
+            ...parameters.value,
+            strategy: selectedStrategy.value,
+            knowledge_assist: knowledgeAssistOptions.value
+          },
+          training_mode: trainingMode.value
+        };
         
-        // 模拟训练进度
-        simulateTraining();
+        // 调用FastAPI后端的开始训练接口
+        const response = await api.post('/api/training/start', trainingData);
+        
+        currentJobId.value = response.data.job_id;
+        addLog(`Training job created with ID: ${currentJobId.value}`);
+        
+        // 启动WebSocket连接获取实时更新
+        startWebSocketConnection(currentJobId.value);
       } catch (error) {
-        addLog(`Failed to start training: ${error.message}`);
-        stopTraining();
+        addLog(`Failed to start training: ${error.message || 'Unknown error'}`);
+        showError('Failed to start training. Falling back to simulation mode.');
+        
+        // 出错时使用模拟训练
+        currentJobId.value = Date.now().toString();
+        addLog('Using simulation mode');
+        simulateTraining();
       }
     };
 
     // 启动WebSocket连接（增强版，包含重连逻辑和状态监控）
     const startWebSocketConnection = (jobId) => {
       try {
-        // 创建WebSocket连接
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/training/${jobId}`;
+        // 基于配置的端口连接到实时数据流管理器
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}://localhost:8765/ws/training/${jobId}`;
         
         // 添加连接尝试日志
         addLog('Connecting to WebSocket: ' + wsUrl.replace(/^(wss?:\/\/[^/]+).*/, '$1/...'));
@@ -1145,19 +1654,30 @@ export default {
         return;
       }
 
-      // 停止训练（纯前端实现）
-      isTraining.value = false;
-      clearInterval(trainingTimer);
-      clearInterval(statusPollingInterval.value);
-      
-      // 关闭WebSocket连接
-      if (websocketConnection.value) {
-        websocketConnection.value.close();
-        websocketConnection.value = null;
+      try {
+        // 尝试通过API停止训练
+        if (currentJobId.value && !currentJobId.value.startsWith('mock_')) {
+          await api.post('/api/training/stop', { job_id: currentJobId.value });
+          addLog('Training stop request sent to server');
+        }
+      } catch (error) {
+        addLog(`Failed to send stop request to server: ${error.message || 'Unknown error'}`);
+        showWarning('Failed to communicate with server, stopping locally');
+      } finally {
+        // 本地清理训练状态
+        isTraining.value = false;
+        clearInterval(trainingTimer);
+        clearInterval(statusPollingInterval.value);
+        
+        // 关闭WebSocket连接
+        if (websocketConnection.value) {
+          websocketConnection.value.close();
+          websocketConnection.value = null;
+        }
+        
+        currentJobId.value = null;
+        addLog('Training stopped');
       }
-      
-      currentJobId.value = null;
-      addLog('Training stopped');
     };
     
     // 更新耗时
@@ -1277,14 +1797,28 @@ export default {
     // 加载训练历史
     const loadTrainingHistory = async () => {
       try {
-        // 直接使用模拟历史数据
-        trainingHistory.value = generateMockTrainingHistory();
-        showInfo('Training history loaded');
+        // 调用FastAPI后端获取训练历史
+        const response = await api.get('/api/training/history');
+        
+        // 处理后端返回的历史数据
+        trainingHistory.value = response.data.history.map(item => ({
+          id: item.id,
+          date: new Date(item.timestamp),
+          models: item.models,
+          dataset: item.dataset_name,
+          duration: item.duration,
+          accuracy: item.metrics.accuracy * 100,
+          loss: item.metrics.loss,
+          parameters: item.parameters,
+          strategy: item.strategy
+        }));
+        
+        showInfo('Training history loaded successfully');
       } catch (error) {
-        // 即使在纯前端模式下也处理任何可能的错误
-        showError('Failed to load training history');
-        // 确保即使发生异常也有数据显示
+        console.error('Failed to load training history:', error);
+        // 如果API不存在或后端不可用，使用模拟数据
         trainingHistory.value = generateMockTrainingHistory();
+        showInfo('Training history loaded in demo mode');
       }
     };
     
@@ -1658,14 +2192,41 @@ export default {
         return `${hours}h ${minutes}m ${secs}s`;
       },
       
-      // 占位符方法（需要在实际实现中完成）
+      // 查看训练会话详情
       viewSession(id) {
-        addLog(`Viewing session: ${id}`);
-        // 实际查看会话的实现
+        addLog(`Viewing session details: ${id}`);
+        try {
+          // 查找对应的会话
+          const session = trainingHistory.value.find(s => s.id === id);
+          if (session) {
+            // 在实际应用中，这里应该打开一个详情模态框
+            // 但为了快速修复，我们可以简单地弹出一个alert显示会话信息
+            const sessionDetails = `Session ID: ${session.id}\nDate: ${formatDate(session.date)}\nModels: ${session.models.join(', ')}\nDataset: ${session.dataset}\nDuration: ${formatDuration(session.duration)}\nAccuracy: ${session.accuracy}%`;
+            alert(sessionDetails);
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'View Session');
+        }
       },
+      // 比较训练会话
       compareSession(id) {
         addLog(`Comparing session: ${id}`);
-        // 实际比较会话的实现
+        try {
+          // 在实际应用中，这里应该打开比较界面
+          // 但为了快速修复，我们可以简单地记录日志并提示用户
+          if (!comparingSessions.value.includes(id)) {
+            comparingSessions.value.push(id);
+            addLog(`Added session ${id} to comparison`);
+            // 如果已经选择了两个会话，可以执行简单的比较
+            if (comparingSessions.value.length >= 2) {
+              addLog(`Comparing sessions: ${comparingSessions.value.join(' vs ')}`);
+              // 清空比较列表
+              comparingSessions.value = [];
+            }
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'Compare Session');
+        }
       }
     };
   },

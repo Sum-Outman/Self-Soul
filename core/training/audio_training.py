@@ -13,18 +13,8 @@
 """
 
 """
-基础模型类 - 所有模型的基类
-Base Model Class - Base class for all models
-
-提供通用接口和功能，确保所有模型的一致性
-Provides common interfaces and functionality to ensure consistency across all models
-"""
-"""
-音频处理模型训练程序
 Audio Processing Model Training Program
-
-功能：训练多模态音频处理模型，支持语音识别、语调分析、音乐识别、噪音识别和音频合成
-Function: Train multimodal audio processing model supporting speech recognition, tone analysis, music recognition, noise recognition, and audio synthesis
+Train multimodal audio processing model supporting speech recognition, tone analysis, music recognition, noise recognition, and audio synthesis
 """
 
 import os
@@ -33,7 +23,7 @@ import torch
 import numpy as np
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2FeatureExtractor
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 from transformers import AutoModelForAudioClassification, AutoFeatureExtractor
 from tqdm import tqdm
 import logging
@@ -41,35 +31,20 @@ import librosa
 import soundfile as sf
 from datetime import datetime
 
-# 设置日志
+# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-"""
-AudioDataset类 - 中文类描述
-AudioDataset Class - English class description
-"""
 class AudioDataset(Dataset):
-    """音频模型训练数据集 | Audio model training dataset"""
+    """Audio model training dataset"""
     
-    
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self, data_dir, feature_extractor, max_length=16000 * 5):  # 5秒音频
+    def __init__(self, data_dir, feature_extractor, max_length=16000 * 5):  # 5 seconds audio
         self.data = []
         self.feature_extractor = feature_extractor
         self.max_length = max_length
         
-        # 加载多模态音频数据
+        # Load multimodal audio data
         audio_types = ['speech', 'music', 'noise', 'tone', 'effects']
         
         for audio_type in audio_types:
@@ -79,49 +54,28 @@ def __init__(self, data_dir, feature_extractor, max_length=16000 * 5):  # 5秒�
                     audio_data = json.load(f)
                     self.data.extend(audio_data)
         
-        logger.info(f"加载音频模型训练数据: {len(self.data)} 条样本 | "
-                    f"Loaded audio training data: {len(self.data)} samples")
+        logger.info(f"Loaded audio training data: {len(self.data)} samples")
     
     
-"""
-__len__函数 - 中文函数描述
-__len__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __len__(self):
+    def __len__(self):
         return len(self.data)
     
     
-"""
-__getitem__函数 - 中文函数描述
-__getitem__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __getitem__(self, idx):
+    def __getitem__(self, idx):
         item = self.data[idx]
         
-        # 加载音频文件
+        # Load audio file
         audio_path = item['audio_path']
         try:
             audio, sr = librosa.load(audio_path, sr=16000)
             
-            # 截断或填充到固定长度
+            # Truncate or pad to fixed length
             if len(audio) > self.max_length:
                 audio = audio[:self.max_length]
             else:
                 audio = np.pad(audio, (0, self.max_length - len(audio)), mode='constant')
             
-            # 提取特征
+            # Extract features
             inputs = self.feature_extractor(
                 audio,
                 sampling_rate=16000,
@@ -130,7 +84,7 @@ def __getitem__(self, idx):
                 max_length=self.max_length
             )
             
-            # 标签处理
+            # Process labels
             labels = {
                 'speech_text': item.get('transcript', ''),
                 'emotion_label': item.get('emotion', 'neutral'),
@@ -147,8 +101,8 @@ def __getitem__(self, idx):
             }
             
         except Exception as e:
-            logger.error(f"音频加载错误 {audio_path}: {str(e)}")
-            # 返回空数据
+            logger.error(f"Audio loading error {audio_path}: {str(e)}")
+            # Return empty data
             return {
                 'input_values': torch.zeros(self.max_length),
                 'attention_mask': torch.ones(self.max_length),
@@ -163,29 +117,14 @@ def __getitem__(self, idx):
             }
 
 
-"""
-AudioModelTrainer类 - 中文类描述
-AudioModelTrainer Class - English class description
-"""
 class AudioModelTrainer:
-    """音频模型训练器 | Audio model trainer"""
+    """Audio model trainer"""
     
-    
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self, config):
+    def __init__(self, config):
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        # 初始化语音识别模型
+        # Initialize speech recognition model
         self.speech_model = Wav2Vec2ForCTC.from_pretrained(
             "facebook/wav2vec2-base-960h"
         ).to(self.device)
@@ -194,134 +133,129 @@ def __init__(self, config):
             "facebook/wav2vec2-base-960h"
         )
         
-        # 初始化音频分类模型
+        # Initialize audio classification model
         self.classification_model = AutoModelForAudioClassification.from_pretrained(
             "superb/hubert-base-superb-ks",
-            num_labels=10  # 10种音频类型
+            num_labels=10  # 10 audio types
         ).to(self.device)
         
         self.feature_extractor = AutoFeatureExtractor.from_pretrained(
             "superb/hubert-base-superb-ks"
         )
         
-        # 情感分析头
+        # Emotion classification head
         self.emotion_classifier = nn.Sequential(
             nn.Linear(768, 256),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(256, 8)  # 8种情感
+            nn.Linear(256, 8)  # 8 emotions
         ).to(self.device)
         
-        # 音调分析头
+        # Tone analysis head
         self.tone_analyzer = nn.Sequential(
             nn.Linear(768, 128),
             nn.ReLU(),
-            nn.Linear(128, 3)  # 音调特征: pitch, intensity, timbre
+            nn.Linear(128, 3)  # Tone features: pitch, intensity, timbre
         ).to(self.device)
         
-        # 损失函数
+        # Loss functions
         self.ctc_loss = nn.CTCLoss()
         self.classification_loss = nn.CrossEntropyLoss()
         self.emotion_loss = nn.CrossEntropyLoss()
         self.regression_loss = nn.MSELoss()
     
     
-"""
-load_data函数 - 中文函数描述
-load_data Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def load_data(self, data_dir):
-        """加载音频数据 | Load audio data"""
+    def load_data(self, data_dir):
+        """Load audio data"""
         dataset = AudioDataset(data_dir, self.feature_extractor)
         return dataset
     
     
-"""
-create_data_loader函数 - 中文函数描述
-create_data_loader Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def create_data_loader(self, dataset, batch_size=4, shuffle=True):
-        """创建数据加载器 | Create data loader"""
+    def create_data_loader(self, dataset, batch_size=4, shuffle=True):
+        """Create data loader"""
         return DataLoader(
             dataset,
             batch_size=batch_size,
             shuffle=shuffle,
-            num_workers=2  # 音频处理需要较少workers
+            num_workers=2  # Fewer workers for audio processing
         )
     
     
-"""
-train_epoch函数 - 中文函数描述
-train_epoch Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def train_epoch(self, train_loader, optimizer):
-        """单轮训练 | Single epoch training"""
+    def train_epoch(self, train_loader, optimizer):
+        """Single epoch training"""
         self.speech_model.train()
         self.classification_model.train()
         self.emotion_classifier.train()
         self.tone_analyzer.train()
         
         total_ctc_loss = 0
-        total_class_loss = 0
         total_emotion_loss = 0
         total_tone_loss = 0
         
-        for batch in tqdm(train_loader, desc="训练中 | Training"):
+        for batch in tqdm(train_loader, desc="Training"):
             input_values = batch['input_values'].to(self.device)
             attention_mask = batch['attention_mask'].to(self.device)
             labels = batch['labels']
             
             optimizer.zero_grad()
             
-            # 语音识别前向传播
-            speech_outputs = self.speech_model(
-                input_values=input_values,
-                attention_mask=attention_mask,
-                labels=self.processor(labels['speech_text'], return_tensors="pt").input_ids.to(self.device)
-            )
-            ctc_loss = speech_outputs.loss
+            # Speech recognition forward pass
+            try:
+                # Process speech text labels
+                if all(text.strip() for text in labels['speech_text']):
+                    speech_labels = self.processor(
+                        labels['speech_text'], 
+                        return_tensors="pt",
+                        padding=True
+                    ).input_ids.to(self.device)
+                    speech_outputs = self.speech_model(
+                        input_values=input_values,
+                        attention_mask=attention_mask,
+                        labels=speech_labels
+                    )
+                    ctc_loss = speech_outputs.loss
+                else:
+                    # Skip CTC loss if no valid text labels
+                    speech_outputs = self.speech_model(
+                        input_values=input_values,
+                        attention_mask=attention_mask
+                    )
+                    ctc_loss = torch.tensor(0.0).to(self.device)
+            except Exception as e:
+                logger.warning(f"CTC loss calculation error: {str(e)}")
+                # Skip CTC loss calculation
+                speech_outputs = self.speech_model(
+                    input_values=input_values,
+                    attention_mask=attention_mask
+                )
+                ctc_loss = torch.tensor(0.0).to(self.device)
             
-            # 音频分类
+            # Audio classification and feature extraction
             classification_outputs = self.classification_model(
                 input_values=input_values,
-                attention_mask=attention_mask
+                attention_mask=attention_mask,
+                output_hidden_states=True
             )
             
-            # 情感分析
+            # Extract embeddings for additional tasks
             hidden_states = classification_outputs.hidden_states[-1]
-            cls_embeddings = hidden_states[:, 0, :]
+            cls_embeddings = hidden_states[:, 0, :] if hidden_states is not None else torch.zeros(input_values.size(0), 768).to(self.device)
+            
+            # Emotion analysis
             emotion_logits = self.emotion_classifier(cls_embeddings)
             
-            # 音调分析
+            # Tone analysis
             tone_features = self.tone_analyzer(cls_embeddings)
             
-            # 计算各种损失
+            # Calculate various losses
             emotion_labels = torch.tensor([self._emotion_to_idx(e) for e in labels['emotion_label']]).to(self.device)
             emotion_loss = self.emotion_loss(emotion_logits, emotion_labels)
             
-            tone_targets = torch.stack([l['tone_features'] for l in labels]).to(self.device)
+            tone_targets = torch.stack([l['tone_features'] for l in labels['tone_features']]).to(self.device) if isinstance(labels['tone_features'], list) else labels['tone_features'].to(self.device)
             tone_loss = self.regression_loss(tone_features, tone_targets)
             
-            # 总损失
-            total_loss = ctc_loss + 0.5 * emotion_loss + 0.3 * tone_loss
+            # Total loss with balanced weights
+            total_loss = ctc_loss * 0.5 + emotion_loss * 0.3 + tone_loss * 0.2
             
             total_loss.backward()
             optimizer.step()
@@ -335,18 +269,8 @@ def train_epoch(self, train_loader, optimizer):
                 total_tone_loss / len(train_loader))
     
     
-"""
-_emotion_to_idx函数 - 中文函数描述
-_emotion_to_idx Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _emotion_to_idx(self, emotion):
-        """情感标签映射 | Emotion label mapping"""
+    def _emotion_to_idx(self, emotion):
+        """Emotion label mapping"""
         emotion_mapping = {
             'happy': 0, 'sad': 1, 'angry': 2, 'surprised': 3,
             'fear': 4, 'neutral': 5, 'excited': 6, 'calm': 7
@@ -354,18 +278,8 @@ def _emotion_to_idx(self, emotion):
         return emotion_mapping.get(emotion, 5)
     
     
-"""
-evaluate函数 - 中文函数描述
-evaluate Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def evaluate(self, test_loader):
-        """模型评估 | Model evaluation"""
+    def evaluate(self, test_loader):
+        """Model evaluation"""
         self.speech_model.eval()
         self.classification_model.eval()
         self.emotion_classifier.eval()
@@ -375,41 +289,62 @@ def evaluate(self, test_loader):
         total_emotion_loss = 0
         total_tone_loss = 0
         emotion_accuracy = 0
-        tone_accuracy = 0
         
         with torch.no_grad():
-            for batch in tqdm(test_loader, desc="评估中 | Evaluating"):
+            for batch in tqdm(test_loader, desc="Evaluating"):
                 input_values = batch['input_values'].to(self.device)
                 attention_mask = batch['attention_mask'].to(self.device)
                 labels = batch['labels']
                 
-                # 语音识别
-                speech_outputs = self.speech_model(
-                    input_values=input_values,
-                    attention_mask=attention_mask,
-                    labels=self.processor(labels['speech_text'], return_tensors="pt").input_ids.to(self.device)
-                )
-                ctc_loss = speech_outputs.loss
+                # Speech recognition
+                try:
+                    if all(text.strip() for text in labels['speech_text']):
+                        speech_labels = self.processor(
+                            labels['speech_text'], 
+                            return_tensors="pt",
+                            padding=True
+                        ).input_ids.to(self.device)
+                        speech_outputs = self.speech_model(
+                            input_values=input_values,
+                            attention_mask=attention_mask,
+                            labels=speech_labels
+                        )
+                        ctc_loss = speech_outputs.loss
+                    else:
+                        speech_outputs = self.speech_model(
+                            input_values=input_values,
+                            attention_mask=attention_mask
+                        )
+                        ctc_loss = torch.tensor(0.0).to(self.device)
+                except Exception as e:
+                    logger.warning(f"CTC loss evaluation error: {str(e)}")
+                    speech_outputs = self.speech_model(
+                        input_values=input_values,
+                        attention_mask=attention_mask
+                    )
+                    ctc_loss = torch.tensor(0.0).to(self.device)
                 
-                # 音频分类和情感分析
+                # Audio classification and feature extraction
                 classification_outputs = self.classification_model(
                     input_values=input_values,
-                    attention_mask=attention_mask
+                    attention_mask=attention_mask,
+                    output_hidden_states=True
                 )
                 
+                # Extract embeddings for additional tasks
                 hidden_states = classification_outputs.hidden_states[-1]
-                cls_embeddings = hidden_states[:, 0, :]
+                cls_embeddings = hidden_states[:, 0, :] if hidden_states is not None else torch.zeros(input_values.size(0), 768).to(self.device)
                 emotion_logits = self.emotion_classifier(cls_embeddings)
                 tone_features = self.tone_analyzer(cls_embeddings)
                 
-                # 计算情感准确率
+                # Calculate emotion accuracy
                 emotion_labels = torch.tensor([self._emotion_to_idx(e) for e in labels['emotion_label']]).to(self.device)
                 emotion_loss = self.emotion_loss(emotion_logits, emotion_labels)
                 emotion_preds = emotion_logits.argmax(dim=1)
                 emotion_accuracy += (emotion_preds == emotion_labels).sum().item()
                 
-                # 计算音调损失
-                tone_targets = torch.stack([l['tone_features'] for l in labels]).to(self.device)
+                # Calculate tone loss
+                tone_targets = torch.stack([l['tone_features'] for l in labels['tone_features']]).to(self.device) if isinstance(labels['tone_features'], list) else labels['tone_features'].to(self.device)
                 tone_loss = self.regression_loss(tone_features, tone_targets)
                 
                 total_ctc_loss += ctc_loss.item()
@@ -424,56 +359,55 @@ def evaluate(self, test_loader):
         return avg_ctc_loss, avg_emotion_loss, avg_tone_loss, emotion_acc
     
     
-"""
-save_model函数 - 中文函数描述
-save_model Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def save_model(self, path):
-        """保存模型 | Save model"""
+    def save_model(self, path):
+        """Save model"""
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        # Save model components that can be serialized
         torch.save({
             'speech_model_state_dict': self.speech_model.state_dict(),
             'classification_model_state_dict': self.classification_model.state_dict(),
             'emotion_classifier_state_dict': self.emotion_classifier.state_dict(),
             'tone_analyzer_state_dict': self.tone_analyzer.state_dict(),
-            'processor': self.processor,
-            'feature_extractor': self.feature_extractor
+            'config': self.config
         }, path)
-        logger.info(f"音频模型已保存至 {path} | Audio model saved to {path}")
+        
+        # Save processor and feature extractor separately
+        processor_path = os.path.join(os.path.dirname(path), 'processor')
+        feature_extractor_path = os.path.join(os.path.dirname(path), 'feature_extractor')
+        os.makedirs(processor_path, exist_ok=True)
+        os.makedirs(feature_extractor_path, exist_ok=True)
+        
+        self.processor.save_pretrained(processor_path)
+        self.feature_extractor.save_pretrained(feature_extractor_path)
+        
+        logger.info(f"Audio model saved to {path}")
     
     
-"""
-full_training函数 - 中文函数描述
-full_training Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def full_training(self, data_dir, epochs=10):
-        """完整训练流程 | Full training pipeline"""
-        # 加载数据
+    def full_training(self, data_dir, epochs=10):
+        """Full training pipeline"""
+        # Load data
         dataset = self.load_data(data_dir)
         
-        # 划分训练集和测试集
+        # If dataset is empty, create synthetic data
+        if len(dataset) == 0:
+            logger.warning("No real data found. Creating synthetic training data...")
+            self._create_synthetic_data(data_dir)
+            dataset = self.load_data(data_dir)
+        
+        # Split into train and test sets
         train_size = int(0.8 * len(dataset))
         test_size = len(dataset) - train_size
         train_dataset, test_dataset = torch.utils.data.random_split(
             dataset, [train_size, test_size]
         )
         
-        # 创建数据加载器
+        # Create data loaders
         train_loader = self.create_data_loader(train_dataset, batch_size=self.config['batch_size'])
         test_loader = self.create_data_loader(test_dataset, batch_size=self.config['batch_size'])
         
-        # 设置优化器
+        # Setup optimizer
         optimizer = optim.AdamW([
             {'params': self.speech_model.parameters()},
             {'params': self.classification_model.parameters()},
@@ -481,7 +415,10 @@ def full_training(self, data_dir, epochs=10):
             {'params': self.tone_analyzer.parameters()}
         ], lr=self.config['learning_rate'])
         
-        # 训练循环
+        # Learning rate scheduler
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.5)
+        
+        # Training loop
         best_emotion_acc = 0
         for epoch in range(epochs):
             train_ctc_loss, train_emotion_loss, train_tone_loss = self.train_epoch(train_loader, optimizer)
@@ -489,33 +426,86 @@ def full_training(self, data_dir, epochs=10):
             
             logger.info(
                 f"Epoch {epoch+1}/{epochs} | "
-                f"训练CTC损失: {train_ctc_loss:.4f} | 训练情感损失: {train_emotion_loss:.4f} | 训练音调损失: {train_tone_loss:.4f} | "
-                f"测试CTC损失: {test_ctc_loss:.4f} | 测试情感损失: {test_emotion_loss:.4f} | 测试音调损失: {test_tone_loss:.4f} | "
-                f"情感准确率: {test_emotion_acc:.4f} | "
                 f"Train CTC Loss: {train_ctc_loss:.4f} | Train Emotion Loss: {train_emotion_loss:.4f} | Train Tone Loss: {train_tone_loss:.4f} | "
                 f"Test CTC Loss: {test_ctc_loss:.4f} | Test Emotion Loss: {test_emotion_loss:.4f} | Test Tone Loss: {test_tone_loss:.4f} | "
                 f"Emotion Accuracy: {test_emotion_acc:.4f}"
             )
             
-            # 保存最佳模型
+            # Step the scheduler based on emotion loss
+            scheduler.step(test_emotion_loss)
+            
+            # Save best model
             if test_emotion_acc > best_emotion_acc:
                 best_emotion_acc = test_emotion_acc
                 self.save_model(self.config['model_save_path'])
+                logger.info(f"New best model saved with emotion accuracy: {best_emotion_acc:.4f}")
         
-        logger.info("音频模型训练完成 | Audio model training completed")
+        logger.info("Audio model training completed")
+    
+    def _create_synthetic_data(self, data_dir):
+        """Create synthetic training data when real data is not available"""
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # Create synthetic audio data with emotion labels
+        emotions = ['happy', 'sad', 'angry', 'surprised', 'fear', 'neutral', 'excited', 'calm']
+        audio_types = ['speech', 'music', 'noise', 'tone', 'effects']
+        
+        # Create dummy audio files directory
+        audio_dir = os.path.join(data_dir, 'audio_files')
+        os.makedirs(audio_dir, exist_ok=True)
+        
+        # Generate synthetic data for each audio type
+        for audio_type in audio_types:
+            synthetic_data = []
+            for i in range(30):  # Generate 30 samples per type
+                # Create a dummy audio file
+                dummy_audio_path = os.path.join(audio_dir, f'dummy_{audio_type}_{i}.wav')
+                if not os.path.exists(dummy_audio_path):
+                    # Create a dummy audio using numpy and soundfile
+                    if audio_type == 'speech':
+                        # Generate speech-like noise
+                        audio = np.random.normal(0, 0.01, 16000 * 3).astype(np.float32)  # 3 seconds
+                    elif audio_type == 'music':
+                        # Generate music-like noise
+                        t = np.linspace(0, 3, 16000 * 3)
+                        audio = np.sin(2 * np.pi * 440 * t + 0.5 * np.sin(2 * np.pi * 2 * t)).astype(np.float32) * 0.1
+                    else:
+                        # Generate random noise for other types
+                        audio = np.random.normal(0, 0.02, 16000 * 3).astype(np.float32)
+                    
+                    sf.write(dummy_audio_path, audio, 16000)
+                
+                # Add to dataset
+                synthetic_data.append({
+                    'audio_path': dummy_audio_path,
+                    'transcript': f"This is a dummy {audio_type} sample number {i}",
+                    'emotion': emotions[i % len(emotions)],
+                    'audio_type': audio_type,
+                    'tone_features': [0.5 + 0.3 * np.random.rand(), 0.5 + 0.3 * np.random.rand(), 0.5 + 0.3 * np.random.rand()],
+                    'music_genre': 'unknown',
+                    'noise_type': 'none',
+                    'timestamp': datetime.now().isoformat()
+                })
+            
+            # Save synthetic data to JSON file
+            output_file = os.path.join(data_dir, f'audio_{audio_type}.json')
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(synthetic_data, f, indent=2)
+            
+            logger.info(f"Created synthetic {audio_type} data: {len(synthetic_data)} samples")
 
-# 配置示例 | Example configuration
+# Example configuration
 if __name__ == "__main__":
     config = {
-        'batch_size': 2,  # 音频处理需要较小批次
+        'batch_size': 2,  # Smaller batch size for audio processing
         'learning_rate': 3e-5,
         'model_save_path': 'models/audio_model.pth'
     }
     
-    # 音频数据目录
+    # Audio data directory
     audio_data_dir = 'data/audio/'
     
-    # 创建数据目录（如果不存在）
+    # Create data directory if it doesn't exist
     os.makedirs(audio_data_dir, exist_ok=True)
     
     trainer = AudioModelTrainer(config)

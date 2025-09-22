@@ -596,9 +596,9 @@ export default {
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process user input');
-        // Provide meaningful mock response when there's an error
-        this.addSystemMessage('Falling back to mock response due to connection issues');
-        return this.getEnhancedMockResponse(input, type);
+        // Show error message without falling back to mock response
+        this.addSystemMessage('Failed to process your request. Please check your connection and try again.');
+        throw error;
       }
     },
     

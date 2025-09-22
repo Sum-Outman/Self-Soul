@@ -46,7 +46,7 @@ class MetaLearningSystem:
     使系统能够学习如何学习，优化学习策略，并适应新任务
     """
     
-    def __init__(self):
+    def __init__(self, from_scratch: bool = False):
         self.learning_history: List[LearningEpisode] = []
         self.meta_state = MetaLearningState(
             current_strategy="default",
@@ -75,8 +75,14 @@ class MetaLearningSystem:
             "recent_improvement": 0.0
         }
         
-        # 加载历史数据（如果存在）
-        self._load_learning_history()
+        # 记录是否从零开始训练
+        self.from_scratch = from_scratch
+        
+        # 根据是否从零开始训练决定是否加载历史数据
+        if not from_scratch:
+            self._load_learning_history()
+        else:
+            logger.info("从零开始训练模式 - 不加载元学习历史数据")
     
     def _load_learning_history(self):
         """加载学习历史数据"""

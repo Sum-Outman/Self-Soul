@@ -101,7 +101,7 @@ class AGIKnowledgeIntegrator:
     集成神经网络知识编码、动态知识图谱和多源知识融合
     """
     
-    def __init__(self, knowledge_base_path: str = "data/agi_knowledge"):
+    def __init__(self, knowledge_base_path: str = "data/agi_knowledge", from_scratch: bool = False):
         self.knowledge_base_path = Path(knowledge_base_path)
         self.knowledge_base_path.mkdir(parents=True, exist_ok=True)
         
@@ -132,8 +132,14 @@ class AGIKnowledgeIntegrator:
             "cache_hits": 0
         }
         
-        # 加载现有知识
-        self._load_knowledge_base()
+        # 记录是否从零开始训练
+        self.from_scratch = from_scratch
+        
+        # 根据是否从零开始训练决定是否加载现有知识
+        if not from_scratch:
+            self._load_knowledge_base()
+        else:
+            logger.info("从零开始训练模式 - 不加载现有知识库")
         
         logger.info("AGI知识整合器初始化完成")
     

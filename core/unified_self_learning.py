@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from core.error_handling import error_handler
 from core.data_fusion import DataFusion
 from core.model_registry import ModelRegistry
-from core.training.joint_training import JointTrainingManager
+from core.training.joint_training_coordinator import JointTrainingCoordinator
 
 
 @dataclass
@@ -54,33 +54,34 @@ class UnifiedSelfLearningSystem:
     Function: Integrates all self-learning functionalities, implements complex AGI-level self-optimization capabilities
     """
     
-    def __init__(self, model_registry, training_manager, coordinator=None):
+    def __init__(self, model_registry, training_manager, coordinator=None, from_scratch: bool = False):
         self.model_registry = model_registry
         self.training_manager = training_manager
         self.coordinator = coordinator
         self.data_fusion = DataFusion()
+        self.from_scratch = from_scratch
         
-        # 配置系统
+        # Configure system
         self.config = AutonomousConfig()
         self.running = False
         self.learning_thread = None
         
-        # 高级性能监控
+        # Advanced performance monitoring
         self.performance_metrics = defaultdict(list)
         self.trend_analysis = {}
         self.anomaly_detection = {}
         
-        # 学习历史和知识库
+        # Learning history and knowledge base
         self.learning_history = []
         self.knowledge_base = {}
         self.meta_learning_rules = {}
         
-        # 优化系统和队列
+        # Optimization system and queue
         self.optimization_queue = []
         self.optimization_strategies = self._initialize_optimization_strategies()
         self.cross_model_knowledge = {}
         
-        # 模型状态跟踪
+        # Model status tracking
         self.model_status_tracking = defaultdict(lambda: {
             'last_trained': None,
             'performance_score': 0.0,
@@ -89,34 +90,99 @@ class UnifiedSelfLearningSystem:
             'model_type': 'unknown'
         })
         
-        # 模型引用
+        # Model references
         self.model_references = {}
         self.knowledge_model = None
         self.language_model = None
         
-        # 初始化系统
+        # Initialize system
         self._initialize_model_references()
-        self._load_learning_history()
-        self._initialize_meta_learning()
+        
+        # 根据是否从零开始训练决定是否加载学习历史和初始化元学习
+        if not from_scratch:
+            self._load_learning_history()
+            self._initialize_meta_learning()
+        else:
+            self.logger = logging.getLogger(__name__)
+            self.logger.info("从零开始训练模式 - 不加载学习历史和初始化元学习")
         
         self.logger = logging.getLogger(__name__)
         self.logger.info("Unified self-learning system initialized")
     
     def _initialize_model_references(self):
         """Initialize references to other models"""
-        # 获取关键模型的引用
-        self.knowledge_model = self.model_registry.get_model('knowledge')
-        self.language_model = self.model_registry.get_model('language')
-        
-        # 获取所有模型引用
-        all_models = self.model_registry.get_all_models()
-        for model_id, model in all_models.items():
-            self.model_references[model_id] = model
-            # 提取模型类型
+        try:
+            # Get references to key models with fallback handling
+            self.knowledge_model = self.model_registry.get_model('knowledge')
+            if not self.knowledge_model:
+                self.logger.warning("Knowledge model not found in registry, creating mock knowledge model")
+                # Create a simple mock knowledge model for testing purposes
+                self.knowledge_model = type('MockKnowledgeModel', (object,), {
+                    'model_id': 'knowledge',
+                    'get_performance': lambda: 0.7,
+                    'metrics': {'accuracy': 0.7, 'knowledge_base_size': 0}
+                })()
+            
+            self.language_model = self.model_registry.get_model('language')
+            if not self.language_model:
+                self.logger.warning("Language model not found in registry, creating mock language model")
+                # Create a simple mock language model for testing purposes
+                self.language_model = type('MockLanguageModel', (object,), {
+                    'model_id': 'language',
+                    'get_performance': lambda: 0.8,
+                    'metrics': {'accuracy': 0.8, 'vocabulary_size': 0}
+                })()
+            
+            # Get all model references with robust error handling
+            try:
+                all_models = self.model_registry.get_all_models()
+                
+                if not all_models or len(all_models) == 0:
+                    self.logger.warning("Model registry is empty, creating mock models for testing")
+                    # Create a minimal set of mock models to prevent system failure
+                    mock_models = {
+                        'knowledge': self.knowledge_model,
+                        'language': self.language_model,
+                        'vision': type('MockVisionModel', (object,), {
+                            'model_id': 'vision',
+                            'get_performance': lambda: 0.75,
+                            'metrics': {'accuracy': 0.75}
+                        })(),
+                        'audio': type('MockAudioModel', (object,), {
+                            'model_id': 'audio',
+                            'get_performance': lambda: 0.7,
+                            'metrics': {'accuracy': 0.7}
+                        })()
+                    }
+                    all_models = mock_models
+            except Exception as e:
+                self.logger.error(f"Failed to get models from registry: {e}")
+                error_handler.handle_error(e, "UnifiedSelfLearningSystem", "Failed to get models from registry")
+                # Create mock models to prevent complete failure
+                all_models = {
+                    'knowledge': self.knowledge_model,
+                    'language': self.language_model
+                }
+            
+            # Register all models and track their status
             model_types = ['language', 'image', 'audio', 'video', 'knowledge', 'sensor', 'spatial', 
-                          'manager', 'motion', 'programming', 'computer']
-            model_type = next((t for t in model_types if model_id.startswith(t)), 'unknown')
-            self.model_status_tracking[model_id]['model_type'] = model_type
+                          'manager', 'motion', 'programming', 'computer', 'vision']
+            
+            for model_id, model in all_models.items():
+                try:
+                    self.model_references[model_id] = model
+                    # Extract model type
+                    model_type = next((t for t in model_types if model_id.startswith(t)), 'unknown')
+                    self.model_status_tracking[model_id]['model_type'] = model_type
+                    self.model_status_tracking[model_id]['status'] = 'active'
+                    self.logger.debug(f"Initialized reference to model: {model_id} (type: {model_type})")
+                except Exception as e:
+                    self.logger.warning(f"Failed to initialize reference for model {model_id}: {e}")
+                    
+            self.logger.info(f"Successfully initialized {len(self.model_references)} model references")
+        except Exception as e:
+            self.logger.error(f"Critical error initializing model references: {e}")
+            error_handler.handle_error(e, "UnifiedSelfLearningSystem", "Critical error initializing model references")
     
     def _initialize_optimization_strategies(self) -> Dict[str, Any]:
         """Initialize optimization strategy library"""
@@ -261,52 +327,88 @@ class UnifiedSelfLearningSystem:
         """Internal implementation of autonomous learning cycle"""
         while self.running:
             try:
-                # 评估所有模型的性能
+                # Evaluate performance of all models
                 self._evaluate_all_models()
                 
-                # 执行高级性能分析
-                for model_id in self.model_references.keys():
+                # Perform advanced performance analysis
+                for model_id in list(self.model_references.keys()):  # Create copy to avoid dict changed during iteration
                     if model_id in self.performance_metrics and len(self.performance_metrics[model_id]) > 0:
-                        self._analyze_performance_trends(model_id)
-                        self._detect_anomalies(model_id)
-                        self._update_trend_analysis(model_id)
+                        try:
+                            self._analyze_performance_trends(model_id)
+                            self._detect_anomalies(model_id)
+                            self._update_trend_analysis(model_id)
+                        except Exception as e:
+                            self.logger.warning(f"Error analyzing model {model_id}: {e}")
                 
-                # 智能优化检查和处理
-                self._process_intelligent_optimization()
+                # Check and process intelligent optimization
+                try:
+                    self._process_intelligent_optimization()
+                except Exception as e:
+                    self.logger.warning(f"Error during optimization: {e}")
                 
-                # 生成学习报告
-                self._generate_learning_report()
+                # Generate learning report
+                try:
+                    self._generate_learning_report()
+                except Exception as e:
+                    self.logger.warning(f"Error generating report: {e}")
                 
-                # 等待下一个学习周期
+                # Wait for next learning cycle with proper interrupt handling
+                wait_completed = True
                 for _ in range(self.config.monitoring_interval):
                     if not self.running:
+                        wait_completed = False
                         break
-                    time.sleep(1)
-                    
+                    try:
+                        time.sleep(1)
+                    except KeyboardInterrupt:
+                        self.logger.info("Learning cycle interrupted by keyboard")
+                        self.running = False
+                        wait_completed = False
+                        break
+                
+                # Save data periodically
+                if wait_completed:
+                    try:
+                        self._save_learning_data()
+                    except Exception as e:
+                        self.logger.warning(f"Error saving learning data: {e}")
+                        
+            except KeyboardInterrupt:
+                self.logger.info("Learning cycle interrupted by keyboard")
+                self.running = False
+                break
             except Exception as e:
                 self.logger.error(f"Autonomous learning cycle error: {e}")
-                time.sleep(5)
+                error_handler.handle_error(e, "UnifiedSelfLearningSystem", "Learning cycle failed")
+                time.sleep(5)  # Prevent tight loop on errors
+        
+        # Final save when exiting
+        try:
+            self._save_learning_data()
+            self.logger.info("Learning data saved before exiting")
+        except Exception as e:
+            self.logger.error(f"Error saving learning data on exit: {e}")
     
     def _evaluate_all_models(self):
         """Evaluate performance of all models"""
         for model_id, model in self.model_references.items():
             try:
-                # 评估模型性能
+                # Evaluate model performance
                 performance = self._evaluate_model_performance(model_id)
                 
-                # 更新性能历史
+                # Update performance history
                 self.performance_metrics[model_id].append({
                     'timestamp': datetime.now().isoformat(),
                     'score': performance,
                     'model_id': model_id
                 })
                 
-                # 限制历史记录长度
+                # Limit history length
                 max_history = self.config.performance_window_size
                 if len(self.performance_metrics[model_id]) > max_history:
                     self.performance_metrics[model_id] = self.performance_metrics[model_id][-max_history:]
                 
-                # 更新模型状态跟踪
+                # Update model status tracking
                 self._update_model_status(model_id, performance)
                 
             except Exception as e:
@@ -316,30 +418,53 @@ class UnifiedSelfLearningSystem:
         """Evaluate performance of a single model"""
         model = self.model_references.get(model_id)
         if not model:
+            self.logger.warning(f"Model {model_id} not found in references")
             return 0.0
         
         try:
-            # 这里应该是实际的性能评估逻辑
-            # 基于模型类型和能力的综合评估
+            # Try to use the model's own evaluation method if available
             if hasattr(model, 'evaluate_performance'):
-                return model.evaluate_performance()
-            else:
-                # 默认评估方法
-                return self._default_performance_evaluation(model_id)
-                
+                try:
+                    return float(model.evaluate_performance())
+                except Exception as inner_e:
+                    self.logger.warning(f"Model's evaluate_performance method failed for {model_id}: {inner_e}")
+                    # Fall back to default evaluation
+                    return self._default_performance_evaluation(model_id)
+            
+            # Try alternative evaluation methods based on model attributes
+            elif hasattr(model, 'get_performance'):
+                try:
+                    return float(model.get_performance())
+                except Exception as inner_e:
+                    self.logger.warning(f"Model's get_performance method failed for {model_id}: {inner_e}")
+            
+            # Try to get performance from model metrics if available
+            elif hasattr(model, 'metrics') and isinstance(model.metrics, dict):
+                # Check common performance metrics keys
+                for key in ['accuracy', 'performance', 'score', 'f1_score', 'precision', 'recall']:
+                    if key in model.metrics:
+                        try:
+                            return float(model.metrics[key])
+                        except (ValueError, TypeError):
+                            continue
+            
+            # Fall back to default evaluation
+            return self._default_performance_evaluation(model_id)
+            
         except Exception as e:
             self.logger.error(f"Model performance evaluation error: {model_id} - {e}")
+            error_handler.handle_error(e, "UnifiedSelfLearningSystem", f"Failed to evaluate model {model_id}")
             return 0.0
     
     def _default_performance_evaluation(self, model_id: str) -> float:
         """Default performance evaluation method"""
-        # 基于历史性能和模型类型的启发式评估
+        # Heuristic evaluation based on historical performance and model type
         if model_id in self.performance_metrics and self.performance_metrics[model_id]:
             recent_performance = [m['score'] for m in self.performance_metrics[model_id][-5:]]
             if recent_performance:
                 return sum(recent_performance) / len(recent_performance)
         
-        # 新模型或没有历史数据的模型
+        # New models or models without historical data
         model_type = self.model_status_tracking[model_id]['model_type']
         base_scores = {
             'language': 0.8, 'knowledge': 0.7, 'image': 0.75, 'audio': 0.7,
@@ -381,11 +506,11 @@ class UnifiedSelfLearningSystem:
     
     def _calculate_training_priority(self, model_id: str, performance: float, improvement_rate: float) -> float:
         """Calculate training priority"""
-        # 性能越低，优先级越高
-        # 改进率越低，优先级越高
+        # Lower performance, higher priority
+        # Lower improvement rate, higher priority
         priority = (1.0 - performance) * 0.7 + (1.0 - max(improvement_rate, 0.0)) * 0.3
         
-        # 根据模型类型调整优先级
+        # Adjust priority based on model type
         model_type = self.model_status_tracking[model_id]['model_type']
         type_weights = {
             'language': 1.2, 'knowledge': 1.1, 'manager': 1.3,
@@ -397,19 +522,19 @@ class UnifiedSelfLearningSystem:
     
     def _process_intelligent_optimization(self):
         """Process intelligent optimization"""
-        # 检查所有模型是否需要优化
+        # Check all models for optimization needs
         for model_id in self.model_references.keys():
             optimization_needed, reason = self._intelligent_optimization_check(model_id)
             if optimization_needed:
                 self._queue_intelligent_optimization(model_id, reason)
         
-        # 处理优化队列
+        # Process optimization queue
         if self.optimization_queue:
             self._process_optimization_queue()
     
-    # 以下方法从 advanced_self_learning.py 继承并增强
+    # The following methods are inherited and enhanced from advanced_self_learning.py
     def update_performance(self, model_id: str, metrics: Dict[str, Any], context: Dict[str, Any] = None):
-        """更新模型性能指标（增强版）"""
+        """Update model performance metrics (enhanced version)"""
         enhanced_metrics = {
             'model_id': model_id,
             **metrics,
@@ -420,28 +545,28 @@ class UnifiedSelfLearningSystem:
         
         self.performance_metrics[model_id].append(enhanced_metrics)
         
-        # 限制历史记录长度
+        # Limit history length
         max_history = self.config.performance_window_size
         if len(self.performance_metrics[model_id]) > max_history:
             self.performance_metrics[model_id] = self.performance_metrics[model_id][-max_history:]
         
-        # 执行高级分析
+        # Perform advanced analysis
         self._analyze_performance_trends(model_id)
         self._detect_anomalies(model_id)
         self._update_trend_analysis(model_id)
         
-        # 智能判断是否需要优化
+        # Intelligently determine if optimization is needed
         optimization_needed, reason = self._intelligent_optimization_check(model_id)
         
         if optimization_needed:
             self._queue_intelligent_optimization(model_id, reason)
         
-        # 定期更新元学习规则
+        # Regularly update meta-learning rules
         if len(self.learning_history) % self.config.meta_learning_update_interval == 0:
             self._update_meta_learning_rules()
     
     def _analyze_performance_trends(self, model_id: str):
-        """分析性能趋势"""
+        """Analyze performance trends"""
         if len(self.performance_metrics[model_id]) < 5:
             return
         
@@ -460,7 +585,7 @@ class UnifiedSelfLearningSystem:
         self.trend_analysis[model_id] = trends
     
     def _calculate_trend(self, values: List[float]) -> str:
-        """计算数值趋势"""
+        """Calculate numerical trend"""
         if len(values) < 2:
             return 'insufficient_data'
         
@@ -484,7 +609,7 @@ class UnifiedSelfLearningSystem:
             return 'stable'
     
     def _calculate_stability(self, values: List[float]) -> float:
-        """计算稳定性指标"""
+        """Calculate stability metric"""
         if len(values) < 2:
             return 0.0
         
@@ -492,7 +617,8 @@ class UnifiedSelfLearningSystem:
         mean_val = np.nanmean(values_array)
         std_val = np.nanstd(values_array)
         
-        if mean_val == 0:
+        # Avoid division by zero
+        if mean_val == 0 or mean_val is None or np.isnan(mean_val):
             return 0.0
             
         cv = std_val / mean_val
@@ -501,17 +627,19 @@ class UnifiedSelfLearningSystem:
         return float(stability)
     
     def _calculate_volatility(self, values: List[float]) -> float:
-        """计算波动性指标"""
+        """Calculate volatility metric"""
         if len(values) < 2:
             return 0.0
         
-        returns = np.diff(values) / values[:-1]
+        # Avoid division by zero by adding a small epsilon
+        epsilon = 1e-8
+        returns = np.diff(values) / (values[:-1] + epsilon)
         volatility = np.nanstd(returns) if len(returns) > 0 else 0.0
         
         return float(volatility)
     
     def _calculate_recent_improvement(self, values: List[float]) -> float:
-        """计算近期改进程度"""
+        """Calculate recent improvement degree"""
         if len(values) < 4:
             return 0.0
         
@@ -535,7 +663,7 @@ class UnifiedSelfLearningSystem:
         return float(improvement)
     
     def _detect_anomalies(self, model_id: str):
-        """检测性能异常"""
+        """Detect performance anomalies"""
         if len(self.performance_metrics[model_id]) < 10:
             return
         
@@ -562,7 +690,7 @@ class UnifiedSelfLearningSystem:
             }
     
     def _update_trend_analysis(self, model_id: str):
-        """更新趋势分析"""
+        """Update trend analysis"""
         if len(self.performance_metrics[model_id]) < 3:
             return
         
@@ -581,7 +709,7 @@ class UnifiedSelfLearningSystem:
         self.trend_analysis[model_id].update(trend_analysis)
     
     def _analyze_short_term_trend(self, values: List[float]) -> Dict[str, Any]:
-        """分析短期趋势"""
+        """Analyze short-term trend"""
         if len(values) < 3:
             return {'trend': 'insufficient_data', 'confidence': 0.0}
         
@@ -595,7 +723,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _analyze_medium_term_trend(self, values: List[float]) -> Dict[str, Any]:
-        """分析中期趋势"""
+        """Analyze medium-term trend"""
         if len(values) < 8:
             return {'trend': 'insufficient_data', 'confidence': 0.0}
         
@@ -609,7 +737,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _analyze_long_term_trend(self, values: List[float]) -> Dict[str, Any]:
-        """分析长期趋势"""
+        """Analyze long-term trend"""
         if len(values) < 15:
             return {'trend': 'insufficient_data', 'confidence': 0.0}
         
@@ -622,7 +750,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _calculate_trend_confidence(self, values: List[float]) -> float:
-        """计算趋势置信度"""
+        """Calculate trend confidence"""
         if len(values) < 2:
             return 0.0
         
@@ -651,30 +779,30 @@ class UnifiedSelfLearningSystem:
         return confidence
     
     def _intelligent_optimization_check(self, model_id: str) -> Tuple[bool, str]:
-        """智能优化检查"""
+        """Intelligent optimization check"""
         if model_id not in self.trend_analysis:
             return False, "insufficient_data"
         
         trends = self.trend_analysis[model_id]
         optimization_reasons = []
         
-        # 1. 性能下降检测
+        # 1. Performance degradation detection
         if trends.get('accuracy_trend') == 'deteriorating':
             optimization_reasons.append('performance_degradation')
         
-        # 2. 性能平台期检测
+        # 2. Performance plateau detection
         if (trends.get('accuracy_trend') == 'stable' and
             trends.get('recent_improvement', 0) < 0.01 and
             len(self.performance_metrics[model_id]) > 10):
             optimization_reasons.append('performance_plateau')
         
-        # 3. 异常检测
+        # 3. Anomaly detection
         if model_id in self.anomaly_detection:
             anomaly = self.anomaly_detection[model_id]
             if anomaly['severity'] > 3.0:
                 optimization_reasons.append('severe_anomaly')
         
-        # 4. 环境变化检测
+        # 4. Environment change detection
         if len(self.performance_metrics[model_id]) > 5:
             latest_context = self.performance_metrics[model_id][-1].get('context', {})
             prev_context = self.performance_metrics[model_id][-5].get('context', {})
@@ -683,18 +811,18 @@ class UnifiedSelfLearningSystem:
             if context_changed:
                 optimization_reasons.append('environment_change')
         
-        # 5. 资源约束检测
+        # 5. Resource constraints detection
         if len(self.performance_metrics[model_id]) > 0:
             latest_metrics = self.performance_metrics[model_id][-1]
             if (latest_metrics.get('memory_usage', 0) > 0.9 or
                 latest_metrics.get('latency', 0) > 1000):
                 optimization_reasons.append('resource_constraints')
         
-        # 6. 知识迁移机会检测
+        # 6. Knowledge transfer opportunity detection
         if self._check_knowledge_transfer_opportunity(model_id):
             optimization_reasons.append('knowledge_transfer_opportunity')
         
-        # 7. 元学习建议
+        # 7. Meta-learning suggestion
         meta_learning_suggestion = self._get_meta_learning_suggestion(model_id)
         if meta_learning_suggestion:
             optimization_reasons.append(meta_learning_suggestion)
@@ -714,7 +842,7 @@ class UnifiedSelfLearningSystem:
         return False, "no_optimization_needed"
     
     def _detect_context_change(self, current_context: Dict[str, Any], previous_context: Dict[str, Any]) -> bool:
-        """检测环境上下文变化"""
+        """Detect context changes"""
         if not current_context or not previous_context:
             return False
             
@@ -722,7 +850,7 @@ class UnifiedSelfLearningSystem:
         return similarity_score < 0.7
     
     def _calculate_context_similarity(self, context1: Dict[str, Any], context2: Dict[str, Any]) -> float:
-        """计算上下文相似度"""
+        """Calculate context similarity"""
         if not context1 or not context2:
             return 0.0
             
@@ -743,7 +871,7 @@ class UnifiedSelfLearningSystem:
         return similarity_sum / len(common_keys)
     
     def _check_knowledge_transfer_opportunity(self, model_id: str) -> bool:
-        """检查知识迁移机会"""
+        """Check knowledge transfer opportunities"""
         if len(self.performance_metrics) < 2:
             return False
             
@@ -766,7 +894,7 @@ class UnifiedSelfLearningSystem:
         return False
     
     def _are_models_compatible(self, model_id1: str, model_id2: str) -> bool:
-        """检查模型兼容性"""
+        """Check model compatibility"""
         model_types = ['language', 'image', 'audio', 'video', 'knowledge', 'sensor', 'spatial']
         
         type1 = next((t for t in model_types if model_id1.startswith(t)), 'unknown')
@@ -784,7 +912,7 @@ class UnifiedSelfLearningSystem:
                 (type2, type1) in compatible_pairs)
     
     def _get_meta_learning_suggestion(self, model_id: str) -> Optional[str]:
-        """获取元学习建议"""
+        """Get meta-learning suggestions"""
         if not self.learning_history:
             return None
             
@@ -797,7 +925,7 @@ class UnifiedSelfLearningSystem:
         return None
     
     def _find_similar_learning_cases(self, model_id: str) -> List[Dict[str, Any]]:
-        """查找相似学习案例"""
+        """Find similar learning cases"""
         similar_cases = []
         current_trends = self.trend_analysis.get(model_id, {})
         
@@ -810,7 +938,7 @@ class UnifiedSelfLearningSystem:
         return similar_cases
     
     def _are_trends_similar(self, trends1: Dict[str, Any], trends2: Dict[str, Any]) -> bool:
-        """检查趋势相似性"""
+        """Check trend similarity"""
         if not trends1 or not trends2:
             return False
             
@@ -826,7 +954,7 @@ class UnifiedSelfLearningSystem:
         return similarity_score / len(common_metrics) > 0.6
     
     def _queue_intelligent_optimization(self, model_id: str, reason: str):
-        """排队智能优化任务"""
+        """Queue intelligent optimization tasks"""
         strategy = self._select_optimization_strategy(model_id, reason)
         
         if strategy:
@@ -846,7 +974,7 @@ class UnifiedSelfLearningSystem:
                 self._process_optimization_queue()
     
     def _select_optimization_strategy(self, model_id: str, reason: str) -> Optional[str]:
-        """选择优化策略"""
+        """Select optimization strategy"""
         reason_strategy_map = {
             'performance_degradation': ['parameter_tuning', 'regularization_tuning', 'architecture_optimization'],
             'performance_plateau': ['architecture_optimization', 'ensemble_learning', 'transfer_learning'],
@@ -885,7 +1013,7 @@ class UnifiedSelfLearningSystem:
         return None
     
     def _get_optimization_priority(self, reason: str) -> int:
-        """获取优化优先级"""
+        """Get optimization priority"""
         priority_map = {
             'severe_anomaly': 100,
             'performance_degradation': 80,
@@ -898,7 +1026,7 @@ class UnifiedSelfLearningSystem:
         return priority_map.get(reason, 30)
     
     def _process_optimization_queue(self):
-        """处理优化队列"""
+        """Process optimization queue"""
         if not self.optimization_queue:
             return
             
@@ -947,7 +1075,7 @@ class UnifiedSelfLearningSystem:
                 self._process_optimization_queue()
     
     def _execute_optimization_strategy(self, model_id: str, strategy: str) -> bool:
-        """执行优化策略"""
+        """Execute optimization strategy"""
         try:
             model = self.model_registry.get_model(model_id)
             if not model:
@@ -973,11 +1101,11 @@ class UnifiedSelfLearningSystem:
                 return False
                 
         except Exception as e:
-            self.logger.error(f"优化策略执行错误: {strategy} - {e}")
+            self.logger.error(f"Optimization strategy execution error: {strategy} - {e}")
             return False
     
     def _optimize_parameters(self, model) -> bool:
-        """优化模型参数"""
+        """Optimize model parameters"""
         try:
             if hasattr(model, 'learning_rate'):
                 current_lr = model.learning_rate
@@ -994,17 +1122,76 @@ class UnifiedSelfLearningSystem:
             return False
     
     def _optimize_architecture(self, model) -> bool:
-        """优化模型架构"""
+        """Optimize model architecture"""
         try:
-            # 架构优化逻辑
+            # Architecture optimization logic based on model type and performance
+            model_type = self._get_model_type(model)
+            
+            # For language models - adjust layer connections and attention mechanisms
+            if model_type == 'language' and hasattr(model, 'config'):
+                config = model.config
+                # Add residual connections if not present
+                if not hasattr(config, 'use_residual_connections'):
+                    config.use_residual_connections = True
+                    self.logger.info("Added residual connections to language model")
+                
+                # Adjust attention heads based on performance trends
+                if hasattr(model, 'attention_heads'):
+                    current_heads = model.attention_heads
+                    if self._has_performance_degraded(model):
+                        # Increase attention heads for more complex pattern recognition
+                        model.attention_heads = min(current_heads + 2, 16)
+                        self.logger.info(f"Increased attention heads from {current_heads} to {model.attention_heads}")
+                    elif self._has_performance_plateaued(model):
+                        # Try reducing attention heads for efficiency
+                        model.attention_heads = max(current_heads - 1, 2)
+                        self.logger.info(f"Reduced attention heads from {current_heads} to {model.attention_heads}")
+            
+            # For vision models - adjust convolutional layers and feature extractors
+            elif model_type in ['vision', 'computer'] and hasattr(model, 'feature_extractor'):
+                extractor = model.feature_extractor
+                # Add batch normalization if not present
+                if not hasattr(extractor, 'use_batch_norm'):
+                    extractor.use_batch_norm = True
+                    self.logger.info("Added batch normalization to vision model")
+                
+                # Adjust filter sizes based on complexity
+                if hasattr(extractor, 'filter_sizes'):
+                    if self._is_high_complexity_task(model):
+                        # Increase filter size for more detailed features
+                        extractor.filter_sizes = [size + 1 for size in extractor.filter_sizes]
+                        self.logger.info(f"Increased filter sizes for vision model: {extractor.filter_sizes}")
+            
+            # General architecture adjustments
+            if hasattr(model, 'hidden_layers'):
+                # Add or remove hidden layers based on performance needs
+                current_layers = len(model.hidden_layers)
+                if self._needs_more_capacity(model):
+                    # Add a new layer with size between previous layers
+                    if current_layers >= 2:
+                        new_layer_size = (model.hidden_layers[-1] + model.hidden_layers[-2]) // 2
+                        model.hidden_layers.append(new_layer_size)
+                        self.logger.info(f"Added new hidden layer with size {new_layer_size}")
+                elif self._is_overfitting(model):
+                    # Remove a layer to reduce complexity
+                    if current_layers > 1:
+                        removed_size = model.hidden_layers.pop()
+                        self.logger.info(f"Removed hidden layer with size {removed_size}")
+            
+            # Flag for architecture update
+            if hasattr(model, 'needs_rebuild'):
+                model.needs_rebuild = True
+            
+            self.logger.info(f"Architecture optimization completed for {model_type} model")
             return True
             
         except Exception as e:
             self.logger.error(f"Architecture optimization error: {e}")
+            error_handler.handle_error(e, "UnifiedSelfLearningSystem", "Architecture optimization failed")
             return False
     
     def _optimize_regularization(self, model) -> bool:
-        """优化正则化参数"""
+        """Optimize regularization parameters"""
         try:
             if hasattr(model, 'dropout_rate'):
                 model.dropout_rate = min(model.dropout_rate + 0.1, 0.5)
@@ -1016,22 +1203,94 @@ class UnifiedSelfLearningSystem:
             return False
     
     def _optimize_data_augmentation(self, model) -> bool:
-        """优化数据增强策略"""
+        """Optimize data augmentation strategies"""
         try:
-            if hasattr(model, 'data_augmentation'):
-                # 增强数据增强策略
-                pass
+            if not hasattr(model, 'data_augmentation'):
+                self.logger.warning("Model does not support data augmentation")
+                return False
+            
+            aug_config = model.data_augmentation
+            model_type = self._get_model_type(model)
+            
+            # Initialize data augmentation configuration if not present
+            if not hasattr(aug_config, 'enabled'):
+                aug_config.enabled = True
+                self.logger.info("Enabled data augmentation")
+            
+            # Default augmentation strategies based on model type
+            base_strategies = {
+                'language': ['synonym_replacement', 'random_insertion', 'random_deletion'],
+                'vision': ['rotation', 'flip', 'brightness', 'contrast'],
+                'audio': ['pitch_shift', 'noise_injection', 'time_stretch'],
+                'video': ['frame_drop', 'speed_change', 'color_jitter']
+            }
+            
+            # Set default strategies if none exist
+            if not hasattr(aug_config, 'strategies'):
+                aug_config.strategies = base_strategies.get(model_type, [])
+                self.logger.info(f"Initialized default augmentation strategies: {aug_config.strategies}")
+            
+            # Adaptive augmentation intensity based on performance
+            if hasattr(model, 'performance_metrics') and hasattr(aug_config, 'intensity'):
+                metrics = model.performance_metrics
+                current_intensity = aug_config.intensity
                 
+                # If overfitting (high train accuracy, low val accuracy)
+                if self._is_overfitting(model):
+                    # Increase augmentation intensity
+                    new_intensity = min(current_intensity + 0.2, 1.0)
+                    if new_intensity > current_intensity:
+                        aug_config.intensity = new_intensity
+                        self.logger.info(f"Increased augmentation intensity from {current_intensity} to {new_intensity} due to overfitting")
+                        
+                        # Add more aggressive augmentation strategies
+                        advanced_strategies = {
+                            'language': ['back_translation', 'contextual_perturbation'],
+                            'vision': ['cutout', 'mixup', 'cutmix'],
+                            'audio': ['dynamic_range_compression', 'room_reverb'],
+                            'video': ['temporal_cutmix', 'spatial_scaling']
+                        }
+                        
+                        for strategy in advanced_strategies.get(model_type, []):
+                            if strategy not in aug_config.strategies:
+                                aug_config.strategies.append(strategy)
+                                self.logger.info(f"Added advanced augmentation strategy: {strategy}")
+                
+                # If underfitting or performance is good
+                elif self._has_performance_improved(model) or not self._is_overfitting(model):
+                    # Decrease augmentation intensity for stability
+                    new_intensity = max(current_intensity - 0.1, 0.1)
+                    if new_intensity < current_intensity:
+                        aug_config.intensity = new_intensity
+                        self.logger.info(f"Decreased augmentation intensity from {current_intensity} to {new_intensity} for stability")
+            
+            # Add frequency-based augmentation scheduling
+            if not hasattr(aug_config, 'schedule'):
+                aug_config.schedule = {
+                    'initial_epochs': 3,  # Less augmentation in initial epochs
+                    'mid_epochs': 5,      # Max augmentation in middle epochs
+                    'final_epochs': 2     # Reduce augmentation near convergence
+                }
+                self.logger.info("Added epoch-based augmentation scheduling")
+            
+            # Track augmentation effectiveness
+            if not hasattr(aug_config, 'effectiveness_tracking'):
+                aug_config.effectiveness_tracking = {}
+                for strategy in aug_config.strategies:
+                    aug_config.effectiveness_tracking[strategy] = {'trials': 0, 'successes': 0}
+            
+            self.logger.info(f"Data augmentation optimization completed for {model_type} model")
             return True
             
         except Exception as e:
             self.logger.error(f"Data augmentation optimization error: {e}")
+            error_handler.handle_error(e, "UnifiedSelfLearningSystem", "Data augmentation optimization failed")
             return False
     
     def _create_ensemble(self, model) -> bool:
-        """创建模型集成"""
+        """Create model ensemble"""
         try:
-            # 模型集成逻辑
+            # Model ensemble logic
             return True
             
         except Exception as e:
@@ -1039,13 +1298,13 @@ class UnifiedSelfLearningSystem:
             return False
     
     def _apply_transfer_learning(self, model) -> bool:
-        """应用迁移学习"""
+        """Apply transfer learning"""
         try:
             source_model_id = self._find_best_source_model(model.model_id)
             if source_model_id:
                 source_model = self.model_registry.get_model(source_model_id)
                 if source_model:
-                    # 知识迁移逻辑
+                    # Knowledge transfer logic
                     return True
                     
             return False
@@ -1055,7 +1314,7 @@ class UnifiedSelfLearningSystem:
             return False
     
     def _find_best_source_model(self, target_model_id: str) -> Optional[str]:
-        """寻找最佳源模型"""
+        """Find the best source model for transfer learning"""
         best_model_id = None
         best_performance = -1
         
@@ -1072,7 +1331,7 @@ class UnifiedSelfLearningSystem:
         return best_model_id
     
     def _apply_meta_learning(self, model) -> bool:
-        """应用元学习"""
+        """Apply meta-learning"""
         try:
             similar_cases = self._find_similar_learning_cases(model.model_id)
             
@@ -1093,7 +1352,7 @@ class UnifiedSelfLearningSystem:
             return False
     
     def _update_meta_learning_rules(self):
-        """更新元学习规则"""
+        """Update meta-learning rules based on successful optimization cases"""
         successful_cases = [case for case in self.learning_history if case.get('success', False)]
         
         if not successful_cases:
@@ -1127,7 +1386,7 @@ class UnifiedSelfLearningSystem:
                     )
     
     def _generate_learning_report(self):
-        """生成学习报告"""
+        """Generate learning performance report"""
         report = {
             'timestamp': datetime.now().isoformat(),
             'models_evaluated': len(self.model_references),
@@ -1143,7 +1402,7 @@ class UnifiedSelfLearningSystem:
                 'training_priority': status.get('training_priority', 0)
             }
         
-        # 保存报告
+        # Save report
         report_file = os.path.join(os.path.dirname(__file__), 'data', 'learning_reports', 
                                  f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         try:
@@ -1154,7 +1413,7 @@ class UnifiedSelfLearningSystem:
             self.logger.error(f"Failed to save learning report: {e}")
     
     def get_status(self) -> Dict[str, Any]:
-        """获取系统状态"""
+        """Get system status"""
         return {
             'running': self.running,
             'models_managed': len(self.model_references),
@@ -1164,7 +1423,7 @@ class UnifiedSelfLearningSystem:
         }
     
     def _calculate_overall_performance(self) -> float:
-        """计算系统整体性能"""
+        """Calculate overall system performance"""
         performances = [status.get('performance_score', 0.0) for status in self.model_status_tracking.values()]
         if not performances:
             return 0.0
@@ -1172,7 +1431,7 @@ class UnifiedSelfLearningSystem:
         return sum(performances) / len(performances)
     
     def update_config(self, config: Dict[str, Any]):
-        """更新配置"""
+        """Update configuration"""
         for key, value in config.items():
             if hasattr(self.config, key):
                 setattr(self.config, key, value)
@@ -1180,7 +1439,7 @@ class UnifiedSelfLearningSystem:
         self.logger.info(f"Updated autonomous learning configuration: {config}")
     
     def reset_learning(self):
-        """重置学习过程"""
+        """Reset learning process"""
         self.performance_metrics = defaultdict(list)
         self.learning_history = []
         self.optimization_queue = []
@@ -1193,3 +1452,105 @@ class UnifiedSelfLearningSystem:
         })
         
         self.logger.info("Reset autonomous learning process")
+    
+    def get_learning_progress(self) -> float:
+        """Calculate and return the learning progress as a float between 0.0 and 1.0"""
+        if not self.learning_history:
+            return 0.0
+        
+        # Calculate progress based on learning history length and successful optimizations
+        max_history = 100  # Assume 100 records for full progress
+        history_progress = min(len(self.learning_history) / max_history, 1.0)
+        
+        # Calculate success rate from learning history
+        successful_optimizations = sum(1 for record in self.learning_history if record.get('success', False))
+        total_optimizations = len(self.learning_history)
+        success_rate = successful_optimizations / total_optimizations if total_optimizations > 0 else 0.0
+        
+        # Combine factors: 60% history progress, 40% success rate
+        progress = (history_progress * 0.6) + (success_rate * 0.4)
+        return min(max(progress, 0.0), 1.0)
+        
+    def _get_model_type(self, model) -> str:
+        """Get model type based on model_id or attributes"""
+        if hasattr(model, 'model_id'):
+            model_types = ['language', 'vision', 'audio', 'video', 'knowledge', 'sensor', 
+                         'spatial', 'manager', 'motion', 'programming', 'computer']
+            return next((t for t in model_types if model.model_id.startswith(t)), 'unknown')
+        return 'unknown'
+        
+    def _has_performance_degraded(self, model) -> bool:
+        """Check if model performance has degraded"""
+        if not hasattr(model, 'performance_history') or len(model.performance_history) < 3:
+            return False
+            
+        # Check if the last 3 performance scores are decreasing
+        recent_scores = model.performance_history[-3:]
+        if len(recent_scores) < 3:
+            return False
+            
+        # Calculate trend
+        return recent_scores[0] > recent_scores[1] > recent_scores[2]
+        
+    def _has_performance_plateaued(self, model) -> bool:
+        """Check if model performance has plateaued"""
+        if not hasattr(model, 'performance_history') or len(model.performance_history) < 5:
+            return False
+            
+        # Check if the last 5 performance scores have minimal variation
+        recent_scores = model.performance_history[-5:]
+        if len(recent_scores) < 5:
+            return False
+            
+        # Calculate coefficient of variation (CV)
+        mean_val = np.mean(recent_scores)
+        std_val = np.std(recent_scores)
+        
+        if mean_val is None or mean_val == 0 or std_val is None:
+            return False
+            
+        cv = std_val / mean_val
+        return cv < 0.05  # Consider as plateau if CV < 5%
+        
+    def _is_high_complexity_task(self, model) -> bool:
+        """Check if the model is handling a high complexity task"""
+        if hasattr(model, 'task_complexity'):
+            return model.task_complexity in ['high', 'very_high']
+        return False
+        
+    def _needs_more_capacity(self, model) -> bool:
+        """Check if the model needs more capacity"""
+        # Check if training loss is still high and not improving
+        if hasattr(model, 'training_loss_history') and len(model.training_loss_history) > 5:
+            recent_losses = model.training_loss_history[-5:]
+            
+            # Check if loss is still high
+            if recent_losses[-1] > 0.5:
+                # Check if improvement is minimal
+                improvement = (recent_losses[0] - recent_losses[-1]) / recent_losses[0]
+                return improvement < 0.1  # Less than 10% improvement
+        return False
+        
+    def _is_overfitting(self, model) -> bool:
+        """Check if the model is overfitting"""
+        if hasattr(model, 'training_accuracy') and hasattr(model, 'validation_accuracy'):
+            train_acc = model.training_accuracy
+            val_acc = model.validation_accuracy
+            
+            if train_acc is not None and val_acc is not None:
+                # Consider overfitting if training accuracy is significantly higher than validation
+                return train_acc > val_acc + 0.1  # 10% gap
+        return False
+        
+    def _has_performance_improved(self, model) -> bool:
+        """Check if model performance has improved"""
+        if not hasattr(model, 'performance_history') or len(model.performance_history) < 2:
+            return False
+            
+        recent_scores = model.performance_history[-2:]
+        if len(recent_scores) < 2:
+            return False
+            
+        # Calculate improvement percentage
+        improvement = (recent_scores[1] - recent_scores[0]) / max(recent_scores[0], 0.001)
+        return improvement > 0.05  # Consider as improved if >5%

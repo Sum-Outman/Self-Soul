@@ -238,7 +238,7 @@ class JointTrainingCoordinator:
         # 首先训练知识库模型 | First train the knowledge model
         knowledge_task = next((task for task in self.training_tasks if task.model_id == 'knowledge'), None)
         if knowledge_task:
-            logger.info(_("开始知识辅助训练，首先训练知识库模型 | Starting knowledge-assisted training, first training knowledge model"))
+            logger.info("Starting knowledge-assisted training, first training knowledge model")
             knowledge_result = await self._train_model_with_knowledge(knowledge_task, None)
             results['knowledge'] = knowledge_result
             
@@ -249,7 +249,7 @@ class JointTrainingCoordinator:
                     results[task.model_id] = result
         else:
             # 如果没有知识模型，回退到标准训练 | Fallback to standard training if no knowledge model
-            logger.warning(_("未找到知识库模型，回退到标准联合训练 | Knowledge model not found, falling back to standard joint training"))
+            logger.warning("Knowledge model not found, falling back to standard joint training")
             return await self._standard_joint_training()
         
         return results
@@ -265,7 +265,7 @@ class JointTrainingCoordinator:
         
         # 按优先级顺序训练模型 | Train models in priority order
         for task in self.training_tasks:
-            logger.info(_("渐进式训练: 开始训练模型 {model} | Progressive training: Starting model {model}").format(model=task.model_id))
+            logger.info(f"Progressive training: Starting model {task.model_id}")
             
             result = await self._train_model_progressive(task, previous_results)
             results[task.model_id] = result
@@ -315,7 +315,7 @@ class JointTrainingCoordinator:
         epoch_results = []
         
         try:
-            logger.info(_("开始标准训练模型 {model} | Starting standard training for model {model}").format(model=task.model_id))
+            logger.info(f"Starting standard training for model {task.model_id}")
             
             # 模拟训练过程 | Simulate training process
             for epoch in range(task.epochs):
@@ -374,7 +374,7 @@ class JointTrainingCoordinator:
         epoch_results = []
         
         try:
-            logger.info(_("开始知识辅助训练模型 {model} | Starting knowledge-assisted training for model {model}").format(model=task.model_id))
+            logger.info(f"Starting knowledge-assisted training for model {task.model_id}")
             
             # 如果有知识结果，使用知识增强训练 | If knowledge result exists, use knowledge to enhance training
             knowledge_boost = 1.0
@@ -436,7 +436,7 @@ class JointTrainingCoordinator:
         epoch_results = []
         
         try:
-            logger.info(_("开始渐进式训练模型 {model} | Starting progressive training for model {model}").format(model=task.model_id))
+            logger.info(f"Starting progressive training for model {task.model_id}")
             
             # 根据之前的结果调整训练 | Adjust training based on previous results
             progressive_factor = self._calculate_progressive_factor(previous_results)
@@ -495,7 +495,7 @@ class JointTrainingCoordinator:
         epoch_results = []
         
         try:
-            logger.info(_("开始自适应训练模型 {model} | Starting adaptive training for model {model}").format(model=task.model_id))
+            logger.info(f"Starting adaptive training for model {task.model_id}")
             
             for epoch in range(task.epochs):
                 epoch_start = time.time()
@@ -698,15 +698,15 @@ class JointTrainingCoordinator:
     async def _initialize_queues(self):
         """初始化通信队列（在正确的事件循环中） | Initialize communication queues (in the correct event loop)"""
         try:
-            logger.info(_("初始化通信队列 | Initializing communication queues"))
+            logger.info("Initializing communication queues")
             
             # 为每个模型创建通信队列 | Create communication queue for each model
             for model_id in self.model_ids:
                 self.communication_channels[model_id] = asyncio.Queue()
-                logger.debug(_("为模型 {model} 创建通信队列 | Created communication queue for model {model}").format(model=model_id))
+                logger.debug(f"Created communication queue for model {model_id}")
             
             self._queues_initialized = True
-            logger.info(_("通信队列初始化完成 | Communication queues initialized successfully"))
+            logger.info("Communication queues initialized successfully")
             
         except Exception as e:
             error_handler.handle_error(e, "JointTrainingCoordinator", 
@@ -767,7 +767,7 @@ class JointTrainingCoordinator:
     def cleanup(self):
         """清理资源 | Cleanup resources"""
         self.executor.shutdown(wait=False)
-        logger.info(_("联合训练协调器资源已清理 | Joint training coordinator resources cleaned up"))
+        logger.info("Joint training coordinator resources cleaned up")
 
 
 # 导出类供外部使用 | Export class for external use

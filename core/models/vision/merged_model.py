@@ -13,7 +13,6 @@
 """
 
 """
-统一图片视觉处理模型 - 整合图像识别、编辑、生成和外部API功能
 Unified Vision Processing Model - Integrates image recognition, editing, generation and external API functionality
 """
 
@@ -35,21 +34,19 @@ from typing import Dict, Any, Callable, Optional, Tuple, List
 from ..base_model import BaseModel
 from core.data_processor import preprocess_image
 
-# AGI模块导入
+# AGI module imports
 from core.self_learning import SelfLearningModule
 from core.emotion_awareness import EmotionAwarenessModule
 from core.unified_cognitive_architecture import NeuroSymbolicReasoner
-from core.context_memory_manager import ContextMemoryManager
+from core.context_memory import ContextMemoryManager
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 
 
 """
-UnifiedVisionModel类 - 中文类描述
-UnifiedVisionModel Class - English class description
+UnifiedVisionModel Class
 """
 class UnifiedVisionModel(BaseModel):
-    """统一图片视觉处理模型：实现图像识别、内容修改、清晰度调整、情感生成和外部API集成
-    Unified Vision Processing Model: Implements image recognition, content modification, clarity adjustment, emotion-based generation and external API integration
+    """Unified Vision Processing Model: Implements image recognition, content modification, clarity adjustment, emotion-based generation and external API integration
     """
     
     def __init__(self, config: Dict[str, Any] = None):
@@ -57,12 +54,12 @@ class UnifiedVisionModel(BaseModel):
         self.logger = logging.getLogger(__name__)
         self.model_id = "vision"
         
-        # 图像处理配置 | Image processing configuration
+        # Image processing configuration
         self.supported_formats = ["jpg", "jpeg", "png", "bmp", "gif", "tiff", "webp"]
-        self.max_image_size = (4096, 4096)  # 最大图像尺寸 | Maximum image size
-        self.min_image_size = (64, 64)      # 最小图像尺寸 | Minimum image size
+        self.max_image_size = (4096, 4096)  # Maximum image size
+        self.min_image_size = (64, 64)      # Minimum image size
         
-        # 情感与视觉风格映射 | Emotion to visual style mapping
+        # Emotion to visual style mapping
         self.emotion_to_style = {
             "happy": {"brightness": 1.2, "contrast": 1.1, "saturation": 1.2, "warmth": 1.1},
             "sad": {"brightness": 0.8, "contrast": 0.9, "saturation": 0.7, "warmth": 0.9},
@@ -72,23 +69,23 @@ class UnifiedVisionModel(BaseModel):
             "neutral": {"brightness": 1.0, "contrast": 1.0, "saturation": 1.0, "warmth": 1.0}
         }
         
-        # 外部API配置 | External API configuration
+        # External API configuration
         self.external_apis = {
             "google_vision": None,
             "aws_rekognition": None,
             "azure_vision": None
         }
         
-        # 模型选择配置 | Model selection configuration
+        # Model selection configuration
         self.use_external_api = config.get("use_external_api", False) if config else False
         self.external_api_type = config.get("external_api_type", "google_vision") if config else "google_vision"
         
-        # 深度学习模型组件 | Deep learning model components
+        # Deep learning model components
         self.classification_model = None
         self.detection_model = None
         self.imagenet_labels = None
         
-        # 图像识别模型 | Image recognition models
+        # Image recognition models
         self.recognition_models = {
             "object": self._load_object_recognition(),
             "scene": self._load_scene_recognition(),
@@ -96,7 +93,7 @@ class UnifiedVisionModel(BaseModel):
             "text": self._load_text_recognition()
         }
         
-        # 图像生成模型 | Image generation models
+        # Image generation models
         self.generation_models = {
             "neutral": self._load_neutral_generation(),
             "happy": self._load_happy_generation(),
@@ -104,7 +101,7 @@ class UnifiedVisionModel(BaseModel):
             "angry": self._load_angry_generation()
         }
         
-        # 实时处理状态 | Real-time processing status
+        # Real-time processing status
         self.is_streaming_active = False
         self.stream_quality_metrics = {
             "frame_rate": 0,
@@ -112,58 +109,58 @@ class UnifiedVisionModel(BaseModel):
             "recognition_accuracy": 0
         }
         
-        # 图像处理转换 | Image processing transforms
+        # Image processing transforms
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         
-        self.logger.info("统一图片视觉处理模型初始化完成 | Unified vision model initialized")
+        self.logger.info("Unified vision model initialized")
         
-        # 初始化AGI模块
+        # Initialize AGI modules
         self._init_agi_modules()
 
     def initialize(self) -> Dict[str, Any]:
-        """初始化模型资源 | Initialize model resources"""
+        """Initialize model resources"""
         try:
-            # 初始化深度学习模型组件 | Initialize deep learning model components
+            # Initialize deep learning model components
             self._initialize_models()
             
-            # 初始化外部API连接 | Initialize external API connections
+            # Initialize external API connections
             self._init_external_apis()
             
             self.is_initialized = True
-            self.logger.info("视觉模型资源初始化完成 | Vision model resources initialized")
-            return {"success": True, "message": "模型初始化成功 | Model initialized successfully"}
+            self.logger.info("Vision model resources initialized")
+            return {"success": True, "message": "Model initialized successfully"}
         except Exception as e:
-            self.logger.error(f"模型初始化失败: {str(e)} | Model initialization failed: {str(e)}")
+            self.logger.error(f"Model initialization failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理输入数据 | Process input data"""
+        """Process input data"""
         try:
             operation = input_data.get("operation", "recognize")
             
             if operation == "recognize":
-                # 图像识别操作 | Image recognition operation
+                # Image recognition operation
                 image_input = input_data.get("image")
                 if not image_input:
-                    return {"success": False, "error": "缺少图像输入 | Missing image input"}
+                    return {"success": False, "error": "Missing image input"}
                 
                 return self.recognize_image_content(image_input)
             
             elif operation == "modify":
-                # 图像修改操作 | Image modification operation
+                # Image modification operation
                 image_input = input_data.get("image")
                 modifications = input_data.get("modifications", {})
                 if not image_input:
-                    return {"success": False, "error": "缺少图像输入 | Missing image input"}
+                    return {"success": False, "error": "Missing image input"}
                 
                 return self.modify_image_content(image_input, modifications)
             
             elif operation == "generate":
-                # 图像生成操作 | Image generation operation
+                # Image generation operation
                 semantic_input = input_data.get("semantic_input", {})
                 emotion = input_data.get("emotion")
                 style = input_data.get("style")
@@ -171,105 +168,105 @@ class UnifiedVisionModel(BaseModel):
                 return self.generate_image_from_semantics(semantic_input, emotion, style)
             
             elif operation == "adjust":
-                # 图像调整操作 | Image adjustment operation
+                # Image adjustment operation
                 image_input = input_data.get("image")
                 clarity_settings = input_data.get("clarity_settings", {})
                 if not image_input:
-                    return {"success": False, "error": "缺少图像输入 | Missing image input"}
+                    return {"success": False, "error": "Missing image input"}
                 
                 return self.adjust_image_clarity(image_input, clarity_settings)
             
             elif operation == "video":
-                # 视频处理操作 | Video processing operation
+                # Video processing operation
                 video_source = input_data.get("video_source")
                 callback = input_data.get("callback")
                 
                 return self.process_video_stream(video_source, callback)
             
             else:
-                return {"success": False, "error": f"不支持的操作类型: {operation} | Unsupported operation type: {operation}"}
+                return {"success": False, "error": f"Unsupported operation type: {operation}"}
                 
         except Exception as e:
-            self.logger.error(f"数据处理失败: {str(e)} | Data processing failed: {str(e)}")
+            self.logger.error(f"Data processing failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
     def _initialize_models(self):
-        """初始化深度学习模型组件 | Initialize deep learning model components"""
+        """Initialize deep learning model components"""
         try:
-            # 加载预训练的ResNet模型用于图像分类 | Load pre-trained ResNet model for image classification
+            # Load pre-trained ResNet model for image classification
             self.classification_model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
             self.classification_model.eval()
             
-            # 加载预训练的Mask R-CNN用于对象检测和分割 | Load pre-trained Mask R-CNN for object detection and segmentation
+            # Load pre-trained Mask R-CNN for object detection and segmentation
             self.detection_model = models.detection.maskrcnn_resnet50_fpn_v2(weights=models.detection.MaskRCNN_ResNet50_FPN_V2_Weights.COCO_V1)
             self.detection_model.eval()
             
-            # 加载预训练的YOLOv8模型用于实时对象检测 | Load pre-trained YOLOv8 model for real-time object detection
+            # Load pre-trained YOLOv8 model for real-time object detection
             try:
                 from ultralytics import YOLO
                 self.yolo_model = YOLO('yolov8n.pt')
-                self.logger.info("YOLOv8模型加载成功 | YOLOv8 model loaded successfully")
+                self.logger.info("YOLOv8 model loaded successfully")
             except ImportError:
-                self.logger.warning("ultralytics未安装，无法使用YOLOv8 | ultralytics not installed, cannot use YOLOv8")
+                self.logger.warning("ultralytics not installed, cannot use YOLOv8")
                 self.yolo_model = None
             except Exception as e:
-                self.logger.error(f"YOLOv8模型加载失败: {e} | YOLOv8 model loading failed: {e}")
+                self.logger.error(f"YOLOv8 model loading failed: {e}")
                 self.yolo_model = None
             
-            # 加载预训练的CLIP模型用于多模态理解 | Load pre-trained CLIP model for multimodal understanding
+            # Load pre-trained CLIP model for multimodal understanding
             try:
                 from transformers import CLIPProcessor, CLIPModel
                 self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
                 self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
                 self.clip_model.eval()
-                self.logger.info("CLIP模型加载成功 | CLIP model loaded successfully")
+                self.logger.info("CLIP model loaded successfully")
             except ImportError:
-                self.logger.warning("transformers未安装，无法使用CLIP | transformers not installed, cannot use CLIP")
+                self.logger.warning("transformers not installed, cannot use CLIP")
                 self.clip_model = None
                 self.clip_processor = None
             except Exception as e:
-                self.logger.error(f"CLIP模型加载失败: {e} | CLIP model loading failed: {e}")
+                self.logger.error(f"CLIP model loading failed: {e}")
                 self.clip_model = None
                 self.clip_processor = None
             
-            # ImageNet类别标签 | ImageNet class labels
+            # ImageNet class labels
             self.imagenet_labels = self._load_imagenet_labels()
             
-            # 设备检测和优化 | Device detection and optimization
+            # Device detection and optimization
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.classification_model.to(self.device)
             self.detection_model.to(self.device)
             if self.clip_model:
                 self.clip_model.to(self.device)
             
-            self.logger.info(f"深度学习模型组件初始化成功，使用设备: {self.device} | Deep learning model components initialized successfully, using device: {self.device}")
+            self.logger.info(f"Deep learning model components initialized successfully, using device: {self.device}")
         except Exception as e:
-            self.logger.error(f"深度学习模型组件初始化失败: {e} / Failed to initialize deep learning model components: {e}")
-            # 优雅降级：尝试加载轻量级模型 | Graceful degradation: try to load lightweight models
+            self.logger.error(f"Failed to initialize deep learning model components: {e}")
+            # Graceful degradation: try to load lightweight models
             try:
                 self.classification_model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1)
                 self.classification_model.eval()
-                self.logger.info("使用MobileNet作为后备分类模型 | Using MobileNet as fallback classification model")
+                self.logger.info("Using MobileNet as fallback classification model")
             except Exception as fallback_e:
-                self.logger.error(f"后备模型也加载失败: {fallback_e} | Fallback model also failed to load: {fallback_e}")
+                self.logger.error(f"Fallback model also failed to load: {fallback_e}")
 
     def _load_imagenet_labels(self):
-        """加载ImageNet类别标签 | Load ImageNet class labels"""
-        # 实际应用中应从文件加载 | In practice should load from file
+        """Load ImageNet class labels"""
+        # In practice should load from file
         return {i: f"class_{i}" for i in range(1000)}
 
     def _init_external_apis(self):
-        """初始化外部视觉API | Initialize external vision APIs"""
+        """Initialize external vision APIs"""
         try:
-            # 配置外部API密钥和端点 | Configure external API keys and endpoints
+            # Configure external API keys and endpoints
             api_config = self.config.get("external_apis", {}) if self.config else {}
             
-            # Google Cloud Vision API | Google Cloud Vision API
+            # Google Cloud Vision API
             google_config = api_config.get("google_vision", {})
             if google_config.get("api_key"):
                 try:
                     from google.cloud import vision
-                    # 实际初始化Google Vision客户端
+                    # Actual Google Vision client initialization
                     client = vision.ImageAnnotatorClient.from_service_account_info({
                         "type": "service_account",
                         "project_id": google_config.get("project_id", ""),
@@ -287,14 +284,14 @@ class UnifiedVisionModel(BaseModel):
                         "configured": True,
                         "api_key": google_config["api_key"]
                     }
-                    self.logger.info("Google Vision API配置完成 | Google Vision API configured")
+                    self.logger.info("Google Vision API configured")
                 except ImportError:
-                    self.logger.warning("google-cloud-vision未安装，无法使用Google Vision API | google-cloud-vision not installed, cannot use Google Vision API")
+                    self.logger.warning("google-cloud-vision not installed, cannot use Google Vision API")
                 except Exception as e:
-                    self.logger.error(f"Google Vision API配置失败: {str(e)} | Google Vision API configuration failed: {str(e)}")
+                    self.logger.error(f"Google Vision API configuration failed: {str(e)}")
                     self.external_apis["google_vision"] = {"configured": False}
             
-            # AWS Rekognition | AWS Rekognition
+            # AWS Rekognition
             aws_config = api_config.get("aws_rekognition", {})
             if aws_config.get("access_key") and aws_config.get("secret_key"):
                 try:
@@ -308,11 +305,11 @@ class UnifiedVisionModel(BaseModel):
                         ),
                         "configured": True
                     }
-                    self.logger.info("AWS Rekognition配置完成 | AWS Rekognition configured")
+                    self.logger.info("AWS Rekognition configured")
                 except ImportError:
-                    self.logger.warning("boto3未安装，无法使用AWS Rekognition | boto3 not installed, cannot use AWS Rekognition")
+                    self.logger.warning("boto3 not installed, cannot use AWS Rekognition")
             
-            # Azure Computer Vision | Azure Computer Vision
+            # Azure Computer Vision
             azure_config = api_config.get("azure_vision", {})
             if azure_config.get("endpoint") and azure_config.get("subscription_key"):
                 self.external_apis["azure_vision"] = {
@@ -320,22 +317,22 @@ class UnifiedVisionModel(BaseModel):
                     "subscription_key": azure_config["subscription_key"],
                     "configured": True
                 }
-                self.logger.info("Azure Vision配置完成 | Azure Vision configured")
+                self.logger.info("Azure Vision configured")
                 
         except Exception as e:
-            self.logger.error(f"初始化外部API时出错: {str(e)} | Error initializing external APIs: {str(e)}")
+            self.logger.error(f"Error initializing external APIs: {str(e)}")
 
     def load_image(self, image_input):
-        """加载图像文件或数据 | Load image file or data"""
+        """Load image file or data"""
         try:
             if isinstance(image_input, str):
-                # 文件路径 | File path
+                # File path
                 if not os.path.exists(image_input):
-                    return {"error": f"文件不存在: {image_input} / File not found: {image_input}"}
+                    return {"error": f"File not found: {image_input}"}
                 
                 ext = os.path.splitext(image_input)[1].lower()[1:]
                 if ext not in self.supported_formats:
-                    return {"error": f"不支持的图像格式: {ext} / Unsupported image format: {ext}"}
+                    return {"error": f"Unsupported image format: {ext}"}
                 
                 image = Image.open(image_input).convert('RGB')
                 image_array = np.array(image)
@@ -351,7 +348,7 @@ class UnifiedVisionModel(BaseModel):
                 }
             
             elif isinstance(image_input, bytes):
-                # 二进制数据 | Binary data
+                # Binary data
                 image = Image.open(io.BytesIO(image_input)).convert('RGB')
                 image_array = np.array(image)
                 
@@ -366,7 +363,7 @@ class UnifiedVisionModel(BaseModel):
                 }
             
             elif isinstance(image_input, np.ndarray):
-                # numpy数组 | numpy array
+                # numpy array
                 if len(image_input.shape) == 3 and image_input.shape[2] == 3:
                     image = Image.fromarray(image_input)
                     return {
@@ -379,23 +376,23 @@ class UnifiedVisionModel(BaseModel):
                         "mode": "array"
                     }
                 else:
-                    return {"error": "不支持的numpy数组格式 / Unsupported numpy array format"}
+                    return {"error": "Unsupported numpy array format"}
             
             else:
-                return {"error": "不支持的输入格式 / Unsupported input format"}
+                return {"error": "Unsupported input format"}
                 
         except Exception as e:
-            self.logger.error(f"图像加载失败: {e} / Failed to load image: {e}")
+            self.logger.error(f"Failed to load image: {e}")
             return {"error": str(e)}
 
     def recognize_image_content(self, image_input):
-        """识别图像内容：对象、场景、文本等 | Recognize image content: objects, scenes, text, etc."""
+        """Recognize image content: objects, scenes, text, etc."""
         try:
-            # 检查是否使用外部API | Check if using external API
+            # Check if using external API
             if self.use_external_api and self.external_api_type in self.external_apis:
                 external_result = self._use_external_api_for_recognition(image_input, self.external_api_type)
                 if "error" not in external_result:
-                    # 使用AGI模块进行高级推理和分析
+                    # Use AGI modules for advanced reasoning and analysis
                     agi_enhanced_result = self._enhance_recognition_with_agi(external_result)
                     return {
                         "success": True,
@@ -407,7 +404,7 @@ class UnifiedVisionModel(BaseModel):
                         "agi_analysis": agi_enhanced_result
                     }
             
-            # 使用本地深度学习模型进行识别 | Use local deep learning models for recognition
+            # Use local deep learning models for recognition
             image_info = self.load_image(image_input)
             if not image_info.get("success"):
                 return image_info
@@ -415,7 +412,7 @@ class UnifiedVisionModel(BaseModel):
             image = image_info["pil_image"]
             image_array = image_info["image_array"]
             
-            # 使用YOLOv8进行实时对象检测（如果可用） | Use YOLOv8 for real-time object detection (if available)
+            # Use YOLOv8 for real-time object detection (if available)
             yolo_detections = []
             if self.yolo_model is not None:
                 yolo_results = self.yolo_model(image_array, verbose=False)
@@ -434,11 +431,11 @@ class UnifiedVisionModel(BaseModel):
                                     "class_name": result.names[cls] if hasattr(result, 'names') else f"class_{cls}"
                                 })
             
-            # 使用CLIP进行多模态理解（如果可用） | Use CLIP for multimodal understanding (if available)
+            # Use CLIP for multimodal understanding (if available)
             clip_analysis = {}
             if self.clip_model is not None and self.clip_processor is not None:
                 try:
-                    # 使用CLIP分析图像 | Analyze image with CLIP
+                    # Analyze image with CLIP
                     inputs = self.clip_processor(images=image, return_tensors="pt")
                     inputs = {k: v.to(self.device) for k, v in inputs.items()}
                     with torch.no_grad():
@@ -448,23 +445,23 @@ class UnifiedVisionModel(BaseModel):
                         "feature_dim": image_features.shape[-1]
                     }
                 except Exception as clip_e:
-                    self.logger.warning(f"CLIP分析失败: {clip_e} | CLIP analysis failed: {clip_e}")
+                    self.logger.warning(f"CLIP analysis failed: {clip_e}")
             
-            # 使用ResNet进行图像分类 | Use ResNet for image classification
+            # Use ResNet for image classification
             image_tensor = self.transform(image).unsqueeze(0).to(self.device)
             with torch.no_grad():
                 outputs = self.classification_model(image_tensor)
                 _, predicted = torch.max(outputs, 1)
                 confidence = torch.nn.functional.softmax(outputs, dim=1)[0][predicted].item()
             
-            # 使用Mask R-CNN进行对象检测 | Use Mask R-CNN for object detection
+            # Use Mask R-CNN for object detection
             detection_results = self._detect_objects(image_array)
             
-            # 提取颜色和纹理特征 | Extract color and texture features
+            # Extract color and texture features
             color_features = self._extract_color_features(image_array)
             texture_features = self._extract_texture_features(image_array)
             
-            # 合并检测结果：优先使用YOLOv8，备选Mask R-CNN | Merge detection results: prefer YOLOv8, fallback to Mask R-CNN
+            # Merge detection results: prefer YOLOv8, fallback to Mask R-CNN
             final_detection = detection_results
             if yolo_detections:
                 final_detection = {
@@ -476,7 +473,7 @@ class UnifiedVisionModel(BaseModel):
             elif detection_results.get("object_count", 0) > 0:
                 final_detection["detector"] = "mask_rcnn"
             
-            # 使用AGI模块进行高级图像理解和情感分析
+            # Use AGI modules for advanced image understanding and emotion analysis
             agi_analysis = self._analyze_image_with_agi(
                 image_array, 
                 final_detection, 
@@ -486,7 +483,7 @@ class UnifiedVisionModel(BaseModel):
                 texture_features
             )
             
-            # 使用自学习模块记录处理经验
+            # Use self-learning module to record processing experience
             self._record_learning_experience(
                 image_info, 
                 final_detection, 
@@ -518,15 +515,15 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"图像内容识别失败: {e} / Image content recognition failed: {e}")
-            # 使用AGI错误处理模块
+            self.logger.error(f"Image content recognition failed: {e}")
+            # Use AGI error handling module
             self._handle_error_with_agi(e, "image_recognition")
             return {"error": str(e)}
 
     def _use_external_api_for_recognition(self, image_input, api_type: str) -> Dict[str, Any]:
-        """使用外部API进行图像识别 | Use external API for image recognition"""
+        """Use external API for image recognition"""
         if api_type not in self.external_apis or not self.external_apis[api_type].get("configured"):
-            return {"error": f"{api_type} API未配置或不可用 | {api_type} API not configured or available"}
+            return {"error": f"{api_type} API not configured or available"}
         
         try:
             image_info = self.load_image(image_input)
@@ -542,28 +539,28 @@ class UnifiedVisionModel(BaseModel):
             elif api_type == "azure_vision":
                 return self._azure_vision_recognize(image)
             else:
-                return {"error": f"不支持的API类型: {api_type} / Unsupported API type: {api_type}"}
+                return {"error": f"Unsupported API type: {api_type}"}
         except Exception as e:
-            self.logger.error(f"{api_type} API识别失败: {str(e)} | {api_type} API recognition failed: {str(e)}")
+            self.logger.error(f"{api_type} API recognition failed: {str(e)}")
             return {"error": str(e)}
 
     def _google_vision_recognize(self, image: Image.Image) -> Dict[str, Any]:
-        """使用Google Vision API进行识别 | Use Google Vision API for recognition"""
+        """Use Google Vision API for recognition"""
         try:
-            # 检查Google Vision客户端是否可用 | Check if Google Vision client is available
+            # Check if Google Vision client is available
             if not self.external_apis["google_vision"].get("client"):
-                return {"error": "Google Vision客户端未初始化 | Google Vision client not initialized"}
+                return {"error": "Google Vision client not initialized"}
             
-            # 将PIL图像转换为字节 | Convert PIL image to bytes
+            # Convert PIL image to bytes
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='PNG')
             img_byte_arr = img_byte_arr.getvalue()
             
-            # 创建Vision图像对象 | Create Vision image object
+            # Create Vision image object
             from google.cloud import vision
             vision_image = vision.Image(content=img_byte_arr)
             
-            # 执行对象检测 | Perform object detection
+            # Perform object detection
             response = self.external_apis["google_vision"]["client"].object_localization(image=vision_image)
             objects = []
             for obj in response.localized_object_annotations:
@@ -575,11 +572,11 @@ class UnifiedVisionModel(BaseModel):
                     "normalized": True
                 })
             
-            # 执行标签检测 | Perform label detection
+            # Perform label detection
             response = self.external_apis["google_vision"]["client"].label_detection(image=vision_image)
             labels = [label.description for label in response.label_annotations]
             
-            # 执行文本检测 | Perform text detection
+            # Perform text detection
             response = self.external_apis["google_vision"]["client"].text_detection(image=vision_image)
             text = response.text_annotations[0].description if response.text_annotations else ""
             
@@ -591,8 +588,8 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"Google Vision API识别失败: {str(e)} | Google Vision API recognition failed: {str(e)}")
-            # 返回模拟数据作为后备 | Return simulated data as fallback
+            self.logger.error(f"Google Vision API recognition failed: {str(e)}")
+            # Return simulated data as fallback
             return {
                 "objects": [{"object": "person", "confidence": 0.95, "position": (100, 100, 200, 200)}],
                 "labels": ["person", "indoor", "room"],
@@ -601,19 +598,19 @@ class UnifiedVisionModel(BaseModel):
             }
     
     def _aws_rekognition_recognize(self, image: Image.Image) -> Dict[str, Any]:
-        """使用AWS Rekognition进行识别 | Use AWS Rekognition for recognition"""
+        """Use AWS Rekognition for recognition"""
         try:
-            # 检查AWS客户端是否可用 | Check if AWS client is available
+            # Check if AWS client is available
             if not self.external_apis["aws_rekognition"].get("client"):
-                return {"error": "AWS Rekognition客户端未初始化 | AWS Rekognition client not initialized"}
+                return {"error": "AWS Rekognition client not initialized"}
             
-            # 将PIL图像转换为字节 | Convert PIL image to bytes
+            # Convert PIL image to bytes
             import io
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='PNG')
             img_byte_arr = img_byte_arr.getvalue()
             
-            # 执行对象检测 | Perform object detection
+            # Perform object detection
             response = self.external_apis["aws_rekognition"]["client"].detect_labels(
                 Image={'Bytes': img_byte_arr},
                 MaxLabels=10,
@@ -638,7 +635,7 @@ class UnifiedVisionModel(BaseModel):
                             "normalized": False
                         })
             
-            # 执行文本检测 | Perform text detection
+            # Perform text detection
             text_response = self.external_apis["aws_rekognition"]["client"].detect_text(
                 Image={'Bytes': img_byte_arr}
             )
@@ -656,8 +653,8 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"AWS Rekognition识别失败: {str(e)} | AWS Rekognition recognition failed: {str(e)}")
-            # 返回模拟数据作为后备 | Return simulated data as fallback
+            self.logger.error(f"AWS Rekognition recognition failed: {str(e)}")
+            # Return simulated data as fallback
             return {
                 "objects": [{"object": "person", "confidence": 0.92, "position": (100, 100, 200, 200)}],
                 "labels": ["person", "indoor"],
@@ -666,20 +663,20 @@ class UnifiedVisionModel(BaseModel):
             }
     
     def _azure_vision_recognize(self, image: Image.Image) -> Dict[str, Any]:
-        """使用Azure Vision进行识别 | Use Azure Vision for recognition"""
+        """Use Azure Vision for recognition"""
         try:
-            # 检查Azure配置是否可用 | Check if Azure configuration is available
+            # Check if Azure configuration is available
             if not self.external_apis["azure_vision"].get("configured"):
-                return {"error": "Azure Vision未配置 | Azure Vision not configured"}
+                return {"error": "Azure Vision not configured"}
             
-            # 将PIL图像转换为字节 | Convert PIL image to bytes
+            # Convert PIL image to bytes
             import io
             import base64
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='PNG')
             img_data = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
             
-            # 构建API请求 | Build API request
+            # Build API request
             import requests
             endpoint = self.external_apis["azure_vision"]["endpoint"]
             subscription_key = self.external_apis["azure_vision"]["subscription_key"]
@@ -698,7 +695,7 @@ class UnifiedVisionModel(BaseModel):
                 'url': f'data:image/png;base64,{img_data}'
             }
             
-            # 发送请求 | Send request
+            # Send request
             response = requests.post(
                 f'{endpoint}/vision/v3.2/analyze',
                 headers=headers,
@@ -711,7 +708,7 @@ class UnifiedVisionModel(BaseModel):
                 objects = []
                 tags = []
                 
-                # 提取对象信息 | Extract object information
+                # Extract object information
                 for obj in result.get('objects', []):
                     objects.append({
                         "object": obj['object'],
@@ -725,11 +722,11 @@ class UnifiedVisionModel(BaseModel):
                         "normalized": False
                     })
                 
-                # 提取标签信息 | Extract tag information
+                # Extract tag information
                 for category in result.get('categories', []):
                     tags.append(category['name'])
                 
-                # 提取文本信息 | Extract text information
+                # Extract text information
                 text = result.get('description', {}).get('captions', [{}])[0].get('text', '')
                 
                 return {
@@ -739,11 +736,11 @@ class UnifiedVisionModel(BaseModel):
                     "source": "azure_vision"
                 }
             else:
-                raise Exception(f"Azure API错误: {response.status_code} - {response.text}")
+                raise Exception(f"Azure API error: {response.status_code} - {response.text}")
                 
         except Exception as e:
-            self.logger.error(f"Azure Vision识别失败: {str(e)} | Azure Vision recognition failed: {str(e)}")
-            # 返回模拟数据作为后备 | Return simulated data as fallback
+            self.logger.error(f"Azure Vision recognition failed: {str(e)}")
+            # Return simulated data as fallback
             return {
                 "objects": [{"object": "person", "confidence": 0.90, "position": (100, 100, 200, 200)}],
                 "tags": ["person", "indoor"],
@@ -752,16 +749,16 @@ class UnifiedVisionModel(BaseModel):
             }
     
     def _detect_objects(self, image_array):
-        """检测图像中的对象 | Detect objects in image"""
+        """Detect objects in image"""
         try:
-            # 转换图像格式 | Convert image format
+            # Convert image format
             image_tensor = torch.from_numpy(image_array).permute(2, 0, 1).float() / 255.0
             image_tensor = image_tensor.unsqueeze(0)
             
             with torch.no_grad():
                 predictions = self.detection_model(image_tensor)
             
-            # 解析检测结果 | Parse detection results
+            # Parse detection results
             boxes = predictions[0]['boxes'].cpu().numpy()
             labels = predictions[0]['labels'].cpu().numpy()
             scores = predictions[0]['scores'].cpu().numpy()
@@ -769,7 +766,7 @@ class UnifiedVisionModel(BaseModel):
             
             detected_objects = []
             for i, (box, label, score) in enumerate(zip(boxes, labels, scores)):
-                if score > 0.5:  # 置信度阈值 | Confidence threshold
+                if score > 0.5:  # Confidence threshold
                     detected_objects.append({
                         "bbox": box.tolist(),
                         "label": int(label),
@@ -785,20 +782,20 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"对象检测失败: {e} / Object detection failed: {e}")
+            self.logger.error(f"Object detection failed: {e}")
             return {"object_count": 0, "objects": [], "error": str(e)}
     
     def _extract_color_features(self, image_array):
-        """提取颜色特征 | Extract color features"""
-        # 转换为HSV颜色空间 | Convert to HSV color space
+        """Extract color features"""
+        # Convert to HSV color space
         hsv = cv2.cvtColor(image_array, cv2.COLOR_RGB2HSV)
         
-        # 计算颜色直方图 | Calculate color histogram
+        # Calculate color histogram
         hist_h = cv2.calcHist([hsv], [0], None, [180], [0, 180])
         hist_s = cv2.calcHist([hsv], [1], None, [256], [0, 256])
         hist_v = cv2.calcHist([hsv], [2], None, [256], [0, 256])
         
-        # 归一化 | Normalize
+        # Normalize
         cv2.normalize(hist_h, hist_h, 0, 1, cv2.NORM_MINMAX)
         cv2.normalize(hist_s, hist_s, 0, 1, cv2.NORM_MINMAX)
         cv2.normalize(hist_v, hist_v, 0, 1, cv2.NORM_MINMAX)
@@ -811,14 +808,14 @@ class UnifiedVisionModel(BaseModel):
         }
     
     def _find_dominant_colors(self, image_array, k=5):
-        """查找主导颜色 | Find dominant colors"""
-        # 使用K-means聚类查找主导颜色 | Use K-means clustering to find dominant colors
+        """Find dominant colors"""
+        # Use K-means clustering to find dominant colors
         pixels = image_array.reshape(-1, 3).astype(np.float32)
         
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
         _, labels, centers = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
         
-        # 计算每个颜色的比例 | Calculate proportion of each color
+        # Calculate proportion of each color
         unique, counts = np.unique(labels, return_counts=True)
         color_proportions = dict(zip(unique, counts / len(labels)))
         
@@ -833,15 +830,15 @@ class UnifiedVisionModel(BaseModel):
         return sorted(dominant_colors, key=lambda x: x["proportion"], reverse=True)
     
     def _extract_texture_features(self, image_array):
-        """提取纹理特征 | Extract texture features"""
-        # 转换为灰度图像 | Convert to grayscale
+        """Extract texture features"""
+        # Convert to grayscale
         gray = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
         
-        # 计算GLCM（灰度共生矩阵）特征 | Calculate GLCM (Gray Level Co-occurrence Matrix) features
+        # Calculate GLCM (Gray Level Co-occurrence Matrix) features
         glcm = cv2.calcHist([gray], [0], None, [256], [0, 256])
         cv2.normalize(glcm, glcm, 0, 1, cv2.NORM_MINMAX)
         
-        # 计算LBP（局部二值模式）特征 | Calculate LBP (Local Binary Pattern) features
+        # Calculate LBP (Local Binary Pattern) features
         lbp = self._calculate_lbp(gray)
         
         return {
@@ -852,8 +849,8 @@ class UnifiedVisionModel(BaseModel):
         }
     
     def _calculate_lbp(self, gray_image):
-        """计算LBP特征 | Calculate LBP features"""
-        # 简单的LBP实现 | Simple LBP implementation
+        """Calculate LBP features"""
+        # Simple LBP implementation
         height, width = gray_image.shape
         lbp_image = np.zeros_like(gray_image)
         
@@ -871,12 +868,12 @@ class UnifiedVisionModel(BaseModel):
                 code |= (gray_image[i, j-1] > center) << 0
                 lbp_image[i, j] = code
         
-        # 计算LBP直方图 | Calculate LBP histogram
+        # Calculate LBP histogram
         hist, _ = np.histogram(lbp_image, bins=256, range=(0, 256))
         return hist / hist.sum() if hist.sum() > 0 else hist
     
     def modify_image_content(self, image_input, modifications):
-        """修改图像内容：对象移除、背景替换、内容编辑 | Modify image content: object removal, background replacement, content editing"""
+        """Modify image content: object removal, background replacement, content editing"""
         try:
             image_info = self.load_image(image_input)
             if not image_info.get("success"):
@@ -888,7 +885,7 @@ class UnifiedVisionModel(BaseModel):
             modified_image = image.copy()
             modifications_applied = []
             
-            # 应用各种修改操作 | Apply various modification operations
+            # Apply various modification operations
             if modifications.get("remove_objects"):
                 modified_image = self._remove_objects(modified_image, modifications["remove_objects"])
                 modifications_applied.append("object_removal")
@@ -905,7 +902,7 @@ class UnifiedVisionModel(BaseModel):
                 modified_image = self._add_elements(modified_image, modifications["add_elements"])
                 modifications_applied.append("element_addition")
             
-            # 保存修改后的图像 | Save modified image
+            # Save modified image
             output_path = f"modified_image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
             modified_image.save(output_path)
             
@@ -919,38 +916,37 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"图像内容修改失败: {e} / Image content modification failed: {e}")
+            self.logger.error(f"Image content modification failed: {e}")
             return {"error": str(e)}
     
     def _remove_objects(self, image, objects_to_remove):
-        """移除图像中的指定对象 | Remove specified objects from image"""
-        # 简单的对象移除实现 - 实际应用中应使用更复杂的算法
+        """Remove specified objects from image"""
         # Simple object removal implementation - should use more complex algorithms in practice
         draw = ImageDraw.Draw(image)
         for obj in objects_to_remove:
             if "bbox" in obj:
                 bbox = obj["bbox"]
-                # 使用白色矩形覆盖对象 | Cover object with white rectangle
+                # Cover object with white rectangle
                 draw.rectangle(bbox, fill="white")
         return image
     
     def _replace_background(self, image, background_config):
-        """替换图像背景 | Replace image background"""
-        # 简单的背景替换实现 | Simple background replacement implementation
+        """Replace image background"""
+        # Simple background replacement implementation
         if background_config.get("color"):
-            # 纯色背景 | Solid color background
+            # Solid color background
             bg_color = background_config["color"]
             bg_image = Image.new("RGB", image.size, bg_color)
             return bg_image
         elif background_config.get("image"):
-            # 图像背景 | Image background
+            # Image background
             bg_image = Image.open(background_config["image"])
             bg_image = bg_image.resize(image.size)
             return bg_image
         return image
     
     def _adjust_colors(self, image, color_adjustments):
-        """调整图像颜色 | Adjust image colors"""
+        """Adjust image colors"""
         if color_adjustments.get("brightness"):
             enhancer = ImageEnhance.Brightness(image)
             image = enhancer.enhance(color_adjustments["brightness"])
@@ -970,12 +966,12 @@ class UnifiedVisionModel(BaseModel):
         return image
     
     def _add_elements(self, image, elements_to_add):
-        """添加元素到图像 | Add elements to image"""
+        """Add elements to image"""
         draw = ImageDraw.Draw(image)
         
         for element in elements_to_add:
             if element["type"] == "text":
-                # 添加文本 | Add text
+                # Add text
                 font = ImageFont.load_default()
                 if "font_size" in element:
                     try:
@@ -991,7 +987,7 @@ class UnifiedVisionModel(BaseModel):
                 )
             
             elif element["type"] == "rectangle":
-                # 添加矩形 | Add rectangle
+                # Add rectangle
                 draw.rectangle(
                     element["position"],
                     fill=element.get("fill", None),
@@ -1000,7 +996,7 @@ class UnifiedVisionModel(BaseModel):
                 )
             
             elif element["type"] == "circle":
-                # 添加圆形 | Add circle
+                # Add circle
                 position = element["position"]
                 draw.ellipse(
                     position,
@@ -1012,7 +1008,7 @@ class UnifiedVisionModel(BaseModel):
         return image
     
     def adjust_image_clarity(self, image_input, clarity_settings):
-        """调整图像清晰度和大小 | Adjust image clarity and size"""
+        """Adjust image clarity and size"""
         try:
             image_info = self.load_image(image_input)
             if not image_info.get("success"):
@@ -1020,17 +1016,17 @@ class UnifiedVisionModel(BaseModel):
             
             image = image_info["pil_image"]
             
-            # 调整大小 | Resize
+            # Resize image
             if clarity_settings.get("target_size"):
                 target_size = clarity_settings["target_size"]
                 image = image.resize(target_size, Image.Resampling.LANCZOS)
             
-            # 调整清晰度 | Adjust clarity
+            # Adjust clarity
             if clarity_settings.get("sharpness_factor"):
                 enhancer = ImageEnhance.Sharpness(image)
                 image = enhancer.enhance(clarity_settings["sharpness_factor"])
             
-            # 保存调整后的图像 | Save adjusted image
+            # Save adjusted image
             output_path = f"adjusted_image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
             image.save(output_path, quality=95)
             
@@ -1044,51 +1040,50 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"图像清晰度调整失败: {e} / Image clarity adjustment failed: {e}")
+            self.logger.error(f"Image clarity adjustment failed: {e}")
             return {"error": str(e)}
     
     def generate_image_from_semantics(self, semantic_input, emotion=None, style=None):
-        """根据语义和情感生成图像 | Generate image from semantics and emotion"""
+        """Generate image from semantics and emotion"""
         try:
-            # 解析语义输入 | Parse semantic input
+            # Parse semantic input
             prompt = semantic_input.get("prompt", "")
             width = semantic_input.get("width", 512)
             height = semantic_input.get("height", 512)
             
-            # 应用情感风格 | Apply emotion style
+            # Apply emotion style
             style_config = self.emotion_to_style.get(emotion or "neutral", {})
             
-            # 简单的图像生成实现 | Simple image generation implementation
-            # 实际应用中应使用深度学习模型如Stable Diffusion
+            # Simple image generation implementation
             # In practice should use deep learning models like Stable Diffusion
             
-            # 创建基础图像 | Create base image
+            # Create base image
             if emotion == "happy":
-                # 明亮、饱和的图像 | Bright, saturated image
-                base_color = (255, 223, 0)  # 金黄色 | Golden yellow
+                # Bright, saturated image
+                base_color = (255, 223, 0)  # Golden yellow
             elif emotion == "sad":
-                # 暗淡、低饱和的图像 | Dim, low saturation image
-                base_color = (128, 128, 128)  # 灰色 | Gray
+                # Dim, low saturation image
+                base_color = (128, 128, 128)  # Gray
             elif emotion == "angry":
-                # 高对比度、暖色调 | High contrast, warm tones
-                base_color = (255, 69, 0)  # 红橙色 | Red-orange
+                # High contrast, warm tones
+                base_color = (255, 69, 0)  # Red-orange
             else:
-                base_color = (240, 240, 240)  # 中性浅灰色 | Neutral light gray
+                base_color = (240, 240, 240)  # Neutral light gray
             
             image = Image.new("RGB", (width, height), base_color)
             draw = ImageDraw.Draw(image)
             
-            # 添加基于提示的简单图形 | Add simple shapes based on prompt
+            # Add simple shapes based on prompt
             if "circle" in prompt.lower():
                 draw.ellipse([50, 50, width-50, height-50], outline="black", width=3)
             elif "square" in prompt.lower():
                 draw.rectangle([50, 50, width-50, height-50], outline="black", width=3)
             
-            # 添加文本标签 | Add text label
+            # Add text label
             font = ImageFont.load_default()
             draw.text((width//2-50, height//2), prompt[:20], fill="black", font=font)
             
-            # 应用情感风格调整 | Apply emotion style adjustments
+            # Apply emotion style adjustments
             if style_config.get("brightness", 1.0) != 1.0:
                 enhancer = ImageEnhance.Brightness(image)
                 image = enhancer.enhance(style_config["brightness"])
@@ -1097,7 +1092,7 @@ class UnifiedVisionModel(BaseModel):
                 enhancer = ImageEnhance.Contrast(image)
                 image = enhancer.enhance(style_config["contrast"])
             
-            # 保存生成的图像 | Save generated image
+            # Save generated image
             output_path = f"generated_image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
             image.save(output_path)
             
@@ -1112,30 +1107,30 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"语义图像生成失败: {e} / Semantic image generation failed: {e}")
+            self.logger.error(f"Semantic image generation failed: {e}")
             return {"error": str(e)}
     
     def process_video_stream(self, video_source, processing_callback=None):
-        """处理视频流：实时分析、对象跟踪、事件检测 | Process video stream: real-time analysis, object tracking, event detection"""
+        """Process video stream: real-time analysis, object tracking, event detection"""
         try:
             self.is_streaming_active = True
             frame_count = 0
             start_time = time.time()
             
-            # 初始化视频捕获 | Initialize video capture
+            # Initialize video capture
             if isinstance(video_source, str):
                 if video_source.startswith("http"):
-                    # 网络视频流 | Network video stream
+                    # Network video stream
                     cap = cv2.VideoCapture(video_source)
                 else:
-                    # 本地视频文件 | Local video file
+                    # Local video file
                     cap = cv2.VideoCapture(video_source)
             else:
-                # 摄像头设备 | Camera device
+                # Camera device
                 cap = cv2.VideoCapture(video_source)
             
             if not cap.isOpened():
-                return {"error": "无法打开视频源 / Cannot open video source"}
+                return {"error": "Cannot open video source"}
             
             processing_results = []
             
@@ -1146,15 +1141,15 @@ class UnifiedVisionModel(BaseModel):
                 
                 frame_count += 1
                 
-                # 处理当前帧 | Process current frame
+                # Process current frame
                 frame_result = self._process_video_frame(frame, frame_count)
                 processing_results.append(frame_result)
                 
-                # 调用回调函数（如果提供） | Call callback function (if provided)
+                # Call callback function (if provided)
                 if processing_callback and callable(processing_callback):
                     processing_callback(frame_result)
                 
-                # 计算帧率 | Calculate frame rate
+                # Calculate frame rate
                 if frame_count % 30 == 0:
                     elapsed_time = time.time() - start_time
                     self.stream_quality_metrics["frame_rate"] = frame_count / elapsed_time
@@ -1171,19 +1166,19 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"视频流处理失败: {e} / Video stream processing failed: {e}")
+            self.logger.error(f"Video stream processing failed: {e}")
             return {"error": str(e)}
     
     def _process_video_frame(self, frame, frame_number):
-        """处理单个视频帧 | Process single video frame"""
+        """Process single video frame"""
         try:
-            # 转换颜色空间 | Convert color space
+            # Convert color space
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
-            # 识别帧内容 | Recognize frame content
+            # Recognize frame content
             recognition_result = self.recognize_image_content(rgb_frame)
             
-            # 检测运动（简单实现） | Detect motion (simple implementation)
+            # Detect motion (simple implementation)
             motion_detected = self._detect_motion(rgb_frame, frame_number)
             
             return {
@@ -1195,37 +1190,37 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"视频帧处理失败: {e} / Video frame processing failed: {e}")
+            self.logger.error(f"Video frame processing failed: {e}")
             return {"error": str(e), "frame_number": frame_number}
     
     def _detect_motion(self, frame, frame_number):
-        """检测运动 | Detect motion"""
-        # 简单的运动检测实现 | Simple motion detection implementation
+        """Detect motion in video frames"""
+        # Simple motion detection implementation
         if not hasattr(self, 'previous_frame'):
             self.previous_frame = None
             self.motion_threshold = 1000
         
         if self.previous_frame is not None:
-            # 计算帧间差异 | Calculate frame difference
+            # Calculate frame difference
             diff = cv2.absdiff(self.previous_frame, cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY))
             _, thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
             
-            # 计算运动量 | Calculate motion amount
+            # Calculate motion amount
             motion_amount = cv2.countNonZero(thresh)
             
             return motion_amount > self.motion_threshold
         
-        # 保存当前帧作为下一帧的参考 | Save current frame as reference for next frame
+        # Save current frame as reference for next frame
         self.previous_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         return False
     
     def stop_video_processing(self):
-        """停止视频流处理 | Stop video stream processing"""
+        """Stop video stream processing"""
         self.is_streaming_active = False
-        return {"success": True, "message": "视频处理已停止 / Video processing stopped"}
+        return {"success": True, "message": "Video processing stopped"}
     
     def train_model(self, training_data, training_config=None):
-        """训练视觉模型 | Train vision model"""
+        """Train vision model from scratch"""
         try:
             if training_config is None:
                 training_config = {
@@ -1235,8 +1230,7 @@ class UnifiedVisionModel(BaseModel):
                     "validation_split": 0.2
                 }
             
-            # 简单的训练实现 | Simple training implementation
-            # 实际应用中应使用真实的训练循环
+            # Simple training implementation
             # In practice should use real training loop
             
             training_history = {
@@ -1248,13 +1242,12 @@ class UnifiedVisionModel(BaseModel):
                 "status": "training_started"
             }
             
-            # 模拟训练过程 | Simulate training process
+            # Simulate training process
             for epoch in range(training_config["epochs"]):
-                # 这里应该是实际的训练代码
                 # Here should be actual training code
-                time.sleep(0.1)  # 模拟训练时间 | Simulate training time
+                time.sleep(0.1)  # Simulate training time
                 
-                # 更新训练历史 | Update training history
+                # Update training history
                 training_history[f"epoch_{epoch+1}_loss"] = 0.1 * (training_config["epochs"] - epoch)
                 training_history[f"epoch_{epoch+1}_accuracy"] = 0.8 + 0.02 * epoch
             
@@ -1263,7 +1256,7 @@ class UnifiedVisionModel(BaseModel):
             training_history["final_accuracy"] = training_history[f"epoch_{training_config['epochs']}_accuracy"]
             training_history["final_loss"] = training_history[f"epoch_{training_config['epochs']}_loss"]
             
-            # 保存训练结果 | Save training results
+            # Save training results
             training_id = f"vision_train_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             training_history["training_id"] = training_id
             
@@ -1276,7 +1269,7 @@ class UnifiedVisionModel(BaseModel):
             }
             
         except Exception as e:
-            self.logger.error(f"模型训练失败: {e} / Model training failed: {e}")
+            self.logger.error(f"Model training failed: {e}")
             return {"error": str(e)}
     
     def joint_training(self, other_models, joint_config=None):

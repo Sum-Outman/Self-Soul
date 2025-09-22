@@ -1,6 +1,6 @@
 """
-模型服务管理器
-负责为每个模型创建独立的FastAPI应用并在指定端口上启动
+Model Service Manager
+Responsible for creating and managing independent FastAPI applications for each model on specified ports
 """
 import os
 import sys

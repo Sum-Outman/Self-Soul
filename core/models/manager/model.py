@@ -47,9 +47,9 @@ from core.collaboration.model_collaborator import ModelCollaborator
 from core.optimization.model_optimizer import ModelOptimizer
 from core.advanced_reasoning import AdvancedReasoningEngine
 from core.meta_learning_system import MetaLearningSystem
-from core.creative_problem_solving import CreativeProblemSolver
-from core.self_reflection import SelfReflectionModule
-from core.knowledge_integration import KnowledgeIntegrator
+from core.creative_problem_solver import CreativeProblemSolver
+from core.self_reflection_module import SelfReflectionModule
+from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIntegrator
 
 
 """ManagerModel Class - System Core Manager"""

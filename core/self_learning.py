@@ -27,11 +27,12 @@ class AGISelfLearningSystem:
     集成神经科学启发的学习机制和高级认知功能
     """
     
-    def __init__(self):
+    def __init__(self, from_scratch=False):
         self.initialized = False
         self.learning_enabled = True
         self.last_learning_time = None
         self.creation_time = datetime.now()
+        self.from_scratch = from_scratch
         
         # 高级学习统计
         self.learning_stats = {
@@ -121,7 +122,10 @@ class AGISelfLearningSystem:
             self._initialize_neural_models()
             
             # 加载现有知识（如果存在）
-            self._load_existing_knowledge()
+            if not self.from_scratch:
+                self._load_existing_knowledge()
+            else:
+                logger.info("AGI自我学习系统以从零开始训练模式启动，跳过现有知识加载")
             
             # 设置初始学习目标
             self._setup_initial_learning_goals()
@@ -694,7 +698,7 @@ class AGISelfLearningSystem:
         causal_models = []
         
         for relation in causal_relations:
-            model_id = f"causal_model_{hashlib.md5(f"{relation['cause']}_{relation['effect']}".encode()).hexdigest()[:10]}"
+            model_id = f"causal_model_{hashlib.md5((relation['cause'] + '_' + relation['effect']).encode()).hexdigest()[:10]}"
             
             causal_model = {
                 'id': model_id,
@@ -1337,7 +1341,7 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
         if isinstance(input_data, dict) and isinstance(output_data, dict):
             for input_key in input_data.keys():
                 for output_key in output_data.keys():
-                    rel_id = f"rel_{hashlib.md5(f"{input_key}_{output_key}".encode()).hexdigest()[:8]}"
+                    rel_id = f"rel_{hashlib.md5((input_key + '_' + output_key).encode()).hexdigest()[:8]}"
                     if rel_id not in self.knowledge_base['relationships']:
                         self.knowledge_base['relationships'][rel_id] = {
                             'source': input_key,
@@ -1471,6 +1475,9 @@ def get_learning_goals() -> Dict[str, List[Dict[str, Any]]]:
         """清空知识库"""
         self._initialize_knowledge_base()
         logger.info("知识库已清空")
+
+# 类名映射以保持兼容性
+SelfLearningModule = AGISelfLearningSystem
 
 # 全局实例便于访问
 self_learning_module = SelfLearningModule()

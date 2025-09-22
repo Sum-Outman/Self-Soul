@@ -13,13 +13,6 @@
 """
 
 """
-基础模型类 - 所有模型的基类
-Base Model Class - Base class for all models
-
-提供通用接口和功能，确保所有模型的一致性
-Provides common interfaces and functionality to ensure consistency across all models
-"""
-"""
 模型注册表：管理所有AI模型的加载、注册和生命周期
 Model Registry: Manages loading, registration and lifecycle of all AI models
 """
@@ -63,14 +56,34 @@ class ExternalModelProxy:
             # 检查必要的配置项
             required_keys = ['url', 'api_key']
             for key in required_keys:
-                if key not in self.api_config:
+                if key not in self.api_config or not self.api_config[key]:
                     self.status = "error"
-                    error_handler.log_warning(f"缺少必要的API配置项: {key}", "ExternalModelProxy")
+                    error_handler.log_warning(f"缺少必要的API配置项或配置值为空: {key}", "ExternalModelProxy")
                     return False
+            
+            # 检查URL格式是否有效
+            url = self.api_config['url']
+            if not (url.startswith('http://') or url.startswith('https://')):
+                self.status = "error"
+                error_handler.log_warning(f"无效的API URL格式: {url}", "ExternalModelProxy")
+                return False
+            
+            # 记录连接尝试
+            error_handler.log_info(f"正在连接到外部模型: {self.model_id} ({url})", "ExternalModelProxy")
             
             # 模拟连接成功
             self.status = "connected"
             self.last_connection_time = time.time()
+            
+            # 添加连接成功的详细信息
+            connection_info = {
+                'model_id': self.model_id,
+                'url': url,
+                'model_name': self.api_config.get('model_name', self.model_id),
+                'source': self.api_config.get('source', 'external'),
+                'connection_time': self.last_connection_time
+            }
+            
             error_handler.log_info(f"成功连接到外部模型: {self.model_id}", "ExternalModelProxy")
             return True
             
@@ -250,12 +263,11 @@ class ModelRegistry:
             # 获取类
             model_class = getattr(module, class_name)
             
-            # 增强配置 - 添加与其他模型的连接信息
+            # Enhance configuration - add connection information with other models
             if config is None:
                 config = {}
-            config['model_registry'] = self  # 传递注册表引用
-            config['related_models'] = self._get_related_models(model_id)  # 获取相关模型
-            config['priority'] = priority  # 设置优先级
+            config['related_models'] = self._get_related_models(model_id)  # Get related models
+            config['priority'] = priority  # Set priority
             
             # 优先级加载日志
             if priority <= 1:
@@ -414,7 +426,7 @@ class ModelRegistry:
         
         Args:
             model_id: 模型ID
-            api_config: API配置信息，包含url、api_key、model_name等
+            api_config: API配置信息，包含api_url、api_key、model_name等
             
         Returns:
             Dict[str, Any]: 切换结果
@@ -424,18 +436,46 @@ class ModelRegistry:
             if model_id not in self.models:
                 return {"status": "error", "message": f"模型{model_id}不存在"}
             
+            # 规范化API配置字段
+            normalized_api_config = {}
+            if 'api_url' in api_config:
+                normalized_api_config['api_url'] = api_config['api_url']
+            elif 'url' in api_config:
+                normalized_api_config['api_url'] = api_config['url']
+            else:
+                return {"status": "error", "message": "缺少必要的API配置项: api_url或url"}
+                
+            if 'api_key' in api_config:
+                normalized_api_config['api_key'] = api_config['api_key']
+            else:
+                return {"status": "error", "message": "缺少必要的API配置项: api_key"}
+                
+            if 'model_name' in api_config:
+                normalized_api_config['model_name'] = api_config['model_name']
+            else:
+                normalized_api_config['model_name'] = model_id
+                
+            if 'source' in api_config:
+                normalized_api_config['source'] = api_config['source']
+            else:
+                normalized_api_config['source'] = 'external'
+                
+            if 'endpoint' in api_config:
+                normalized_api_config['endpoint'] = api_config['endpoint']
+                
             # 保存配置到系统设置
             from .system_settings_manager import system_settings_manager
             system_settings_manager.update_model_setting(model_id, {
                 "type": "api",
                 "source": "external",
-                "api_url": api_config.get('url', ''),
-                "api_key": api_config.get('api_key', ''),
-                "model_name": api_config.get('model_name', model_id)
+                "api_url": normalized_api_config['api_url'],
+                "api_key": normalized_api_config['api_key'],
+                "model_name": normalized_api_config['model_name'],
+                "endpoint": normalized_api_config.get('endpoint', '')
             })
             
             # 加载外部模型
-            external_model = self.load_external_model(model_id, api_config)
+            external_model = self.load_external_model(model_id, normalized_api_config)
             if not external_model:
                 return {"status": "error", "message": f"无法加载外部模型: {model_id}"}
             
@@ -1144,24 +1184,44 @@ class ModelRegistry:
         
         Args:
             model_id: 模型ID
-            api_config: API配置，包含url、api_key、模型名称等信息
+            api_config: API配置，包含api_url、api_key、model_name等信息
             
         Returns:
             object: 模型实例或API客户端
         """
-        # 验证API配置
-        # Validate API configuration
-        required_keys = ['url', 'api_key', 'model_name']
-        for key in required_keys:
-            if key not in api_config:
-                error_handler.log_error(f"缺少必要的API配置项: {key}", "ModelRegistry")
-                return None
-                
+        # 验证API配置并规范化字段命名
+        # Validate API configuration and normalize field names
+        normalized_config = {}
+        if 'api_url' in api_config:
+            normalized_config['url'] = api_config['api_url']
+        elif 'url' in api_config:
+            normalized_config['url'] = api_config['url']
+        else:
+            error_handler.log_error(f"缺少必要的API配置项: api_url或url", "ModelRegistry")
+            return None
+            
+        if 'api_key' in api_config:
+            normalized_config['api_key'] = api_config['api_key']
+        else:
+            error_handler.log_error(f"缺少必要的API配置项: api_key", "ModelRegistry")
+            return None
+            
+        if 'model_name' in api_config:
+            normalized_config['model_name'] = api_config['model_name']
+        else:
+            normalized_config['model_name'] = model_id
+            
+        # 添加额外的配置字段
+        if 'source' in api_config:
+            normalized_config['source'] = api_config['source']
+        if 'endpoint' in api_config:
+            normalized_config['endpoint'] = api_config['endpoint']
+            
         try:
             # 创建外部模型代理
-            external_model = ExternalModelProxy(model_id, api_config)
+            external_model = ExternalModelProxy(model_id, normalized_config)
             self.models[model_id] = external_model
-            self.model_configs[model_id] = api_config
+            self.model_configs[model_id] = normalized_config
             
             # 测试连接
             if not external_model.connect():

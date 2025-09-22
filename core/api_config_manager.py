@@ -105,20 +105,53 @@ class APIConfigManager:
         import openai
         
         openai.api_key = config.get('api_key', '')
+        # 支持api_base字段设置自定义API端点
+        if 'api_url' in config:
+            openai.api_base = config['api_url']
+        
+        model_name = config.get('model_name', 'text-davinci-002')
+        source = config.get('source', 'openai')
+        
         try:
-            response = openai.Completion.create(
-                engine="text-davinci-002",
-                prompt="Test connection",
-                max_tokens=5
-            )
-            return {'success': True, 'response': response.choices[0].text.strip()}
+            # 优先使用较新的ChatCompletion接口
+            if model_name.startswith('gpt-'):
+                response = openai.ChatCompletion.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": "Test connection"}],
+                    max_tokens=5
+                )
+                result_text = response.choices[0].message.content.strip()
+            else:
+                # 回退到Completion接口
+                response = openai.Completion.create(
+                    engine=model_name,
+                    prompt="Test connection",
+                    max_tokens=5
+                )
+                result_text = response.choices[0].text.strip()
+            
+            result = {'success': True, 'response': result_text}
+            # 添加元数据到结果中
+            result['metadata'] = {
+                'model_name': model_name,
+                'source': source,
+                'api_base': openai.api_base
+            }
+            return result
+        except openai.error.AuthenticationError:
+            return {'success': False, 'error': 'Invalid API key', 'status_code': 401}
+        except openai.error.APIError as e:
+            return {'success': False, 'error': f'API error: {str(e)}', 'status_code': 500}
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {'success': False, 'error': str(e), 'status_code': 500}
             
     def test_huggingface_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """测试HuggingFace API连接 / Test HuggingFace API connection"""
         api_key = config.get('api_key', '')
         model_name = config.get('model_name', '')
+        # 支持自定义API URL
+        api_url = config.get('api_url', '')
+        source = config.get('source', 'huggingface')
 
         headers = {
             'Authorization': f'Bearer {api_key}',
@@ -129,35 +162,11 @@ class APIConfigManager:
             'inputs': 'Test connection'
         }
 
-        try:
-            response = requests.post(
-                f'https://api-inference.huggingface.co/models/{model_name}',
-                headers=headers,
-                json=data,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                return {'success': True, 'response': response.json()}
-            else:
-                return {'success': False, 'error': f'HTTP {response.status_code}: {response.text}'}
-                
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
-            
-    def test_custom_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """测试自定义API连接 / Test custom API connection"""
-        url = config.get('endpoint', '')
-        api_key = config.get('api_key', '')
-
-        headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json'
-        }
-
-        data = {
-            'prompt': 'Test connection'
-        }
+        # 构建请求URL
+        if api_url:
+            url = f'{api_url}/models/{model_name}' if not api_url.endswith('/') else f'{api_url}models/{model_name}'
+        else:
+            url = f'https://api-inference.huggingface.co/models/{model_name}'
 
         try:
             response = requests.post(
@@ -168,9 +177,79 @@ class APIConfigManager:
             )
             
             if response.status_code == 200:
-                return {'success': True, 'response': response.json()}
+                result = {'success': True, 'response': response.json()}
+                # 添加元数据到结果中
+                result['metadata'] = {
+                    'model_name': model_name,
+                    'source': source,
+                    'api_url': url,
+                    'status_code': response.status_code
+                }
+                return result
+            elif response.status_code == 401:
+                return {'success': False, 'error': 'Invalid API key', 'status_code': 401}
+            elif response.status_code == 404:
+                return {'success': False, 'error': 'API endpoint or model not found', 'status_code': 404}
             else:
-                return {'success': False, 'error': f'HTTP {response.status_code}: {response.text}'}
+                return {'success': False, 'error': f'HTTP {response.status_code}: {response.text}', 'status_code': response.status_code}
                 
+        except requests.exceptions.Timeout:
+            return {'success': False, 'error': 'API connection timeout', 'status_code': 408}
+        except requests.exceptions.ConnectionError:
+            return {'success': False, 'error': 'Failed to connect to API endpoint', 'status_code': 503}
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {'success': False, 'error': str(e), 'status_code': 500}
+            
+    def test_custom_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """测试自定义API连接 / Test custom API connection"""
+        # 支持api_url或endpoint作为URL字段，保持一致性
+        url = config.get('api_url', config.get('endpoint', ''))
+        api_key = config.get('api_key', '')
+        source = config.get('source', 'external')
+        model_name = config.get('model_name', '')
+
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+
+        # 构建测试数据，如果有model_name则添加
+        data = {
+            'prompt': 'Test connection'
+        }
+        if model_name:
+            data['model'] = model_name
+
+        try:
+            response = requests.post(
+                url,
+                headers=headers,
+                json=data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = {'success': True, 'response': response.json()}
+                # 添加元数据到结果中
+                result['metadata'] = {
+                    'api_url': url,
+                    'source': source,
+                    'model_name': model_name,
+                    'status_code': response.status_code
+                }
+                return result
+            elif response.status_code == 401:
+                return {'success': False, 'error': 'Invalid API key', 'status_code': 401}
+            elif response.status_code == 404:
+                return {'success': False, 'error': 'API endpoint not found', 'status_code': 404}
+            elif response.status_code == 400 and 'model_not_found' in response.text:
+                return {'success': False, 'error': f'Model not found: {model_name}', 'status_code': 400}
+            else:
+                return {'success': False, 'error': f'HTTP {response.status_code}: {response.text}', 'status_code': response.status_code}
+                
+        except requests.exceptions.Timeout:
+            return {'success': False, 'error': 'API connection timeout', 'status_code': 408}
+        except requests.exceptions.ConnectionError:
+            return {'success': False, 'error': 'Failed to connect to API endpoint', 'status_code': 503}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'status_code': 500}

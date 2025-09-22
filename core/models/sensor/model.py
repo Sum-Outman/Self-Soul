@@ -21,7 +21,7 @@ import logging
 import numpy as np
 import time
 import threading
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any, Tuple, Optional, Callable
 
 from ..base_model import BaseModel
 

@@ -107,17 +107,16 @@ class VisionDataset(Dataset):
 class VisionModelTrainer:
     """Vision model trainer for from-scratch training"""
     
-    
-def __init__(self, config):
+    def __init__(self, config):
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # Initialize from-scratch vision model
         self.vision_model = AGIFromScratchModel(
-            input_dim=3 * 224 * 224,  # 3 channels, 224x224 image
-            hidden_dims=[512, 256, 128],
-            output_dim=512,  # Feature embedding dimension
-            dropout_rate=0.2
+            input_size=3 * 224 * 224,  # 3 channels, 224x224 image
+            hidden_sizes=[512, 256, 128],
+            output_size=512,  # Feature embedding dimension
+            model_type="vision"
         ).to(self.device)
         
         # Object detection head
@@ -161,13 +160,13 @@ def __init__(self, config):
         self.modification_loss = nn.MSELoss()
     
     
-def load_data(self, data_dir):
+    def load_data(self, data_dir):
         """Load vision data"""
         dataset = VisionDataset(data_dir)
         return dataset
     
     
-def create_data_loader(self, dataset, batch_size=8, shuffle=True):
+    def create_data_loader(self, dataset, batch_size=8, shuffle=True):
         """Create data loader"""
         return DataLoader(
             dataset,
@@ -177,7 +176,7 @@ def create_data_loader(self, dataset, batch_size=8, shuffle=True):
         )
     
     
-def train_epoch(self, train_loader, optimizer):
+    def train_epoch(self, train_loader, optimizer):
         """Single epoch training"""
         self.vision_model.train()
         self.object_detector.train()
@@ -186,8 +185,8 @@ def train_epoch(self, train_loader, optimizer):
         self.emotion_classifier.train()
         
         total_detection_loss = 0
-        total_enhancement_loss = 0
         total_emotion_loss = 0
+        total_enhancement_loss = 0
         total_modification_loss = 0
         
         for batch in tqdm(train_loader, desc="Training"):
@@ -214,21 +213,22 @@ def train_epoch(self, train_loader, optimizer):
             enhanced_images = self.enhancement_network(image_tensor)
             
             # Calculate various losses
-            # Object detection loss (simplified)
-            detection_loss = self.detection_loss(object_logits, torch.zeros_like(object_logits))
+            # Object detection loss - use dummy targets for now
+            detection_targets = torch.zeros(batch_size, dtype=torch.long).to(self.device)
+            detection_loss = self.detection_loss(object_logits, detection_targets)
             
             # Emotion analysis loss
             emotion_loss = self.emotion_loss(emotion_logits, emotion_label)
             
-            # Enhancement loss
+            # Enhancement loss - aim to preserve original image quality
             enhancement_loss = self.enhancement_loss(enhanced_images, image_tensor)
             
-            # Modification loss
+            # Modification loss - use original image as target for now
             modification_loss = self.modification_loss(modified_images, image_tensor)
             
-            # Total loss
-            total_loss = (detection_loss + emotion_loss + 
-                         enhancement_loss + modification_loss)
+            # Total loss with balanced weights
+            total_loss = (detection_loss * 0.2 + emotion_loss * 0.4 + 
+                         enhancement_loss * 0.2 + modification_loss * 0.2)
             
             total_loss.backward()
             optimizer.step()
@@ -244,7 +244,7 @@ def train_epoch(self, train_loader, optimizer):
                 total_modification_loss / len(train_loader))
     
     
-def _emotion_to_idx(self, emotion):
+    def _emotion_to_idx(self, emotion):
         """Emotion label mapping"""
         emotion_mapping = {
             'happy': 0, 'sad': 1, 'angry': 2, 'surprised': 3,
@@ -253,7 +253,7 @@ def _emotion_to_idx(self, emotion):
         return emotion_mapping.get(emotion, 5)
     
     
-def evaluate(self, test_loader):
+    def evaluate(self, test_loader):
         """Model evaluation"""
         self.vision_model.eval()
         self.object_detector.eval()
@@ -290,7 +290,8 @@ def evaluate(self, test_loader):
                 enhanced_images = self.enhancement_network(image_tensor)
                 
                 # Calculate various losses
-                detection_loss = self.detection_loss(object_logits, torch.zeros_like(object_logits))
+                detection_targets = torch.zeros(batch_size, dtype=torch.long).to(self.device)
+                detection_loss = self.detection_loss(object_logits, detection_targets)
                 
                 emotion_loss = self.emotion_loss(emotion_logits, emotion_label)
                 emotion_preds = emotion_logits.argmax(dim=1)
@@ -313,22 +314,32 @@ def evaluate(self, test_loader):
         return avg_detection_loss, avg_emotion_loss, avg_enhancement_loss, avg_modification_loss, emotion_acc
     
     
-def save_model(self, path):
+    def save_model(self, path):
         """Save model"""
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
         torch.save({
             'vision_model_state_dict': self.vision_model.state_dict(),
             'object_detector_state_dict': self.object_detector.state_dict(),
             'image_modifier_state_dict': self.image_modifier.state_dict(),
             'enhancement_network_state_dict': self.enhancement_network.state_dict(),
-            'emotion_classifier_state_dict': self.emotion_classifier.state_dict()
+            'emotion_classifier_state_dict': self.emotion_classifier.state_dict(),
+            'config': self.config
         }, path)
         logger.info(f"Vision model saved to {path}")
     
     
-def full_training(self, data_dir, epochs=10):
+    def full_training(self, data_dir, epochs=10):
         """Full training pipeline"""
         # Load data
         dataset = self.load_data(data_dir)
+        
+        # If dataset is empty, create synthetic data
+        if len(dataset) == 0:
+            logger.warning("No real data found. Creating synthetic training data...")
+            self._create_synthetic_data(data_dir)
+            dataset = self.load_data(data_dir)
         
         # Split into train and test sets
         train_size = int(0.8 * len(dataset))
@@ -350,6 +361,9 @@ def full_training(self, data_dir, epochs=10):
             {'params': self.emotion_classifier.parameters()}
         ], lr=self.config['learning_rate'])
         
+        # Learning rate scheduler
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.5)
+        
         # Training loop
         best_emotion_acc = 0
         for epoch in range(epochs):
@@ -365,12 +379,54 @@ def full_training(self, data_dir, epochs=10):
                 f"Emotion Accuracy: {test_emotion_acc:.4f}"
             )
             
+            # Step the scheduler based on emotion loss
+            scheduler.step(test_emo_loss)
+            
             # Save best model
             if test_emotion_acc > best_emotion_acc:
                 best_emotion_acc = test_emotion_acc
                 self.save_model(self.config['model_save_path'])
+                logger.info(f"New best model saved with emotion accuracy: {best_emotion_acc:.4f}")
         
         logger.info("Vision model training completed")
+    
+    def _create_synthetic_data(self, data_dir):
+        """Create synthetic training data when real data is not available"""
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # Create synthetic vision data with emotion labels
+        emotions = ['happy', 'sad', 'angry', 'surprised', 'fear', 'neutral', 'excited', 'calm']
+        vision_types = ['recognition', 'modification', 'enhancement', 'generation']
+        
+        # Create dummy image files directory
+        images_dir = os.path.join(data_dir, 'images')
+        os.makedirs(images_dir, exist_ok=True)
+        
+        # Generate synthetic data for each vision type
+        for vision_type in vision_types:
+            synthetic_data = []
+            for i in range(50):  # Generate 50 samples per type
+                # Create a dummy image file
+                dummy_image_path = os.path.join(images_dir, f'dummy_{vision_type}_{i}.png')
+                if not os.path.exists(dummy_image_path):
+                    # Create a dummy image using numpy and PIL
+                    dummy_image = np.random.randint(0, 256, (224, 224, 3), dtype=np.uint8)
+                    Image.fromarray(dummy_image).save(dummy_image_path)
+                
+                # Add to dataset
+                synthetic_data.append({
+                    'image_path': dummy_image_path,
+                    'emotion': emotions[i % len(emotions)],
+                    'vision_type': vision_type,
+                    'timestamp': datetime.now().isoformat()
+                })
+            
+            # Save synthetic data to JSON file
+            output_file = os.path.join(data_dir, f'vision_{vision_type}.json')
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(synthetic_data, f, indent=2)
+            
+            logger.info(f"Created synthetic {vision_type} data: {len(synthetic_data)} samples")
 
 # Example configuration
 if __name__ == "__main__":

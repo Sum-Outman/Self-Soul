@@ -343,7 +343,7 @@ class ModelOptimizer:
     Model Optimizer Class
     """
     
-    def __init__(self):
+    def __init__(self, from_scratch=False):
         """初始化模型优化器
         Initialize model optimizer
         """
@@ -362,40 +362,66 @@ class ModelOptimizer:
         }
         
         # 初始化知识库集成
-        self.optimization_knowledge = self._load_optimization_knowledge()
+        self.optimization_knowledge = self._load_optimization_knowledge(from_scratch)
+        self.from_scratch = from_scratch
         
         self.logger = logging.getLogger("ModelOptimizer")
         self.logger.setLevel(logging.INFO)
+        
+        if from_scratch:
+            self.logger.info("Model optimizer initialized in from-scratch training mode with simplified optimization knowledge")
     
-    def _load_optimization_knowledge(self) -> Dict[str, Any]:
+    def _load_optimization_knowledge(self, from_scratch=False) -> Dict[str, Any]:
         """加载优化知识
         Load optimization knowledge
         """
-        return {
-            "best_practices": {
-                "performance": {
-                    "batch_size_recommendations": {
-                        "small_model": 32,
-                        "medium_model": 64,
-                        "large_model": 128
+        if from_scratch:
+            # 从零开始训练模式下，只提供最基本的优化知识
+            return {
+                "best_practices": {
+                    "performance": {
+                        "batch_size_recommendations": {
+                            "default": 32
+                        },
+                        "learning_rate_ranges": {
+                            "default": (1e-5, 1e-3)
+                        }
                     },
-                    "learning_rate_ranges": {
-                        "transformer": (1e-5, 1e-3),
-                        "cnn": (1e-4, 1e-2),
-                        "rnn": (1e-4, 1e-2)
+                    "accuracy": {
+                        "regularization_methods": [
+                            "dropout"
+                        ]
                     }
                 },
-                "accuracy": {
-                    "data_augmentation_techniques": [
-                        "random_rotation", "color_jitter", "random_crop"
-                    ],
-                    "regularization_methods": [
-                        "dropout", "weight_decay", "batch_norm"
-                    ]
-                }
-            },
-            "model_specific_optimizations": {}
-        }
+                "model_specific_optimizations": {}
+            }
+        else:
+            # 标准模式下，提供完整的优化知识
+            return {
+                "best_practices": {
+                    "performance": {
+                        "batch_size_recommendations": {
+                            "small_model": 32,
+                            "medium_model": 64,
+                            "large_model": 128
+                        },
+                        "learning_rate_ranges": {
+                            "transformer": (1e-5, 1e-3),
+                            "cnn": (1e-4, 1e-2),
+                            "rnn": (1e-4, 1e-2)
+                        }
+                    },
+                    "accuracy": {
+                        "data_augmentation_techniques": [
+                            "random_rotation", "color_jitter", "random_crop"
+                        ],
+                        "regularization_methods": [
+                            "dropout", "weight_decay", "batch_norm"
+                        ]
+                    }
+                },
+                "model_specific_optimizations": {}
+            }
     
     async def optimize_model(self, model_id: str, strategy: OptimizationStrategy, 
                            level: OptimizationLevel = OptimizationLevel.STANDARD,

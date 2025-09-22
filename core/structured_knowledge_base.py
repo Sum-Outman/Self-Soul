@@ -313,13 +313,14 @@ class SemanticIndex:
 class StructuredKnowledgeBase:
     """结构化知识库系统"""
     
-    def __init__(self):
+    def __init__(self, from_scratch=False):
         self.knowledge_graph = KnowledgeGraph()
         self.experience_memory = ExperienceMemory()
         self.semantic_index = SemanticIndex()
         
-        # 加载现有知识
-        self._load_existing_knowledge()
+        # 加载现有知识，除非是从零开始训练
+        if not from_scratch:
+            self._load_existing_knowledge()
         
         error_handler.log_info("结构化知识库初始化完成", "StructuredKnowledgeBase")
     

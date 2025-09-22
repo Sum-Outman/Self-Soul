@@ -25,7 +25,7 @@ Prediction Model: Responsible for time series forecasting, trend analysis, and p
 """
 import time
 import numpy as np
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Callable
 from core.error_handling import error_handler
 
 

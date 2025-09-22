@@ -36,6 +36,11 @@ from PIL import Image
 import soundfile as sf
 import io
 import cv2
+import logging
+
+# 设置日志 | Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 """
 DataType类 - 中文类描述
@@ -48,6 +53,80 @@ class DataType(Enum):
     VIDEO = "video"
     SENSOR = "sensor"
     SPATIAL = "spatial"
+
+
+def preprocess_video(video_data, max_resolution, min_fps, max_fps):
+    """预处理视频数据
+    Preprocess video data
+    
+    功能：调整视频分辨率和帧率
+    Function: Adjust video resolution and frame rate
+    
+    参数：
+    Parameters:
+    - video_data: 视频数据 | Video data
+    - max_resolution: 最大分辨率 (width, height) | Maximum resolution
+    - min_fps: 最小帧率 | Minimum FPS
+    - max_fps: 最大帧率 | Maximum FPS
+    
+    返回：处理后的视频数据 | Returns: Processed video data
+    """
+    try:
+        # 这里是视频预处理的基本实现
+        # This is a basic implementation of video preprocessing
+        logger.info(f"预处理视频 - 分辨率: {max_resolution}, 帧率范围: {min_fps}-{max_fps}")
+        
+        # 检查视频数据类型
+        # Check video data type
+        if isinstance(video_data, str):
+            # 如果是文件路径，则读取文件
+            # If it's a file path, read the file
+            cap = cv2.VideoCapture(video_data)
+            
+            # 获取原始视频属性
+            # Get original video properties
+            original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            original_fps = cap.get(cv2.CAP_PROP_FPS)
+            
+            # 计算调整后的分辨率
+            # Calculate adjusted resolution
+            width_ratio = max_resolution[0] / original_width
+            height_ratio = max_resolution[1] / original_height
+            ratio = min(width_ratio, height_ratio)
+            new_width = int(original_width * ratio)
+            new_height = int(original_height * ratio)
+            
+            # 调整帧率
+            # Adjust FPS
+            adjusted_fps = max(min_fps, min(max_fps, original_fps))
+            
+            cap.release()
+            
+            # 返回预处理后的视频信息
+            # Return preprocessed video information
+            return {
+                "path": video_data,
+                "width": new_width,
+                "height": new_height,
+                "fps": adjusted_fps,
+                "original_width": original_width,
+                "original_height": original_height,
+                "original_fps": original_fps
+            }
+        elif isinstance(video_data, dict):
+            # 如果已经是处理过的视频数据，则直接返回
+            # If it's already processed video data, return directly
+            return video_data
+        else:
+            # 其他类型的视频数据，返回原始数据
+            # Other types of video data, return original data
+            return video_data
+    except Exception as e:
+        logger.error(f"视频预处理错误: {str(e)}")
+        # 出错时返回原始视频数据
+        # Return original video data on error
+        return video_data
     JSON = "json"
 
 

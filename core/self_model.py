@@ -1075,7 +1075,9 @@ class GoalModel:
         self.meta_learning_params = {
             "goal_discovery_rate": 0.2,
             "priority_adaptation_factor": 0.15,
-            "progress_evaluation_sensitivity": 0.3
+            "progress_evaluation_sensitivity": 0.3,
+            "goal_adaptation_speed": 0.25,
+            "hierarchy_evolution_factor": 0.18
         }
         
         # Initialize goals based on from_scratch setting
@@ -1083,6 +1085,24 @@ class GoalModel:
             self._initialize_from_scratch()
         else:
             self._initialize_with_baseline()
+    
+    def _initialize_from_scratch(self):
+        """Initialize goals from scratch with no prior goals"""
+        self.goals = {}
+        self.goal_hierarchy = {
+            "root": {
+                "name": "agi_development",
+                "children": [],
+                "discovered": False
+            }
+        }
+        self.progress_tracking = {}
+        error_handler.log_info("GoalModel initialized from scratch", "GoalModel")
+    
+    def _initialize_with_baseline(self):
+        """Initialize with baseline goals for testing"""
+        self._initialize_basic_goals()
+        error_handler.log_info("GoalModel initialized with baseline", "GoalModel")
     
     def _initialize_basic_goals(self):
         """Initialize basic goals"""
@@ -1253,3 +1273,327 @@ class GoalModel:
             ])
         
         return actions
+
+    def discover_new_goals(self, experience_data: Dict[str, Any]) -> List[str]:
+        """Discover new goals based on experience and performance data"""
+        discovered_goals = []
+        
+        # Analyze for capability-based goals
+        if "capability_gaps" in experience_data:
+            for capability, gap_info in experience_data["capability_gaps"].items():
+                goal_id = f"improve_{capability}"
+                if goal_id not in self.goals and gap_info.get("severity", 0) > 0.6:
+                    goal_data = {
+                        "description": f"Improve {capability} capability",
+                        "priority": GoalPriority.HIGH.value if gap_info.get("severity", 0) > 0.8 else GoalPriority.MEDIUM.value,
+                        "deadline": None,
+                        "progress": 0.1,
+                        "dependencies": [],
+                        "metrics": [f"{capability}_performance", f"{capability}_confidence"],
+                        "discovered": datetime.now().isoformat()
+                    }
+                    self.add_goal(goal_id, goal_data)
+                    discovered_goals.append(goal_id)
+        
+        # Analyze for value-aligned goals
+        if "value_opportunities" in experience_data:
+            for value, opportunity in experience_data["value_opportunities"].items():
+                goal_id = f"enhance_{value}_alignment"
+                if goal_id not in self.goals and opportunity.get("potential", 0) > 0.7:
+                    goal_data = {
+                        "description": f"Enhance alignment with {value} value",
+                        "priority": GoalPriority.MEDIUM.value,
+                        "deadline": None,
+                        "progress": 0.2,
+                        "dependencies": [],
+                        "metrics": [f"{value}_alignment", f"{value}_manifestation"],
+                        "discovered": datetime.now().isoformat()
+                    }
+                    self.add_goal(goal_id, goal_data)
+                    discovered_goals.append(goal_id)
+        
+        # Analyze for limitation-driven goals
+        if "limitation_challenges" in experience_data:
+            for limitation, challenge in experience_data["limitation_challenges"].items():
+                goal_id = f"overcome_{limitation}"
+                if goal_id not in self.goals and challenge.get("impact", 0) > 0.5:
+                    goal_data = {
+                        "description": f"Overcome {limitation} limitation",
+                        "priority": GoalPriority.HIGH.value if challenge.get("impact", 0) > 0.7 else GoalPriority.MEDIUM.value,
+                        "deadline": None,
+                        "progress": 0.15,
+                        "dependencies": [],
+                        "metrics": [f"{limitation}_severity", f"{limitation}_mitigation"],
+                        "discovered": datetime.now().isoformat()
+                    }
+                    self.add_goal(goal_id, goal_data)
+                    discovered_goals.append(goal_id)
+        
+        return discovered_goals
+
+    def update_goal_priorities(self, context: Dict[str, Any]):
+        """Dynamically update goal priorities based on context and meta-learning"""
+        for goal_id, goal_data in self.goals.items():
+            current_priority = goal_data["priority"]
+            
+            # Calculate context-aware priority adjustment
+            context_factor = self._calculate_context_factor(goal_id, context)
+            meta_learning_factor = self.meta_learning_params["priority_adaptation_factor"]
+            
+            # Adjust priority based on context and meta-learning
+            if context_factor > 0.7 and current_priority != GoalPriority.CRITICAL.value:
+                # Upgrade priority for high-context relevance
+                goal_data["priority"] = self._upgrade_priority(current_priority)
+            elif context_factor < 0.3 and current_priority != GoalPriority.LOW.value:
+                # Downgrade priority for low-context relevance
+                goal_data["priority"] = self._downgrade_priority(current_priority)
+            
+            # Apply meta-learning adaptation
+            self._adapt_goal_parameters(goal_id, goal_data)
+
+    def _calculate_context_factor(self, goal_id: str, context: Dict[str, Any]) -> float:
+        """Calculate how relevant a goal is to the current context"""
+        goal_data = self.goals[goal_id]
+        relevance_score = 0.5  # Default relevance
+        
+        # Check context urgency
+        if context.get("urgency", 0) > 0.7 and "urgent" not in goal_id:
+            relevance_score += 0.2
+        
+        # Check context complexity
+        if context.get("complexity", 0) > 0.6 and any(word in goal_id for word in ["complex", "advanced", "expert"]):
+            relevance_score += 0.15
+        
+        # Check value alignment
+        if "values" in context and any(value in goal_id for value in context.get("values", [])):
+            relevance_score += 0.25
+        
+        return min(1.0, max(0.1, relevance_score))
+
+    def _upgrade_priority(self, current_priority: str) -> str:
+        """Upgrade goal priority"""
+        priority_order = [
+            GoalPriority.LOW.value,
+            GoalPriority.MEDIUM.value,
+            GoalPriority.HIGH.value,
+            GoalPriority.CRITICAL.value
+        ]
+        current_index = priority_order.index(current_priority)
+        return priority_order[min(current_index + 1, len(priority_order) - 1)]
+
+    def _downgrade_priority(self, current_priority: str) -> str:
+        """Downgrade goal priority"""
+        priority_order = [
+            GoalPriority.LOW.value,
+            GoalPriority.MEDIUM.value,
+            GoalPriority.HIGH.value,
+            GoalPriority.CRITICAL.value
+        ]
+        current_index = priority_order.index(current_priority)
+        return priority_order[max(current_index - 1, 0)]
+
+    def _adapt_goal_parameters(self, goal_id: str, goal_data: Dict[str, Any]):
+        """Adapt goal parameters based on meta-learning"""
+        adaptation_speed = self.meta_learning_params["goal_adaptation_speed"]
+        
+        # Adjust progress evaluation sensitivity
+        progress = goal_data.get("progress", 0.5)
+        if progress < 0.3:
+            # Increase sensitivity for slow-progress goals
+            self.meta_learning_params["progress_evaluation_sensitivity"] = min(0.5, 
+                self.meta_learning_params["progress_evaluation_sensitivity"] + adaptation_speed * 0.1)
+        elif progress > 0.8:
+            # Decrease sensitivity for fast-progress goals
+            self.meta_learning_params["progress_evaluation_sensitivity"] = max(0.1, 
+                self.meta_learning_params["progress_evaluation_sensitivity"] - adaptation_speed * 0.05)
+
+    def update_meta_learning_params(self, learning_data: Dict[str, float]):
+        """Update meta-learning parameters based on goal achievement performance"""
+        for param, value in learning_data.items():
+            if param in self.meta_learning_params:
+                # Smooth update with momentum and goal adaptation speed
+                current = self.meta_learning_params[param]
+                adaptation_speed = self.meta_learning_params["goal_adaptation_speed"]
+                new_value = (1 - adaptation_speed) * current + adaptation_speed * value
+                self.meta_learning_params[param] = max(0.01, min(1.0, new_value))
+        
+        error_handler.log_info("Goal meta-learning parameters updated", "GoalModel")
+
+    def evolve_goal_hierarchy(self, new_goals: List[str]):
+        """Evolve goal hierarchy based on newly discovered goals"""
+        evolution_factor = self.meta_learning_params["hierarchy_evolution_factor"]
+        
+        for goal_id in new_goals:
+            goal_data = self.goals[goal_id]
+            
+            # Categorize goal and add to appropriate hierarchy branch
+            goal_type = self._categorize_goal(goal_id, goal_data)
+            if goal_type and goal_type in self.goal_hierarchy.get("root", {}).get("children", []):
+                if goal_id not in self.goal_hierarchy[goal_type].get("children", []):
+                    self.goal_hierarchy[goal_type]["children"].append(goal_id)
+            
+            # Mark hierarchy as discovered if this is a significant addition
+            if len(new_goals) > 2:  # Significant discovery threshold
+                self.goal_hierarchy["root"]["discovered"] = True
+                for branch in self.goal_hierarchy:
+                    if branch != "root":
+                        self.goal_hierarchy[branch]["discovered"] = True
+
+    def _categorize_goal(self, goal_id: str, goal_data: Dict[str, Any]) -> Optional[str]:
+        """Categorize goal into appropriate hierarchy branch"""
+        description = goal_data.get("description", "").lower()
+        goal_lower = goal_id.lower()
+        
+        if any(keyword in goal_lower or keyword in description for keyword in 
+               ["learn", "knowledge", "skill", "training", "education"]):
+            return "learning_goals"
+        elif any(keyword in goal_lower or keyword in description for keyword in 
+                ["improve", "performance", "efficiency", "accuracy", "reliability"]):
+            return "performance_goals"
+        elif any(keyword in goal_lower or keyword in description for keyword in 
+                ["interaction", "communication", "collaboration", "trust", "social"]):
+            return "interaction_goals"
+        elif any(keyword in goal_lower or keyword in description for keyword in 
+                ["value", "ethical", "alignment", "moral", "principle"]):
+            return "value_goals"
+        
+        return None
+
+    def get_goal_recommendations(self) -> Dict[str, Any]:
+        """Get personalized goal recommendations based on current state"""
+        recommendations = {
+            "high_priority_goals": [],
+            "exploration_opportunities": [],
+            "consolidation_suggestions": []
+        }
+        
+        # Recommend high priority goals
+        for goal_id, goal_data in self.goals.items():
+            if goal_data["priority"] in [GoalPriority.CRITICAL.value, GoalPriority.HIGH.value] and goal_data["progress"] < 0.4:
+                recommendations["high_priority_goals"].append({
+                    "goal_id": goal_id,
+                    "description": goal_data["description"],
+                    "priority": goal_data["priority"],
+                    "progress": goal_data["progress"],
+                    "suggested_actions": self._suggest_goal_actions(goal_id)
+                })
+        
+        # Suggest exploration based on gaps
+        exploration_opportunities = self._identify_exploration_opportunities()
+        recommendations["exploration_opportunities"].extend(exploration_opportunities)
+        
+        # Consolidation suggestions for overlapping goals
+        consolidation_suggestions = self._identify_consolidation_opportunities()
+        recommendations["consolidation_suggestions"].extend(consolidation_suggestions)
+        
+        return recommendations
+
+    def _identify_exploration_opportunities(self) -> List[Dict[str, Any]]:
+        """Identify opportunities for new goal exploration"""
+        opportunities = []
+        
+        # Look for capability gaps without corresponding goals
+        capability_goals = [goal_id for goal_id in self.goals if "improve_" in goal_id]
+        existing_capabilities = [goal_id.replace("improve_", "") for goal_id in capability_goals]
+        
+        # Suggest exploration of missing capabilities
+        if len(existing_capabilities) < 5:  # Threshold for exploration
+            opportunities.append({
+                "type": "capability_exploration",
+                "reason": "Limited capability coverage in current goals",
+                "suggested_actions": [
+                    "Explore new capability areas through diverse tasks",
+                    "Analyze performance patterns for undiscovered strengths",
+                    "Engage in cross-domain learning activities"
+                ]
+            })
+        
+        return opportunities
+
+    def _identify_consolidation_opportunities(self) -> List[Dict[str, Any]]:
+        """Identify opportunities for goal consolidation"""
+        consolidation_ops = []
+        goal_descriptions = [goal_data["description"].lower() for goal_data in self.goals.values()]
+        
+        # Check for overlapping goal descriptions
+        seen_descriptions = set()
+        duplicates = []
+        
+        for desc in goal_descriptions:
+            if desc in seen_descriptions:
+                duplicates.append(desc)
+            seen_descriptions.add(desc)
+        
+        if duplicates:
+            consolidation_ops.append({
+                "type": "goal_consolidation",
+                "reason": f"Duplicate goal descriptions detected: {duplicates}",
+                "suggested_actions": [
+                    "Review and merge overlapping goals",
+                    "Refine goal descriptions for specificity",
+                    "Consolidate similar objectives into unified goals"
+                ]
+            })
+        
+        return consolidation_ops
+
+    def integrate_with_other_models(self, capability_model: CapabilityModel, 
+                                  preference_model: PreferenceModel, 
+                                  limitation_model: LimitationModel):
+        """Integrate goal model with other self models for holistic AGI operation"""
+        integrated_goals = []
+        
+        # Create goals based on capability gaps
+        capability_gaps = capability_model.identify_skill_gaps()
+        for gap in capability_gaps:
+            goal_id = f"improve_{gap['capability']}"
+            if goal_id not in self.goals:
+                goal_data = {
+                    "description": f"Improve {gap['capability']} capability",
+                    "priority": GoalPriority.HIGH.value if gap['priority'] == 'high' else GoalPriority.MEDIUM.value,
+                    "deadline": None,
+                    "progress": 0.1,
+                    "dependencies": [],
+                    "metrics": [f"{gap['capability']}_performance"],
+                    "integrated_from": "capability_model"
+                }
+                self.add_goal(goal_id, goal_data)
+                integrated_goals.append(goal_id)
+        
+        # Create goals based on preference alignment opportunities
+        preference_recommendations = preference_model.get_preference_recommendations()
+        for opp in preference_recommendations.get("value_alignment_opportunities", []):
+            goal_id = f"align_{opp['value']}_values"
+            if goal_id not in self.goals:
+                goal_data = {
+                    "description": f"Improve alignment with {opp['value']} values",
+                    "priority": GoalPriority.MEDIUM.value,
+                    "deadline": None,
+                    "progress": 0.2,
+                    "dependencies": [],
+                    "metrics": [f"{opp['value']}_alignment_score"],
+                    "integrated_from": "preference_model"
+                }
+                self.add_goal(goal_id, goal_data)
+                integrated_goals.append(goal_id)
+        
+        # Create goals based on limitation mitigation
+        limitation_assessment = limitation_model.assess_limitations({"general": True})
+        for lim_type, limitations in limitation_assessment.get("limitation_assessment", {}).items():
+            for limitation, severity in limitations.items():
+                if severity > 0.6:  # Significant limitation
+                    goal_id = f"mitigate_{limitation}"
+                    if goal_id not in self.goals:
+                        goal_data = {
+                            "description": f"Mitigate {limitation} limitation",
+                            "priority": GoalPriority.HIGH.value if severity > 0.8 else GoalPriority.MEDIUM.value,
+                            "deadline": None,
+                            "progress": 0.15,
+                            "dependencies": [],
+                            "metrics": [f"{limitation}_severity_reduction"],
+                            "integrated_from": "limitation_model"
+                        }
+                        self.add_goal(goal_id, goal_data)
+                        integrated_goals.append(goal_id)
+        
+        return integrated_goals

@@ -13,7 +13,6 @@
 """
 
 """
-双目空间定位感知模型 - 合并版：空间识别、可视化空间建模、空间定位、距离感知、体积识别、运动物体跟踪
 Stereo Spatial Perception Model - Merged Version: Spatial recognition, visual spatial modeling, 
 spatial positioning, distance perception, volume recognition, moving object tracking
 """
@@ -30,14 +29,11 @@ from datetime import datetime
 
 
 """
-SpatialPerceptionModel类 - 中文类描述
-SpatialPerceptionModel Class - English class description
+SpatialPerceptionModel Class
 """
 class SpatialPerceptionModel(BaseModel):
-    """双目空间定位感知模型（合并版）
-    Stereo Spatial Perception Model (Merged Version)
+    """Stereo Spatial Perception Model (Merged Version)
     
-    功能：空间识别、可视化空间建模、空间定位、空间距离感知、物体体积识别、运动物体识别预判、自身空间位置识别
     Function: Spatial recognition, visual spatial modeling, spatial positioning, distance perception, 
               object volume recognition, moving object recognition and prediction, self-position recognition
     """
@@ -47,50 +43,50 @@ class SpatialPerceptionModel(BaseModel):
         self.logger = logging.getLogger(__name__)
         self.model_id = "spatial"
         
-        # 空间感知配置 | Spatial perception configuration
-        self.camera_baseline = config.get("camera_baseline", 0.12) if config else 0.12  # 双目相机基线距离（米）| Camera baseline distance (meters)
-        self.focal_length = config.get("focal_length", 800) if config else 800          # 相机焦距（像素）| Camera focal length (pixels)
-        self.min_depth = config.get("min_depth", 0.1) if config else 0.1                # 最小感知距离（米）| Minimum perception distance (meters)
-        self.max_depth = config.get("max_depth", 20.0) if config else 20.0              # 最大感知距离（米）| Maximum perception distance (meters)
+        # Spatial perception configuration
+        self.camera_baseline = config.get("camera_baseline", 0.12) if config else 0.12  # Camera baseline distance (meters)
+        self.focal_length = config.get("focal_length", 800) if config else 800          # Camera focal length (pixels)
+        self.min_depth = config.get("min_depth", 0.1) if config else 0.1                # Minimum perception distance (meters)
+        self.max_depth = config.get("max_depth", 20.0) if config else 20.0              # Maximum perception distance (meters)
         
-        # 空间建模配置 | Spatial modeling configuration
-        self.grid_resolution = config.get("grid_resolution", 0.01) if config else 0.01  # 空间网格分辨率（米）| Spatial grid resolution (meters)
-        self.map_size = config.get("map_size", (10, 10, 3)) if config else (10, 10, 3)  # 空间地图尺寸（长x宽x高，米）| Spatial map size (LxWxH, meters)
+        # Spatial modeling configuration
+        self.grid_resolution = config.get("grid_resolution", 0.01) if config else 0.01  # Spatial grid resolution (meters)
+        self.map_size = config.get("map_size", (10, 10, 3)) if config else (10, 10, 3)  # Spatial map size (LxWxH, meters)
         
-        # 相机标定参数 | Camera calibration parameters
+        # Camera calibration parameters
         self.camera_matrix_left = None
         self.camera_matrix_right = None
         self.dist_coeffs_left = None
         self.dist_coeffs_right = None
-        self.R = None  # 旋转矩阵 | Rotation matrix
-        self.T = None  # 平移向量 | Translation vector
+        self.R = None  # Rotation matrix
+        self.T = None  # Translation vector
         
-        # 立体匹配器 | Stereo matcher
+        # Stereo matcher
         self.stereo = None
         
-        # 初始化空间地图 | Initialize spatial map
+        # Initialize spatial map
         self.spatial_map = np.zeros(self.map_size, dtype=np.float32)
-        self.object_tracking = {}  # 物体跟踪字典 | Object tracking dictionary
+        self.object_tracking = {}  # Object tracking dictionary
         
-        # 自身位置和速度 | Self position and velocity
-        self.self_position = np.array([0, 0, 0])  # 自身位置（x,y,z）| Self position (x,y,z)
-        self.self_velocity = np.array([0, 0, 0])  # 自身速度（vx,vy,vz）| Self velocity (vx,vy,vz)
+        # Self position and velocity
+        self.self_position = np.array([0, 0, 0])  # Self position (x,y,z)
+        self.self_velocity = np.array([0, 0, 0])  # Self velocity (vx,vy,vz)
         
-        # 实时输入接口 | Real-time input interface
+        # Real-time input interface
         self.realtime_inputs = {
             "left_camera": None,
             "right_camera": None,
             "depth_sensor": None
         }
         
-        # 前一帧数据用于运动检测 | Previous frame data for motion detection
+        # Previous frame data for motion detection
         self._prev_gray = None
         self._prev_depth = None
         
-        self.logger.info("双目空间定位感知模型（合并版）初始化完成 | Spatial model (merged) initialized")
+        self.logger.info("Spatial perception model (merged) initialized")
 
     def initialize(self) -> Dict[str, Any]:
-        """初始化模型资源 | Initialize model resources"""
+        """Initialize model resources"""
         try:
             # 初始化立体匹配器 | Initialize stereo matcher
             self.stereo = cv2.StereoSGBM_create(

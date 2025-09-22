@@ -21,7 +21,7 @@ from core.model_registry import ModelRegistry
 from core.error_handling import error_handler
 from core.fusion.multimodal import MultimodalFusion
 from core.training_manager import TrainingManager
-from core.unified_self_learning import SelfLearningSystem
+from core.unified_self_learning import UnifiedSelfLearningSystem
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 from core.enhanced_meta_cognition import EnhancedMetaCognition
 from core.structured_knowledge_base import StructuredKnowledgeBase
@@ -37,21 +37,26 @@ AGICoordinator Class - Core AGI System Coordinator
 class AGICoordinator:
     """Self Soul  AGI中央协调器，管理和协调所有认知组件"""
     
-    def __init__(self):
+    def __init__(self, from_scratch: bool = False):
         # 初始化统一认知架构
         self.cognitive_architecture = UnifiedCognitiveArchitecture()
         
         # 初始化模型注册表
         self.model_registry = ModelRegistry()
-        # 加载所有模型
-        self.model_registry.load_all_models()
+        # 加载所有模型，除非是从头开始训练模式
+        if not from_scratch:
+            self.model_registry.load_all_models()
         
         # 初始化多模态融合模块
         self.fusion_engine = MultimodalFusion()
         # 初始化训练管理器
-        self.training_manager = TrainingManager(self.model_registry)
+        self.training_manager = TrainingManager(self.model_registry, from_scratch=from_scratch)
         # 初始化自主学习系统
-        self.self_learning = SelfLearningSystem(self.model_registry, self.training_manager)
+        self.self_learning = UnifiedSelfLearningSystem(self.model_registry, self.training_manager)
+        self.from_scratch = from_scratch
+        
+        if from_scratch:
+            error_handler.log_info("AGICoordinator initialized in from-scratch mode", "AGI System")
         
         # 初始化增强的AGI组件
         self.enhanced_meta_cognition = EnhancedMetaCognition()

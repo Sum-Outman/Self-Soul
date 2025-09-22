@@ -13,13 +13,6 @@
 """
 
 """
-基础模型类 - 所有模型的基类
-Base Model Class - Base class for all models
-
-提供通用接口和功能，确保所有模型的一致性
-Provides common interfaces and functionality to ensure consistency across all models
-"""
-"""
 Self Soul 统一错误处理和日志系统
 AGI System Unified Error Handling and Logging System
 """

@@ -1331,12 +1331,11 @@ export default {
         startWebSocketConnection(currentJobId.value);
       } catch (error) {
         addLog(`Failed to start training: ${error.message || 'Unknown error'}`);
-        showError('Failed to start training. Falling back to simulation mode.');
+        showError('Failed to start training. Please check your connection and try again.');
         
-        // 出错时使用模拟训练
-        currentJobId.value = Date.now().toString();
-        addLog('Using simulation mode');
-        simulateTraining();
+        // Reset training state
+        isTraining.value = false;
+        currentJobId.value = null;
       }
     };
 
@@ -1572,15 +1571,16 @@ export default {
               // 失败时增加轮询间隔
               pollingInterval = Math.min(10000, pollingInterval * 1.5);
             } else {
-              // 超过最大失败次数，切换到模拟模式
+              // 超过最大失败次数，显示错误并停止训练
               addLog('Maximum polling failures reached (' + maxFailures + ')', 'error');
-              addLog('Switching to simulation mode', 'info');
+              addLog('Failed to communicate with server', 'error');
               
               clearInterval(statusPollingInterval.value);
               
-              // 如果训练仍在进行中，切换到模拟模式
+              // 如果训练仍在进行中，停止训练
               if (isTraining.value) {
-                simulateTraining();
+                showError('Training stopped due to connection issues');
+                stopTraining();
               }
             }
         }

@@ -14,7 +14,7 @@ import torch
 from pathlib import Path
 
 # 导入AGI核心系统
-from .agi_core import agi_core
+from .agi_core import AGI_SYSTEM as agi_core
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -85,6 +85,22 @@ class CreativeProblemSolver:
         
         # 加载历史数据
         self._load_creative_history()
+        
+    def _load_creative_history(self):
+        """加载创造性问题解决历史数据"""
+        try:
+            history_file = Path("data/creative_history.pkl")
+            if history_file.exists():
+                with open(history_file, 'rb') as f:
+                    data = pickle.load(f)
+                    self.solution_history = data.get('solution_history', [])
+                    self.performance_metrics = data.get('performance_metrics', self.performance_metrics)
+                    self.creative_state = data.get('creative_state', self.creative_state)
+                    logger.info(f"加载了 {len(self.solution_history)} 条历史解决方案")
+        except Exception as e:
+            logger.warning(f"加载历史数据失败: {e}")
+            # 使用默认值
+            self.solution_history = []
     
     def _initialize_dynamic_knowledge_base(self) -> Dict[str, Any]:
         """初始化动态知识库 - 基于神经网络学习"""

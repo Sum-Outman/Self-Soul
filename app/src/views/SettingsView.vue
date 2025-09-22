@@ -28,6 +28,12 @@
           <p class="stat-value">{{ apiModelsCount }}</p>
         </div>
       </div>
+      <!-- Model Configuration Type Indicator -->
+      <div class="model-configuration-type">
+        <span class="config-type-badge" :class="model.externalConfig ? 'external' : 'local'">
+          {{ model.externalConfig ? 'External API' : 'Local Model' }}
+        </span>
+      </div>
 
       <!-- Add Model Form -->
       <div class="add-model-section">
@@ -171,7 +177,7 @@
           </div>
 
           <!-- API Configuration -->
-          <div v-if="model.type.toLowerCase().includes('api')" class="api-config-section">
+          <div class="api-config-section">
             <button
               class="settings-toggle-btn"
               @click="toggleApiSettings(model.id)"
@@ -200,6 +206,53 @@
                     </button>
                   </div>
                 </div>
+                <div class="form-group">
+                  <label for="api-url-{{ model.id }}">API URL</label>
+                  <input
+                    :id="'api-url-' + model.id"
+                    v-model="model.apiUrl"
+                    type="text"
+                    placeholder="Enter API URL"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="model-name-{{ model.id }}">Model Name</label>
+                  <input
+                    :id="'model-name-' + model.id"
+                    v-model="model.modelName"
+                    type="text"
+                    placeholder="Enter Model Name"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="api-type-{{ model.id }}">API Type</label>
+                  <select
+                    :id="'api-type-' + model.id"
+                    v-model="model.apiType"
+                  >
+                    <option value="">Custom</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="google">Google AI</option>
+                    <option value="huggingface">Hugging Face</option>
+                    <option value="mistral">Mistral AI</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rate-limit-{{ model.id }}">Rate Limit (requests per minute)</label>
+                  <input
+                    :id="'rate-limit-' + model.id"
+                    v-model="model.rateLimit"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    placeholder="1000"
+                  />
+                </div>
                 <div class="form-group api-key-status">
                   <label>API Key Status</label>
                   <div class="status-indicator" :class="getApiKeyStatus(model)">
@@ -211,14 +264,14 @@
                 <button
                   class="test-btn"
                   @click="testConnection(model.id)"
-                  :disabled="!model.apiKey || isTestingConnection(model.id)"
+                  :disabled="!model.apiKey || !model.apiUrl || !model.modelName || isTestingConnection(model.id)"
                 >
                   {{ isTestingConnection(model.id) ? 'Testing...' : 'Test Connection' }}
                 </button>
                 <button
                   class="test-btn"
                   @click="saveSettings(model.id)"
-                  :disabled="!model.apiKey || isSavingSettings(model.id)"
+                  :disabled="!model.apiKey || !model.apiUrl || !model.modelName || isSavingSettings(model.id)"
                 >
                   {{ isSavingSettings(model.id) ? 'Saving...' : 'Save Settings' }}
                 </button>
@@ -621,18 +674,233 @@ export default {
     const loadModels = async () => {
       loading.value = true
       try {
-        // Use api instance to fetch models
+        // 获取完整的模型配置，包括API设置
         const response = await api.get('/api/models')
         // 确保response.data是数组
-        models.value = Array.isArray(response.data) ? response.data : mockModels
+        models.value = Array.isArray(response.data?.data) ? response.data.data : getDefaultModels()
         notify.success('Models loaded successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Load Models')
-        // Fallback to mock data
-        models.value = mockModels
+        // 回退到完整的默认模型配置
+        models.value = getDefaultModels()
+        notify.info('Using default models configuration')
       } finally {
         loading.value = false
       }
+    }
+    
+    // 获取完整的默认模型配置
+    const getDefaultModels = () => {
+      const defaultModels = [
+        // 管理模型
+        {
+          id: 'manager',
+          name: 'Manager Model',
+          type: 'Manager Model',
+          description: 'System manager model for coordination',
+          status: 'running',
+          isActive: true,
+          isPrimary: true,
+          port: 8001,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          metrics: {
+            memoryUsage: 128,
+            cpuUsage: 5,
+            responseTime: 15
+          }
+        },
+        // 语言模型
+        {
+          id: 'language',
+          name: 'Language Model',
+          type: 'Language Model',
+          description: 'Natural language processing model',
+          status: 'running',
+          isActive: true,
+          isPrimary: false,
+          port: 8002,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          metrics: {
+            memoryUsage: 512,
+            cpuUsage: 12,
+            responseTime: 80
+          }
+        },
+        // 知识模型
+        {
+          id: 'knowledge',
+          name: 'Knowledge Model',
+          type: 'Knowledge Model',
+          description: 'Knowledge base and retrieval model',
+          status: 'running',
+          isActive: true,
+          isPrimary: false,
+          port: 8003,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          metrics: {
+            memoryUsage: 256,
+            cpuUsage: 8,
+            responseTime: 30
+          }
+        },
+        // 其他本地模型
+        {
+          id: 'vision',
+          name: 'Vision Model',
+          type: 'Vision Model',
+          description: 'Computer vision and image processing model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8004,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'audio',
+          name: 'Audio Model',
+          type: 'Audio Model',
+          description: 'Audio processing and speech recognition model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8005,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'autonomous',
+          name: 'Autonomous Model',
+          type: 'Autonomous Model',
+          description: 'Self-governing and decision-making model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8006,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'programming',
+          name: 'Programming Model',
+          type: 'Programming Model',
+          description: 'Code generation and software development model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8007,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        // 外部API模型
+        {
+          id: 'openai',
+          name: 'OpenAI API',
+          type: 'OpenAI API',
+          description: 'OpenAI language model integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: 'https://api.openai.com/v1/chat/completions',
+          modelName: 'gpt-4',
+          apiType: 'openai',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'anthropic',
+          name: 'Anthropic API',
+          type: 'Anthropic API',
+          description: 'Anthropic language model integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: 'https://api.anthropic.com/v1/messages',
+          modelName: 'claude-3-opus-20240229',
+          apiType: 'anthropic',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'google',
+          name: 'Google AI API',
+          type: 'Google AI API',
+          description: 'Google AI services integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+          modelName: 'gemini-pro',
+          apiType: 'google',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'huggingface',
+          name: 'Hugging Face API',
+          type: 'Hugging Face API',
+          description: 'Hugging Face Inference API integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: 'https://api-inference.huggingface.co/models',
+          modelName: 'meta-llama/Llama-2-70b-chat-hf',
+          apiType: 'huggingface',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'mistral',
+          name: 'Mistral AI API',
+          type: 'Mistral AI API',
+          description: 'Mistral AI language model integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: 'https://api.mistral.ai/v1/chat/completions',
+          modelName: 'mistral-large-latest',
+          apiType: 'mistral',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        },
+        {
+          id: 'custom',
+          name: 'Custom API',
+          type: 'Custom API',
+          description: 'Custom external API model integration',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 0,
+          apiKey: '',
+          apiUrl: '',
+          modelName: '',
+          apiType: '',
+          rateLimit: 1000,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0'
+        }
+      ]
+      
+      return defaultModels
     }
 
     // Test notification system
@@ -1060,27 +1328,51 @@ export default {
 
     const testConnection = async (modelId) => {
       const model = models.value.find(m => m.id === modelId)
-      if (!model || !model.apiKey) {
-        notify.error('Model not found or API key not configured')
+      if (!model || !model.apiKey || !model.apiUrl || !model.modelName) {
+        notify.error('Model not found or required API configuration missing')
         return
       }
 
       testingConnections.value.add(modelId)
       try {
-        // Use api instance for POST request
-        const response = await api.post(`/api/models/${modelId}/test-connection`, { apiKey: model.apiKey })
+        // 更新模型状态为测试中
+        model.status = 'testing'
+        
+        // 构建完整的API配置参数
+        const connectionData = {
+          model_id: modelId,
+          api_url: model.apiUrl,
+          api_key: model.apiKey,
+          model_name: model.modelName,
+          api_type: model.apiType || 'custom',
+          rate_limit: model.rateLimit || 1000,
+          api_headers: model.apiHeaders || {}
+        }
+        
+        // 使用正确的API端点进行测试
+        const response = await api.post('/api/models/test-connection', connectionData)
 
         testResults.value[modelId] = {
           status: 'success',
           message: response.data.message || 'Connection successful'
         }
-        notify.success('Connection test successful')
+        
+        // 更新模型状态为已连接
+        model.status = 'connected'
+        // 自动激活成功连接的外部API模型
+        if (!model.isActive) {
+          model.isActive = true
+          hasChanges.value = true
+        }
+        notify.success(`Connection to ${model.name} successful`)
       } catch (error) {
         errorHandler.handleError(error, 'Test Connection')
         testResults.value[modelId] = {
           status: 'error',
-          message: error.message
+          message: error.message || 'Connection failed'
         }
+        // 更新模型状态为失败
+        model.status = 'failed'
       } finally {
         testingConnections.value.delete(modelId)
         // Clear test result after 5 seconds
@@ -1099,8 +1391,8 @@ export default {
 
       savingSettings.value.add(modelId)
       try {
-        // Use api instance for PUT request
-        await api.put(`/api/models/${modelId}/settings`, model)
+        // Use api instance for PATCH request
+        await api.patch(`/api/models/${modelId}`, model)
 
         model.lastUpdated = new Date().toISOString()
         hasChanges.value = true
@@ -1118,8 +1410,8 @@ export default {
     const saveAllChanges = async () => {
       isSavingAll.value = true
       try {
-        // Use api instance for POST request
-        await api.post('/api/models/save-all', models.value)
+        // Use api instance for PUT request
+        await api.put('/api/models', models.value)
 
         hasChanges.value = false
         notify.success('All changes saved successfully')
@@ -1820,6 +2112,28 @@ export default {
 .reset-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+  
+  /* Model Configuration Type */
+  .model-config-type {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .model-config-type.external {
+    background-color: #f5f5f5;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+  }
+  
+  .model-config-type.local {
+    background-color: #f5f5f5;
+    color: #666666;
+    border: 1px solid #cccccc;
   }
 
   /* Test notification button */

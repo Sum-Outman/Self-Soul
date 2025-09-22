@@ -21,7 +21,7 @@ import json
 import re
 from typing import Dict, List, Any, Optional
 from core.error_handling import error_handler
-from core.agi_core import DynamicNeuralArchitecture, KnowledgeGraph
+from core.agi_core import DynamicNeuralArchitecture, AdvancedKnowledgeGraph as KnowledgeGraph
 
 class ExperienceBasedLearner:
     """高级经验学习器 - 基于深度学习的经验分析和模式提取"""
@@ -2168,7 +2168,8 @@ class EnhancedMetaCognition:
         if len(effectiveness_history) < 2:
             return 'unknown'
         
-        improvements = sum(1 for i in range(1, len(effectiveness_history))
+        improvements = sum(1 for i in range(1, len(effectiveness_history)) if effectiveness_history[i] > effectiveness_history[i-1])
+        
         if improvements / (len(effectiveness_history) - 1) > 0.6:
             return 'improving'
         elif improvements / (len(effectiveness_history) - 1) < 0.3:

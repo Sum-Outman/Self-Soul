@@ -57,41 +57,51 @@ class APIModelConnector:
             api_config = system_settings_manager.get_model_api_config(model_id)
             api_url = api_config["api_url"]
             api_key = api_config["api_key"]
+            model_name = api_config.get("model_name", "")
+            source = api_config.get("source", "external")
+            endpoint = api_config.get("endpoint", "")
             
-            # 验证配置
+            # 验证核心配置
             if not api_url or not api_key:
-                return {"success": False, "message": f"模型 {model_id} 的API配置不完整"}
+                return {"success": False, "message": f"模型 {model_id} 的API配置不完整（缺少URL或密钥）"}
+            
+            # 使用endpoint覆盖api_url（如果提供）
+            if endpoint:
+                api_url = endpoint
             
             # 检查连接是否已存在
             if model_id in self.connections:
-                return {"success": True, "message": f"已连接到模型 {model_id}", "connection_id": model_id}
+                return {"success": True, "message": f"已连接到模型 {model_id}", "connection_id": model_id, "config": api_config}
             
             # 测试连接
-            test_result = self._test_connection(api_url, api_key)
+            test_result = self._test_connection(api_url, api_key, model_name)
             if not test_result["success"]:
                 return test_result
             
-            # 创建连接
+            # 创建连接并存储完整配置
             self.connections[model_id] = {
                 "api_url": api_url,
                 "api_key": api_key,
+                "model_name": model_name,
+                "source": source,
                 "connected_at": time.time(),
                 "status": "connected"
             }
             
-            error_handler.log_info(f"成功连接到API模型: {model_id}", "APIModelConnector")
-            return {"success": True, "message": f"成功连接到模型 {model_id}", "connection_id": model_id}
+            error_handler.log_info(f"成功连接到API模型: {model_id} (模型名称: {model_name}), API端点: {api_url}", "APIModelConnector")
+            return {"success": True, "message": f"成功连接到模型 {model_id}", "connection_id": model_id, "config": api_config}
         
         except Exception as e:
             error_handler.handle_error(e, "APIModelConnector", f"连接模型 {model_id} 失败")
             return {"success": False, "message": f"连接失败: {str(e)}"}
     
-    def _test_connection(self, api_url: str, api_key: str) -> Dict[str, Any]:
+    def _test_connection(self, api_url: str, api_key: str, model_name: str = None) -> Dict[str, Any]:
         """
         测试API连接 - 支持多种API类型测试
         Test API connection - Supports multiple API type testing
         :param api_url: API端点URL | API endpoint URL
         :param api_key: API密钥 | API key
+        :param model_name: 模型名称 | Model name
         :return: 测试结果 | Test result
         """
         try:
@@ -102,7 +112,7 @@ class APIModelConnector:
             
             # 尝试多种常见的API测试方法 | Try multiple common API testing methods
             test_methods = [
-                self._test_openai_style_api,
+                lambda url, h: self._test_openai_style_api(url, h, model_name),
                 self._test_huggingface_style_api,
                 self._test_generic_api,
                 self._test_simple_endpoint
@@ -118,7 +128,7 @@ class APIModelConnector:
         except Exception as e:
             return {"success": False, "message": f"连接测试异常: {str(e)} | Connection test exception: {str(e)}"}
     
-    def _test_openai_style_api(self, api_url: str, headers: Dict[str, str]) -> Dict[str, Any]:
+    def _test_openai_style_api(self, api_url: str, headers: Dict[str, str], model_name: str = None) -> Dict[str, Any]:
         """测试OpenAI风格的API | Test OpenAI-style API"""
         try:
             # 尝试列出模型端点 | Try models endpoint
@@ -133,19 +143,23 @@ class APIModelConnector:
         # 尝试聊天完成端点 | Try chat completion endpoint
         try:
             chat_url = f"{api_url}/chat/completions"
+            # 使用提供的模型名称或默认值
+            model_to_use = model_name if model_name else "gpt-3.5-turbo"
             test_payload = {
-                "model": "gpt-3.5-turbo",
+                "model": model_to_use,
                 "messages": [{"role": "user", "content": "Hello"}],
                 "max_tokens": 5
             }
             response = requests.post(chat_url, json=test_payload, headers=headers, timeout=self.timeout)
             
             if response.status_code in [200, 201]:
-                return {"success": True, "message": "OpenAI风格API连接成功 | OpenAI-style API connection successful"}
+                return {"success": True, "message": f"OpenAI风格API连接成功，使用模型: {model_to_use} | OpenAI-style API connection successful, using model: {model_to_use}"}
             elif response.status_code == 401:
                 return {"success": False, "message": "API密钥无效 | Invalid API key"}
             elif response.status_code == 404:
                 return {"success": False, "message": "API端点不存在 | API endpoint not found"}
+            elif response.status_code == 400 and "model_not_found" in response.text:
+                return {"success": False, "message": f"模型不存在: {model_to_use} | Model not found: {model_to_use}"}
         except:
             pass
         
@@ -223,6 +237,7 @@ class APIModelConnector:
             connection = self.connections[model_id]
             api_url = connection["api_url"]
             api_key = connection["api_key"]
+            model_name = connection.get("model_name", "")
             
             # 速率限制控制
             self._rate_limit_control(model_id)
@@ -235,6 +250,13 @@ class APIModelConnector:
             
             # 构建请求URL
             request_url = f"{api_url}/{method}"
+            
+            # 如果参数中没有model字段但我们有model_name，添加它
+            if params is None:
+                params = {}
+            if "model" not in params and model_name:
+                params["model"] = model_name
+                error_handler.log_debug(f"为API调用添加模型名称: {model_name}", "APIModelConnector")
             
             # 发送请求（带重试）
             for attempt in range(self.max_retries):
@@ -252,7 +274,15 @@ class APIModelConnector:
                     # 检查响应
                     if response.status_code == 200:
                         try:
-                            return {"success": True, "result": response.json()}
+                            result = response.json()
+                            # 添加模型元数据到结果
+                            result["_model_metadata"] = {
+                                "model_id": model_id,
+                                "model_name": model_name,
+                                "api_url": api_url,
+                                "response_time": time.time() - self.last_request_time[model_id]
+                            }
+                            return {"success": True, "result": result}
                         except json.JSONDecodeError:
                             return {"success": True, "result": response.text}
                     elif response.status_code == 429:  # 速率限制
@@ -312,7 +342,9 @@ class APIModelConnector:
             return {
                 "status": connection["status"],
                 "connected_at": connection["connected_at"],
-                "api_url": connection["api_url"]
+                "api_url": connection["api_url"],
+                "model_name": connection.get("model_name", ""),
+                "source": connection.get("source", "external")
             }
         return {"status": "disconnected"}
     
@@ -326,7 +358,9 @@ class APIModelConnector:
             result[model_id] = {
                 "status": connection["status"],
                 "connected_at": connection["connected_at"],
-                "api_url": connection["api_url"]
+                "api_url": connection["api_url"],
+                "model_name": connection.get("model_name", ""),
+                "source": connection.get("source", "external")
             }
         return result
     

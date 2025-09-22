@@ -18,7 +18,7 @@ from .manager.model import ManagerModel
 from .language.model import LanguageModel
 from .audio.model import AudioProcessingModel
 from .vision.merged_model import UnifiedVisionModel
-from .vision.video_model import VideoVisionModel
+from .video import VideoVisionModel
 from .spatial.merged_model import SpatialPerceptionModel
 from .sensor.model import SensorPerceptionModel
 from .computer.model import ComputerModel

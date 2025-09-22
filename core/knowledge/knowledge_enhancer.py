@@ -356,11 +356,12 @@ class KnowledgeEnhancer:
         return recommendations
 
     
-    def initialize(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+    def initialize(self, config: Dict[str, Any] = None, from_scratch: bool = False) -> Dict[str, Any]:
         """初始化知识库增强器 / Initialize knowledge enhancer
         
         Args:
             config: 配置参数，包含初始化设置 / Configuration parameters containing initialization settings
+            from_scratch: 是否从零开始，不加载预训练知识 / Whether to start from scratch without loading pretrained knowledge
             
         Returns:
             dict: 初始化结果 / Initialization result
@@ -387,8 +388,9 @@ class KnowledgeEnhancer:
             # 初始化知识图谱
             self._initialize_knowledge_graph()
             
-            # 加载预训练知识（如果有）
-            self._load_pretrained_knowledge()
+            # 如果不是从零开始训练，则加载预训练知识
+            if not from_scratch:
+                self._load_pretrained_knowledge()
             
             print("知识库增强器初始化完成")
             return {

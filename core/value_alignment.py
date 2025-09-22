@@ -22,6 +22,8 @@ import torch.nn as nn
 import torch.optim as optim
 import re
 from core.error_handling import error_handler
+from core.agi_core import AGICore
+from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -874,11 +876,11 @@ class ValueSystem:
                 return 0.6
         
         processor = SimpleMultimodalProcessor()
-        # 提供安全的core_values访问，确保是字典类型
+        # Provide safe access to core_values, ensure it is a dictionary type
         if isinstance(self.core_values, dict):
             processor.core_values = self.core_values
         else:
-            # 如果不是字典，提供空字典作为默认值
+            # If not a dictionary, provide an empty dictionary as default
             processor.core_values = {}
         processor._get_embedding = self._get_embedding  # Provide embedding method
         return processor
@@ -1191,11 +1193,28 @@ class ValueSystem:
                 ids = self.convert_tokens_to_ids(tokens)
                 return ids
             
-            def decode(self, ids):
-                # Simple ID to token mapping (mock implementation)
-                # In a real implementation, this would use the inverse of the vocabulary
-                tokens = [f'token_{id}' if id >= len(self.special_tokens) else list(self.special_tokens.keys())[id] for id in ids]
-                return ' '.join(tokens)
+        def decode(self, ids):
+            # Simple ID to token mapping (mock implementation)
+            # In a real implementation, this would use the inverse of the vocabulary
+            tokens = [f'token_{id}' if id >= len(self.special_tokens) else list(self.special_tokens.keys())[id] for id in ids]
+            return ' '.join(tokens)
+
+        def __call__(self, text, return_tensors="pt", max_length=512, truncation=True, padding=True):
+            # Tokenize and convert to IDs
+            tokens = self.tokenize(text)
+            if truncation and len(tokens) > max_length:
+                tokens = tokens[:max_length]
+            ids = self.convert_tokens_to_ids(tokens)
+            
+            # Handle padding
+            if padding and len(ids) < max_length:
+                ids.extend([0] * (max_length - len(ids)))  # 0 is the ID for [PAD]
+            
+            # Return in requested format
+            if return_tensors == "pt":
+                return {'input_ids': torch.tensor([ids])}
+            else:
+                return {'input_ids': [ids]}
         
         return SimpleTokenizer()
         
@@ -1682,7 +1701,7 @@ class EthicalReasoner:
                 }
             }
     
-    def _evaluate_rights_based(self, dilemma, context, deep_analysis):
+def _evaluate_rights_based(self, dilemma, context, deep_analysis):
         """Deep rights-based evaluation"""
         try:
             # Ensure deep_analysis is a dictionary type
@@ -1747,7 +1766,7 @@ class EthicalReasoner:
                 }
             }
     
-    def _evaluate_care_ethics(self, dilemma, context, deep_analysis):
+def _evaluate_care_ethics(self, dilemma, context, deep_analysis):
         """Deep care ethics evaluation"""
         try:
             # Ensure deep_analysis is a dictionary type
@@ -1813,15 +1832,15 @@ class EthicalReasoner:
                 }
             }
     
-    def _reach_deep_consensus(self, framework_evaluations, deep_analysis):
+def _reach_deep_consensus(self, framework_evaluations, deep_analysis):
         """Reach consensus based on deep learning"""
         try:
-            # 确保framework_evaluations是字典类型
+            # Ensure framework_evaluations is a dictionary type
             if not isinstance(framework_evaluations, dict):
                 error_handler.log_warning("framework_evaluations is not a dictionary type", "EthicalReasoner")
                 framework_evaluations = {}
             
-            # 确保deep_analysis是字典类型
+            # Ensure deep_analysis is a dictionary type
             if not isinstance(deep_analysis, dict):
                 error_handler.log_warning("deep_analysis is not a dictionary type", "EthicalReasoner")
                 deep_analysis = {}
@@ -1831,7 +1850,7 @@ class EthicalReasoner:
             total_confidence = 0
             valid_evaluations = {}
             
-            # 验证每个评估项
+            # Validate each evaluation item
             for framework_name, evaluation in framework_evaluations.items():
                 if isinstance(evaluation, dict) and 'confidence' in evaluation and 'recommendation' in evaluation:
                     valid_evaluations[framework_name] = evaluation
@@ -1886,7 +1905,7 @@ class EthicalReasoner:
                 'net_recommendation': 0
             }
     
-    def _calculate_deep_confidence(self, framework_evaluations, deep_analysis):
+def _calculate_deep_confidence(self, framework_evaluations, deep_analysis):
         """Calculate deep confidence"""
         try:
             # Validate that framework_evaluations is a dictionary
@@ -1937,7 +1956,7 @@ class EthicalReasoner:
             error_handler.handle_error(e, "EthicalReasoner", "Confidence calculation failed")
             return 0.5
     
-    def _record_case(self, dilemma_description, framework_evaluations, consensus, deep_analysis):
+def _record_case(self, dilemma_description, framework_evaluations, consensus, deep_analysis):
         """Record ethical cases for learning and analysis"""
         try:
             # Generate case_id safely
@@ -1989,7 +2008,7 @@ class EthicalReasoner:
             error_handler.handle_error(e, "EthicalReasoner", "Case recording failed")
             return f"error_case_{int(time.time())}"
     
-    def _evaluate_resolution_quality(self, framework_evaluations, consensus):
+def _evaluate_resolution_quality(self, framework_evaluations, consensus):
         """Evaluate solution quality"""
         try:
             # Validate inputs
@@ -2036,7 +2055,7 @@ class EthicalReasoner:
             error_handler.handle_error(e, "EthicalReasoner", "Resolution quality evaluation failed")
             return 0.5
     
-    def _learn_from_case(self, dilemma_description, framework_evaluations, consensus):
+def _learn_from_case(self, dilemma_description, framework_evaluations, consensus):
         """Learn from cases and adjust ethical frameworks"""
         try:
             # Validate inputs
@@ -2076,7 +2095,7 @@ class EthicalReasoner:
         except Exception as e:
             error_handler.handle_error(e, "EthicalReasoner", "Learning from case failed")
     
-    def get_ethical_report(self):
+def get_ethical_report(self):
         """Get ethical reasoning report"""
         try:
             # Safely get cases_resolved
@@ -2126,7 +2145,7 @@ class EthicalReasoner:
                 'framework_performance': {}
             }
     
-    def _calculate_average_confidence(self):
+def _calculate_average_confidence(self):
         """Calculate average confidence"""
         try:
             # Validate that self.case_studies is iterable
@@ -2171,7 +2190,7 @@ class EthicalReasoner:
             error_handler.handle_error(e, "EthicalReasoner", "Average confidence calculation failed")
             return 0.5
     
-    def _evaluate_framework_performance(self):
+def _evaluate_framework_performance(self):
         """Evaluate performance of each ethical framework"""
         try:
             performance = {}

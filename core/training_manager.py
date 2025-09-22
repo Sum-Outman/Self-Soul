@@ -17,8 +17,8 @@ Training Manager: Responsible for managing and controlling model training proces
 
 Provides complete model training management functionality, including individual training, joint training, real-time data monitoring, adaptive learning, meta-learning, and self-improvement capabilities.
 
-优势: AGI兼容训练框架、自适应学习和元学习基础、智能决策、自我改进策略、知识系统集成
-不足: AGI组件集成深度不足、联合训练实现不完整、数据增强智能化不足、自我优化机制有限、知识集成表面化、元学习指导未充分应用
+Advantages: AGI-compatible training framework, adaptive learning and meta-learning foundation, intelligent decision-making, self-improvement strategies, knowledge system integration
+Disadvantages: Insufficient AGI component integration depth, incomplete joint training implementation, inadequate intelligent data enhancement, limited self-optimization mechanisms, superficial knowledge integration, underutilized meta-learning guidance
 """
 import time
 import os
@@ -37,9 +37,8 @@ from .knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIn
 from .autonomous_learning_manager import AutonomousLearningManager
 from .self_reflection_module import SelfReflectionModule
 from .adaptive_learning_engine import AdaptiveLearningEngine
-
-# 设置日志
-logger = logging.getLogger(__name__)
+from .knowledge.knowledge_enhancer import KnowledgeEnhancer
+from .models.knowledge.model import KnowledgeModel
 
 
 """
@@ -48,18 +47,27 @@ TrainingManager Class - English class description
 class TrainingManager:
     """Model Training Manager"""
     
-    def __init__(self, model_registry: ModelRegistry):
+    def __init__(self, model_registry: ModelRegistry, from_scratch: bool = False):
         self.model_registry = model_registry
         self.training_jobs = {}
-        self.training_history = self._load_training_history()
+        self.training_history = self._load_training_history() if not from_scratch else []
         self.training_lock = threading.Lock()
         
-        # AGI 组件初始化 | AGI Components Initialization
-        self.meta_learning_system = MetaLearningSystem()
-        self.knowledge_integrator = KnowledgeIntegrator()
-        self.autonomous_learning_manager = AutonomousLearningManager()
-        self.self_reflection_module = SelfReflectionModule()
-        self.adaptive_learning_engine = AdaptiveLearningEngine()
+        # AGI Components Initialization with from_scratch parameter
+        self.meta_learning_system = MetaLearningSystem(from_scratch=from_scratch)
+        self.knowledge_integrator = KnowledgeIntegrator(from_scratch=from_scratch)
+        self.autonomous_learning_manager = AutonomousLearningManager(self.model_registry, from_scratch=from_scratch)
+        self.self_reflection_module = SelfReflectionModule(from_scratch=from_scratch)
+        self.adaptive_learning_engine = AdaptiveLearningEngine(from_scratch=from_scratch)
+        self.knowledge_model = None
+        self.knowledge_enhancer = None
+        self.from_scratch = from_scratch
+        
+        # Initialize knowledge components based on from_scratch flag
+        if from_scratch:
+            error_handler.log_info("TrainingManager initialized in from-scratch mode, will not use any existing knowledge", "TrainingManager")
+        else:
+            error_handler.log_info("TrainingManager initialized in normal mode, will use existing knowledge and training history", "TrainingManager")
         
         # Training results save path
         self.results_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'results')
@@ -88,7 +96,7 @@ class TrainingManager:
         # Dashboard update callback
         self.dashboard_update_callback = None
         
-        # AGI 训练状态监控
+        # AGI Training State Monitoring
         self.agi_training_state = {
             'current_learning_strategy': 'exploration',
             'learning_phase': 'initial',
@@ -97,7 +105,7 @@ class TrainingManager:
             'adaptive_parameters': {}
         }
         
-        logger.info("AGI Training Manager initialized with full AGI capabilities")
+        error_handler.log_info("AGI Training Manager initialized with full AGI capabilities", "TrainingManager")
 
     def set_realtime_data_source(self, data_source):
         """Set real-time data source
@@ -117,7 +125,7 @@ class TrainingManager:
             callback: Callback function to be called when dashboard data updates
         """
         self.dashboard_update_callback = callback
-        logger.info("Dashboard update callback set")
+        error_handler.log_info("Dashboard update callback has been set", "TrainingManager")
 
     def _start_data_stream(self):
         """Start data stream processing"""
@@ -144,16 +152,97 @@ class TrainingManager:
                     
                 # In actual implementation, data preprocessing would be done here
                 # For now, just log
-                logger.info("Received real-time training data: {type}".format(type=data_item.get('type', 'unknown')))
+                error_handler.log_info("Received real-time training data: {type}".format(type=data_item.get('type', 'unknown')), "TrainingManager")
                 
-                # 更新仪表盘数据 | Update dashboard data
+                # Update dashboard data
                 self._update_dashboard(data_item)
-                
-                # 标记任务完成 | Mark task as done
+
+                # Mark task as done
                 self.realtime_data_queue.task_done()
             except Exception as e:
                 error_handler.handle_error(e, "TrainingManager", "Failed to process real-time training data")
                 self.realtime_data_queue.task_done()
+
+    def _initialize_knowledge_components_for_scratch_training(self, job_id):
+        """Initialize knowledge components for scratch training without loading any pretrained knowledge
+        
+        Args:
+            job_id: Training job ID
+        """
+        try:
+            self._log_job(job_id, "Initializing knowledge components for from-scratch training")
+            
+            # Create KnowledgeModel instance with from_scratch=True
+            knowledge_config = {
+                'from_scratch': True
+            }
+            self.knowledge_model = KnowledgeModel(config=knowledge_config)
+            
+            # Initialize knowledge model without loading pretrained knowledge
+            self.knowledge_model.initialize(from_scratch=True)
+            
+            # Create KnowledgeEnhancer instance
+            self.knowledge_enhancer = KnowledgeEnhancer()
+            
+            # Initialize knowledge enhancer without loading pretrained knowledge
+            self.knowledge_enhancer.initialize(from_scratch=True)
+            
+            # Register the knowledge model with the model registry
+            if self.model_registry.get_model('knowledge') is None:
+                self.model_registry.register_model('knowledge', self.knowledge_model)
+                
+            self._log_job(job_id, "Knowledge components initialized successfully for from-scratch training")
+            
+        except Exception as e:
+            error_handler.handle_error(e, "TrainingManager", "Failed to initialize knowledge components for scratch training")
+            self._log_job(job_id, f"Warning: Failed to initialize knowledge components: {str(e)}")
+    
+    def _initialize_model_clients(self, from_scratch=None):
+        """Initialize all model clients with from-scratch mode if specified
+        
+        Args:
+            from_scratch: Whether to initialize models from scratch, defaults to self.from_scratch
+        """
+        # Use instance level from_scratch if not explicitly provided
+        use_from_scratch = self.from_scratch if from_scratch is None else from_scratch
+        
+        # Get all registered models
+        all_models = self.model_registry.models
+        
+        for model_id, model in all_models.items():
+            try:
+                # Check if model has initialize method and from_scratch parameter
+                if hasattr(model, 'initialize'):
+                    self._log_job('model_initialization', f"Initializing model {model_id} {'from scratch' if use_from_scratch else 'with existing knowledge'}")
+                    
+                    # Initialize model with from_scratch parameter
+                    if hasattr(model.initialize, '__code__') and 'from_scratch' in model.initialize.__code__.co_varnames:
+                        model.initialize(from_scratch=use_from_scratch)
+                    else:
+                        # Fallback if model doesn't support from_scratch parameter
+                        model.initialize()
+                        
+                    # Add from_scratch flag to model
+                    if not hasattr(model, 'from_scratch'):
+                        model.from_scratch = use_from_scratch
+                    else:
+                        model.from_scratch = use_from_scratch
+                    
+                # Ensure train method supports from_scratch
+                if hasattr(model, 'train'):
+                    original_train = model.train
+                    
+                    def enhanced_train_wrapper(*args, **kwargs):
+                        # Force from_scratch=True if we're in from_scratch mode
+                        if use_from_scratch:
+                            kwargs['from_scratch'] = True
+                        return original_train(*args, **kwargs)
+                    
+                    # Replace original train method with enhanced version
+                    model.train = enhanced_train_wrapper
+                    
+            except Exception as e:
+                error_handler.handle_error(e, "TrainingManager", f"Failed to initialize model client: {model_id}")
 
     def _update_dashboard(self, data_item):
         """Update dashboard data
@@ -178,10 +267,10 @@ class TrainingManager:
             if callable(self.dashboard_update_callback):
                 self.dashboard_update_callback(self.dashboard_data)
         except Exception as e:
-            logger.error(_("更新仪表盘数据失败: {error}").format(error=str(e)))
+            logger.error(f"Failed to update dashboard data: {str(e)}")
 
     def _load_training_history(self):
-        """加载训练历史记录"""
+        """Load training history"""
         history_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'training_history.json')
         try:
             if os.path.exists(history_file):
@@ -189,51 +278,51 @@ class TrainingManager:
                     return json.load(f)
             return []
         except Exception as e:
-            error_handler.handle_error(e, "TrainingManager", "加载训练历史失败")
+            error_handler.handle_error(e, "TrainingManager", "Failed to load training history")
             return []
 
     def _save_training_history(self):
-        """保存训练历史记录"""
+        """Save training history"""
         history_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'training_history.json')
         try:
             os.makedirs(os.path.dirname(history_file), exist_ok=True)
             with open(history_file, 'w', encoding='utf-8') as f:
                 json.dump(self.training_history, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            error_handler.handle_error(e, "TrainingManager", "保存训练历史失败")
+            error_handler.handle_error(e, "TrainingManager", "Failed to save training history")
 
     def start_training(self, model_ids, parameters):
-        """启动模型训练任务 | Start model training task
+        """Start model training task
         
         Args:
-            model_ids: 要训练的模型ID列表 | List of model IDs to train
-            parameters: 训练参数 | Training parameters
+            model_ids: List of model IDs to train
+            parameters: Training parameters
             
         Returns:
-            任务ID | Job ID
+            Job ID
         """
         with self.training_lock:
-            # 生成任务ID | Generate job ID
+            # Generate job ID
             job_id = f"train_{int(time.time())}_{'_'.join(model_ids)}"
             
-            # 检查模型是否已加载 | Check if models are loaded
+            # Check if models are loaded
             for model_id in model_ids:
                 if not self.model_registry.get_model(model_id):
-                    error_handler.log_warning(_("模型 {model_id} 未加载，尝试加载... | Model {model_id} not loaded, trying to load...").format(model_id=model_id), "TrainingManager")
+                    error_handler.log_warning(f"Model {model_id} not loaded, trying to load...", "TrainingManager")
                     self.model_registry.load_model(model_id)
                 
                 if not self.model_registry.get_model(model_id):
-                    raise RuntimeError(_("无法加载模型 {model_id} | Failed to load model {model_id}").format(model_id=model_id))
+                    raise RuntimeError(f"Failed to load model {model_id}")
                     
-            # 验证模型类型 | Validate model types
+            # Validate model types
             valid_models = ['manager', 'language', 'audio', 'vision_image', 'vision_video', 
                           'spatial', 'sensor', 'computer', 'motion', 
                           'knowledge', 'programming']
             for model_id in model_ids:
                 if model_id not in valid_models:
-                    raise ValueError(_("无效的模型类型: {model_id} | Invalid model type: {model_id}").format(model_id=model_id))
+                    raise ValueError(f"Invalid model type: {model_id}")
             
-            # 创建训练任务
+            # Create training job
             self.training_jobs[job_id] = {
                 'model_ids': model_ids,
                 'parameters': parameters,
@@ -244,10 +333,13 @@ class TrainingManager:
                 'metrics': {}
             }
             
-            # 记录开始日志
-            self._log_job(job_id, f"开始训练模型: {', '.join(model_ids)}")
+            # Log start
+            if parameters.get('from_scratch', False):
+                self._log_job(job_id, f"Starting from-scratch training for models: {', '.join(model_ids)}")
+            else:
+                self._log_job(job_id, f"Starting training for models: {', '.join(model_ids)}")
             
-            # 启动训练线程
+            # Start training thread
             training_thread = threading.Thread(
                 target=self._train_models_thread, 
                 args=(job_id, model_ids, parameters)
@@ -255,284 +347,578 @@ class TrainingManager:
             training_thread.daemon = True
             training_thread.start()
             
-            error_handler.log_info(f"已启动训练任务: {job_id}", "TrainingManager")
+            error_handler.log_info(f"Started training job: {job_id}", "TrainingManager")
             return job_id
 
     def _train_models_thread(self, job_id, model_ids, parameters):
-        """模型训练线程 | Model training thread"""
+        """Model training thread"""
         try:
-            # 根据是否为联合训练选择不同的训练策略
+            # Choose different training strategies based on whether it's joint training
             training_mode = parameters.get('training_mode', 'individual')
             
-            # AGI 训练前准备：初始化元学习策略
+            # AGI pre-training preparation: initialize meta-learning strategy
             self._initialize_agi_training(job_id, model_ids, parameters)
             
             if training_mode == 'joint' and len(model_ids) > 1:
-                # 使用真正的 AGI 联合训练
-                self._log_job(job_id, "开始 AGI 联合训练 | Starting AGI joint training")
+                # Use real AGI joint training
+                self._log_job(job_id, "Starting AGI joint training")
                 
-                # 执行真正的 AGI 联合训练
+                # Execute real AGI joint training
                 training_result = self._agi_joint_train(job_id, model_ids, parameters)
                 
                 if training_result.get('status') == 'success':
-                    # 保存联合训练结果
+                    # Save joint training results
                     self._save_joint_training_results(job_id, model_ids, parameters, training_result['results'])
-                    self._complete_job(job_id, "AGI 联合训练成功完成 | AGI joint training completed successfully")
+                    self._complete_job(job_id, "AGI joint training completed successfully")
                 else:
-                    # 如果 AGI 联合训练失败，回退到传统联合训练
-                    self._log_job(job_id, f"AGI 联合训练失败，使用回退实现: {training_result.get('message', 'Unknown error')}")
+                    # If AGI joint training fails, fall back to traditional joint training
+                    self._log_job(job_id, f"AGI joint training failed, using fallback implementation: {training_result.get('message', 'Unknown error')}")
                     self._joint_train_fallback(job_id, model_ids, parameters)
                     
             else:
-                # 单独训练 - 使用 AGI 增强的单独训练
+                # Individual training - use AGI-enhanced individual training
                 for model_id in model_ids:
                     model = self.model_registry.get_model(model_id)
                     if model:
-                        self._log_job(job_id, f"开始 AGI 增强训练模型 {model_id} | Starting AGI-enhanced training for model: {model_id}")
-                        # 执行 AGI 增强的模型特定训练
+                        self._log_job(job_id, f"Starting AGI-enhanced training for model: {model_id}")
+                        # Execute AGI-enhanced model-specific training
                         self._agi_individual_train(job_id, model_id, parameters, model_ids)
-                        self._log_job(job_id, f"模型 {model_id} AGI 训练完成 | Model {model_id} AGI training completed")
-                        # 更新进度
+                        self._log_job(job_id, f"Model {model_id} AGI training completed")
+                        # Update progress
                         progress = (model_ids.index(model_id) + 1) / len(model_ids) * 100
                         self._update_job_progress(job_id, progress)
                     else:
-                        self._log_job(job_id, f"警告: 模型 {model_id} 未找到 | Warning: Model {model_id} not found")
+                        self._log_job(job_id, f"Warning: Model {model_id} not found")
             
-            # 训练后 AGI 自我反思和优化
+            # Post-training AGI self-reflection and optimization
             self._post_training_agi_reflection(job_id, model_ids, parameters)
             
-            # 标记任务完成
-            self._complete_job(job_id, "AGI 训练成功完成 | AGI training completed successfully")
+            # Mark job as complete
+            self._complete_job(job_id, "AGI training completed successfully")
         except Exception as e:
-            error_handler.handle_error(e, "TrainingManager", f"AGI 训练任务 {job_id} 失败 | AGI training task {job_id} failed")
+            error_handler.handle_error(e, "TrainingManager", f"AGI training task {job_id} failed")
             self._fail_job(job_id, str(e))
 
     def _initialize_agi_training(self, job_id, model_ids, parameters):
-        """初始化AGI训练 - 超深度集成元学习策略、知识上下文、自适应学习和自我优化机制
+        """Initialize AGI training - ultra-deep integration of meta-learning strategies, knowledge context, adaptive learning, and self-optimization mechanisms
         
         Args:
-            job_id: 训练任务ID
-            model_ids: 要训练的模型ID列表
-            parameters: 训练参数
+            job_id: Training job ID
+            model_ids: List of model IDs to train
+            parameters: Training parameters
         """
         try:
-            self._log_job(job_id, "超深度初始化AGI训练环境 | Ultra-deep initializing AGI training environment")
+            # 检查是否为从零开始训练
+            from_scratch = parameters.get('from_scratch', False)
             
-            # 1. 超深度初始化元学习策略 - 基于多维度历史经验、实时上下文和预测性分析
+            if from_scratch:
+                self._log_job(job_id, "Ultra-deep initializing AGI from-scratch training environment")
+            else:
+                self._log_job(job_id, "Ultra-deep initializing AGI training environment")
+            
+            # 根据是否从零开始训练设置不同的策略目标
+            if from_scratch:
+                # 从零开始训练更注重探索和基础学习
+                strategic_objectives = parameters.get('strategic_objectives', {'exploration': 0.8, 'exploitation': 0.2, 'foundational_learning': 0.9})
+            else:
+                # 普通训练更注重利用和优化
+                strategic_objectives = parameters.get('strategic_objectives', {'exploration': 0.3, 'exploitation': 0.7})
+            
+            # 1. Ultra-deep initialize meta-learning strategy - based on multi-dimensional historical experience, real-time context, and predictive analysis
             meta_learning_strategy = self.meta_learning_system.initialize_training_strategy(
                 model_ids=model_ids,
                 training_mode=parameters.get('training_mode', 'individual'),
-                previous_experience=self.training_history,
-                model_capabilities=self._get_model_capabilities(model_ids),
+                previous_experience=self.training_history if not from_scratch else {},  # 从零开始训练不使用历史经验
+                model_capabilities=self._get_model_capabilities(model_ids) if not from_scratch else {},  # 从零开始训练时模型能力为空
                 task_complexity=self._assess_task_complexity(parameters),
                 resource_availability=self._check_system_resources(),
                 realtime_context=self._get_realtime_training_context(),
-                strategic_objectives=parameters.get('strategic_objectives', {'exploration': 0.3, 'exploitation': 0.7}),
+                strategic_objectives=strategic_objectives,
                 predictive_analysis=self._perform_predictive_analysis(model_ids, parameters),
                 uncertainty_estimation=True,
                 multi_horizon_planning=parameters.get('planning_horizon', 3)
             )
             
-            # 2. 超深度配置知识集成器 - 多源知识融合、上下文感知和动态优先级
-            knowledge_context = self.knowledge_integrator.prepare_training_context(
-                model_ids=model_ids,
-                task_type=parameters.get('task_type', 'general'),
-                domain_knowledge=parameters.get('domain_knowledge', {}),
-                previous_training_insights=self._extract_previous_insights(),
-                external_knowledge_sources=self._get_available_knowledge_sources(),
-                knowledge_fusion_strategy='dynamic_priority_weighted',
-                contextual_relevance_threshold=parameters.get('relevance_threshold', 0.7),
-                temporal_relevance_window=parameters.get('temporal_window', 3600),
-                cross_modal_correlation=True,
-                knowledge_priority_strategy='adaptive_importance',
-                realtime_knowledge_streaming=True,
-                knowledge_freshness_weight=0.8,
-                semantic_similarity_threshold=0.75
-            )
+            # 如果是从零开始训练，添加特定的元学习策略
+            if from_scratch:
+                meta_learning_strategy['from_scratch_training'] = True
+                meta_learning_strategy['primary_strategy'] = 'foundational_exploration'  # 基础探索策略
+                meta_learning_strategy['initial_knowledge_weight'] = 0.0  # 不使用初始知识
+                meta_learning_strategy['knowledge_acquisition_rate'] = 0.05  # 设置知识获取速率
+                meta_learning_strategy['model_specific_strategies'] = meta_learning_strategy.get('model_specific_strategies', {})
+                
+                # 为每种模型类型设置从零开始训练的特定策略
+                for model_id in model_ids:
+                    if model_id == 'language':
+                        meta_learning_strategy['model_specific_strategies'][model_id] = {
+                            'individual_strategy': 'vocabulary_first',
+                            'initialization_method': 'random',
+                            'embedding_strategy': 'learn_from_scratch'
+                        }
+                    elif model_id == 'audio':
+                        meta_learning_strategy['model_specific_strategies'][model_id] = {
+                            'individual_strategy': 'audio_features_foundation',
+                            'initialization_method': 'xavier',
+                            'frequency_bands_priority': [0, 1, 2]  # 先学习低频特征
+                        }
+                    elif model_id in ['vision_image', 'vision_video']:
+                        meta_learning_strategy['model_specific_strategies'][model_id] = {
+                            'individual_strategy': 'edge_detection_first',
+                            'initialization_method': 'he',
+                            'feature_hierarchy': 'bottom_up'  # 自底向上学习特征
+                        }
             
-            # 3. 智能配置自适应学习引擎 - 动态参数优化、实时调整和多目标优化
-            adaptive_params = self.adaptive_learning_engine.configure_training(
-                model_types=model_ids,
-                data_characteristics=parameters.get('data_characteristics', {}),
-                resource_constraints=parameters.get('resource_constraints', {}),
-                meta_learning_strategy=meta_learning_strategy,
-                historical_performance=self._get_historical_performance(model_ids),
-                realtime_system_metrics=self._get_realtime_system_metrics(),
-                knowledge_context=knowledge_context,
-                prediction_horizon=parameters.get('prediction_horizon', 5),
-                risk_tolerance=parameters.get('risk_tolerance', 0.2),
-                multi_objective_optimization=True,
-                objective_weights=parameters.get('objective_weights', {'accuracy': 0.6, 'efficiency': 0.2, 'robustness': 0.2}),
-                constraint_handling='adaptive_penalty',
-                realtime_adaptation_frequency=parameters.get('adaptation_frequency', 'per_batch')
-            )
+            # 2. Ultra-deep configure knowledge integrator - multi-source knowledge fusion, context awareness, and dynamic prioritization
+            if from_scratch:
+                # 从零开始训练时，使用简化的知识上下文，更注重基础概念和自下而上的知识构建
+                knowledge_context = self.knowledge_integrator.prepare_training_context(
+                    model_ids=model_ids,
+                    task_type=parameters.get('task_type', 'foundation'),  # 基础任务类型
+                    domain_knowledge=parameters.get('domain_knowledge', {}),
+                    previous_training_insights={},  # 不使用之前的训练洞察
+                    external_knowledge_sources=self._get_available_knowledge_sources() if parameters.get('use_external_knowledge', False) else {},
+                    knowledge_fusion_strategy='foundational_first',  # 先学习基础知识
+                    contextual_relevance_threshold=parameters.get('relevance_threshold', 0.5),  # 降低相关性阈值以允许更广泛的学习
+                    temporal_relevance_window=parameters.get('temporal_window', 3600),
+                    cross_modal_correlation=True,
+                    knowledge_priority_strategy='hierarchical_building',  # 层次化知识构建
+                    realtime_knowledge_streaming=False,  # 从零开始训练时关闭实时知识流
+                    knowledge_freshness_weight=0.2,  # 降低新鲜度权重
+                    semantic_similarity_threshold=0.6  # 降低语义相似度阈值
+                )
+                
+                # 添加从零开始训练的特殊标记
+                knowledge_context['from_scratch_training'] = True
+                knowledge_context['knowledge_quality_score'] = 0.0  # 初始知识质量为零
+                knowledge_context['knowledge_acquisition_path'] = 'bottom_up'  # 自底向上获取知识
+            else:
+                # 普通训练的知识上下文配置
+                knowledge_context = self.knowledge_integrator.prepare_training_context(
+                    model_ids=model_ids,
+                    task_type=parameters.get('task_type', 'general'),
+                    domain_knowledge=parameters.get('domain_knowledge', {}),
+                    previous_training_insights=self._extract_previous_insights(),
+                    external_knowledge_sources=self._get_available_knowledge_sources(),
+                    knowledge_fusion_strategy='dynamic_priority_weighted',
+                    contextual_relevance_threshold=parameters.get('relevance_threshold', 0.7),
+                    temporal_relevance_window=parameters.get('temporal_window', 3600),
+                    cross_modal_correlation=True,
+                    knowledge_priority_strategy='adaptive_importance',
+                    realtime_knowledge_streaming=True,
+                    knowledge_freshness_weight=0.8,
+                    semantic_similarity_threshold=0.75
+                )
             
-            # 4. 创建智能自主学习计划 - 目标驱动的学习路径、动态调整和抗干扰能力
-            autonomous_learning_plan = self.autonomous_learning_manager.create_learning_plan(
-                models=model_ids,
-                learning_objectives=parameters.get('learning_objectives', {}),
-                performance_metrics=parameters.get('performance_metrics', {}),
-                meta_learning_guidance=meta_learning_strategy,
-                knowledge_context=knowledge_context,
-                adaptive_constraints=adaptive_params,
-                exploration_exploitation_balance=parameters.get('exploration_balance', 0.3),
-                learning_velocity_target=parameters.get('learning_velocity', 1.2),
-                resilience_factor=parameters.get('resilience_factor', 0.8),
-                distraction_resistance=parameters.get('distraction_resistance', 0.9),
-                goal_persistence=parameters.get('goal_persistence', 0.85),
-                adaptive_curriculum=True,
-                difficulty_scaling='dynamic_progressive',
-                learning_path_optimization=True
-            )
+            # 3. Intelligently configure adaptive learning engine - dynamic parameter optimization, real-time adjustment, and multi-objective optimization
+            if from_scratch:
+                # 从零开始训练的自适应学习配置
+                adaptive_params = self.adaptive_learning_engine.configure_training(
+                    model_types=model_ids,
+                    data_characteristics=parameters.get('data_characteristics', {}),
+                    resource_constraints=parameters.get('resource_constraints', {}),
+                    meta_learning_strategy=meta_learning_strategy,
+                    historical_performance={},  # 不使用历史性能数据
+                    realtime_system_metrics=self._get_realtime_system_metrics(),
+                    knowledge_context=knowledge_context,
+                    prediction_horizon=parameters.get('prediction_horizon', 3),  # 更短的预测范围
+                    risk_tolerance=parameters.get('risk_tolerance', 0.4),  # 更高的风险容忍度
+                    multi_objective_optimization=True,
+                    objective_weights=parameters.get('objective_weights', {'learning_rate': 0.4, 'foundational_coverage': 0.3, 'stability': 0.3}),  # 更注重学习率和基础覆盖率
+                    constraint_handling='soft',  # 更软的约束处理
+                    realtime_adaptation_frequency=parameters.get('adaptation_frequency', 'per_epoch')  # 更低的适应频率
+                )
+                
+                # 添加从零开始训练的自适应参数
+                adaptive_params['from_scratch_training'] = True
+                adaptive_params['initial_learning_rate_multiplier'] = 10.0  # 初始学习率乘数
+                adaptive_params['learning_rate_schedule'] = 'warmup_cosine_decay'  # 预热余弦衰减学习率
+                adaptive_params['batch_size_growth_rate'] = 1.1  # 批量大小增长率
+            else:
+                # 普通训练的自适应学习配置
+                adaptive_params = self.adaptive_learning_engine.configure_training(
+                    model_types=model_ids,
+                    data_characteristics=parameters.get('data_characteristics', {}),
+                    resource_constraints=parameters.get('resource_constraints', {}),
+                    meta_learning_strategy=meta_learning_strategy,
+                    historical_performance=self._get_historical_performance(model_ids),
+                    realtime_system_metrics=self._get_realtime_system_metrics(),
+                    knowledge_context=knowledge_context,
+                    prediction_horizon=parameters.get('prediction_horizon', 5),
+                    risk_tolerance=parameters.get('risk_tolerance', 0.2),
+                    multi_objective_optimization=True,
+                    objective_weights=parameters.get('objective_weights', {'accuracy': 0.6, 'efficiency': 0.2, 'robustness': 0.2}),
+                    constraint_handling='adaptive_penalty',
+                    realtime_adaptation_frequency=parameters.get('adaptation_frequency', 'per_batch')
+                )
             
-            # 5. 初始化自我反思模块 - 为训练过程提供持续优化、元认知和预见性分析
-            reflection_config = self.self_reflection_module.initialize_reflection_system(
-                training_context={
-                    'model_ids': model_ids,
-                    'parameters': parameters,
-                    'meta_strategy': meta_learning_strategy,
-                    'knowledge_base': knowledge_context,
-                    'adaptive_params': adaptive_params,
-                    'learning_plan': autonomous_learning_plan,
-                    'system_state': self._get_system_state_snapshot(),
-                    'environment_context': self._get_environment_context()
-                },
-                reflection_frequency=parameters.get('reflection_frequency', 'per_epoch'),
-                optimization_strategy='proactive_predictive_adaptive',
-                metacognitive_depth=parameters.get('metacognitive_depth', 'deep'),
-                insight_integration_mode=parameters.get('insight_integration', 'immediate'),
-                foresight_capability=True,
-                anticipatory_learning=True,
-                error_analysis_depth='comprehensive',
-                pattern_recognition_enabled=True,
-                cross_domain_insight_transfer=True
-            )
+            # 4. Create intelligent autonomous learning plan - goal-driven learning path, dynamic adjustment, and distraction resistance
+            if from_scratch:
+                # 从零开始训练的自主学习计划配置
+                autonomous_learning_plan = self.autonomous_learning_manager.create_learning_plan(
+                    models=model_ids,
+                    learning_objectives=parameters.get('learning_objectives', {}),
+                    performance_metrics=parameters.get('performance_metrics', {}),
+                    meta_learning_guidance=meta_learning_strategy,
+                    knowledge_context=knowledge_context,
+                    adaptive_constraints=adaptive_params,
+                    exploration_exploitation_balance=parameters.get('exploration_balance', 0.7),  # 更高的探索比例
+                    learning_velocity_target=parameters.get('learning_velocity', 0.8),  # 更低的学习速度目标
+                    resilience_factor=parameters.get('resilience_factor', 0.95),  # 更高的弹性因子
+                    distraction_resistance=parameters.get('distraction_resistance', 0.7),  # 更低的抗干扰性
+                    goal_persistence=parameters.get('goal_persistence', 0.95),  # 更高的目标坚持性
+                    adaptive_curriculum=True,
+                    difficulty_scaling='gentle_progressive',  # 更温和的难度递进
+                    learning_path_optimization=True,
+                    foundational_knowledge_priority=True,  # 优先学习基础知识
+                    concept_prerequisite_emphasis=0.9,  # 高概念前置条件强调
+                    knowledge_gap_identification=True  # 启用知识缺口识别
+                )
+                
+                # 添加从零开始训练的特定标志
+                autonomous_learning_plan['from_scratch_training'] = True
+                autonomous_learning_plan['initial_knowledge_assessment'] = 'comprehensive'
+                autonomous_learning_plan['foundation_coverage_target'] = 0.95  # 基础知识覆盖率目标
+            else:
+                # 普通训练的自主学习计划配置
+                autonomous_learning_plan = self.autonomous_learning_manager.create_learning_plan(
+                    models=model_ids,
+                    learning_objectives=parameters.get('learning_objectives', {}),
+                    performance_metrics=parameters.get('performance_metrics', {}),
+                    meta_learning_guidance=meta_learning_strategy,
+                    knowledge_context=knowledge_context,
+                    adaptive_constraints=adaptive_params,
+                    exploration_exploitation_balance=parameters.get('exploration_balance', 0.3),
+                    learning_velocity_target=parameters.get('learning_velocity', 1.2),
+                    resilience_factor=parameters.get('resilience_factor', 0.8),
+                    distraction_resistance=parameters.get('distraction_resistance', 0.9),
+                    goal_persistence=parameters.get('goal_persistence', 0.85),
+                    adaptive_curriculum=True,
+                    difficulty_scaling='dynamic_progressive',
+                    learning_path_optimization=True
+                )
             
-            # 6. 初始化协同学习网络 - 模型间知识共享、梯度交换和 emergent behavior
-            collaboration_network = self._initialize_collaboration_network(
-                model_ids=model_ids,
-                collaboration_strategy=meta_learning_strategy.get('collaboration_mode', 'fully_connected'),
-                communication_protocol=parameters.get('communication_protocol', 'gradient_exchange'),
-                knowledge_sharing_frequency=parameters.get('knowledge_sharing_freq', 'per_batch'),
-                emergent_behavior_detection=True,
-                synergy_optimization=True,
-                collective_intelligence_factor=parameters.get('collective_intelligence', 0.7),
-                diversity_preservation=parameters.get('diversity_preservation', 0.6),
-                information_bottleneck_avoidance=True
-            )
+            # 5. Initialize self-reflection module - provides continuous optimization, meta-cognition, and foresight analysis for the training process
+            if from_scratch:
+                # 从零开始训练的自我反思模块配置
+                reflection_config = self.self_reflection_module.initialize_reflection_system(
+                    training_context={
+                        'model_ids': model_ids,
+                        'parameters': parameters,
+                        'meta_strategy': meta_learning_strategy,
+                        'knowledge_base': knowledge_context,
+                        'adaptive_params': adaptive_params,
+                        'learning_plan': autonomous_learning_plan,
+                        'system_state': self._get_system_state_snapshot(),
+                        'environment_context': self._get_environment_context()
+                    },
+                    reflection_frequency=parameters.get('reflection_frequency', 'per_batch'),  # 更高的反思频率
+                    optimization_strategy='foundation_building_adaptive',  # 基础构建型优化策略
+                    metacognitive_depth=parameters.get('metacognitive_depth', 'medium'),  # 中等元认知深度
+                    insight_integration_mode=parameters.get('insight_integration', 'delayed'),  # 延迟的洞察整合
+                    foresight_capability=False,  # 不启用前瞻能力
+                    anticipatory_learning=False,  # 不启用预期学习
+                    error_analysis_depth='basic',  # 基础错误分析深度
+                    pattern_recognition_enabled=False,  # 不启用模式识别
+                    cross_domain_insight_transfer=False  # 不启用跨域洞察转移
+                )
+                
+                # 添加从零开始训练的自我反思特定配置
+                reflection_config['from_scratch_training'] = True
+                reflection_config['knowledge_acquisition_monitoring'] = True
+                reflection_config['concept_formation_tracking'] = True
+                reflection_config['fundamental_error_prioritization'] = 0.9
+            else:
+                # 普通训练的自我反思模块配置
+                reflection_config = self.self_reflection_module.initialize_reflection_system(
+                    training_context={
+                        'model_ids': model_ids,
+                        'parameters': parameters,
+                        'meta_strategy': meta_learning_strategy,
+                        'knowledge_base': knowledge_context,
+                        'adaptive_params': adaptive_params,
+                        'learning_plan': autonomous_learning_plan,
+                        'system_state': self._get_system_state_snapshot(),
+                        'environment_context': self._get_environment_context()
+                    },
+                    reflection_frequency=parameters.get('reflection_frequency', 'per_epoch'),
+                    optimization_strategy='proactive_predictive_adaptive',
+                    metacognitive_depth=parameters.get('metacognitive_depth', 'deep'),
+                    insight_integration_mode=parameters.get('insight_integration', 'immediate'),
+                    foresight_capability=True,
+                    anticipatory_learning=True,
+                    error_analysis_depth='comprehensive',
+                    pattern_recognition_enabled=True,
+                    cross_domain_insight_transfer=True
+                )
             
-            # 7. 初始化神经架构搜索优化器 - 动态调整模型架构
-            nas_optimizer = self._initialize_nas_optimizer(
-                model_ids=model_ids,
-                search_strategy=meta_learning_strategy.get('nas_strategy', 'differentiable'),
-                performance_predictor=knowledge_context.get('performance_predictor'),
-                resource_constraints=adaptive_params.get('resource_limits'),
-                architecture_optimization_objectives=parameters.get('architecture_objectives', {'accuracy': 0.5, 'efficiency': 0.3, 'size': 0.2})
-            )
+            # 6. Initialize collaborative learning network - inter-model knowledge sharing, gradient exchange, and emergent behavior
+            if from_scratch:
+                # 从零开始训练的协作学习网络配置
+                collaboration_network = self._initialize_collaboration_network(
+                    model_ids=model_ids,
+                    collaboration_strategy=meta_learning_strategy.get('collaboration_mode', 'hierarchical_mentorship'),  # 层级指导型协作策略
+                    communication_protocol=parameters.get('communication_protocol', 'knowledge_transfer'),  # 知识转移协议
+                    knowledge_sharing_frequency=parameters.get('knowledge_sharing_freq', 'per_epoch'),  # 更低的知识共享频率
+                    emergent_behavior_detection=False,  # 不启用涌现行为检测
+                    synergy_optimization=False,  # 不启用协同优化
+                    collective_intelligence_factor=parameters.get('collective_intelligence', 0.3),  # 更低的集体智能因子
+                    diversity_preservation=parameters.get('diversity_preservation', 0.9),  # 更高的多样性保留
+                    information_bottleneck_avoidance=True
+                )
+                
+                # 添加从零开始训练的协作网络特定配置
+                collaboration_network['from_scratch_training'] = True
+                collaboration_network['knowledge_foundation_building'] = True
+                collaboration_network['basic_concept_sharing'] = 0.95
+                collaboration_network['simplified_communication'] = True
+            else:
+                # 普通训练的协作学习网络配置
+                collaboration_network = self._initialize_collaboration_network(
+                    model_ids=model_ids,
+                    collaboration_strategy=meta_learning_strategy.get('collaboration_mode', 'fully_connected'),
+                    communication_protocol=parameters.get('communication_protocol', 'gradient_exchange'),
+                    knowledge_sharing_frequency=parameters.get('knowledge_sharing_freq', 'per_batch'),
+                    emergent_behavior_detection=True,
+                    synergy_optimization=True,
+                    collective_intelligence_factor=parameters.get('collective_intelligence', 0.7),
+                    diversity_preservation=parameters.get('diversity_preservation', 0.6),
+                    information_bottleneck_avoidance=True
+                )
             
-            # 8. 超深度更新AGI训练状态 - 包含所有智能组件状态、实时上下文和预见性状态
-            self.agi_training_state.update({
-                'job_id': job_id,
-                'meta_learning_strategy': meta_learning_strategy,
-                'knowledge_context': knowledge_context,
-                'adaptive_parameters': adaptive_params,
-                'autonomous_learning_plan': autonomous_learning_plan,
-                'reflection_config': reflection_config,
-                'collaboration_network': collaboration_network,
-                'nas_optimizer': nas_optimizer,
-                'learning_phase': 'ultra_deep_initialization',
-                'knowledge_accumulation': knowledge_context.get('knowledge_quality_score', 0.1) * 1.2,  # 知识积累加速
-                'meta_cognitive_awareness': meta_learning_strategy.get('confidence_score', 0.1) * 1.3,  # 元认知增强
-                'current_strategy': meta_learning_strategy.get('primary_strategy', 'exploration'),
-                'strategy_effectiveness_history': [],
-                'knowledge_integration_level': knowledge_context.get('integration_depth', 0.4) * 1.25,  # 知识集成深化
-                'self_optimization_capability': reflection_config.get('optimization_potential', 0.5) * 1.4,  # 自我优化能力提升
-                'collaboration_efficiency': collaboration_network.get('efficiency_score', 0.3) * 1.35,  # 协作效率提高
-                'temporal_context': self._get_temporal_context(),
-                'contextual_awareness': self._calculate_contextual_awareness(knowledge_context, meta_learning_strategy) * 1.3,  # 上下文感知增强
-                'adaptive_learning_capacity': adaptive_params.get('learning_capacity', 0.6) * 1.25,  # 自适应学习容量扩大
-                'metacognitive_insights': [],
-                'foresight_capability': reflection_config.get('foresight_score', 0.5),  # 预见性能力
-                'emergent_behavior_detected': False,
-                'architecture_optimization_progress': 0,
-                'multi_objective_balance': adaptive_params.get('objective_balance', 0.7),
-                'distraction_resistance_level': autonomous_learning_plan.get('distraction_resistance', 0.9),
-                'anticipatory_learning_score': reflection_config.get('anticipatory_score', 0.6),
-                'collective_intelligence_level': collaboration_network.get('collective_intelligence', 0.7),
-                'cross_domain_transfer_capability': reflection_config.get('transfer_capability', 0.55)
-            })
+            # 7. Initialize neural architecture search optimizer - dynamically adjust model architecture
+            if from_scratch:
+                # 从零开始训练的神经架构搜索优化器配置
+                nas_optimizer = self._initialize_nas_optimizer(
+                    model_ids=model_ids,
+                    search_strategy=meta_learning_strategy.get('nas_strategy', 'random_walk'),  # 随机游走搜索策略
+                    performance_predictor=None,  # 不使用性能预测器
+                    resource_constraints=adaptive_params.get('resource_limits'),
+                    architecture_optimization_objectives=parameters.get('architecture_objectives', {'stability': 0.6, 'foundational_capacity': 0.3, 'simplicity': 0.1})  # 更注重稳定性和基础容量
+                )
+                
+                # 添加从零开始训练的神经架构搜索特定配置
+                nas_optimizer['from_scratch_training'] = True
+                nas_optimizer['simplified_architecture_search'] = True
+                nas_optimizer['foundation_layers_priority'] = 0.9
+                nas_optimizer['gradual_complexity_increase'] = 0.1
+            else:
+                # 普通训练的神经架构搜索优化器配置
+                nas_optimizer = self._initialize_nas_optimizer(
+                    model_ids=model_ids,
+                    search_strategy=meta_learning_strategy.get('nas_strategy', 'differentiable'),
+                    performance_predictor=knowledge_context.get('performance_predictor'),
+                    resource_constraints=adaptive_params.get('resource_limits'),
+                    architecture_optimization_objectives=parameters.get('architecture_objectives', {'accuracy': 0.5, 'efficiency': 0.3, 'size': 0.2})
+                )
             
-            # 9. 建立AGI组件间的深度协同连接
-            self._establish_deep_agi_synergy(meta_learning_strategy, knowledge_context, adaptive_params, 
-                                           autonomous_learning_plan, reflection_config, collaboration_network)
+            # 8. Ultra-deep update AGI training state - includes all intelligent component states, real-time context, and foresight states
+            if from_scratch:
+                # 从零开始训练的AGI训练状态配置
+                self.agi_training_state.update({
+                    'job_id': job_id,
+                    'meta_learning_strategy': meta_learning_strategy,
+                    'knowledge_context': knowledge_context,
+                    'adaptive_parameters': adaptive_params,
+                    'autonomous_learning_plan': autonomous_learning_plan,
+                    'reflection_config': reflection_config,
+                    'collaboration_network': collaboration_network,
+                    'nas_optimizer': nas_optimizer,
+                    'learning_phase': 'foundation_building',  # 基础构建阶段
+                    'knowledge_accumulation': 0.0,  # 从零开始积累知识
+                    'meta_cognitive_awareness': 0.1,  # 初始元认知意识
+                    'current_strategy': 'foundational_exploration',  # 基础探索策略
+                    'strategy_effectiveness_history': [],
+                    'knowledge_integration_level': 0.0,  # 从零开始整合知识
+                    'self_optimization_capability': 0.3,  # 初始自我优化能力
+                    'collaboration_efficiency': 0.2,  # 初始协作效率
+                    'temporal_context': self._get_temporal_context(),
+                    'contextual_awareness': 0.2,  # 初始上下文感知
+                    'adaptive_learning_capacity': 0.8,  # 高适应性学习容量
+                    'metacognitive_insights': [],
+                    'foresight_capability': 0.1,  # 低前瞻能力
+                    'emergent_behavior_detected': False,
+                    'architecture_optimization_progress': 0,
+                    'multi_objective_balance': adaptive_params.get('objective_balance', 0.5),  # 更平衡的多目标
+                    'distraction_resistance_level': autonomous_learning_plan.get('distraction_resistance', 0.7),
+                    'anticipatory_learning_score': reflection_config.get('anticipatory_score', 0.2),
+                    'collective_intelligence_level': collaboration_network.get('collective_intelligence', 0.3),
+                    'cross_domain_transfer_capability': reflection_config.get('transfer_capability', 0.1),
+                    'from_scratch_training': True,
+                    'foundation_coverage_progress': 0.0,
+                    'concept_formation_stage': 'initial',
+                    'knowledge_acquisition_rate': 0.0
+                })
+            else:
+                # 普通训练的AGI训练状态配置
+                self.agi_training_state.update({
+                    'job_id': job_id,
+                    'meta_learning_strategy': meta_learning_strategy,
+                    'knowledge_context': knowledge_context,
+                    'adaptive_parameters': adaptive_params,
+                    'autonomous_learning_plan': autonomous_learning_plan,
+                    'reflection_config': reflection_config,
+                    'collaboration_network': collaboration_network,
+                    'nas_optimizer': nas_optimizer,
+                    'learning_phase': 'ultra_deep_initialization',
+                    'knowledge_accumulation': knowledge_context.get('knowledge_quality_score', 0.1) * 1.2,  # Knowledge accumulation acceleration
+                    'meta_cognitive_awareness': meta_learning_strategy.get('confidence_score', 0.1) * 1.3,  # Meta-cognitive enhancement
+                    'current_strategy': meta_learning_strategy.get('primary_strategy', 'exploration'),
+                    'strategy_effectiveness_history': [],
+                    'knowledge_integration_level': knowledge_context.get('integration_depth', 0.4) * 1.25,  # Knowledge integration deepening
+                    'self_optimization_capability': reflection_config.get('optimization_potential', 0.5) * 1.4,  # Self-optimization capability improvement
+                    'collaboration_efficiency': collaboration_network.get('efficiency_score', 0.3) * 1.35,  # Collaboration efficiency increase
+                    'temporal_context': self._get_temporal_context(),
+                    'contextual_awareness': self._calculate_contextual_awareness(knowledge_context, meta_learning_strategy) * 1.3,  # Contextual awareness enhancement
+                    'adaptive_learning_capacity': adaptive_params.get('learning_capacity', 0.6) * 1.25,  # Adaptive learning capacity expansion
+                    'metacognitive_insights': [],
+                    'foresight_capability': reflection_config.get('foresight_score', 0.5),  # Foresight capability
+                    'emergent_behavior_detected': False,
+                    'architecture_optimization_progress': 0,
+                    'multi_objective_balance': adaptive_params.get('objective_balance', 0.7),
+                    'distraction_resistance_level': autonomous_learning_plan.get('distraction_resistance', 0.9),
+                    'anticipatory_learning_score': reflection_config.get('anticipatory_score', 0.6),
+                    'collective_intelligence_level': collaboration_network.get('collective_intelligence', 0.7),
+                    'cross_domain_transfer_capability': reflection_config.get('transfer_capability', 0.55)
+                })
             
-            # 10. 记录超深度初始化完成
-            self._log_job(job_id, 
-                f"AGI超深度训练初始化完成 | AGI ultra-deep training initialization completed\n"
-                f"元学习策略: {meta_learning_strategy.get('primary_strategy', 'N/A')} "
-                f"(置信度: {meta_learning_strategy.get('confidence_score', 0):.3f}, "
-                f"复杂度: {meta_learning_strategy.get('complexity_level', 0):.2f}, "
-                f"预见性: {meta_learning_strategy.get('foresight_score', 0):.2f})\n"
-                f"知识上下文: {len(knowledge_context.get('relevant_knowledge', []))} 条相关知识 "
-                f"(质量评分: {knowledge_context.get('knowledge_quality_score', 0):.3f}, "
-                f"集成深度: {knowledge_context.get('integration_depth', 0):.2f}, "
-                f"实时性: {knowledge_context.get('freshness_score', 0):.2f})\n"
-                f"自适应参数: {len(adaptive_params)} 个优化参数 "
-                f"(优化强度: {adaptive_params.get('optimization_intensity', 0):.3f}, "
-                f"学习容量: {adaptive_params.get('learning_capacity', 0):.2f}, "
-                f"多目标平衡: {adaptive_params.get('objective_balance', 0):.2f})\n"
-                f"自主学习计划: {autonomous_learning_plan.get('total_objectives', 0)} 个学习目标 "
-                f"(完成度: {autonomous_learning_plan.get('completion_rate', 0):.1f}%, "
-                f"学习速度: {autonomous_learning_plan.get('learning_velocity', 0):.2f}, "
-                f"抗干扰能力: {autonomous_learning_plan.get('distraction_resistance', 0):.2f})\n"
-                f"自我反思配置: {reflection_config.get('reflection_mode', 'standard')} "
-                f"(频率: {reflection_config.get('frequency', 'medium')}, "
-                f"元认知深度: {reflection_config.get('metacognitive_depth', 'medium')}, "
-                f"预见性: {reflection_config.get('foresight_score', 0):.2f})\n"
-                f"协同网络: {collaboration_network.get('network_type', 'N/A')} "
-                f"(效率: {collaboration_network.get('efficiency_score', 0):.2f}, "
-                f"连接度: {collaboration_network.get('connectivity', 0):.2f}, "
-                f"集体智能: {collaboration_network.get('collective_intelligence', 0):.2f})\n"
-                f"神经架构搜索: {nas_optimizer.get('search_status', 'active')} "
-                f"(优化进度: {nas_optimizer.get('optimization_progress', 0):.1f}%)"
-            )
-            
-            # 11. 更新AGI仪表盘数据
-            self._update_agi_dashboard_metrics()
-            
-            # 12. 初始化持续学习监控与实时优化
-            self._initialize_continuous_learning_monitor(job_id)
-            
-            # 13. 启动实时策略调整线程
-            self._start_realtime_strategy_adjustment(job_id)
-            
-            # 14. 启动预见性学习线程
-            self._start_anticipatory_learning_thread(job_id)
-            
-            # 15. 启动集体智能优化线程
-            self._start_collective_intelligence_optimization(job_id)
+            # 9. Establish deep synergistic connections between AGI components
+            if from_scratch:
+                # 从零开始训练的深层协同连接建立
+                self._establish_deep_agi_synergy(
+                    meta_learning_strategy,
+                    knowledge_context,
+                    adaptive_params,
+                    autonomous_learning_plan,
+                    reflection_config,
+                    collaboration_network,
+                    foundation_building_mode=True  # 基础构建模式
+                )
+                    
+                # 初始化知识库模型和增强器，确保不加载预训练知识
+                self._initialize_knowledge_components_for_scratch_training(job_id)
+                    
+                # 初始化所有模型客户端为从零开始模式
+                self._initialize_model_clients(from_scratch=True)
+                    
+                # 10. Record foundation building initialization completion
+                self._log_job(job_id, 
+                    f"AGI foundation building training initialization completed\n"
+                    f"Training mode:从零开始训练\n"
+                    f"Meta-learning strategy: {meta_learning_strategy.get('primary_strategy', 'N/A')} "
+                    f"(Knowledge focus: {meta_learning_strategy.get('knowledge_focus', 'foundation')}, "
+                    f"Exploration level: {meta_learning_strategy.get('exploration_level', 0):.2f})\n"
+                    f"Knowledge context: {len(knowledge_context.get('relevant_knowledge', []))} relevant basic knowledge items\n"
+                    f"Adaptive parameters: {len(adaptive_params)} optimized parameters "
+                    f"(Learning rate multiplier: {adaptive_params.get('initial_learning_rate_multiplier', 0):.1f}, "
+                    f"Learning schedule: {adaptive_params.get('learning_rate_schedule', 'N/A')})\n"
+                    f"Autonomous learning plan: {autonomous_learning_plan.get('total_objectives', 0)} foundational learning objectives "
+                    f"(Foundation coverage target: {autonomous_learning_plan.get('foundation_coverage_target', 0):.1f})\n"
+                    f"Learning phase: {self.agi_training_state.get('learning_phase', 'N/A')}\n"
+                    f"Initial knowledge accumulation: {self.agi_training_state.get('knowledge_accumulation', 0):.2f}\n"
+                    f"Initial meta-cognitive awareness: {self.agi_training_state.get('meta_cognitive_awareness', 0):.2f}"
+                )
+                    
+                # 11. Update AGI dashboard data with foundation building metrics
+                self._update_agi_dashboard_metrics(include_foundation_metrics=True)
+                    
+                # 12. Initialize simplified continuous learning monitoring
+                self._initialize_continuous_learning_monitor(job_id, simplified=True)
+                    
+                # 13. Start basic strategy adjustment thread
+                self._start_realtime_strategy_adjustment(job_id, basic_mode=True)
+                    
+                # 14. Skip anticipatory learning for foundation building
+                self._log_job(job_id, "Anticipatory learning skipped during foundation building phase")
+                    
+                # 15. Start simplified collective intelligence optimization
+                self._start_collective_intelligence_optimization(job_id, basic_mode=True)
+            else:
+                # 普通训练的深层协同连接建立
+                self._establish_deep_agi_synergy(meta_learning_strategy, knowledge_context, adaptive_params, 
+                                                   autonomous_learning_plan, reflection_config, collaboration_network)
+                
+                # 10. Record ultra-deep initialization completion
+                self._log_job(job_id, 
+                        f"AGI ultra-deep training initialization completed\n"
+                        f"Meta-learning strategy: {meta_learning_strategy.get('primary_strategy', 'N/A')} "
+                        f"(Confidence: {meta_learning_strategy.get('confidence_score', 0):.3f}, "
+                        f"Complexity: {meta_learning_strategy.get('complexity_level', 0):.2f}, "
+                        f"Foresight: {meta_learning_strategy.get('foresight_score', 0):.2f})\n"
+                        f"Knowledge context: {len(knowledge_context.get('relevant_knowledge', []))} relevant knowledge items "
+                        f"(Quality score: {knowledge_context.get('knowledge_quality_score', 0):.3f}, "
+                        f"Integration depth: {knowledge_context.get('integration_depth', 0):.2f}, "
+                        f"Freshness: {knowledge_context.get('freshness_score', 0):.2f})\n"
+                        f"Adaptive parameters: {len(adaptive_params)} optimized parameters "
+                        f"(Optimization intensity: {adaptive_params.get('optimization_intensity', 0):.3f}, "
+                        f"Learning capacity: {adaptive_params.get('learning_capacity', 0):.2f}, "
+                        f"Multi-objective balance: {adaptive_params.get('objective_balance', 0):.2f})\n"
+                        f"Autonomous learning plan: {autonomous_learning_plan.get('total_objectives', 0)} learning objectives "
+                        f"(Completion rate: {autonomous_learning_plan.get('completion_rate', 0):.1f}%, "
+                        f"Learning velocity: {autonomous_learning_plan.get('learning_velocity', 0):.2f}, "
+                        f"Distraction resistance: {autonomous_learning_plan.get('distraction_resistance', 0):.2f})\n"
+                        f"Self-reflection configuration: {reflection_config.get('reflection_mode', 'standard')} "
+                        f"(Frequency: {reflection_config.get('frequency', 'medium')}, "
+                        f"Metacognitive depth: {reflection_config.get('metacognitive_depth', 'medium')}, "
+                        f"Foresight: {reflection_config.get('foresight_score', 0):.2f})\n"
+                        f"Collaboration network: {collaboration_network.get('network_type', 'N/A')} "
+                        f"(Efficiency: {collaboration_network.get('efficiency_score', 0):.2f}, "
+                        f"Connectivity: {collaboration_network.get('connectivity', 0):.2f}, "
+                        f"Collective intelligence: {collaboration_network.get('collective_intelligence', 0):.2f})\n"
+                        f"Neural architecture search: {nas_optimizer.get('search_status', 'active')} "
+                        f"(Optimization progress: {nas_optimizer.get('optimization_progress', 0):.1f}%)"
+                        )
+                
+                # 11. Update AGI dashboard data
+                self._update_agi_dashboard_metrics()
+                
+                # 12. Initialize continuous learning monitoring and real-time optimization
+                self._initialize_continuous_learning_monitor(job_id)
+                
+                # 13. Start real-time strategy adjustment thread
+                self._start_realtime_strategy_adjustment(job_id)
+                
+                # 14. Start anticipatory learning thread
+                self._start_anticipatory_learning_thread(job_id)
+                
+                # 15. Start collective intelligence optimization thread
+                self._start_collective_intelligence_optimization(job_id)
             
         except Exception as e:
-            error_handler.handle_error(e, "TrainingManager", "AGI超深度训练初始化失败")
-            self._log_job(job_id, f"AGI超深度训练初始化失败: {str(e)}")
-            # 即使初始化失败，也使用智能回退机制
-            self._initialize_agi_fallback_strategy(job_id, model_ids, parameters, str(e))
+            if from_scratch:
+                # 从零开始训练的特定错误处理
+                error_handler.handle_error(e, "TrainingManager", "AGI foundation building training initialization failed")
+                self._log_job(job_id, f"AGI foundation building training initialization failed: {str(e)}")
+                # 为基础构建训练使用简化的回退策略
+                self._initialize_agi_fallback_strategy(
+                    job_id, 
+                    model_ids, 
+                    parameters, 
+                    str(e),
+                    simplified_mode=True,  # 简化模式以适应基础构建
+                    foundation_priority=True  # 优先保证基础功能
+                )
+            else:
+                # 普通训练的错误处理
+                error_handler.handle_error(e, "TrainingManager", "AGI ultra-deep training initialization failed")
+                self._log_job(job_id, f"AGI ultra-deep training initialization failed: {str(e)}")
+                # 使用完整的智能回退机制
+                self._initialize_agi_fallback_strategy(job_id, model_ids, parameters, str(e))
 
     def _agi_joint_train(self, job_id, model_ids, parameters):
-        """执行真正的 AGI 联合训练 - 超深度集成元学习、知识融合、自适应优化和集体智能的智能训练
+        """Execute true AGI joint training - intelligent training with ultra-deep integration of meta-learning, knowledge fusion, adaptive optimization, and collective intelligence
         
         Args:
-            job_id: 训练任务ID
-            model_ids: 要训练的模型ID列表
-            parameters: 训练参数
+            job_id: Training job ID
+            model_ids: List of model IDs to train
+            parameters: Training parameters
             
         Returns:
-            训练结果字典: {'status': 'success'/'failed', 'results': 训练结果, 'message': 错误信息}
+            Training result dictionary: {'status': 'success'/'failed', 'results': training results, 'message': error message}
         """
         try:
-            self._log_job(job_id, "开始超深度 AGI 联合训练 | Starting ultra-deep AGI joint training")
+            self._log_job(job_id, "Starting ultra-deep AGI joint training")
             
-            # 超深度更新 AGI 训练状态为联合训练阶段
+            # Ultra-deep update AGI training state to joint training phase
             self.agi_training_state.update({
                 'learning_phase': 'joint_training',
                 'current_strategy': self.agi_training_state.get('meta_learning_strategy', {}).get('primary_strategy', 'collaborative'),
@@ -550,9 +936,9 @@ class TrainingManager:
             joint_data = self._prepare_agi_joint_training_data(model_ids, parameters)
             data_quality_score = self._calculate_data_quality(joint_data)
             self._log_job(job_id, 
-                f"超深度准备完成 {len(joint_data)} 条多模态训练数据 | "
-                f"数据质量评分: {data_quality_score:.3f}, "
-                f"多模态一致性: {self._calculate_multimodal_coherence_score(joint_data, model_ids):.3f}"
+                f"Ultra-deep prepared {len(joint_data)} multimodal training data items | "
+                f"Data quality score: {data_quality_score:.3f}, "
+                f"Multimodal coherence: {self._calculate_multimodal_coherence_score(joint_data, model_ids):.3f}"
             )
             
             # 2. 深度应用元学习策略指导训练过程 - 动态多目标优化策略
@@ -572,11 +958,11 @@ class TrainingManager:
             nas_optimizer = self.agi_training_state.get('nas_optimizer', {})
             if nas_optimizer.get('search_status') == 'active':
                 self.agi_training_state['neural_architecture_optimization_active'] = True
-                self._log_job(job_id, 
-                    f"神经架构搜索优化器已激活 | "
-                    f"搜索策略: {nas_optimizer.get('search_strategy', 'differentiable')}, "
-                    f"优化目标: {nas_optimizer.get('optimization_objectives', {})}"
-                )
+            self._log_job(job_id, 
+                f"Neural architecture search optimizer activated | "
+                f"Search strategy: {nas_optimizer.get('search_strategy', 'differentiable')}, "
+                f"Optimization objectives: {nas_optimizer.get('optimization_objectives', {})}"
+            )
             
             # 6. 执行真正的多模态模型协同训练 - 集体智能、涌现行为和认知收敛
             training_results = {}
@@ -584,12 +970,12 @@ class TrainingManager:
             batch_size = parameters.get('batch_size', training_plan.get('recommended_batch_size', 16))
             
             self._log_job(job_id, 
-                f"开始 {epochs} 轮超深度 AGI 联合训练 | "
-                f"批次大小: {batch_size}, 总数据量: {len(enriched_data)}\n"
-                f"元学习主导策略: {training_plan.get('strategy', 'collaborative')} "
-                f"(置信度: {training_plan.get('strategy_confidence', 0.7):.2f})\n"
-                f"学习率动态调整: {training_plan.get('learning_rate_adjustments', {})}\n"
-                f"多目标优化权重: {training_plan.get('objective_weights', {})}"
+                f"Starting {epochs} rounds of ultra-deep AGI joint training | "
+                f"Batch size: {batch_size}, Total data: {len(enriched_data)}\n"
+                f"Meta-learning dominant strategy: {training_plan.get('strategy', 'collaborative')} "
+                f"(Confidence: {training_plan.get('strategy_confidence', 0.7):.2f})\n"
+                f"Learning rate dynamic adjustments: {training_plan.get('learning_rate_adjustments', {})}\n"
+                f"Multi-objective optimization weights: {training_plan.get('objective_weights', {})}"
             )
             
             # 初始化高级训练监控和实时优化系统
@@ -629,7 +1015,7 @@ class TrainingManager:
                     # 检查 AGI 早停条件 - 基于认知收敛和性能饱和
                     stop_training, stop_reason = self._check_agi_cognitive_early_stopping(training_results, parameters, epoch, batch_idx, model_ids)
                     if stop_training:
-                        self._log_job(job_id, f"AGI 认知收敛触发早停条件: {stop_reason}")
+                        self._log_job(job_id, f"AGI cognitive convergence triggered early stopping condition: {stop_reason}")
                         break
                     
                     # 检测和利用涌现行为 - 真正的集体智能表现
@@ -638,9 +1024,9 @@ class TrainingManager:
                         self.agi_training_state['emergent_behavior_detected'] = True
                         self.agi_training_state['emergent_behavior_metrics'] = behavior_metrics
                         self._log_job(job_id, 
-                            f"检测到涌现行为 | "
-                            f"集体智能提升: {behavior_metrics.get('collective_intelligence_boost', 0):.3f}, "
-                            f"知识转移效率: {behavior_metrics.get('knowledge_transfer_efficiency', 0):.3f}"
+                            f"Emergent behavior detected | "
+                            f"Collective intelligence boost: {behavior_metrics.get('collective_intelligence_boost', 0):.3f}, "
+                            f"Knowledge transfer efficiency: {behavior_metrics.get('knowledge_transfer_efficiency', 0):.3f}"
                         )
                         self._strategically_adjust_for_emergent_behavior(training_results, behavior_metrics)
                 
@@ -682,14 +1068,14 @@ class TrainingManager:
             final_metrics = self._calculate_final_agi_training_metrics()
             
             self._log_job(job_id, 
-                f"超深度 AGI 联合训练成功完成 | Ultra-deep AGI joint training completed successfully\n"
-                f"总训练时间: {time.time() - self.agi_training_state['joint_training_start_time']:.2f}秒\n"
-                f"集体智能水平: {self.agi_training_state.get('collective_intelligence_level', 0):.3f}\n"
-                f"知识转移效率: {self.agi_training_state.get('cross_model_knowledge_transfer', 0):.3f}\n"
-                f"最终平均准确率: {final_results.get('average_accuracy', 0):.3f}\n"
-                f"多模态协同效果: {final_metrics.get('multimodal_synergy', 0):.3f}\n"
-                f"认知收敛率: {final_metrics.get('cognitive_convergence_rate', 0):.3f}\n"
-                f"元学习进化程度: {final_metrics.get('meta_learning_evolution', 0):.3f}"
+                f"Ultra-deep AGI joint training completed successfully\n"
+                f"Total training time: {time.time() - self.agi_training_state['joint_training_start_time']:.2f} seconds\n"
+                f"Collective intelligence level: {self.agi_training_state.get('collective_intelligence_level', 0):.3f}\n"
+                f"Knowledge transfer efficiency: {self.agi_training_state.get('cross_model_knowledge_transfer', 0):.3f}\n"
+                f"Final average accuracy: {final_results.get('average_accuracy', 0):.3f}\n"
+                f"Multimodal synergy effect: {final_metrics.get('multimodal_synergy', 0):.3f}\n"
+                f"Cognitive convergence rate: {final_metrics.get('cognitive_convergence_rate', 0):.3f}\n"
+                f"Meta-learning evolution degree: {final_metrics.get('meta_learning_evolution', 0):.3f}"
             )
             
             return {
@@ -709,7 +1095,7 @@ class TrainingManager:
             }
             
         except Exception as e:
-            error_msg = f"超深度 AGI 联合训练失败: {str(e)}"
+            error_msg = f"Ultra-deep AGI joint training failed: {str(e)}"
             self._log_job(job_id, error_msg)
             error_handler.handle_error(e, "TrainingManager", "Ultra-deep AGI joint training failed")
             
@@ -1632,7 +2018,7 @@ class TrainingManager:
             with open(reflection_file, 'w', encoding='utf-8') as f:
                 json.dump(reflection_data, f, ensure_ascii=False, indent=2)
             
-            logger.info(f"AGI 反思结果已保存: {reflection_file}")
+            error_handler.log_info(f"AGI 反思结果已保存: {reflection_file}", "TrainingManager")
             
         except Exception as e:
             error_handler.log_warning(f"保存 AGI 反思结果失败: {e}", "TrainingManager")
@@ -1722,24 +2108,54 @@ class TrainingManager:
         meta_strategy = self.agi_training_state.get('meta_learning_strategy', {})
         model_strategies = meta_strategy.get('model_specific_strategies', {})
         
+        # 检查是否为从零开始训练
+        from_scratch = parameters.get('from_scratch', False)
+        
+        # 根据是否从零开始训练设置不同的默认参数
+        if from_scratch:
+            # 从零开始训练的参数设置
+            default_strategy = {
+                'learning_rate': 0.01,  # 更高的初始学习率
+                'batch_size': 16,       # 更小的批量大小
+                'epochs': parameters.get('epochs', 20),  # 更多的训练轮次
+                'optimization_focus': 'foundational_knowledge',  # 注重基础知识学习
+                'from_scratch': True     # 标记为从零开始训练
+            }
+        else:
+            # 普通训练的默认参数
+            default_strategy = {
+                'learning_rate': 0.001,
+                'batch_size': 32,
+                'epochs': parameters.get('epochs', 10),
+                'optimization_focus': 'accuracy'
+            }
+        
         # 获取模型特定策略或使用默认策略
-        strategy = model_strategies.get(model_id, {
-            'learning_rate': 0.001,
-            'batch_size': 32,
-            'epochs': parameters.get('epochs', 10),
-            'optimization_focus': 'accuracy'
-        })
+        strategy = model_strategies.get(model_id, default_strategy)
         
         # 根据模型类型调整策略
         if model_id == 'language':
-            strategy['learning_rate'] = strategy.get('learning_rate', 0.0005)
-            strategy['focus'] = 'context_understanding'
+            if from_scratch:
+                strategy['learning_rate'] = strategy.get('learning_rate', 0.005)
+                strategy['focus'] = 'vocabulary_building'
+            else:
+                strategy['learning_rate'] = strategy.get('learning_rate', 0.0005)
+                strategy['focus'] = 'context_understanding'
         elif model_id == 'audio':
-            strategy['learning_rate'] = strategy.get('learning_rate', 0.0003)
-            strategy['batch_size'] = strategy.get('batch_size', 16)
+            if from_scratch:
+                strategy['learning_rate'] = strategy.get('learning_rate', 0.003)
+                strategy['batch_size'] = strategy.get('batch_size', 8)
+                strategy['focus'] = 'audio_feature_extraction'
+            else:
+                strategy['learning_rate'] = strategy.get('learning_rate', 0.0003)
+                strategy['batch_size'] = strategy.get('batch_size', 16)
         elif model_id in ['vision_image', 'vision_video']:
-            strategy['batch_size'] = strategy.get('batch_size', 8)
-            strategy['focus'] = 'feature_extraction'
+            if from_scratch:
+                strategy['batch_size'] = strategy.get('batch_size', 4)
+                strategy['focus'] = 'visual_feature_learning'
+            else:
+                strategy['batch_size'] = strategy.get('batch_size', 8)
+                strategy['focus'] = 'feature_extraction'
         
         return strategy
 
@@ -1858,13 +2274,28 @@ class TrainingManager:
         
         # 准备训练参数
         model_params = parameters.get(model_id, {})
-        model_params.update({
-            'epochs': strategy.get('epochs', 10),
-            'batch_size': strategy.get('batch_size', 32),
-            'learning_rate': adaptive_params.get('learning_rate', 0.001),
-            'agi_enhanced': True,
-            'adaptive_params': adaptive_params
-        })
+        
+        # 检查是否使用从零开始训练模式
+        from_scratch = parameters.get('from_scratch', False)
+        if from_scratch:
+            self._log_job(job_id, f"模型 {model_id} 启用从零开始训练模式")
+            # 为从零开始训练设置特定参数
+            model_params.update({
+                'from_scratch': True,
+                'epochs': strategy.get('epochs', 20),  # 从零开始训练需要更多epochs
+                'batch_size': strategy.get('batch_size', 16),  # 更小的batch size
+                'learning_rate': adaptive_params.get('learning_rate', 0.01),  # 更高的初始学习率
+                'agi_enhanced': True,
+                'adaptive_params': adaptive_params
+            })
+        else:
+            model_params.update({
+                'epochs': strategy.get('epochs', 10),
+                'batch_size': strategy.get('batch_size', 32),
+                'learning_rate': adaptive_params.get('learning_rate', 0.001),
+                'agi_enhanced': True,
+                'adaptive_params': adaptive_params
+            })
         
         # 执行训练
         try:
@@ -1877,7 +2308,8 @@ class TrainingManager:
                         'strategy': strategy,
                         'adaptive_params': adaptive_params,
                         'agi_state': self.agi_training_state,
-                        'knowledge_context': self.agi_training_state.get('knowledge_context', {})
+                        'knowledge_context': self.agi_training_state.get('knowledge_context', {}),
+                        'from_scratch': from_scratch
                     },
                     **model_params
                 )
@@ -2015,7 +2447,7 @@ class TrainingManager:
             with open(result_file, 'w', encoding='utf-8') as f:
                 json.dump(training_result, f, ensure_ascii=False, indent=2)
             
-            logger.info(f"AGI 单独训练结果已保存: {result_file}")
+            error_handler.log_info(f"AGI 单独训练结果已保存: {result_file}", "TrainingManager")
             
         except Exception as e:
             error_handler.handle_error(e, "TrainingManager", f"保存模型 {model_id} 的 AGI 训练结果失败")
@@ -2277,7 +2709,7 @@ class TrainingManager:
             with open(result_file, 'w', encoding='utf-8') as f:
                 json.dump(training_result, f, ensure_ascii=False, indent=2)
             
-            logger.info(f"单独训练结果已保存: {result_file}")
+            error_handler.log_info(f"单独训练结果已保存: {result_file}", "TrainingManager")
             
         except Exception as e:
             error_handler.handle_error(e, "TrainingManager", f"保存模型 {model_id} 的训练结果失败")
@@ -3305,7 +3737,7 @@ class TrainingManager:
                         # 非对角线元素初始化为随机小值，表示初始弱连接 | Initialize non-diagonal elements with random small values representing initial weak connections
                         interaction_matrix[model_id][target_model_id] = random.uniform(0.1, 0.3)
             
-            logger.info(f"已初始化包含 {num_models} 个模型的交互矩阵 | Initialized interaction matrix with {num_models} models")
+            error_handler.log_info(f"已初始化包含 {num_models} 个模型的交互矩阵 | Initialized interaction matrix with {num_models} models", "TrainingManager")
             return interaction_matrix
         except Exception as e:
             error_handler.handle_error(e, "TrainingManager", "初始化模型交互矩阵失败")

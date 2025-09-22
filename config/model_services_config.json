@@ -1,26 +1,309 @@
 {
-  "model_ports": {
-    "manager": 8001,
-    "language": 8002,
-    "knowledge": 8003,
-    "vision": 8004,
-    "audio": 8005,
-    "autonomous": 8006,
-    "programming": 8007,
-    "planning": 8008,
-    "emotion": 8009,
-    "spatial": 8010,
-    "computer_vision": 8011,
-    "sensor": 8012,
-    "motion": 8013,
-    "prediction": 8014,
-    "advanced_reasoning": 8015,
-    "data_fusion": 8016,
-    "creative_problem_solving": 8017,
-    "meta_cognition": 8018,
-    "value_alignment": 8019,
-    "finance": 8020,
-    "medical": 8021
+  "model_services": {
+    "manager": {
+      "port": 8001,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 50,
+        "batch_size": 64,
+        "learning_rate": 0.0005,
+        "optimizer": "adam",
+        "dropout_rate": 0.3,
+        "validation_split": 0.15,
+        "input_size": 512,
+        "hidden_sizes": [256, 128, 64],
+        "output_size": 32
+      }
+    },
+    "language": {
+      "port": 8002,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 100,
+        "batch_size": 32,
+        "learning_rate": 0.0001,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.2,
+        "input_size": 768,
+        "hidden_sizes": [512, 256, 128],
+        "output_size": 128
+      }
+    },
+    "knowledge": {
+      "port": 8003,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 48,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    },
+    "vision": {
+      "port": 8004,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 80,
+        "batch_size": 16,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "dropout_rate": 0.3,
+        "validation_split": 0.2,
+        "input_size": 2048,
+        "hidden_sizes": [1024, 512, 256],
+        "output_size": 64
+      }
+    },
+    "audio": {
+      "port": 8005,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 60,
+        "batch_size": 32,
+        "learning_rate": 0.0004,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.15,
+        "input_size": 512,
+        "hidden_sizes": [256, 128],
+        "output_size": 32
+      }
+    },
+    "autonomous": {
+      "port": 8006,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 90,
+        "batch_size": 24,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.2,
+        "input_size": 768,
+        "hidden_sizes": [384, 192, 96],
+        "output_size": 48
+      }
+    },
+    "programming": {
+      "port": 8007,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 40,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    },
+    "planning": {
+      "port": 8008,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 80,
+        "batch_size": 32,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.2,
+        "input_size": 768,
+        "hidden_sizes": [384, 192],
+        "output_size": 48
+      }
+    },
+    "emotion": {
+      "port": 8009,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 60,
+        "batch_size": 48,
+        "learning_rate": 0.0004,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.15,
+        "input_size": 512,
+        "hidden_sizes": [256, 128],
+        "output_size": 32
+      }
+    },
+    "spatial": {
+      "port": 8010,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 24,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.2,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    },
+    "computer_vision": {
+      "port": 8011,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 80,
+        "batch_size": 32,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "dropout_rate": 0.3,
+        "validation_split": 0.15,
+        "input_size": 2048,
+        "hidden_sizes": [1024, 512],
+        "output_size": 128
+      }
+    },
+    "sensor": {
+      "port": 8012,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 60,
+        "batch_size": 40,
+        "learning_rate": 0.0004,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.2,
+        "input_size": 512,
+        "hidden_sizes": [256, 128],
+        "output_size": 32
+      }
+    },
+    "motion": {
+      "port": 8013,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 24,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    },
+    "prediction": {
+      "port": 8014,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 80,
+        "batch_size": 32,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "dropout_rate": 0.3,
+        "validation_split": 0.2,
+        "input_size": 768,
+        "hidden_sizes": [384, 192, 96],
+        "output_size": 48
+      }
+    },
+    "advanced_reasoning": {
+      "port": 8015,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 90,
+        "batch_size": 24,
+        "learning_rate": 0.0001,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256, 128],
+        "output_size": 64
+      }
+    },
+    "data_fusion": {
+      "port": 8016,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 32,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.2,
+        "validation_split": 0.2,
+        "input_size": 2048,
+        "hidden_sizes": [1024, 512],
+        "output_size": 128
+      }
+    },
+    "creative_problem_solving": {
+      "port": 8017,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 80,
+        "batch_size": 24,
+        "learning_rate": 0.0002,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    },
+    "meta_cognition": {
+      "port": 8018,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 90,
+        "batch_size": 32,
+        "learning_rate": 0.0001,
+        "optimizer": "adam",
+        "dropout_rate": 0.3,
+        "validation_split": 0.2,
+        "input_size": 768,
+        "hidden_sizes": [384, 192, 96],
+        "output_size": 48
+      }
+    },
+    "value_alignment": {
+      "port": 8019,
+      "host": "localhost",
+      "from_scratch": true,
+      "training_config": {
+        "epochs": 70,
+        "batch_size": 24,
+        "learning_rate": 0.0003,
+        "optimizer": "adam",
+        "dropout_rate": 0.25,
+        "validation_split": 0.15,
+        "input_size": 1024,
+        "hidden_sizes": [512, 256],
+        "output_size": 64
+      }
+    }
   },
   "main_api": {
     "port": 8000,
@@ -48,5 +331,33 @@
     "enabled": true,
     "metrics_port": 8081,
     "collection_interval": 15
+  },
+  
+  "training_settings": {
+    "default_mode": "from_scratch",
+    "enable_external_models": false,
+    "auto_save_checkpoints": true,
+    "checkpoint_interval": 10,
+    "early_stopping": {
+      "enabled": true,
+      "patience": 15,
+      "min_delta": 0.001
+    },
+    "data_augmentation": {
+      "enabled": true,
+      "rotation_range": 15,
+      "zoom_range": 0.1,
+      "horizontal_flip": true
+    },
+    "learning_rate_scheduler": {
+      "enabled": true,
+      "type": "reduce_on_plateau",
+      "factor": 0.5,
+      "patience": 5
+    },
+    "memory_management": {
+      "clear_cache_after_epoch": true,
+      "garbage_collection_interval": 5
+    }
   }
 }

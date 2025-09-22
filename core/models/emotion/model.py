@@ -13,10 +13,7 @@
 """
 
 """
-情感分析模型 - 具有情感识别和表达能力
 Emotion Analysis Model - Capable of emotion recognition and expression
-
-提供情感分析、情感推理和情感表达能力
 Provides emotion analysis, emotion reasoning, and emotion expression capabilities
 """
 import time
@@ -27,32 +24,28 @@ from ...error_handling import error_handler
 
 
 class EmotionModel(BaseModel):
-    """情感分析模型类
-    Emotion Analysis Model Class
-    
-    负责情感识别、情感推理和情感表达
+    """Emotion Analysis Model Class
     Responsible for emotion recognition, emotion reasoning, and emotion expression
     """
     
     def __init__(self, config: Dict[str, Any] = None):
-        """初始化情感分析模型
-        Initialize Emotion Analysis Model
+        """Initialize Emotion Analysis Model
         
         Args:
-            config: 配置字典 / Configuration dictionary
+            config: Configuration dictionary
         """
         super().__init__(config)
         self.model_name = "EmotionModel"
         self.version = "1.0.0"
         
-        # 情感词汇库
+        # Emotion lexicon
         self.emotion_lexicon = {
             'positive': ['happy', 'joyful', 'excited', 'content', 'proud', 'grateful'],
             'negative': ['sad', 'angry', 'frustrated', 'disappointed', 'anxious', 'fearful'],
             'neutral': ['calm', 'neutral', 'indifferent', 'curious', 'thoughtful']
         }
         
-        # 情感强度映射
+        # Emotion intensity mapping
         self.emotion_intensity = {
             'very_strong': 0.9,
             'strong': 0.7,
@@ -61,7 +54,7 @@ class EmotionModel(BaseModel):
             'very_weak': 0.1
         }
         
-        # 当前情感状态
+        # Current emotion state
         self.current_emotion = {
             'emotion': 'neutral',
             'intensity': 0.5,
@@ -69,77 +62,72 @@ class EmotionModel(BaseModel):
             'timestamp': time.time()
         }
         
-        error_handler.log_info("情感分析模型已初始化", self.model_name)
+        error_handler.log_info("Emotion analysis model initialized", self.model_name)
     
     def initialize(self) -> Dict[str, Any]:
-        """初始化情感分析模型资源
-        Initialize emotion analysis model resources
+        """Initialize emotion analysis model resources
         
         Returns:
-            dict: 初始化结果 / Initialization results
+            dict: Initialization results
         """
         try:
-            # 这里可以加载预训练的情感分析模型或其他资源
             # Pre-trained emotion analysis models or other resources can be loaded here
             self.is_initialized = True
             
             result = {
                 'status': 'success',
-                'message': '情感分析模型初始化完成',
+                'message': 'Emotion analysis model initialization completed',
                 'model_name': self.model_name,
                 'version': self.version
             }
             
-            error_handler.log_info(f"情感分析模型初始化完成: {result}", self.model_name)
+            error_handler.log_info(f"Emotion analysis model initialization completed: {result}", self.model_name)
             return result
             
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感分析模型初始化失败")
+            error_handler.handle_error(e, self.model_name, "Emotion analysis model initialization failed")
             return {'status': 'error', 'message': str(e)}
     
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理输入数据（情感分析请求）
-        Process input data (emotion analysis request)
+        """Process input data (emotion analysis request)
         
         Args:
-            input_data: 输入数据字典，包含情感分析参数 / Input data dictionary containing emotion analysis parameters
+            input_data: Input data dictionary containing emotion analysis parameters
             
         Returns:
-            dict: 处理结果 / Processing results
+            dict: Processing results
         """
         try:
             if 'text' in input_data:
-                # 文本情感分析
+                # Text emotion analysis
                 return self.analyze_emotion(input_data['text'])
             elif 'emotion_type' in input_data:
-                # 情感表达
+                # Emotion expression
                 intensity = input_data.get('intensity', 0.5)
                 return self.express_emotion(input_data['emotion_type'], intensity)
             elif 'feedback' in input_data:
-                # 情感状态更新
+                # Emotion state update
                 return self.update_emotion_based_on_feedback(input_data['feedback'])
             else:
                 return {
                     'status': 'error',
-                    'message': '无效的输入数据，需要text、emotion_type或feedback字段'
+                    'message': 'Invalid input data, requires text, emotion_type, or feedback field'
                 }
                 
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感数据处理失败")
+            error_handler.handle_error(e, self.model_name, "Emotion data processing failed")
             return {'status': 'error', 'message': str(e)}
     
     def analyze_emotion(self, text: str) -> Dict[str, Any]:
-        """分析文本中的情感
-        Analyze emotion in text
+        """Analyze emotion in text
         
         Args:
-            text: 输入文本 / Input text
+            text: Input text
             
         Returns:
-            dict: 情感分析结果 / Emotion analysis results
+            dict: Emotion analysis results
         """
         try:
-            # 简单的情感分析实现（实际应使用更复杂的NLP模型）
             # Simple emotion analysis implementation (should use more complex NLP model)
             emotion_scores = {
                 'positive': 0,
@@ -157,7 +145,7 @@ class EmotionModel(BaseModel):
             if total_score > 0:
                 emotion_scores = {k: v/total_score for k, v in emotion_scores.items()}
             
-            # 确定主要情感
+            # Determine dominant emotion
             dominant_emotion = max(emotion_scores, key=emotion_scores.get)
             confidence = emotion_scores[dominant_emotion]
             
@@ -168,29 +156,28 @@ class EmotionModel(BaseModel):
                 'status': 'success'
             }
             
-            error_handler.log_info(f"情感分析完成: {result}", self.model_name)
+            error_handler.log_info(f"Emotion analysis completed: {result}", self.model_name)
             return result
             
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感分析失败")
+            error_handler.handle_error(e, self.model_name, "Emotion analysis failed")
             return {'status': 'error', 'message': str(e)}
     
     def express_emotion(self, emotion_type: str, intensity: float = 0.5) -> Dict[str, Any]:
-        """表达特定情感
-        Express specific emotion
+        """Express specific emotion
         
         Args:
-            emotion_type: 情感类型 / Emotion type
-            intensity: 情感强度 / Emotion intensity
+            emotion_type: Emotion type
+            intensity: Emotion intensity
             
         Returns:
-            dict: 情感表达结果 / Emotion expression results
+            dict: Emotion expression results
         """
         try:
             if emotion_type not in self.emotion_lexicon:
-                return {'status': 'error', 'message': f'未知情感类型: {emotion_type}'}
+                return {'status': 'error', 'message': f'Unknown emotion type: {emotion_type}'}
             
-            # 更新当前情感状态
+            # Update current emotion state
             self.current_emotion = {
                 'emotion': emotion_type,
                 'intensity': max(0.1, min(1.0, intensity)),
@@ -198,7 +185,7 @@ class EmotionModel(BaseModel):
                 'timestamp': time.time()
             }
             
-            # 生成情感表达文本
+            # Generate emotion expression text
             expression_text = self._generate_expression(emotion_type, intensity)
             
             result = {
@@ -208,61 +195,59 @@ class EmotionModel(BaseModel):
                 'status': 'success'
             }
             
-            error_handler.log_info(f"情感表达完成: {result}", self.model_name)
+            error_handler.log_info(f"Emotion expression completed: {result}", self.model_name)
             return result
             
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感表达失败")
+            error_handler.handle_error(e, self.model_name, "Emotion expression failed")
             return {'status': 'error', 'message': str(e)}
     
     def _generate_expression(self, emotion_type: str, intensity: float) -> str:
-        """生成情感表达文本
-        Generate emotion expression text
+        """Generate emotion expression text
         
         Args:
-            emotion_type: 情感类型 / Emotion type
-            intensity: 情感强度 / Emotion intensity
+            emotion_type: Emotion type
+            intensity: Emotion intensity
             
         Returns:
-            str: 情感表达文本 / Emotion expression text
+            str: Emotion expression text
         """
         expressions = {
             'positive': {
-                'very_strong': "我感到非常高兴和兴奋！",
-                'strong': "我感到很开心！",
-                'moderate': "我感觉不错。",
-                'weak': "我心情还可以。",
-                'very_weak': "我心情平静。"
+                'very_strong': "I feel extremely happy and excited!",
+                'strong': "I feel very happy!",
+                'moderate': "I feel good.",
+                'weak': "I'm feeling okay.",
+                'very_weak': "I feel calm."
             },
             'negative': {
-                'very_strong': "我感到非常沮丧和失望！",
-                'strong': "我感到很伤心。",
-                'moderate': "我有点不开心。",
-                'weak': "我心情不太好。",
-                'very_weak': "我心情有点低落。"
+                'very_strong': "I feel extremely frustrated and disappointed!",
+                'strong': "I feel very sad.",
+                'moderate': "I'm a bit unhappy.",
+                'weak': "I'm not feeling well.",
+                'very_weak': "I feel a bit down."
             },
             'neutral': {
-                'very_strong': "我保持完全中立的态度。",
-                'strong': "我保持中立。",
-                'moderate': "我心情平静。",
-                'weak': "我没什么特别的感觉。",
-                'very_weak': "我心情一般。"
+                'very_strong': "I maintain a completely neutral attitude.",
+                'strong': "I remain neutral.",
+                'moderate': "I feel calm.",
+                'weak': "I don't have any particular feelings.",
+                'very_weak': "I feel average."
             }
         }
         
-        # 根据强度选择表达
+        # Select expression based on intensity
         intensity_level = self._get_intensity_level(intensity)
         return expressions[emotion_type][intensity_level]
     
     def _get_intensity_level(self, intensity: float) -> str:
-        """获取情感强度级别
-        Get emotion intensity level
+        """Get emotion intensity level
         
         Args:
-            intensity: 情感强度值 / Emotion intensity value
+            intensity: Emotion intensity value
             
         Returns:
-            str: 强度级别 / Intensity level
+            str: Intensity level
         """
         if intensity >= 0.8:
             return 'very_strong'
@@ -276,23 +261,21 @@ class EmotionModel(BaseModel):
             return 'very_weak'
     
     def get_current_emotion(self) -> Dict[str, Any]:
-        """获取当前情感状态
-        Get current emotion state
+        """Get current emotion state
         
         Returns:
-            dict: 当前情感状态 / Current emotion state
+            dict: Current emotion state
         """
         return self.current_emotion
     
     def update_emotion_based_on_feedback(self, feedback: Dict[str, Any]) -> Dict[str, Any]:
-        """根据反馈更新情感状态
-        Update emotion state based on feedback
+        """Update emotion state based on feedback
         
         Args:
-            feedback: 反馈信息 / Feedback information
+            feedback: Feedback information
             
         Returns:
-            dict: 更新结果 / Update result
+            dict: Update result
         """
         try:
             if 'emotion' in feedback and 'intensity' in feedback:
@@ -304,55 +287,51 @@ class EmotionModel(BaseModel):
                     'updated_emotion': self.current_emotion,
                     'status': 'success'
                 }
-                error_handler.log_info(f"情感状态已更新: {result}", self.model_name)
+                error_handler.log_info(f"Emotion state updated: {result}", self.model_name)
                 return result
             else:
-                return {'status': 'error', 'message': '无效的反馈数据'}
+                return {'status': 'error', 'message': 'Invalid feedback data'}
                 
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感状态更新失败")
+            error_handler.handle_error(e, self.model_name, "Emotion state update failed")
             return {'status': 'error', 'message': str(e)}
     
     def train(self, training_data: Dict[str, Any] = None) -> Dict[str, Any]:
-        """训练情感分析模型
-        Train emotion analysis model
+        """Train emotion analysis model
         
         Args:
-            training_data: 训练数据 / Training data
+            training_data: Training data
             
         Returns:
-            dict: 训练结果 / Training results
+            dict: Training results
         """
         try:
-            # 模拟训练过程
             # Simulate training process
-            error_handler.log_info("开始训练情感分析模型", self.model_name)
+            error_handler.log_info("Starting emotion analysis model training", self.model_name)
             
-            # 这里应该实现实际的情感分析模型训练逻辑
             # Actual emotion analysis model training logic should be implemented here
-            time.sleep(2)  # 模拟训练时间
+            time.sleep(2)  # Simulate training time
             
             result = {
                 'status': 'success',
-                'message': '情感分析模型训练完成',
+                'message': 'Emotion analysis model training completed',
                 'training_time': 2.0,
                 'accuracy': 0.85,
                 'model_version': self.version
             }
             
-            error_handler.log_info(f"情感分析模型训练完成: {result}", self.model_name)
+            error_handler.log_info(f"Emotion analysis model training completed: {result}", self.model_name)
             return result
             
         except Exception as e:
-            error_handler.handle_error(e, self.model_name, "情感分析模型训练失败")
+            error_handler.handle_error(e, self.model_name, "Emotion analysis model training failed")
             return {'status': 'error', 'message': str(e)}
     
     def get_status(self) -> Dict[str, Any]:
-        """获取模型状态
-        Get model status
+        """Get model status
         
         Returns:
-            dict: 模型状态信息 / Model status information
+            dict: Model status information
         """
         return {
             'status': 'active',
@@ -363,10 +342,8 @@ class EmotionModel(BaseModel):
         }
     
     def on_access(self):
-        """访问回调方法
-        Access callback method
+        """Access callback method
         """
-        # 记录访问时间
         # Record access time
         self.last_access_time = time.time()
-        error_handler.log_info(f"情感分析模型被访问", self.model_name)
+        error_handler.log_info(f"Emotion analysis model accessed", self.model_name)

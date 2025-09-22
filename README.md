@@ -26,20 +26,19 @@ Self Soul employs a layered architecture that separates core AI capabilities fro
 ### Architecture Diagram
 
 ```
-Self Soul /
+Self brain /
 ├── core/                     # Core backend system
-│   ├── models/               # 15+ specialized AI models
-│   ├── training/             # Model training infrastructure
-│   ├── knowledge/            # Knowledge base and management
-│   └── main.py               # Backend entry point
-├── app/                      # Frontend application
-│   ├── src/                  # Vue.js source code
-│   │   ├── views/            # Main application views
-│   │   ├── components/       # Reusable UI components
-│   │   └── locales/          # Multi-language support
-│   └── package.json          # Frontend dependencies
-├── data/                     # Training and knowledge data
-└── config/                   # System configuration files
+│   ├── main.py               # Backend entry point and API endpoints
+│   ├── model_service_manager.py # Model service creation and management
+│   ├── model_registry.py     # Model registration and lifecycle management
+│   ├── training_manager.py   # Training coordination and management
+│   ├── autonomous_learning_manager.py # Self-learning capabilities
+│   ├── joint_training_coordinator.py  # Multi-model training coordination
+│   └── error_handling.py     # Error handling and logging system
+├── config/                   # System configuration files
+│   └── model_services_config.json # Model service port configuration
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project documentation
 ```
 
 ## Core Models
@@ -158,23 +157,19 @@ Self Soul system uses the following port configuration for running various servi
 
 ### Main Service Ports
 
-| Service Name | English Name | Port | Description |
-|-------------|-------------|------|------------|
-| Service | English Name | Port | Description |
-| ------- | ------------ | ---- | ----------- |
-| Main API Gateway | Main API Gateway | 8000 | Main entry point of the system, providing RESTful API interface |
-| Frontend Application | Frontend Application | 5175 | User interface, accessible through browser |
-| Realtime Stream Manager | Realtime Stream Manager | 8765 | Manages real-time data streams and inter-model communication |
-| Performance Monitoring | Performance Monitoring | 8081 | Monitors system performance and resource usage |
+| Service Name | Port | Description |
+|-------------|------|------------|
+| Main API Gateway | 8000 | Main entry point for the system, providing RESTful API interfaces |
+| Frontend Application | 5175 | User interface accessible via web browser |
+| Realtime Stream Manager | 8765 | Manages real-time data streams and inter-model communication |
+| Performance Monitoring | 8081 | Monitors system performance and resource usage |
 
 ### Model Port Configuration
 
 The system assigns independent ports to each AI model, ranging from 8001 to 8019:
 
-| Port Number | Model Type (Chinese) | English Model Type |
-|------------|---------------------|------------------|
 | Port | Model Type | English Model Type |
-| ---- | --------- | ------------------ |
+|------|------------|-------------------|
 | 8001 | Manager Model | Manager Model |
 | 8002 | Language Model | Language Model |
 | 8003 | Knowledge Model | Knowledge Model |
@@ -195,7 +190,7 @@ The system assigns independent ports to each AI model, ranging from 8001 to 8019
 | 8018 | Meta Cognition Model | Meta Cognition Model |
 | 8019 | Value Alignment Model | Value Alignment Model |
 
-Port configuration is stored in the `config/model_services_config.json` file, which is automatically loaded when the system starts.
+Port configuration is stored in the `config/model_services_config.json` file and is automatically loaded when the system starts.
 
 ## API Documentation
 
@@ -254,4 +249,3 @@ Self Soul is built with contributions from the open-source community and leverag
 ---
 
 © 2025 Self Soul Team. All rights reserved.
-

@@ -187,29 +187,12 @@ class SystemSettingsManager:
         """
         return self.get_model_setting(model_id, "type", "local")
     
-    def is_api_model(self, model_id: str) -> bool:
-        """
-        Check if model is configured as API mode
-        :param model_id: 模型ID
-        :return: 是否为API模式
-        """
-        return self.get_model_type(model_id) == "api"
-    
-    def get_model_api_config(self, model_id: str) -> Dict[str, str]:
-        """
-        Get model's API configuration
-        :param model_id: Model ID
-        :return: API configuration (url and key)
-        """
-        model_settings = self.get_model_setting(model_id, default={})
-        return {
-            "api_url": model_settings.get("api_url", ""),
-            "api_key": model_settings.get("api_key", "")
-        }
+
     
     def get_all_model_types(self) -> Dict[str, str]:
         """
         Get configuration of all model types
+        :param model_id: Model ID
         :return: {model_id: type}
         """
         result = {}
@@ -249,16 +232,17 @@ class SystemSettingsManager:
     
     def get_model_api_config(self, model_id: str) -> Dict[str, str]:
         """
-        获取模型的API配置
-        :param model_id: 模型ID
-        :return: API配置（url和key）
+        Get model's API configuration
+        :param model_id: Model ID
+        :return: API configuration with all necessary fields
         """
         model_settings = self.get_model_setting(model_id, default={})
         return {
             "api_url": model_settings.get("api_url", ""),
             "api_key": model_settings.get("api_key", ""),
             "model_name": model_settings.get("model_name", ""),
-            "source": model_settings.get("source", "local")
+            "source": model_settings.get("source", "local"),
+            "endpoint": model_settings.get("endpoint", "")
         }
     
     def is_api_model(self, model_id: str) -> bool:

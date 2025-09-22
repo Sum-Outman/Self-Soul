@@ -38,7 +38,7 @@ from core.advanced_reasoning import AdvancedReasoningEngine as AdvancedReasoning
 from core.meta_learning_system import MetaLearningSystem as AGIMetaLearner
 from core.optimization.model_optimizer import ModelOptimizer as NeuralArchitectureOptimizer
 from core.multimodal_processor import MultimodalProcessor
-from core.self_reflection_engine import SelfReflectionEngine
+from core.self_reflection_module import SelfReflectionModule as SelfReflectionEngine
 from core.advanced_self_learning import AdvancedSelfLearningSystem
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 
@@ -1684,4 +1684,6 @@ class EmotionAwarenessModule:
             return response
 
 # 创建全局实例
+emotion_analyzer = EmotionAnalyzer()
+emotion_awareness_system = agi_emotion_system
 emotion_awareness_module = EmotionAwarenessModule()

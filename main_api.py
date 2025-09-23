@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Self Brain Main API Server
+# Self Soul Main API Server
 统一认知架构的主要API网关
 """
 
@@ -30,7 +30,7 @@ logger = logging.getLogger('SelfBrain_API')
 
 # 创建FastAPI应用
 app = FastAPI(
-    title="Self Brain API Gateway",
+    title="Self Soul API Gateway",
     description="Unified Cognitive Architecture API Gateway",
     version="1.0.0",
     docs_url="/docs",
@@ -233,7 +233,7 @@ async def simulate_model_processing(input_data: str, model_id: str) -> Dict[str,
 @app.get("/health", tags=["System"])
 async def health_check():
     """系统健康检查"""
-    return JSONResponse(content={"status": "ok", "message": "Self Brain system is running normally"})
+    return JSONResponse(content={"status": "ok", "message": "Self Soul system is running normally"})
 
 @app.get("/api/models/status", tags=["Models"])
 async def get_models_status():
@@ -512,7 +512,7 @@ async def websocket_audio_stream(websocket: WebSocket, client_id: str):
 @app.on_event("startup")
 async def startup_event():
     """系统启动事件"""
-    logger.info("Self Brain Main API Server is starting up...")
+    logger.info("Self Soul Main API Server is starting up...")
     
     # 确保日志目录存在
     log_dir = os.path.join(os.path.dirname(__file__), 'logs')
@@ -524,13 +524,13 @@ async def startup_event():
     # 激活管理模型
     logger.info("Manager Model activated as the primary coordination model")
     
-    logger.info("Self Brain Main API Server started successfully")
+    logger.info("Self Soul Main API Server started successfully")
 
 # 关闭事件
 @app.on_event("shutdown")
 async def shutdown_event():
     """系统关闭事件"""
-    logger.info("Self Brain Main API Server is shutting down...")
+    logger.info("Self Soul Main API Server is shutting down...")
     
     # 清理活动连接
     for client_id in list(manager.active_connections.keys()):
@@ -540,7 +540,7 @@ async def shutdown_event():
             pass
         manager.disconnect(client_id)
     
-    logger.info("Self Brain Main API Server shut down successfully")
+    logger.info("Self Soul Main API Server shut down successfully")
 
 if __name__ == "__main__":
     # 从配置文件加载端口配置

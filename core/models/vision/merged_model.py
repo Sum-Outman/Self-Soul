@@ -216,10 +216,17 @@ class UnifiedVisionModel(BaseModel):
             # Load pre-trained CLIP model for multimodal understanding
             try:
                 from transformers import CLIPProcessor, CLIPModel
-                self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-                self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-                self.clip_model.eval()
-                self.logger.info("CLIP model loaded successfully")
+                from_scratch = config.get("from_scratch", False) if config else False
+                
+                if from_scratch:
+                    self.logger.info("From scratch mode - skipping CLIP model download")
+                    self.clip_model = None
+                    self.clip_processor = None
+                else:
+                    self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+                    self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+                    self.clip_model.eval()
+                    self.logger.info("CLIP model loaded successfully")
             except ImportError:
                 self.logger.warning("transformers not installed, cannot use CLIP")
                 self.clip_model = None

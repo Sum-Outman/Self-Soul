@@ -26,7 +26,7 @@ Self Soul employs a layered architecture that separates core AI capabilities fro
 ### Architecture Diagram
 
 ```
-Self brain /
+Self Soul /
 ├── core/                     # Core backend system
 │   ├── main.py               # Backend entry point and API endpoints
 │   ├── model_service_manager.py # Model service creation and management
@@ -35,15 +35,23 @@ Self brain /
 │   ├── autonomous_learning_manager.py # Self-learning capabilities
 │   ├── joint_training_coordinator.py  # Multi-model training coordination
 │   └── error_handling.py     # Error handling and logging system
+├── app/                      # Frontend application
+│   ├── src/                  # Frontend source code
+│   │   ├── views/            # Vue components for different views
+│   │   ├── components/       # Reusable UI components
+│   │   └── assets/           # Static assets
+│   ├── public/               # Publicly accessible files
+│   └── package.json          # Frontend dependencies
 ├── config/                   # System configuration files
 │   └── model_services_config.json # Model service port configuration
+├── data/                     # Data storage for models and training
 ├── requirements.txt          # Python dependencies
 └── README.md                 # Project documentation
 ```
 
 ## Core Models
 
-Self Soul includes 15+ specialized AI models working together to provide comprehensive intelligence capabilities:
+Self Soul includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
 
 ### Foundational Models
 
@@ -52,10 +60,10 @@ Self Soul includes 15+ specialized AI models working together to provide compreh
 - **Knowledge Model**: Organizes and retrieves structured and unstructured knowledge
 - **Vision Model**: Analyzes images and video content
 - **Audio Model**: Processes and understands sound and speech
-
-### Specialized Models
-
 - **Autonomous Model**: Manages self-directed learning and adaptation
+
+### Advanced Models
+
 - **Programming Model**: Generates and optimizes code
 - **Planning Model**: Creates and executes complex plans
 - **Emotion Model**: Recognizes and responds to emotional cues
@@ -64,6 +72,11 @@ Self Soul includes 15+ specialized AI models working together to provide compreh
 - **Sensor Model**: Processes data from various sensors
 - **Motion Model**: Analyzes and predicts movement patterns
 - **Prediction Model**: Makes data-driven forecasts and predictions
+- **Advanced Reasoning Model**: Performs complex logical reasoning and problem-solving tasks
+- **Data Fusion Model**: Integrates information from multiple sources for comprehensive understanding
+- **Creative Problem Solving Model**: Develops innovative solutions to complex challenges
+- **Meta Cognition Model**: Monitors and optimizes the system's own cognitive processes
+- **Value Alignment Model**: Ensures system behaviors align with defined ethical guidelines and values
 
 ## Installation Guide
 
@@ -157,40 +170,39 @@ Self Soul system uses the following port configuration for running various servi
 
 ### Main Service Ports
 
-| Service Name | Port | Description |
-|-------------|------|------------|
-| Main API Gateway | 8000 | Main entry point for the system, providing RESTful API interfaces |
-| Frontend Application | 5175 | User interface accessible via web browser |
-| Realtime Stream Manager | 8765 | Manages real-time data streams and inter-model communication |
-| Performance Monitoring | 8081 | Monitors system performance and resource usage |
+| 主API网关 | Main API Gateway | 8000 | 系统的主要入口点，提供RESTful API接口 |
+|---------|-----------------|------|----------------------------------|
+| 前端应用 | Frontend Application | 5175 | 用户界面，可通过浏览器访问 |
+| 实时数据流管理器 | Realtime Stream Manager | 8765 | 管理实时数据流和模型间通信 |
+| 性能监控服务 | Performance Monitoring | 8081 | 监控系统性能和资源使用情况 |
 
 ### Model Port Configuration
 
-The system assigns independent ports to each AI model, ranging from 8001 to 8019:
+系统为每个AI模型分配了独立的端口，范围从8001到8019：
 
-| Port | Model Type | English Model Type |
-|------|------------|-------------------|
-| 8001 | Manager Model | Manager Model |
-| 8002 | Language Model | Language Model |
-| 8003 | Knowledge Model | Knowledge Model |
-| 8004 | Vision Model | Vision Model |
-| 8005 | Audio Model | Audio Model |
-| 8006 | Autonomous Model | Autonomous Model |
-| 8007 | Programming Model | Programming Model |
-| 8008 | Planning Model | Planning Model |
-| 8009 | Emotion Model | Emotion Model |
-| 8010 | Spatial Model | Spatial Model |
-| 8011 | Computer Vision Model | Computer Vision Model |
-| 8012 | Sensor Model | Sensor Model |
-| 8013 | Motion Model | Motion Model |
-| 8014 | Prediction Model | Prediction Model |
-| 8015 | Advanced Reasoning Model | Advanced Reasoning Model |
-| 8016 | Data Fusion Model | Data Fusion Model |
-| 8017 | Creative Problem Solving Model | Creative Problem Solving Model |
-| 8018 | Meta Cognition Model | Meta Cognition Model |
-| 8019 | Value Alignment Model | Value Alignment Model |
+| 端口号 | 模型类型 | 英文模型类型 |
+|-------|---------|------------|
+| 8001 | 管理模型 | Manager Model |
+| 8002 | 语言模型 | Language Model |
+| 8003 | 知识模型 | Knowledge Model |
+| 8004 | 视觉模型 | Vision Model |
+| 8005 | 音频模型 | Audio Model |
+| 8006 | 自主模型 | Autonomous Model |
+| 8007 | 编程模型 | Programming Model |
+| 8008 | 规划模型 | Planning Model |
+| 8009 | 情感模型 | Emotion Model |
+| 8010 | 空间模型 | Spatial Model |
+| 8011 | 计算机视觉模型 | Computer Vision Model |
+| 8012 | 传感器模型 | Sensor Model |
+| 8013 | 运动模型 | Motion Model |
+| 8014 | 预测模型 | Prediction Model |
+| 8015 | 高级推理模型 | Advanced Reasoning Model |
+| 8016 | 数据融合模型 | Data Fusion Model |
+| 8017 | 创造性问题解决模型 | Creative Problem Solving Model |
+| 8018 | 元认知模型 | Meta Cognition Model |
+| 8019 | 值对齐模型 | Value Alignment Model |
 
-Port configuration is stored in the `config/model_services_config.json` file and is automatically loaded when the system starts.
+端口配置存储在`config/model_services_config.json`文件中，系统启动时会自动加载这些配置。
 
 ## API Documentation
 

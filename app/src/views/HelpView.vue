@@ -16,6 +16,46 @@
         </div>
       </section>
 
+      <!-- Service Ports Configuration -->
+      <section class="help-section">
+        <h2>Service Ports Configuration</h2>
+        <p>The system uses a multi-port architecture to separate different services and model endpoints. Here are the primary service ports:</p>
+        
+        <div class="ports-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Port</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Main API Gateway</td>
+                <td>8000</td>
+                <td>System's primary entry point, providing RESTful API interface</td>
+              </tr>
+              <tr>
+                <td>Frontend Application</td>
+                <td>5175</td>
+                <td>User interface accessible via web browser</td>
+              </tr>
+              <tr>
+                <td>Realtime Stream Manager</td>
+                <td>8765</td>
+                <td>Manages real-time data streams and inter-model communication</td>
+              </tr>
+              <tr>
+                <td>Performance Monitoring</td>
+                <td>8081</td>
+                <td>Monitors system performance and resource usage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- Quick Start -->
       <section class="help-section">
         <h2>Getting Started</h2>
@@ -54,55 +94,83 @@
       <!-- Core Models -->
       <section class="help-section">
         <h2>Core Cognitive Models</h2>
-        <p>The system comprises 12 specialized models that work in concert to provide comprehensive AGI capabilities:</p>
+        <p>The system comprises 19 specialized models that work in concert to provide comprehensive AGI capabilities. Each model is assigned a dedicated port within the range 8001-8019:</p>
         <div class="model-grid">
           <div class="model-card">
-            <h3>Manager Model</h3>
+            <h3>Manager Model (Port 8001)</h3>
             <p>Orchestrates task distribution and coordinates model interactions</p>
           </div>
           <div class="model-card">
-            <h3>Language Model</h3>
+            <h3>Language Model (Port 8002)</h3>
             <p>Processes natural language inputs and generates coherent responses</p>
           </div>
           <div class="model-card">
-            <h3>Vision Model</h3>
-            <p>Analyzes visual content including images, videos, and spatial data</p>
-          </div>
-          <div class="model-card">
-            <h3>Audio Model</h3>
-            <p>Interprets auditory inputs including speech, music, and environmental sounds</p>
-          </div>
-          <div class="model-card">
-            <h3>Autonomous Model</h3>
-            <p>Enables self-directed decision making and independent action execution</p>
-          </div>
-          <div class="model-card">
-            <h3>Knowledge Model</h3>
+            <h3>Knowledge Model (Port 8003)</h3>
             <p>Manages information storage, retrieval, and knowledge synthesis</p>
           </div>
           <div class="model-card">
-            <h3>Planning Model</h3>
-            <p>Develops strategic plans and optimizes task execution sequences</p>
+            <h3>Vision Model (Port 8004)</h3>
+            <p>Analyzes visual content including images, videos, and spatial data</p>
           </div>
           <div class="model-card">
-            <h3>Prediction Model</h3>
-            <p>Performs statistical analysis and forecasts future outcomes</p>
+            <h3>Audio Model (Port 8005)</h3>
+            <p>Interprets auditory inputs including speech, music, and environmental sounds</p>
           </div>
           <div class="model-card">
-            <h3>Programming Model</h3>
+            <h3>Autonomous Model (Port 8006)</h3>
+            <p>Enables self-directed decision making and independent action execution</p>
+          </div>
+          <div class="model-card">
+            <h3>Programming Model (Port 8007)</h3>
             <p>Generates, analyzes, and optimizes computer code across multiple languages</p>
           </div>
           <div class="model-card">
-            <h3>Sensor Model</h3>
-            <p>Processes data from various sensors and IoT devices</p>
+            <h3>Planning Model (Port 8008)</h3>
+            <p>Develops strategic plans and optimizes task execution sequences</p>
           </div>
           <div class="model-card">
-            <h3>Spatial Model</h3>
+            <h3>Emotion Model (Port 8009)</h3>
+            <p>Recognizes, interprets, and responds to emotional cues and contexts</p>
+          </div>
+          <div class="model-card">
+            <h3>Spatial Model (Port 8010)</h3>
             <p>Understands and manipulates spatial relationships and geometries</p>
           </div>
           <div class="model-card">
-            <h3>Emotion Model</h3>
-            <p>Recognizes, interprets, and responds to emotional cues and contexts</p>
+            <h3>Computer Vision Model (Port 8011)</h3>
+            <p>Advanced analysis of visual data for object recognition and scene understanding</p>
+          </div>
+          <div class="model-card">
+            <h3>Sensor Model (Port 8012)</h3>
+            <p>Processes data from various sensors and IoT devices</p>
+          </div>
+          <div class="model-card">
+            <h3>Motion Model (Port 8013)</h3>
+            <p>Analyzes and predicts movement patterns and physical interactions</p>
+          </div>
+          <div class="model-card">
+            <h3>Prediction Model (Port 8014)</h3>
+            <p>Performs statistical analysis and forecasts future outcomes</p>
+          </div>
+          <div class="model-card">
+            <h3>Advanced Reasoning Model (Port 8015)</h3>
+            <p>Performs complex logical reasoning and problem-solving tasks</p>
+          </div>
+          <div class="model-card">
+            <h3>Data Fusion Model (Port 8016)</h3>
+            <p>Integrates information from multiple sources for comprehensive understanding</p>
+          </div>
+          <div class="model-card">
+            <h3>Creative Problem Solving Model (Port 8017)</h3>
+            <p>Develops innovative solutions to complex challenges</p>
+          </div>
+          <div class="model-card">
+            <h3>Meta Cognition Model (Port 8018)</h3>
+            <p>Monitors and optimizes the system's own cognitive processes</p>
+          </div>
+          <div class="model-card">
+            <h3>Value Alignment Model (Port 8019)</h3>
+            <p>Ensures system behaviors align with defined ethical guidelines and values</p>
           </div>
         </div>
       </section>
@@ -110,6 +178,8 @@
       <!-- Training Guide -->
       <section class="help-section">
         <h2>Training Methodology</h2>
+        <p>The Self Soul system employs advanced training techniques to continuously improve its capabilities and adapt to new scenarios.</p>
+        
         <div class="training-info">
           <h3>Training Approaches</h3>
           <ul>
@@ -126,6 +196,9 @@
             <li>Monitor training progress through the system dashboard</li>
             <li>Regularly update model parameters based on performance metrics</li>
             <li>Implement validation checks to ensure training quality</li>
+            <li>Balance individual model training with collaborative training sessions</li>
+            <li>Schedule periodic knowledge integration sessions to maintain model coherence</li>
+            <li>Use the built-in performance analytics to identify areas for improvement</li>
           </ul>
         </div>
       </section>
@@ -133,22 +206,32 @@
       <!-- Advanced Features -->
       <section class="help-section">
         <h2>Advanced Capabilities</h2>
+        <p>Self Soul incorporates cutting-edge AI technologies to deliver sophisticated cognitive abilities:</p>
+        
         <div class="feature-grid">
           <div class="feature-card">
             <h3>Meta-Learning</h3>
-            <p>Ability to learn how to learn, optimizing future learning processes</p>
+            <p>Ability to learn how to learn, optimizing future learning processes and accelerating adaptation to new domains</p>
           </div>
           <div class="feature-card">
             <h3>Self-Reflection</h3>
-            <p>Continuous evaluation and improvement of internal processes</p>
+            <p>Continuous evaluation and improvement of internal processes through introspective analysis</p>
           </div>
           <div class="feature-card">
             <h3>Cross-Modal Transfer</h3>
-            <p>Application of knowledge across different sensory modalities</p>
+            <p>Application of knowledge across different sensory modalities to enhance understanding and problem-solving</p>
           </div>
           <div class="feature-card">
             <h3>Adaptive Reasoning</h3>
-            <p>Dynamic adjustment of reasoning strategies based on context</p>
+            <p>Dynamic adjustment of reasoning strategies based on context and task requirements</p>
+          </div>
+          <div class="feature-card">
+            <h3>Intrinsic Motivation System</h3>
+            <p>Self-directed exploration and learning driven by internal goals and curiosity</p>
+          </div>
+          <div class="feature-card">
+            <h3>Explainable AI</h3>
+            <p>Transparent decision-making processes with clear explanations of reasoning paths</p>
           </div>
         </div>
       </section>
@@ -182,15 +265,23 @@
         <div class="requirements-list">
           <div class="requirement-item">
             <h3>Hardware</h3>
-            <p>Minimum 8GB RAM, 4-core processor, 10GB storage space</p>
+            <p>Minimum: 8GB RAM, 4-core processor, 10GB storage space<br>
+            Recommended: 16GB RAM, 8-core processor, 20GB storage space (for optimal performance with all models)</p>
           </div>
           <div class="requirement-item">
             <h3>Software</h3>
-            <p>Python 3.8+, Node.js 14+, modern web browser with JavaScript support</p>
+            <p>Python 3.8+, Node.js 14+, modern web browser with JavaScript support<br>
+            Dependencies managed through requirements.txt and package.json files</p>
           </div>
           <div class="requirement-item">
             <h3>Network</h3>
-            <p>Stable internet connection for API model access and updates</p>
+            <p>Stable internet connection for API model access and updates<br>
+            Open ports: 8000-8020, 5175, 8765, 8081 for complete system functionality</p>
+          </div>
+          <div class="requirement-item">
+            <h3>Operating System</h3>
+            <p>Windows 10+, macOS 11+, or Linux (Ubuntu 20.04+, Debian 11+)<br>
+            Proper file system permissions for reading/writing data files and configurations</p>
           </div>
         </div>
       </section>
@@ -530,5 +621,42 @@ export default {
   .step-number {
     margin-bottom: 0.5rem;
   }
+  
+  .ports-table {
+    font-size: 0.9rem;
+  }
+  
+  .ports-table th,
+  .ports-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Ports Table Styles */
+.ports-table {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.ports-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ports-table th,
+.ports-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ports-table th {
+  background-color: var(--bg-tertiary);
+  font-weight: 500;
+  color: var(--accent-color);
+}
+
+.ports-table tr:hover {
+  background-color: var(--bg-secondary);
 }
 </style>

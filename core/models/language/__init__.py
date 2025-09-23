@@ -13,10 +13,8 @@
 """
 
 """
-语言模型包初始化文件
 Language Model Package Initialization File
 
-导出语言模型类以供其他模块使用
 Export language model class for use by other modules
 """
 

@@ -24,7 +24,7 @@ from core.training_manager import TrainingManager
 from core.unified_self_learning import UnifiedSelfLearningSystem
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 from core.enhanced_meta_cognition import EnhancedMetaCognition
-from core.structured_knowledge_base import StructuredKnowledgeBase
+from core.models.knowledge.model import KnowledgeModel
 from core.intrinsic_motivation_system import IntrinsicMotivationSystem
 from core.explainable_ai import ExplainableAI
 from core.value_alignment import ValueAlignment
@@ -60,7 +60,8 @@ class AGICoordinator:
         
         # 初始化增强的AGI组件
         self.enhanced_meta_cognition = EnhancedMetaCognition()
-        self.structured_knowledge = StructuredKnowledgeBase()
+        # 通过模型注册表获取知识模型，而不是直接实例化StructuredKnowledgeBase
+        self.structured_knowledge = self.model_registry.get_model('knowledge')
         self.intrinsic_motivation = IntrinsicMotivationSystem()
         self.explainable_ai = ExplainableAI()
         self.value_alignment = ValueAlignment()

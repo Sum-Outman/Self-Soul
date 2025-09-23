@@ -12,8 +12,8 @@
  * limitations under the License.
 """
 
-# models 包初始化文件 / Models package initialization file
-# 导入所有核心模型 / Import all core models
+# Models package initialization file
+# Import all core models
 from .manager.model import ManagerModel
 from .language.model import LanguageModel
 from .audio.model import AudioProcessingModel
@@ -27,10 +27,10 @@ from .knowledge.model import KnowledgeModel
 from .programming.model import ProgrammingModel
 from .planning.model import PlanningModel
 
-# 导入模型注册表 / Import model registry
+# Import model registry
 from core.model_registry import model_registry
 
-# 注册所有模型到注册表 / Register all models to registry
+# Register all models to registry
 model_registry.register_model("manager", ManagerModel)
 model_registry.register_model("language", LanguageModel)
 model_registry.register_model("audio", AudioProcessingModel)

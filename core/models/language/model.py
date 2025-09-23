@@ -950,8 +950,8 @@ class LanguageModel(BaseModel):
         self.logger.info("Starting language model training")
         self.is_training = True
         
-            # Joint training mode
-            if parameters and "joint_training" in parameters:
+        # Joint training mode
+        if parameters and "joint_training" in parameters:
             return self._joint_training(training_data, parameters)
         
         try:
@@ -975,7 +975,7 @@ class LanguageModel(BaseModel):
             # Start real training process
             self.logger.info(f"Starting language model training: {len(conversations)} conversations, {len(emotion_data)} emotion samples")
             
-            # 更新从零开始训练器的参数
+            # Update parameters for from-scratch trainer
             if hasattr(self, 'from_scratch_trainer'):
                 self.from_scratch_trainer.learning_rate = learning_rate
                 self.from_scratch_trainer.epochs = max_epochs
@@ -1012,10 +1012,10 @@ class LanguageModel(BaseModel):
             else:
                 from_scratch_metrics = {}
             
-            # 更新多语言响应模板 | Update multilingual response templates
+            # Update multilingual response templates
             self._update_response_templates(training_data)
             
-            # 计算综合指标 | Calculate comprehensive metrics
+            # Calculate comprehensive metrics
             final_metrics = {
                 "training_samples": len(conversations) + len(emotion_data),
                 "epochs_completed": max_epochs,
@@ -1023,14 +1023,14 @@ class LanguageModel(BaseModel):
             }
             final_metrics.update(from_scratch_metrics)
             
-            # 更新模型性能 | Update model performance
+            # Update model performance
             self.performance_metrics.update(final_metrics)
             
             training_result = {
                 "success": True,
                 "status": "completed",
                 "metrics": final_metrics,
-                "training_time": f"{max_epochs * 0.5:.1f}s"  # 模拟训练时间 | Simulated training time
+                "training_time": f"{max_epochs * 0.5:.1f}s"  # Simulated training time
             }
             
             self.logger.info(f"Language model training completed: {final_metrics}")
@@ -1084,7 +1084,7 @@ class LanguageModel(BaseModel):
                 "temperature": 0.7
             }
             
-            # 调用API连接器 | Call API connector
+            # Call API connector
             from core.api_model_connector import api_model_connector
             response = api_model_connector.query_model(
                 self.api_config['model_name'],
@@ -1132,76 +1132,10 @@ class LanguageModel(BaseModel):
                     "{emotion_phrase} From a professional perspective...",
                     "According to my understanding, {emotion_phrase} I recommend..."
                 ]
-            },
-            "de": {
-                "greeting": [
-                    "Hallo! Ich spüre, dass Sie {emotion_phrase} sind, wie kann ich helfen?",
-                    "Hi! {emotion_phrase} Worüber möchten Sie сегодня sprechen?",
-                    "Grüße! {emotion_phrase} Es ist schön, mit Ihnen zu kommunizieren."
-                ],
-                "thanks": [
-                    "Bitte schön! {emotion_phrase}",
-                    "Gerne geholfen! {emotion_phrase}",
-                    "Es ist mir ein Vergnügen! {emotion_phrase}"
-                ],
-                "default": [
-                    "Ich verstehe, was Sie meinen, {emotion_phrase} bitte erzählen Sie mir mehr Details.",
-                    "{emotion_phrase} Ich benötige mehr Informationen, um Ihnen besser zu helfen.",
-                    "Ich lerne noch, {emotion_phrase} bitte teilen Sie mehr Kontext."
-                ],
-                "question": [
-                    "Basierend auf meinem Wissen, {emotion_phrase} denke ich...",
-                    "{emotion_phrase} Aus professioneller Sicht...",
-                    "Nach meinem Verständnis, {emotion_phrase} empfehle ich..."
-                ]
-            },
-            "ja": {
-                "greeting": [
-                    "こんにちは！あなたが{emotion_phrase}と感じます、何かお手伝いできますか？",
-                    "嗨！{emotion_phrase}今日は何について話したいですか？",
-                    "ご挨拶！{emotion_phrase}あなたと交流できて嬉しいです。"
-                ],
-                "thanks": [
-                    "どういたしまして！{emotion_phrase}",
-                    "喜んでお手伝いします！{emotion_phrase}",
-                    "光栄です！{emotion_phrase}"
-                ],
-                "default": [
-                    "おっしゃっていることは理解しました、{emotion_phrase}詳細を教えてください.",
-                    "{emotion_phrase}より良い支援のためにさらに情報が必要です.",
-                    "まだ学習中です、{emotion_phrase}より多くの文脈を共享してください."
-                ],
-                "question": [
-                    "私の知識に基づくと、{emotion_phrase}私は...と思います",
-                    "{emotion_phrase}専門的な観点から...",
-                    "私の理解では、{emotion_phrase}をお勧めします..."
-                ]
-            },
-            "ru": {
-                "greeting": [
-                    "Привет! Я чувствую, что вы {emotion_phrase}, чем я могу помочь?",
-                    "Привет! {emotion_phrase} О чем вы хотите поговорить сегодня?",
-                    "Приветствия! {emotion_phrase} Приятно общаться с вами."
-                ],
-                "thanks": [
-                    "Пожалуйста! {emotion_phrase}",
-                    "Рад помочь! {emotion_phrase}",
-                    "Это моя честь! {emotion_phrase}"
-                ],
-                "default": [
-                    "Я понимаю, что вы имеете в виду, {emotion_phrase} пожалуйста, расскажите подробнее.",
-                    "{emotion_phrase} Мне нужно больше информации, чтобы лучше вам помочь.",
-                    "Я все еще учусь, {emotion_phrase} пожалуйста, поделитесь большим контекстом."
-                ],
-                "question": [
-                    "На основе моих знаний, {emotion_phrase} я думаю...",
-                    "{emotion_phrase} С профессиональной точки зрения...",
-                    "По моему пониманию, {emotion_phrase} я рекомендую..."
-                ]
             }
         }
         
-        # 获取情感短语 | Get emotion phrase
+        # Get emotion phrase
         emotion_phrase = self._get_emotion_phrase(dominant_emotion, self.current_language)
         
         # Select response template based on input content
@@ -1220,50 +1154,50 @@ class LanguageModel(BaseModel):
     def _generate_neural_response(self, text: str, emotion_state: Dict[str, float]) -> str:
         """Generate response using our from-scratch neural networks"""
         try:
-            # 确保从零开始训练的模型已初始化
+            # Ensure the from-scratch trained model is initialized
             if not self.is_initialized:
                 self.initialize()
                 
-            # 使用从零开始训练的模型生成响应
+            # Use the from-scratch trained model to generate response
             self.logger.info("Generating response with from-scratch neural network")
             
-            # 准备输入文本
+            # Prepare input text
             input_text = text
             
-            # 添加情感上下文（如果有）
+            # Add emotion context if available
             if emotion_state:
                 dominant_emotion = max(emotion_state, key=emotion_state.get)
                 emotion_intensity = emotion_state[dominant_emotion]
                 emotion_phrase = self._get_emotion_phrase(dominant_emotion, "en")
                 
-                # 将情感信息添加到输入文本中
+                # Add emotion information to input text
                 input_text = f"{emotion_phrase} {text}"
             
-            # 使用从零开始训练的模型生成响应
+            # Use from-scratch trained model to generate response
             try:
-                # 如果模型已训练，使用它生成响应
+                # If model is trained, use it to generate response
                 if hasattr(self.from_scratch_trainer, 'embeddings') and self.from_scratch_trainer.embeddings is not None:
                     generated_text = self.from_scratch_trainer.generate_text(input_text, max_length=100)
                     
-                    # 清理生成的文本
+                    # Clean generated text
                     generated_text = generated_text.strip()
                     
-                    # 如果生成的文本不为空，返回它
+                    # If generated text is not empty, return it
                     if generated_text and generated_text != input_text:
                         self.logger.info(f"From-scratch neural network generated response: {generated_text}")
                         return generated_text
                     else:
-                        # 如果生成的文本无效，回退到本地响应
+                        # If generated text is invalid, fall back to local response
                         self.logger.warning("Generated text is invalid, falling back to local response")
             except Exception as e:
                 self.logger.error(f"From-scratch model generation failed: {str(e)}")
             
-            # 回退到本地响应模板
+            # Fall back to local response template
             return self._generate_local_response(text, emotion_state)
             
         except Exception as e:
             self.logger.error(f"Neural response generation failed: {str(e)}")
-            return self._generate_local_response(text, emotion_state)  # 回退到本地响应 | Fallback to local response
+            return self._generate_local_response(text, emotion_state)  # Fallback to local response
             
     
     def _update_emotion_state(self, new_emotion: Dict[str, float]):
@@ -1339,26 +1273,26 @@ class LanguageModel(BaseModel):
     def _generate_agi_response(self, text: str, emotion_state: Dict[str, float], context: Dict[str, Any]) -> str:
         """AGI Enhancement: Generate intelligent response"""
         try:
-            # 首先尝试使用从零开始训练的模型生成响应
+            # First, try using the from-scratch trained model to generate response
             try:
                 if hasattr(self, 'from_scratch_trainer') and hasattr(self.from_scratch_trainer, 'embeddings') and self.from_scratch_trainer.embeddings is not None:
-                    # 准备输入文本，添加情感上下文
+                    # Prepare input text, add emotion context
                     input_text = text
                     if emotion_state:
                         dominant_emotion = max(emotion_state, key=emotion_state.get)
                         emotion_phrase = self._get_emotion_phrase(dominant_emotion, "en")
                         input_text = f"{emotion_phrase} {text}"
                     
-                    # 使用从零开始训练的模型生成响应
+                    # Use from-scratch trained model to generate response
                     self.logger.info("Using from-scratch model for AGI response generation")
                     generated_text = self.from_scratch_trainer.generate_text(input_text, max_length=150)
                     
-                    # 清理生成的文本
+                    # Clean generated text
                     generated_text = generated_text.strip()
                     
-                    # 如果生成的文本不为空，使用神经符号推理器进一步增强
+                    # If generated text is not empty, use neuro-symbolic reasoner for further enhancement
                     if generated_text and generated_text != input_text:
-                        # 使用神经符号推理器增强响应
+                        # Use neuro-symbolic reasoner to enhance response
                         if hasattr(self, 'neuro_symbolic_reasoner'):
                             reasoning_result = self.neuro_symbolic_reasoner.reason_about_text(
                                 generated_text, emotion_state, context
@@ -1369,21 +1303,21 @@ class LanguageModel(BaseModel):
                         return generated_text
             except Exception as e:
                 self.logger.warning(f"From-scratch model generation failed in AGI response: {str(e)}")
-                # 继续尝试其他方法
+                # Continue trying other methods
             
-            # 其次，使用神经符号推理器进行高级推理
+            # Second, use neuro-symbolic reasoner for advanced reasoning
             if hasattr(self, 'neuro_symbolic_reasoner'):
                 reasoning_result = self.neuro_symbolic_reasoner.reason_about_text(
                     text, emotion_state, context
                 )
                 
-                # 如果推理成功，使用推理结果生成响应
+                # If reasoning is successful, use reasoning result to generate response
                 if reasoning_result.get("success", False):
                     reasoned_response = reasoning_result.get("response", "")
                     if reasoned_response:
                         return reasoned_response
             
-            # 回退到标准响应生成
+            # Fallback to standard response generation
             self.logger.info("Falling back to standard response generation")
             if self.model_mode == "api":
                 return self._call_external_api(text, emotion_state)
@@ -1392,13 +1326,13 @@ class LanguageModel(BaseModel):
                 
         except Exception as e:
             self.logger.error(f"AGI response generation failed: {str(e)}")
-            # 回退到本地响应
+            # Fallback to local response
             return self._generate_local_response(text, emotion_state)
     
     def _generate_emotion_aware_response(self, response: str, emotion_state: Dict[str, float]) -> str:
         """AGI Enhancement: Emotionalize response"""
         try:
-            # 使用情感意识模块增强响应
+            # Use emotion awareness module to enhance response
             if hasattr(self, 'emotion_awareness_module'):
                 enhanced_response = self.emotion_awareness_module.enhance_response(
                     response, emotion_state
@@ -1485,7 +1419,7 @@ class LanguageModel(BaseModel):
         """Train conversation understanding model"""
         self.logger.info(f"Training conversation model: {len(conversations)} samples")
         
-        # 模拟训练过程 | Simulate training process
+        # Simulate training process
         return {
             "accuracy": 0.92,
             "loss": 0.15,
@@ -1499,7 +1433,7 @@ class LanguageModel(BaseModel):
         """Train emotion recognition model"""
         self.logger.info(f"Training emotion model: {len(emotion_data)} samples")
         
-        # 模拟训练过程 | Simulate training process
+        # Simulate training process
         return {
             "accuracy": 0.88,
             "loss": 0.18,
@@ -1513,34 +1447,34 @@ class LanguageModel(BaseModel):
         new_templates = training_data.get("response_templates", {})
         if new_templates:
             self.logger.info("Updating response templates")
-            # 这里可以添加实际的模板更新逻辑 | Add actual template update logic here
+            # Add actual template update logic here
     
     def _calculate_multilingual_score(self, conversations: List[Dict]) -> float:
-        """计算多语言能力得分 | Calculate multilingual capability score"""
+        """Calculate multilingual capability score"""
         if not conversations:
             return 0.0
         
-        # 简单的多语言得分计算 | Simple multilingual score calculation
+        # Simple multilingual score calculation
         lang_counts = {}
         for conv in conversations:
             lang = conv.get("language", "unknown")
             lang_counts[lang] = lang_counts.get(lang, 0) + 1
         
-        # 计算语言多样性得分 | Calculate language diversity score
+        # Calculate language diversity score
         total = sum(lang_counts.values())
         diversity = len(lang_counts) / len(self.supported_languages)
         coverage = sum(1 for lang in self.supported_languages if lang in lang_counts) / len(self.supported_languages)
         
-        return round((diversity * 0.4 + coverage * 0.6) * 0.95, 2)  # 加权得分 | Weighted score
+        return round((diversity * 0.4 + coverage * 0.6) * 0.95, 2)  # Weighted score
 
     def _initialize_neural_networks(self):
         """Initialize neural network models (from scratch)"""
         try:
             self.logger.info("Starting neural network model initialization from scratch")
             
-            # 使用我们的从零开始训练器初始化模型
+            # Initialize model using our from-scratch trainer
             if self.from_scratch_trainer.vocab_size == 0:
-                # 准备一些基础训练数据来初始化词汇表
+                # Prepare basic training data to initialize vocabulary
                 initial_training_data = [
                     "hello how are you",
                     "i am fine thank you",
@@ -1554,20 +1488,20 @@ class LanguageModel(BaseModel):
                     "i will try my best to help"
                 ]
                 
-                # 构建基础词汇表
+                # Build basic vocabulary
                 self.from_scratch_trainer.build_vocabulary(initial_training_data)
                 
-            # 初始化模型参数
+            # Initialize model parameters
             self.from_scratch_trainer.initialize_model()
             
-            # 设置为训练模式
+            # Set to training mode
             self.is_initialized = True
             
             self.logger.info("From-scratch neural network models initialized successfully")
             
         except Exception as e:
             self.logger.error(f"Neural network model initialization failed: {str(e)}")
-            # 回退到模拟模式
+            # Fallback to simulated mode
             self.model_mode = "simulated"
 
     def _initialize_knowledge_graph(self):
@@ -1585,14 +1519,14 @@ class LanguageModel(BaseModel):
             self.knowledge_graph = {}
 
     def _get_timestamp(self) -> str:
-        """获取当前时间戳 | Get current timestamp"""
+        """Get current timestamp"""
         from datetime import datetime
         return datetime.now().isoformat()
 
     def get_status(self) -> Dict[str, Any]:
-        """获取模型状态信息 | Get model status information"""
+        """Get model status information"""
         try:
-            # 基础状态信息 | Basic status information
+            # Basic status information
             status = {
                 "model_id": self.model_id,
                 "is_initialized": self.is_initialized,
@@ -1602,9 +1536,9 @@ class LanguageModel(BaseModel):
                 "performance_metrics": self.performance_metrics.copy() if hasattr(self, 'performance_metrics') else {}
             }
             
-            # 添加语言特定指标 | Add language-specific metrics
+            # Add language-specific metrics
             if hasattr(self, 'performance_metrics'):
-                # 确保performance_metrics包含必要字段 | Ensure performance_metrics contains required fields
+                # Ensure performance_metrics contains required fields
                 if "tasks_completed" not in self.performance_metrics:
                     self.performance_metrics["tasks_completed"] = 0
                 if "tasks_failed" not in self.performance_metrics:
@@ -1624,14 +1558,14 @@ class LanguageModel(BaseModel):
                 if "last_updated" not in self.performance_metrics:
                     self.performance_metrics["last_updated"] = self._get_timestamp()
             
-            # 更新最后更新时间 | Update last updated time
+            # Update last updated time
             status["performance_metrics"]["last_updated"] = self._get_timestamp()
             
             return status
             
         except Exception as e:
             self.logger.error(f"Failed to get status: {str(e)}")
-            # 返回基本状态信息 | Return basic status information
+            # Return basic status information
             return {
                 "model_id": self.model_id,
                 "is_initialized": self.is_initialized,

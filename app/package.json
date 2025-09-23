@@ -1,7 +1,10 @@
 {
-  "name": "agi-web",
+  "name": "self-soul",
   "version": "1.0.0",
   "private": true,
+  "description": "Self Soul - Comprehensive Artificial General Intelligence System",
+  "author": "Self Soul Team",
+  "email": "silencecrowtom@qq.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -40,14 +40,23 @@ class EnhancedKnowledgeRelation:
 class DeepKnowledgeRepresentation(nn.Module):
     """深度知识表示网络"""
     
-    def __init__(self, embedding_dim: int = 768, hidden_dim: int = 1024):
+    def __init__(self, embedding_dim: int = 768, hidden_dim: int = 1024, from_scratch: bool = False):
         super(DeepKnowledgeRepresentation, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
+        self.from_scratch = from_scratch
         
-        # BERT-based semantic encoder
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        self.bert_model = BertModel.from_pretrained('bert-base-uncased')
+        if self.from_scratch:
+            # In from_scratch mode, use a simple embedding layer instead of BERT
+            logger.info("Using simple embedding layer (from_scratch mode)")
+            self.simple_embedding = nn.Embedding(10000, embedding_dim)  # Simple embedding for from_scratch
+            # Use random initialization for tokens
+            self.token_to_id = {}
+            self.next_id = 0
+        else:
+            # BERT-based semantic encoder
+            self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            self.bert_model = BertModel.from_pretrained('bert-base-uncased')
         
         # Relation encoding network
         self.relation_encoder = nn.Sequential(
@@ -89,11 +98,36 @@ class DeepKnowledgeRepresentation(nn.Module):
         return fused_knowledge, causal_strength.item()
     
     def _encode_text(self, text: str) -> torch.Tensor:
-        """使用BERT编码文本"""
-        inputs = self.tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=128)
-        with torch.no_grad():
-            outputs = self.bert_model(**inputs)
-        return outputs.last_hidden_state.mean(dim=1)  # 平均池化
+        """编码文本，根据模式使用不同的编码器"""
+        if self.from_scratch:
+            # In from_scratch mode, use simple embedding
+            # Simple tokenization and embedding
+            tokens = text.lower().split()
+            token_ids = []
+            for token in tokens:
+                if token not in self.token_to_id:
+                    self.token_to_id[token] = self.next_id
+                    self.next_id += 1
+                token_ids.append(self.token_to_id[token])
+                
+            # Ensure we have at least one token
+            if not token_ids:
+                token_ids = [0]  # Default token if text is empty
+                
+            # Truncate or pad to max length 128
+            token_ids = token_ids[:128] + [0] * (128 - len(token_ids))
+            
+            # Convert to tensor and get embeddings
+            token_tensor = torch.tensor([token_ids[:128]])  # Take first 128 tokens
+            with torch.no_grad():
+                embeddings = self.simple_embedding(token_tensor)
+            return embeddings.mean(dim=1)  # 平均池化
+        else:
+            # Use BERT for encoding
+            inputs = self.tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=128)
+            with torch.no_grad():
+                outputs = self.bert_model(**inputs)
+            return outputs.last_hidden_state.mean(dim=1)  # 平均池化
 
 class AGIKnowledgeIntegrator:
     """
@@ -106,7 +140,7 @@ class AGIKnowledgeIntegrator:
         self.knowledge_base_path.mkdir(parents=True, exist_ok=True)
         
         # 初始化深度知识表示网络
-        self.knowledge_encoder = DeepKnowledgeRepresentation()
+        self.knowledge_encoder = DeepKnowledgeRepresentation(from_scratch=from_scratch)
         
         # 动态知识图谱
         self.knowledge_graph = nx.MultiDiGraph()

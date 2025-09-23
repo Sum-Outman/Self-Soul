@@ -385,6 +385,78 @@ class APIModelConnector:
             return result["result"]
         else:
             return {"error": result["message"]}
+    
+    def generate_response(self, message: str, conversation_history: list = None) -> str:
+        """
+        生成响应（特别用于语言模型的对话）
+        :param message: 用户消息
+        :param conversation_history: 对话历史
+        :return: 生成的响应文本
+        """
+        try:
+            # 获取连接配置
+            if "language" not in self.connections:
+                # 尝试自动连接
+                connect_result = self.connect("language")
+                if not connect_result.get("success", False):
+                    error_handler.log_error(f"无法连接到语言模型: {connect_result.get('message', 'Unknown error')}", "APIModelConnector")
+                    return "Failed to connect to language model"
+            
+            connection = self.connections["language"]
+            api_type = connection.get("api_type", "generic")
+            model_name = connection.get("model_name", "gpt-3.5-turbo")
+            
+            # 根据API类型格式化请求
+            if api_type == "openai" or model_name.startswith("gpt-"):
+                # OpenAI风格的API
+                messages = []
+                if conversation_history:
+                    messages = conversation_history.copy()
+                messages.append({"role": "user", "content": message})
+                
+                params = {
+                    "model": model_name,
+                    "messages": messages,
+                    "max_tokens": 1000
+                }
+                
+                result = self.call_model("language", "chat/completions", params)
+                
+                if result["success"]:
+                    return result["result"].get("choices", [{}])[0].get("message", {}).get("content", "No response")
+            elif api_type == "huggingface":
+                # HuggingFace风格的API
+                params = {
+                    "inputs": message,
+                    "parameters": {
+                        "max_new_tokens": 1000
+                    }
+                }
+                
+                result = self.call_model("language", "", params)
+                
+                if result["success"]:
+                    if isinstance(result["result"], list) and len(result["result"]) > 0:
+                        return result["result"][0].get("generated_text", "No response")
+                    return str(result["result"])
+            else:
+                # 通用API
+                params = {
+                    "message": message,
+                    "conversation_history": conversation_history or [],
+                    "model_name": model_name
+                }
+                
+                result = self.call_model("language", "generate", params)
+                
+                if result["success"]:
+                    return result["result"].get("response", "No response")
+            
+            error_handler.log_error(f"无法生成响应: {result.get('message', 'Unknown error')}", "APIModelConnector")
+            return "Failed to generate response"
+        except Exception as e:
+            error_handler.handle_error(e, "APIModelConnector", "生成响应失败")
+            return f"Error generating response: {str(e)}"
 
     def initialize(self) -> Dict[str, Any]:
         """

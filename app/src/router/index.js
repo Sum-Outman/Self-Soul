@@ -1,19 +1,3 @@
-/*
-
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- 
- */
-
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
@@ -40,15 +24,20 @@ const routes = [
   },
   {
     path: '/help',
-    name: 'Help',    
+    name: 'Help',
     component: () => import('../views/HelpView.vue')
+  },
+  {
+    path: '/chat-from-scratch',
+    name: 'ChatFromScratch',
+    component: () => import('../views/ChatFromScratch.vue')
   },
   {
     path: '/notification-test',
     name: 'NotificationTest',
     component: () => import('../components/NotificationTester.vue')
   },
-  // 确保所有未知路径重定向到首页
+  // Ensure all unknown paths redirect to home
   {
     path: '/:pathMatch(.*)*',
     redirect: '/' 
@@ -56,14 +45,14 @@ const routes = [
 ]
 
 const router = createRouter({
-  // 使用哈希路由确保兼容性
+  // Use hash router for compatibility
   history: createWebHashHistory(),
   routes
 })
 
-// 添加全局前置守卫确保正确加载
+// Add global before guard to ensure correct loading
 router.beforeEach((to, from, next) => {
-  // 只在开发环境下输出日志
+  // Only log in development environment
   if (import.meta.env.DEV) {
     console.log(`Navigating to: ${to.path}`)
   }

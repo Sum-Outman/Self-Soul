@@ -113,6 +113,10 @@
             <div class="model-info">
               <h4>{{ model.name }}</h4>
               <div class="model-meta">
+                <select v-model="model.source" class="model-config-type-select" @change="onSourceChange(model.id)">
+                  <option value="local">Local</option>
+                  <option value="external">External API</option>
+                </select>
                 <span class="model-type-badge" :class="model.type.toLowerCase().includes('api') ? 'api' : 'local'">
                   {{ model.type }}
                 </span>
@@ -166,6 +170,13 @@
               :disabled="model.isPrimary || isOperating(model.id)"
             >
               Use as Primary
+            </button>
+            <button
+              class="control-btn train-btn"
+              @click="openTrainModal(model)"
+              :disabled="isOperating(model.id)"
+            >
+              Train from Scratch
             </button>
             <button
               class="remove-btn"
@@ -328,6 +339,88 @@
       </div>
     </div>
   </div>
+  
+  <!-- Training Modal -->
+  <div v-if="showTrainModal" class="modal-overlay" @click="closeTrainModal">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>Train Model from Scratch: {{ selectedModelForTraining?.name }}</h3>
+        <button class="close-btn" @click="closeTrainModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Dataset Selection -->
+        <div class="form-group">
+          <label for="dataset-select">Select Dataset</label>
+          <select id="dataset-select" v-model="selectedDataset" required>
+            <option value="">Select a dataset</option>
+            <option v-for="dataset in availableDatasets" :key="dataset.id" :value="dataset.id">
+              {{ dataset.name }} ({{ dataset.size }} samples)
+            </option>
+          </select>
+        </div>
+        
+        <!-- Training Parameters -->
+        <div class="training-params">
+          <h4>Training Parameters</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="epochs">Epochs</label>
+              <input id="epochs" v-model.number="trainingParams.epochs" type="number" min="1" max="100" />
+            </div>
+            <div class="form-group">
+              <label for="batch-size">Batch Size</label>
+              <input id="batch-size" v-model.number="trainingParams.batchSize" type="number" min="1" max="1024" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="learning-rate">Learning Rate</label>
+              <input id="learning-rate" v-model.number="trainingParams.learningRate" type="number" min="0.00001" max="0.1" step="0.00001" />
+            </div>
+            <div class="form-group">
+              <label for="validation-split">Validation Split</label>
+              <input id="validation-split" v-model.number="trainingParams.validationSplit" type="number" min="0.01" max="0.5" step="0.01" />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Training Progress -->
+        <div v-if="trainingStatus !== 'idle'" class="training-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" :style="{ width: trainingProgress + '%' }"></div>
+          </div>
+          <div class="progress-info">
+            <span>{{ trainingProgress }}%</span>
+            <span class="training-status" :class="trainingStatus">{{ trainingStatus.toUpperCase() }}</span>
+          </div>
+          <div v-if="trainingMessage" class="training-message">{{ trainingMessage }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button 
+          class="btn btn-primary" 
+          @click="startTraining" 
+          :disabled="!selectedDataset || trainingStatus === 'training'"
+        >
+          {{ trainingStatus === 'training' ? 'Training...' : 'Start Training' }}
+        </button>
+        <button 
+          class="btn btn-secondary" 
+          @click="stopTraining" 
+          :disabled="trainingStatus !== 'training'"
+        >
+          Stop Training
+        </button>
+        <button 
+          class="btn btn-cancel" 
+          @click="closeTrainModal" 
+          :disabled="trainingStatus === 'training'"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -353,6 +446,21 @@ export default {
     const showApiSettings = ref({})
     const showApiKeys = ref({})
     const testResults = ref({})
+    
+    // Train from scratch related states
+    const showTrainModal = ref(false)
+    const selectedModelForTraining = ref(null)
+    const trainingProgress = ref(0)
+    const trainingStatus = ref('idle') // idle, training, completed, error
+    const trainingMessage = ref('')
+    const availableDatasets = ref([])
+    const selectedDataset = ref('')
+    const trainingParams = ref({
+      epochs: 10,
+      batchSize: 32,
+      learningRate: 0.001,
+      validationSplit: 0.2
+    })
 
     // Mock data for models
     const mockModels = [
@@ -367,6 +475,7 @@ export default {
         port: 8001,
         lastUpdated: new Date().toISOString(),
         version: '1.0.0',
+        source: 'local',
         metrics: {
           memoryUsage: 128,
           cpuUsage: 5,
@@ -384,6 +493,7 @@ export default {
         port: 8002,
         lastUpdated: new Date().toISOString(),
         version: '1.0.0',
+        source: 'local',
         metrics: {
           memoryUsage: 512,
           cpuUsage: 12,
@@ -401,6 +511,7 @@ export default {
         port: 8003,
         lastUpdated: new Date().toISOString(),
         version: '1.0.0',
+        source: 'local',
         metrics: {
           memoryUsage: 256,
           cpuUsage: 8,
@@ -417,7 +528,8 @@ export default {
         isPrimary: false,
         port: 8004,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'audio',
@@ -429,7 +541,8 @@ export default {
         isPrimary: true,
         port: 8005,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'autonomous',
@@ -441,7 +554,8 @@ export default {
         isPrimary: false,
         port: 8006,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'programming',
@@ -453,7 +567,8 @@ export default {
         isPrimary: true,
         port: 8007,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'planning',
@@ -465,7 +580,8 @@ export default {
         isPrimary: false,
         port: 8008,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'emotion',
@@ -477,7 +593,8 @@ export default {
         isPrimary: false,
         port: 8009,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'spatial',
@@ -489,7 +606,8 @@ export default {
         isPrimary: false,
         port: 8010,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'computer_vision',
@@ -501,7 +619,8 @@ export default {
         isPrimary: false,
         port: 8011,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'sensor',
@@ -513,7 +632,8 @@ export default {
         isPrimary: false,
         port: 8012,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'motion',
@@ -525,7 +645,8 @@ export default {
         isPrimary: false,
         port: 8013,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'prediction',
@@ -537,7 +658,8 @@ export default {
         isPrimary: false,
         port: 8014,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'advanced_reasoning',
@@ -549,7 +671,8 @@ export default {
         isPrimary: false,
         port: 8015,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'data_fusion',
@@ -561,7 +684,8 @@ export default {
         isPrimary: false,
         port: 8016,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'creative_solving',
@@ -573,7 +697,8 @@ export default {
         isPrimary: false,
         port: 8017,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'meta_cognition',
@@ -585,7 +710,8 @@ export default {
         isPrimary: false,
         port: 8018,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'value_alignment',
@@ -597,7 +723,8 @@ export default {
         isPrimary: false,
         port: 8019,
         lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.0',
+        source: 'local'
       },
       {
         id: 'openai',
@@ -676,20 +803,68 @@ export default {
       try {
         // 获取完整的模型配置，包括API设置
         const response = await api.get('/api/models')
-        // 确保response.data是数组
-        models.value = Array.isArray(response.data?.data) ? response.data.data : getDefaultModels()
+        // 确保response.data.models是数组 - 适配模拟服务器返回格式
+        models.value = Array.isArray(response.data?.models) ? response.data.models : getDefaultModels()
         notify.success('Models loaded successfully')
+        
+        // Load training status for each model
+        await loadTrainingStatus()
       } catch (error) {
+        console.error('Error loading models:', error)
         errorHandler.handleError(error, 'Load Models')
-        // 回退到完整的默认模型配置
+        // 回退到完整的默认模型配置 - 包含所有19个本地模型
         models.value = getDefaultModels()
-        notify.info('Using default models configuration')
+        notify.info('Using default models configuration with all local models')
+        
+        // Default training status
+        models.value.forEach(model => {
+          model.trainingStatus = { isTraining: false, progress: 0, status: 'idle' }
+        })
       } finally {
         loading.value = false
       }
     }
     
-    // 获取完整的默认模型配置
+    // Load training status for all models
+    const loadTrainingStatus = async () => {
+      try {
+        const response = await api.get('/api/models/training/status')
+        const data = response.data
+        // Update models with training status
+        models.value.forEach(model => {
+          const status = data.training_statuses?.find(s => s.model_id === model.id) || { isTraining: false, progress: 0, status: 'idle' }
+          model.trainingStatus = {
+            isTraining: status.status === 'training',
+            progress: status.progress || 0,
+            status: status.status || 'idle'
+          }
+        })
+      } catch (error) {
+        console.error('Failed to load training status:', error)
+        // Default to not training
+        models.value.forEach(model => {
+          model.trainingStatus = { isTraining: false, progress: 0, status: 'idle' }
+        })
+      }
+    }
+    
+    // Load available datasets for training
+    const loadDatasets = async () => {
+      try {
+        const response = await api.get('/api/datasets')
+        const data = response.data
+        availableDatasets.value = data.datasets || []
+        if (availableDatasets.value.length > 0) {
+          selectedDataset.value = availableDatasets.value[0].id
+        }
+      } catch (error) {
+        console.error('Failed to load datasets:', error)
+        availableDatasets.value = [{ id: 'default', name: 'Default Dataset' }]
+        selectedDataset.value = 'default'
+      }
+    }
+    
+    // 获取完整的默认模型配置 - 包含所有19个本地模型（端口8001-8019）
     const getDefaultModels = () => {
       const defaultModels = [
         // 管理模型
@@ -708,7 +883,8 @@ export default {
             memoryUsage: 128,
             cpuUsage: 5,
             responseTime: 15
-          }
+          },
+          source: 'local'
         },
         // 语言模型
         {
@@ -726,7 +902,8 @@ export default {
             memoryUsage: 512,
             cpuUsage: 12,
             responseTime: 80
-          }
+          },
+          source: 'local'
         },
         // 知识模型
         {
@@ -744,9 +921,10 @@ export default {
             memoryUsage: 256,
             cpuUsage: 8,
             responseTime: 30
-          }
+          },
+          source: 'local'
         },
-        // 其他本地模型
+        // 视觉模型
         {
           id: 'vision',
           name: 'Vision Model',
@@ -757,8 +935,10 @@ export default {
           isPrimary: false,
           port: 8004,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          source: 'local'
         },
+        // 音频模型
         {
           id: 'audio',
           name: 'Audio Model',
@@ -769,8 +949,10 @@ export default {
           isPrimary: false,
           port: 8005,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          source: 'local'
         },
+        // 自主模型
         {
           id: 'autonomous',
           name: 'Autonomous Model',
@@ -781,8 +963,10 @@ export default {
           isPrimary: false,
           port: 8006,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          source: 'local'
         },
+        // 编程模型
         {
           id: 'programming',
           name: 'Programming Model',
@@ -793,7 +977,176 @@ export default {
           isPrimary: false,
           port: 8007,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 规划模型
+        {
+          id: 'planning',
+          name: 'Planning Model',
+          type: 'Planning Model',
+          description: 'Strategic planning and execution model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8008,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 情感模型
+        {
+          id: 'emotion',
+          name: 'Emotion Model',
+          type: 'Emotion Model',
+          description: 'Emotional analysis and response model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8009,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 空间模型
+        {
+          id: 'spatial',
+          name: 'Spatial Model',
+          type: 'Spatial Model',
+          description: 'Spatial reasoning and navigation model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8010,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 计算机视觉模型
+        {
+          id: 'computer_vision',
+          name: 'Computer Vision Model',
+          type: 'Computer Vision Model',
+          description: 'Advanced computer vision capabilities',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8011,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 传感器模型
+        {
+          id: 'sensor',
+          name: 'Sensor Model',
+          type: 'Sensor Model',
+          description: 'Sensor data processing and analysis',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8012,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 运动模型
+        {
+          id: 'motion',
+          name: 'Motion Model',
+          type: 'Motion Model',
+          description: 'Motion control and prediction model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8013,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 预测模型
+        {
+          id: 'prediction',
+          name: 'Prediction Model',
+          type: 'Prediction Model',
+          description: 'Forecasting and predictive analytics model',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8014,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 高级推理模型
+        {
+          id: 'advanced_reasoning',
+          name: 'Advanced Reasoning Model',
+          type: 'Advanced Reasoning Model',
+          description: 'Complex logical reasoning capabilities',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8015,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 数据融合模型
+        {
+          id: 'data_fusion',
+          name: 'Data Fusion Model',
+          type: 'Data Fusion Model',
+          description: 'Multi-source data integration and analysis',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8016,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 创造性问题解决模型
+        {
+          id: 'creative_solving',
+          name: 'Creative Problem Solving Model',
+          type: 'Creative Problem Solving Model',
+          description: 'Innovative approaches to complex problems',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8017,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 元认知模型
+        {
+          id: 'meta_cognition',
+          name: 'Meta Cognition Model',
+          type: 'Meta Cognition Model',
+          description: 'Self-awareness and cognitive monitoring',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8018,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
+        },
+        // 值对齐模型
+        {
+          id: 'value_alignment',
+          name: 'Value Alignment Model',
+          type: 'Value Alignment Model',
+          description: 'Ethical alignment and value system',
+          status: 'stopped',
+          isActive: false,
+          isPrimary: false,
+          port: 8019,
+          lastUpdated: new Date().toISOString(),
+          version: '1.0.0',
+          source: 'local'
         },
         // 外部API模型
         {
@@ -1472,6 +1825,102 @@ export default {
     const isSavingSettings = (modelId) => {
       return savingSettings.value.has(modelId)
     }
+    
+    // Train from scratch methods
+    // Open train modal for a model
+    const openTrainModal = (model) => {
+      selectedModelForTraining.value = model
+      trainingProgress.value = 0
+      trainingStatus.value = 'idle'
+      trainingMessage.value = ''
+      loadDatasets()
+      showTrainModal.value = true
+    }
+    
+    // Close train modal
+    const closeTrainModal = () => {
+      showTrainModal.value = false
+      selectedModelForTraining.value = null
+    }
+    
+    // Start training a model from scratch
+    const startTraining = async () => {
+      if (!selectedModelForTraining.value || !selectedDataset.value) return
+      
+      try {
+        trainingStatus.value = 'training'
+        trainingMessage.value = 'Starting training process...'
+        
+        const response = await api.post(`/api/models/${selectedModelForTraining.value.id}/train`, {
+          datasetId: selectedDataset.value,
+          params: trainingParams.value
+        })
+        
+        notify.success(`Training started for ${selectedModelForTraining.value.name}`)
+        
+        // Start polling for training status
+        pollTrainingStatus()
+      } catch (error) {
+        console.error('Failed to start training:', error)
+        trainingStatus.value = 'error'
+        trainingMessage.value = `Error: ${error.message}`
+        notify.error(`Failed to start training for ${selectedModelForTraining.value.name}`)
+      }
+    }
+    
+    // Stop training
+    const stopTraining = async () => {
+      if (!selectedModelForTraining.value) return
+      
+      try {
+        await api.post(`/api/models/${selectedModelForTraining.value.id}/train/stop`)
+        
+        trainingStatus.value = 'idle'
+        trainingMessage.value = 'Training stopped'
+        notify.info(`Training stopped for ${selectedModelForTraining.value.name}`)
+      } catch (error) {
+        console.error('Failed to stop training:', error)
+        notify.error(`Failed to stop training for ${selectedModelForTraining.value.name}`)
+      }
+    }
+    
+    // Poll training status
+    let pollInterval
+    const pollTrainingStatus = () => {
+      if (pollInterval) clearInterval(pollInterval)
+      
+      pollInterval = setInterval(async () => {
+        try {
+          const response = await api.get(`/api/models/${selectedModelForTraining.value.id}/train/status`)
+          const data = response.data
+          
+          trainingProgress.value = data.progress || 0
+          trainingMessage.value = data.message || ''
+          
+          if (data.status === 'completed') {
+            trainingStatus.value = 'completed'
+            clearInterval(pollInterval)
+            notify.success(`Training completed for ${selectedModelForTraining.value.name}`)
+            // Update model training status
+            if (selectedModelForTraining.value) {
+              selectedModelForTraining.value.trainingStatus = {
+                isTraining: false,
+                progress: 100,
+                status: 'completed'
+              }
+            }
+          } else if (data.status === 'error') {
+            trainingStatus.value = 'error'
+            clearInterval(pollInterval)
+            notify.error(`Training failed for ${selectedModelForTraining.value.name}`)
+          } else if (data.status === 'training') {
+            trainingStatus.value = 'training'
+          }
+        } catch (error) {
+          console.error('Failed to get training status:', error)
+        }
+      }, 2000)
+    }
 
     // Lifecycle
     onMounted(() => {
@@ -1479,31 +1928,43 @@ export default {
     })
 
     return {
-      // State
-      loading,
-      isAddingModel,
-      isRestartingSystem,
-      isSavingAll,
-      hasChanges,
-      showApiSettings,
-      showApiKeys,
-      testResults,
-      
-      // Data
-      models,
-      newModel,
-      
-      // Computed
-      modelTypes,
-      activeModelsCount,
-      runningModelsCount,
-      apiModelsCount,
+        // State
+        loading,
+        isAddingModel,
+        isRestartingSystem,
+        isSavingAll,
+        hasChanges,
+        showApiSettings,
+        showApiKeys,
+        testResults,
+        
+        // Train from scratch state
+        showTrainModal,
+        selectedModelForTraining,
+        trainingProgress,
+        trainingStatus,
+        trainingMessage,
+        availableDatasets,
+        selectedDataset,
+        trainingParams,
+        
+        // Data
+        models,
+        newModel,
+        
+        // Computed
+        modelTypes,
+        activeModelsCount,
+        runningModelsCount,
+        apiModelsCount,
       canStartAll,
       canStopAll,
       canRestartAll,
       
       // Methods
       loadModels,
+      loadTrainingStatus,
+      loadDatasets,
       onModelTypeChange,
       addNewModel,
       removeModel,
@@ -1528,7 +1989,13 @@ export default {
       isOperating,
       isTestingConnection,
       isSavingSettings,
-      testNotificationSystem
+      testNotificationSystem,
+      
+      // Train from scratch methods
+      openTrainModal,
+      closeTrainModal,
+      startTraining,
+      stopTraining
     }
   }
 }
@@ -2129,6 +2596,24 @@ export default {
     color: #666666;
     border: 1px solid #cccccc;
   }
+  
+  /* Model Configuration Type Select */
+  .model-config-type-select {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  
+  .model-config-type-select:focus {
+    outline: none;
+    border-color: var(--border-dark);
+  }
 
   /* Test notification button */
   .test-notifications-btn {
@@ -2261,6 +2746,210 @@ export default {
   }
   
   .save-btn, .reset-btn {
+    width: 100%;
+  }
+}
+
+/* Training Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.close-btn:hover {
+  background-color: var(--bg-secondary);
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+}
+
+.modal-footer {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+/* Training Parameters Styles */
+.training-params {
+  margin-top: var(--spacing-lg);
+}
+
+.training-params h4 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+/* Training Progress Styles */
+.training-progress {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-sm);
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width var(--transition-fast);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.training-status {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.training-status.training {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.training-status.completed {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.training-status.error {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.training-message {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* Button Styles for Modal */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #333333;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #555555;
+}
+
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #d0d0d0;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  color: #666666;
+  border: 1px solid var(--border-color);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: var(--bg-secondary);
+}
+
+/* Train Button Styles */
+.train-btn {
+  background-color: #f5f5f5;
+  color: #333333;
+}
+
+.train-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .modal-footer {
+    flex-direction: column;
+  }
+  
+  .btn {
     width: 100%;
   }
 }

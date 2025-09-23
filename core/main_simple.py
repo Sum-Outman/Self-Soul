@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Minimal FastAPI server for Self Soul AGI System
+# Minimal FastAPI server for Self Soul AGI System
 This version includes mock API endpoints to support the frontend application
 """
 

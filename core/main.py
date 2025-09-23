@@ -14,7 +14,7 @@
 
 """
 AGI Brain System Main Entry File
-Self Soul AGI System
+# Self Soul AGI System
 
 Copyright (c) 2025 AGI Brain Team
 Licensed under the Apache License, Version 2.0
@@ -53,7 +53,6 @@ from core.dataset_manager import dataset_manager
 # Import new AGI components
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 from core.enhanced_meta_cognition import EnhancedMetaCognition
-from core.structured_knowledge_base import StructuredKnowledgeBase
 from core.intrinsic_motivation_system import IntrinsicMotivationSystem
 from core.explainable_ai import ExplainableAI
 from core.value_alignment import ValueAlignment
@@ -91,7 +90,6 @@ system_monitor = None
 connection_manager = None
 unified_cognitive_architecture = None
 enhanced_meta_cognition = None
-structured_knowledge_base = None
 intrinsic_motivation_system = None
 explainable_ai = None
 value_alignment = ValueAlignment()
@@ -268,30 +266,23 @@ def switch_model_to_external(model_id: str, api_config: dict) -> str:
         # Create new external model connector
         connector = api_model_connector
         
-        # Configure connection parameters
-        connection_params = {
-            "api_url": api_config.get("api_url"),
-            "api_key": api_config.get("api_key"),
-            "model_name": api_config.get("model_name")
-        }
+        # Save API configuration to system settings first
+        system_settings_manager.update_model_setting(model_id, {
+            "source": "api",
+            "api_config": api_config
+        })
         
-        # Connect to external API
-        success = connector.connect(connection_params)
+        # Connect to external API using model_id
+        connect_result = connector.connect(model_id)
         
-        if not success:
-            raise Exception(f"Failed to connect to external API: {model_id}")
+        if not connect_result.get("success", False):
+            raise Exception(f"Failed to connect to external API: {model_id}, Error: {connect_result.get('message', 'Unknown error')}")
         
         # Save connector instance
         _external_model_connectors[model_id] = connector
         
         # Update model mode
         _model_modes[model_id] = "external"
-        
-        # Update system settings
-        system_settings_manager.update_model_setting(model_id, {
-            "source": "api",
-            "api_config": api_config
-        })
         
         return f"Model {model_id} successfully switched to external API mode"
     except Exception as e:
@@ -403,38 +394,45 @@ def test_external_api_connection(connection_data: dict) -> dict:
         # Create temporary connector for testing
         connector = api_model_connector
         
-        # Prepare connection parameters
-        connection_params = {
-            "api_url": connection_data.get("api_url"),
-            "api_key": connection_data.get("api_key"),
-            "model_name": connection_data.get("model_name")
-        }
+        # Extract connection parameters
+        api_url = connection_data.get("api_url", connection_data.get("api_endpoint", ""))
+        api_key = connection_data.get("api_key", "")
+        model_name = connection_data.get("model_name", "")
         
-        # Connect to external API
-        success = connector.connect(connection_params)
+        if not api_url or not api_key:
+            return {
+                "status": "error",
+                "message": "API URL and key cannot be empty"
+            }
         
-        if success:
-            # Perform simple test
-            test_result = connector.test_connection()
-            
-            # Disconnect
-            connector.disconnect()
-            
-            if test_result["success"]:
-                return {
-                    "status": "success",
-                    "message": "API connection test successful",
-                    "details": test_result.get("details", {})
+        # Use the correct method to test connection
+        test_result = connector._test_connection(api_url, api_key, model_name)
+        
+        if test_result["success"]:
+            # Save configuration if model_id is provided
+            model_id = connection_data.get("model_id", connection_data.get("modelId", ""))
+            if model_id:
+                config = {
+                    "api_url": api_url,
+                    "api_key": api_key,
+                    "model_name": model_name,
+                    "api_type": connection_data.get("api_type", "custom"),
+                    "source": "external"
                 }
-            else:
-                return {
-                    "status": "error",
-                    "message": test_result.get("message", "API connection test failed")
+                system_settings_manager.update_model_setting(model_id, config)
+            
+            return {
+                "status": "success",
+                "message": test_result.get("message", "API connection test successful"),
+                "details": {
+                    "api_url": api_url,
+                    "model_name": model_name
                 }
+            }
         else:
             return {
                 "status": "error",
-                "message": "Unable to establish API connection"
+                "message": test_result.get("message", "API connection test failed")
             }
     except Exception as e:
         error_handler.handle_error(e, "API Connection", "Failed to test external API connection")
@@ -708,18 +706,27 @@ async def chat_with_model(input_data: dict):
         Chat response and updated conversation context
     """
     try:
-        # Get language model
-        language_model = model_registry.get_model("language")
-        if not language_model:
-            raise HTTPException(status_code=500, detail="Language model not loaded")
-        
         # Extract input data
         message = input_data.get("message", "")
         session_id = input_data.get("session_id", f"session_{datetime.now().timestamp()}")
         conversation_history = input_data.get("conversation_history", [])
         
-        # Process message with language model
-        response = language_model._generate_response(message, {"neutral": 0.5})
+        # Check if language model is in external API mode
+        model_mode = get_model_mode("language")
+        response = None
+        
+        if model_mode == "external" and "language" in _external_model_connectors:
+            # Use external API connector
+            connector = _external_model_connectors["language"]
+            response = connector.generate_response(message, conversation_history)
+        else:
+            # Get language model
+            language_model = model_registry.get_model("language")
+            if not language_model:
+                raise HTTPException(status_code=500, detail="Language model not loaded")
+            
+            # Process message with language model
+            response = language_model._generate_response(message, {"neutral": 0.5})
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": message})
@@ -1464,15 +1471,15 @@ async def test_connection(connection_data: dict):
         if test_result["success"]:
             model_id = connection_data.get("modelId", "")
             if model_id:
-        # Save API configuration
-             config = {
-            "api_url": endpoint,
-            "api_key": api_key,
-            "model_name": model_name,
-            "api_type": api_type,
-            "source": "external"
-        }
-        system_settings_manager.update_model_setting(model_id, config)
+                # Save API configuration
+                config = {
+                    "api_url": endpoint,
+                    "api_key": api_key,
+                    "model_name": model_name,
+                    "api_type": api_type,
+                    "source": "external"
+                }
+                system_settings_manager.update_model_setting(model_id, config)
         
         return test_result
         
@@ -1764,7 +1771,9 @@ async def get_agi_system_status():
         # Get status of each component
         cognitive_status = unified_cognitive_architecture.get_system_status()
         meta_cognition_status = enhanced_meta_cognition.get_system_status()
-        knowledge_base_status = structured_knowledge_base.get_knowledge_base_status()
+        # Get knowledge base status from knowledge model via model registry
+        knowledge_model = model_registry.get_model('knowledge')
+        knowledge_base_status = knowledge_model.get_knowledge_base_status() if knowledge_model else {}
         motivation_status = intrinsic_motivation_system.get_motivation_report()
         explainability_status = explainable_ai.get_system_report()
         alignment_status = value_alignment.get_alignment_report()
@@ -2253,7 +2262,16 @@ async def api_test_connection(connection_data: dict):
         Connection test result
     """
     try:
-        result = test_external_api_connection(connection_data)
+        # Ensure we have a consistent structure for the test function
+        test_data = {
+            "model_id": connection_data.get("model_id"),
+            "api_url": connection_data.get("api_url"),
+            "api_key": connection_data.get("api_key"),
+            "model_name": connection_data.get("model_name"),
+            "api_type": connection_data.get("api_type")
+        }
+        
+        result = test_external_api_connection(test_data)
         return result
     except Exception as e:
         error_handler.handle_error(e, "API", "External API connection test failed")
@@ -2958,8 +2976,9 @@ async def get_knowledge_stats():
         Knowledge base statistics including total domains, items, size, etc.
     """
     try:
-        # Get knowledge base status
-        knowledge_base_status = structured_knowledge_base.get_knowledge_base_status()
+        # Get knowledge base status from knowledge model via model registry
+        knowledge_model = model_registry.get_model('knowledge')
+        knowledge_base_status = knowledge_model.get_knowledge_base_status() if knowledge_model else {}
         
         # Simulated knowledge statistics for frontend display
         knowledge_stats = {
@@ -3086,8 +3105,11 @@ if __name__ == "__main__":
     parser.add_argument('--from-scratch', action='store_true', help='Start training from scratch without using existing knowledge')
     args = parser.parse_args()
     
-    # Set from_scratch flag
-    from_scratch = args.from_scratch
+    # Set from_scratch flag to True by default to ensure all models train from scratch
+    from_scratch = True  # Force all models to train from scratch
+    # Override with command line argument if provided
+    if args.from_scratch is not None:
+        from_scratch = args.from_scratch
     
     # Initialize core components with from_scratch parameter where applicable
     training_manager = TrainingManager(model_registry, from_scratch=from_scratch)
@@ -3106,7 +3128,8 @@ if __name__ == "__main__":
     
     enhanced_meta_cognition = EnhancedMetaCognition()
     
-    structured_knowledge_base = StructuredKnowledgeBase()
+    # Knowledge base is now handled through the model registry
+    # structured_knowledge_base = StructuredKnowledgeBase()  # This class has been removed
     
     intrinsic_motivation_system = IntrinsicMotivationSystem()
     

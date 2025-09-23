@@ -3,13 +3,14 @@
     <!-- Top Navigation Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Brain</span>
+        <span class="system-title">Self Soul</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->
         <router-link to="/" class="menu-link">Home</router-link>
         <router-link to="/training" class="menu-link">Training</router-link>
         <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
+        <router-link to="/chat-from-scratch" class="menu-link">Chat From Scratch</router-link>
         <router-link to="/settings" class="menu-link">Settings</router-link>
         <router-link to="/help" class="menu-link">Help</router-link>
         

@@ -170,9 +170,9 @@ export default {
     methods: {
       // Initialize system
     initializeSystem() {
-      errorHandler.logInfo('AGI Brain System initializing...');
+      errorHandler.logInfo('Self Soul System initializing...');
       // Show welcome message
-      this.addSystemMessage('Welcome to the AGI Brain System!');
+      this.addSystemMessage('Welcome to the Self Soul System!');
       // Initialize mock data
       this.useMockData();
     },
@@ -410,32 +410,7 @@ export default {
           this.backendConnected = false;
           this.backendStatus = 'error';
           this.modelConnectionStatus = 'error';
-          this.addSystemMessage('Failed to connect to FastAPI backend. Falling back to demo mode.');
-          
-          // Fallback to mock mode to ensure interface can be used normally
-          setTimeout(() => {
-            this.backendConnected = true;
-            this.backendStatus = 'connected';
-            this.modelConnectionStatus = 'connected';
-            
-            // Set management model to active status
-            this.managementModel = {
-              name: 'Management Model',
-              status: 'active',
-              lastActive: new Date().toISOString()
-            };
-            
-            // Update connectedText
-            this.connectedText = 'Demo Mode';
-            
-            this.models.forEach(model => {
-              model.status = 'active';
-              model.lastActive = new Date().toISOString();
-            });
-            
-            // Update active model count
-            this.activeModels = this.activeModelsCount;
-          }, 1500);
+          this.addSystemMessage('Failed to connect to FastAPI backend. Please ensure the backend service is running.');
         }
       },
     
@@ -479,32 +454,7 @@ export default {
         this.backendConnected = false;
         this.backendStatus = 'error';
         this.modelConnectionStatus = 'error';
-        this.addSystemMessage('Failed to connect to FastAPI backend. Falling back to demo mode.');
-        
-        // 回退到演示模式
-        setTimeout(() => {
-          this.backendConnected = true;
-          this.backendStatus = 'connected';
-          this.modelConnectionStatus = 'connected';
-          
-          // 设置管理模型为活跃状态
-          this.managementModel = {
-            name: 'Management Model',
-            status: 'active',
-            lastActive: new Date().toISOString()
-          };
-          
-          // 更新connectedText为演示模式
-          this.connectedText = 'Demo Mode';
-          
-          this.models.forEach(model => {
-            model.status = 'active';
-            model.lastActive = new Date().toISOString();
-          });
-          
-          // 更新活跃模型数量
-          this.activeModels = this.activeModelsCount;
-        }, 1500);
+        this.addSystemMessage('Failed to connect to FastAPI backend. Please ensure the backend service is running.');
       }
     },
     

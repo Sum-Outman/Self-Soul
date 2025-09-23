@@ -25,10 +25,12 @@ api.interceptors.request.use(
 // 响应拦截器
 api.interceptors.response.use(
   (response) => {
+    console.log('API response successful:', response.config.url, 'Status:', response.status);
     return response;
   },
   (error) => {
     // 统一处理错误
+    console.error('API request failed:', error.config?.url || 'unknown URL', 'Error:', error.message, 'Code:', error.code);
     if (error.code === 'ECONNREFUSED') {
       errorHandler.handleError(
         error,

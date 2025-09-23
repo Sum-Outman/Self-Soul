@@ -854,24 +854,24 @@ export default {
           'manager': 'A',
           'language': 'B',
           'audio': 'C',
-          'vision_image': 'D',
-          'vision_video': 'E',
-          'spatial': 'F',
-          'sensor': 'G',
-          'computer_control': 'H',
-          'motion_control': 'I',
-          'knowledge': 'J',
-          'programming': 'K',
-          'planning': 'L',
-          'autonomous': 'M',
-          'collaboration': 'N',
-          'finance': 'O',
-          'medical': 'P',
-          'optimization': 'Q',
-          'prediction': 'R',
+          'vision': 'D',
+          'knowledge': 'E',
+          'planning': 'F',
+          'programming': 'G',
+          'prediction': 'H',
+          'advanced_reasoning': 'I',
+          'data_fusion': 'J',
+          'autonomous': 'K',
+          'spatial': 'L',
+          'computer_vision': 'M',
+          'sensor': 'N',
+          'motion': 'O',
+          'creative_solving': 'P',
+          'meta_cognition': 'Q',
+          'value_alignment': 'R',
           'emotion': 'S'
         };
-        return idMap[backendId];
+        return idMap[backendId] || String.fromCharCode(65 + Math.floor(Math.random() * 26)); // 回退：随机字母
       };
       
       // 训练模式
@@ -917,7 +917,16 @@ export default {
           { id: 'G', name: 'Programming Model', backendId: 'programming' },
           { id: 'H', name: 'Prediction Model', backendId: 'prediction' },
           { id: 'I', name: 'Advanced Reasoning Model', backendId: 'advanced_reasoning' },
-          { id: 'J', name: 'Data Fusion Model', backendId: 'data_fusion' }
+          { id: 'J', name: 'Data Fusion Model', backendId: 'data_fusion' },
+          { id: 'K', name: 'Autonomous Model', backendId: 'autonomous' },
+          { id: 'L', name: 'Spatial Model', backendId: 'spatial' },
+          { id: 'M', name: 'Computer Vision Model', backendId: 'computer_vision' },
+          { id: 'N', name: 'Sensor Model', backendId: 'sensor' },
+          { id: 'O', name: 'Motion Model', backendId: 'motion' },
+          { id: 'P', name: 'Creative Problem Solving Model', backendId: 'creative_solving' },
+          { id: 'Q', name: 'Meta Cognition Model', backendId: 'meta_cognition' },
+          { id: 'R', name: 'Value Alignment Model', backendId: 'value_alignment' },
+          { id: 'S', name: 'Emotion Model', backendId: 'emotion' }
         ];
         showError('Failed to connect to backend, using demo mode');
       } finally {
@@ -936,7 +945,7 @@ export default {
       { id: 'sensor_only', name: 'Sensor Only Dataset' }
     ]);
     
-    // 推荐组合 - 包含所有11个核心模型的组合（A-K）
+    // 推荐组合 - 包含所有19个系统模型的组合（A-S）
     const recommendedCombinations = ref({
       basic_interaction: ['A', 'B', 'C'],
       visual_processing: ['A', 'D', 'E', 'F'],
@@ -947,14 +956,15 @@ export default {
       complete_system: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
       autonomous_control: ['A', 'I', 'H', 'G', 'F'],
       cognitive_processing: ['A', 'B', 'J'],
-      multimodal_perception: ['A', 'D', 'E', 'C', 'G', 'F']
+      multimodal_perception: ['A', 'D', 'E', 'C', 'G', 'F'],
+      full_system: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S']
     });
     
     // 组合验证状态
     const combinationValid = ref(true);
     const validationMessage = ref('');
     
-    // 模型依赖关系 - 所有11个核心模型的依赖关系（A-K）
+    // 模型依赖关系 - 所有19个系统模型的依赖关系（A-S）
     const modelDependencies = ref({
       A: ['B', 'J'], // 管理模型依赖语言模型和知识库模型
       B: ['J'],      // 语言模型依赖知识库模型
@@ -966,7 +976,15 @@ export default {
       H: ['B', 'J'], // 计算机控制模型依赖语言模型和知识库模型
       I: ['F', 'G', 'H'], // 运动和执行器控制模型依赖空间、传感器和计算机控制模型
       J: [],         // 知识库专家模型无依赖
-      K: ['B', 'J']  // 编程模型依赖语言模型和知识库模型
+      K: ['B', 'J'], // 编程模型依赖语言模型和知识库模型
+      L: ['B', 'J'], // 规划模型依赖语言模型和知识库模型
+      M: ['A', 'J'], // 自主模型依赖管理模型和知识库模型
+      N: ['B', 'J'], // 情感模型依赖语言模型和知识库模型
+      O: ['B', 'J'], // 空间模型依赖语言模型和知识库模型
+      P: ['D', 'J'], // 计算机视觉模型依赖视觉模型和知识库模型
+      Q: ['G', 'J'], // 传感器模型依赖传感器感知模型和知识库模型
+      R: ['F', 'J'], // 运动模型依赖空间模型和知识库模型
+      S: ['J']       // 预测模型依赖知识库模型
     });
     
     // 计算属性
@@ -1800,20 +1818,28 @@ export default {
         // 调用FastAPI后端获取训练历史
         const response = await api.get('/api/training/history');
         
-        // 处理后端返回的历史数据
-        trainingHistory.value = response.data.history.map(item => ({
-          id: item.id,
-          date: new Date(item.timestamp),
-          models: item.models,
-          dataset: item.dataset_name,
-          duration: item.duration,
-          accuracy: item.metrics.accuracy * 100,
-          loss: item.metrics.loss,
-          parameters: item.parameters,
-          strategy: item.strategy
-        }));
-        
-        showInfo('Training history loaded successfully');
+        // 严格检查响应数据结构
+        if (response && response.data && Array.isArray(response.data.history)) {
+          // 处理后端返回的历史数据
+          trainingHistory.value = response.data.history.map(item => ({
+            id: item.id,
+            date: new Date(item.timestamp),
+            models: item.models,
+            dataset: item.dataset_name,
+            duration: item.duration,
+            accuracy: item.metrics ? (item.metrics.accuracy * 100 || 0) : 0,
+            loss: item.metrics ? item.metrics.loss : 0,
+            parameters: item.parameters || {},
+            strategy: item.strategy || 'Unknown'
+          }));
+          
+          showInfo('Training history loaded successfully');
+        } else {
+          // 响应格式不正确时使用模拟数据
+          console.warn('Training history response format incorrect, using mock data');
+          trainingHistory.value = generateMockTrainingHistory();
+          showInfo('Training history loaded in demo mode');
+        }
       } catch (error) {
         console.error('Failed to load training history:', error);
         // 如果API不存在或后端不可用，使用模拟数据

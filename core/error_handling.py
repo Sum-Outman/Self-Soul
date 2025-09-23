@@ -13,7 +13,7 @@
 """
 
 """
-Self Soul 统一错误处理和日志系统
+# Self Soul 统一错误处理和日志系统
 AGI System Unified Error Handling and Logging System
 """
 import logging

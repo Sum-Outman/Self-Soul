@@ -1298,18 +1298,43 @@ How else can I help you?`;
 </style>
 
 <style scoped>
+/* 简洁的黑白灰风格CSS变量定义 */
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --transition: all 0.2s ease;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e9e9e9;
+  --text-primary: #222222;
+  --text-secondary: #555555;
+  --text-tertiary: #888888;
+  --border-color: #dddddd;
+  --border-light: #eeeeee;
+  --border-dark: #cccccc;
+}
+
 .home-view {
-  padding: 20px;
+  padding: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -1323,14 +1348,15 @@ How else can I help you?`;
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .server-status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-secondary);
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
@@ -1345,22 +1371,23 @@ How else can I help you?`;
 }
 
 .status-dot.connected {
-      background-color: var(--text-primary); /* Dark gray - Connected */
-      box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
-    }
+  background-color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
+}
 
-    .status-dot.disconnected {
-      background-color: var(--text-tertiary); /* Light gray - Not connected */
-      box-shadow: 0 0 0 2px rgba(200, 200, 200, 0.3);
-    }
+.status-dot.disconnected {
+  background-color: var(--text-tertiary);
+  box-shadow: 0 0 0 2px rgba(200, 200, 200, 0.3);
+}
 
 .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .header-button {
-  padding: 8px 16px;
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -1413,37 +1440,37 @@ How else can I help you?`;
 
   @keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+      box-shadow: 0 0 0 0 rgba(100, 100, 100, 0.7);
     }
     70% {
-      box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+      box-shadow: 0 0 0 10px rgba(100, 100, 100, 0);
     }
     100% {
-      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+      box-shadow: 0 0 0 0 rgba(100, 100, 100, 0);
     }
   }
 
   .model-card {
-    margin-bottom: 30px;
+    margin-bottom: var(--spacing-lg);
   }
 
 .model-status h2 {
   color: var(--text-primary);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-md);
 }
 
 .status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .model-card {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 15px;
+  padding: var(--spacing-md);
   background: var(--bg-primary);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
@@ -1457,7 +1484,7 @@ How else can I help you?`;
 
 .model-name {
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
 }
 
@@ -1465,11 +1492,11 @@ How else can I help you?`;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .model-status-indicator.active {
-  background-color: var(--success-color);
+  background-color: var(--text-primary);
 }
 
 .model-status-indicator.inactive {
@@ -1477,7 +1504,7 @@ How else can I help you?`;
 }
 
 .model-status-indicator.error {
-  background-color: var(--error-color);
+  background-color: var(--text-secondary);
 }
 
 .model-performance {
@@ -1486,92 +1513,92 @@ How else can I help you?`;
 }
 
 .input-area {
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .input-area h2 {
   color: var(--text-primary);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-md);
 }
 
 .chat-container {
   height: 400px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 15px;
-  margin-bottom: 15px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   overflow-y: auto;
   background: var(--bg-secondary);
 }
 
 .message {
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-light);
-    animation: fadeIn 0.3s ease-in-out;
-  }
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+  animation: fadeIn 0.3s ease-in-out;
+}
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .message.user {
-    background: var(--bg-primary);
-    margin-left: 20%;
-    border-color: var(--border-color);
-  }
+.message.user {
+  background: var(--bg-primary);
+  margin-left: 20%;
+  border-color: var(--border-color);
+}
 
-  .message.bot {
-    background: var(--bg-tertiary);
-    margin-right: 20%;
-    border-color: var(--border-color);
-  }
+.message.bot {
+  background: var(--bg-tertiary);
+  margin-right: 20%;
+  border-color: var(--border-color);
+}
 
-  .message.system {
-    background: var(--bg-secondary);
-    text-align: center;
-    border-color: var(--border-color);
-    font-style: italic;
-    color: var(--text-secondary);
-  }
+.message.system {
+  background: var(--bg-secondary);
+  text-align: center;
+  border-color: var(--border-color);
+  font-style: italic;
+  color: var(--text-secondary);
+}
 
-  .message.loading {
-    background: var(--bg-secondary);
-    margin-right: 20%;
-    border-color: var(--border-color);
-    position: relative;
-    overflow: hidden;
-  }
+.message.loading {
+  background: var(--bg-secondary);
+  margin-right: 20%;
+  border-color: var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
 
-  .message.loading::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(200, 200, 200, 0.1), transparent);
-    animation: loadingShimmer 1.5s infinite;
-  }
+.message.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200, 200, 200, 0.1), transparent);
+  animation: loadingShimmer 1.5s infinite;
+}
 
-  @keyframes loadingShimmer {
-    100% {
-      left: 100%;
-    }
+@keyframes loadingShimmer {
+  100% {
+    left: 100%;
   }
+}
 
 .message-content {
-  margin-bottom: 5px;
+  margin-bottom: var(--spacing-xs);
   color: var(--text-primary);
 }
 
@@ -1583,13 +1610,15 @@ How else can I help you?`;
 
 .input-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .input-controls input {
   flex: 1;
-  padding: 10px 12px;
+  min-width: 200px;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   background: var(--bg-primary);
@@ -1605,7 +1634,7 @@ How else can I help you?`;
 }
 
 .input-controls button {
-  padding: 10px 15px;
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -1613,6 +1642,7 @@ How else can I help you?`;
   cursor: pointer;
   font-weight: 500;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .input-controls button:hover {
@@ -1623,11 +1653,12 @@ How else can I help you?`;
 
 .input-options {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .input-options button {
-  padding: 8px 12px;
+  padding: var(--spacing-xs) var(--spacing-md);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -1635,6 +1666,7 @@ How else can I help you?`;
   cursor: pointer;
   font-size: 13px;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .input-options button:hover {
@@ -1653,24 +1685,24 @@ How else can I help you?`;
 }
 
 .quick-actions {
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .quick-actions h2 {
   color: var(--text-primary);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-md);
 }
 
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .actions-grid .nav-link {
-  padding: 15px;
+  padding: var(--spacing-md);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -1691,16 +1723,16 @@ How else can I help you?`;
 }
 
 .real-time-section {
-  margin-top: 20px;
+  margin-top: var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 15px;
+  padding: var(--spacing-md);
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
 }
 
 .guide-button {
-  padding: 8px 16px;
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -1720,39 +1752,42 @@ How else can I help you?`;
 .conversation-header {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--spacing-md);
   justify-content: space-between;
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-md);
 }
 
 .conversation-header > div:first-child {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .main-model-status.inline-status {
-  background-color: #f5f5f5;
-  border-radius: 6px;
-  padding: 5px 10px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-size: 0.9em;
   white-space: nowrap;
   font-family: inherit;
   font-weight: normal;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.2;
   letter-spacing: normal;
+  border: 1px solid var(--border-color);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-view {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
   
   .header {
     flex-direction: column;
-    gap: 15px;
+    gap: var(--spacing-md);
     align-items: flex-start;
   }
   

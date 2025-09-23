@@ -27,13 +27,14 @@ import time
 import json
 import random
 from core.error_handling import error_handler
+from core.models.base_model import BaseModel
 
 
 """
 PlanningModel类 - 中文类描述
 PlanningModel Class - English class description
 """
-class PlanningModel:
+class PlanningModel(BaseModel):
     """自主规划模型
     Autonomous Planning Model
     """

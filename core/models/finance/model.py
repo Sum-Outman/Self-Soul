@@ -18,13 +18,17 @@ Finance Model: 金融分析专业模型
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from core.models.base_model import BaseModel
 
 
 """
 FinanceModel类 - 中文类描述
 FinanceModel Class - English class description
 """
-class FinanceModel:
+class FinanceModel(BaseModel):
     """金融分析专业模型，提供市场分析、投资建议等功能
        Financial analysis professional model providing market analysis and investment advice
     """

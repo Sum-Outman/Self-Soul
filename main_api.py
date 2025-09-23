@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 # Self Soul Main API Server
-统一认知架构的主要API网关
+Unified Cognitive Architecture Main API Gateway
 """
 
 import uvicorn
@@ -40,10 +40,10 @@ app = FastAPI(
 # 配置CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 允许所有来源
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
-    allow_methods=["*"],  # 允许所有方法
-    allow_headers=["*"],  # 允许所有头
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 # 数据模型
@@ -508,31 +508,31 @@ async def websocket_audio_stream(websocket: WebSocket, client_id: str):
         logger.error(f"WebSocket error for {client_id}: {str(e)}")
         manager.disconnect(client_id)
 
-# 启动事件
+# Startup event
 @app.on_event("startup")
 async def startup_event():
-    """系统启动事件"""
+    """System startup event"""
     logger.info("Self Soul Main API Server is starting up...")
     
-    # 确保日志目录存在
+    # Ensure log directory exists
     log_dir = os.path.join(os.path.dirname(__file__), 'logs')
     os.makedirs(log_dir, exist_ok=True)
     
-    # 加载所有模型配置
+    # Load all model configurations
     logger.info(f"Loaded {len(system_state.models)} models from configuration")
     
-    # 激活管理模型
+    # Activate manager model
     logger.info("Manager Model activated as the primary coordination model")
     
     logger.info("Self Soul Main API Server started successfully")
 
-# 关闭事件
+# Shutdown event
 @app.on_event("shutdown")
 async def shutdown_event():
-    """系统关闭事件"""
+    """System shutdown event"""
     logger.info("Self Soul Main API Server is shutting down...")
     
-    # 清理活动连接
+    # Clean up active connections
     for client_id in list(manager.active_connections.keys()):
         try:
             await manager.active_connections[client_id].close()

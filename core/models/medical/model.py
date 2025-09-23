@@ -16,13 +16,17 @@ Medical Model: 医疗健康专业模型
  * limitations under the License.
 """
 import numpy as np
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from core.models.base_model import BaseModel
 
 
 """
 MedicalModel类 - 中文类描述
 MedicalModel Class - English class description
 """
-class MedicalModel:
+class MedicalModel(BaseModel):
     """医疗健康专业模型，提供健康咨询、症状分析等功能
        Medical professional model providing health consultation and symptom analysis
     """
@@ -332,7 +336,7 @@ class MedicalModel:
         
         print(f"Training history saved to {history_file}")
     
-def process(self, input_data):
+    def process(self, input_data):
         """处理输入数据
            Process input data
         

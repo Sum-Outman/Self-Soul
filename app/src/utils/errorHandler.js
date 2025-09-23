@@ -165,6 +165,5 @@ class ErrorHandler {
 // 创建全局实例
 const errorHandler = new ErrorHandler();
 
-// 导出默认实例和类
+// 导出默认实例
 export default errorHandler;
-export { ErrorHandler };

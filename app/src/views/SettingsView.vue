@@ -135,56 +135,76 @@
 
           <!-- Model Actions -->
           <div class="model-actions">
-            <button
-              class="control-btn start-btn"
-              @click="startModel(model.id)"
-              :disabled="model.status === 'running' || isOperating(model.id)"
-            >
-              Start
-            </button>
-            <button
-              class="control-btn stop-btn"
-              @click="stopModel(model.id)"
-              :disabled="model.status === 'stopped' || isOperating(model.id)"
-            >
-              Stop
-            </button>
-            <button
-              class="control-btn restart-btn"
-              @click="restartModel(model.id)"
-              :disabled="model.status === 'starting' || model.status === 'stopping' || isOperating(model.id)"
-            >
-              Restart
-            </button>
-            <button
-              class="activation-btn"
-              :class="{ active: model.isActive }"
-              @click="toggleActivation(model.id)"
-              :disabled="isOperating(model.id)"
-            >
-              {{ model.isActive ? 'Deactivate' : 'Activate' }}
-            </button>
-            <button
-              class="control-btn primary-btn"
-              @click="useAsPrimary(model.id)"
-              :disabled="model.isPrimary || isOperating(model.id)"
-            >
-              Use as Primary
-            </button>
-            <button
-              class="control-btn train-btn"
-              @click="openTrainModal(model)"
-              :disabled="isOperating(model.id)"
-            >
-              Train from Scratch
-            </button>
-            <button
-              class="remove-btn"
-              @click="removeModel(model.id)"
-              :disabled="isOperating(model.id)"
-            >
-              Remove
-            </button>
+            <!-- Control Actions Group -->
+            <div class="model-actions-group">
+              <div class="model-actions-group-title">Control Actions</div>
+              <div class="model-actions-buttons">
+                <button
+                  class="control-btn start-btn"
+                  @click="startModel(model.id)"
+                  :disabled="model.status === 'running' || isOperating(model.id)"
+                >
+                  Start
+                </button>
+                <button
+                  class="control-btn stop-btn"
+                  @click="stopModel(model.id)"
+                  :disabled="model.status === 'stopped' || isOperating(model.id)"
+                >
+                  Stop
+                </button>
+                <button
+                  class="control-btn restart-btn"
+                  @click="restartModel(model.id)"
+                  :disabled="model.status === 'starting' || model.status === 'stopping' || isOperating(model.id)"
+                >
+                  Restart
+                </button>
+              </div>
+            </div>
+            
+            <!-- Status Actions Group -->
+            <div class="model-actions-group">
+              <div class="model-actions-group-title">Status Actions</div>
+              <div class="model-actions-buttons">
+                <button
+                  class="activation-btn"
+                  :class="{ active: model.isActive }"
+                  @click="toggleActivation(model.id)"
+                  :disabled="isOperating(model.id)"
+                >
+                  {{ model.isActive ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button
+                  class="control-btn primary-btn"
+                  @click="useAsPrimary(model.id)"
+                  :disabled="model.isPrimary || isOperating(model.id)"
+                >
+                  Use as Primary
+                </button>
+              </div>
+            </div>
+            
+            <!-- Advanced Actions Group -->
+            <div class="model-actions-group">
+              <div class="model-actions-group-title">Advanced Actions</div>
+              <div class="model-actions-buttons">
+                <button
+                  class="control-btn train-btn"
+                  @click="openTrainModal(model)"
+                  :disabled="isOperating(model.id)"
+                >
+                  Train from Scratch
+                </button>
+                <button
+                  class="remove-btn"
+                  @click="removeModel(model.id)"
+                  :disabled="isOperating(model.id)"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- API Configuration -->
@@ -1272,6 +1292,24 @@ export default {
       }
     }
 
+    // Handle source change for existing models
+    const onSourceChange = (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) return
+      
+      // Update last updated time
+      model.lastUpdated = new Date().toISOString()
+      hasChanges.value = true
+      
+      // If changing to external, ensure it has necessary API fields
+      if (model.source === 'external' && !model.apiType) {
+        model.apiType = 'custom'
+        model.apiUrl = ''
+        model.apiKey = ''
+        model.modelName = ''
+      }
+    }
+
     const addNewModel = async () => {
       if (!newModel.value.id || !newModel.value.name || !newModel.value.type || !newModel.value.port) {
         notify.warning('Please fill in all required fields')
@@ -1923,9 +1961,42 @@ export default {
     }
 
     // Lifecycle
-    onMounted(() => {
-      loadModels()
+    onMounted(async () => {
+      await loadModels()
+      
+      // Auto start all models on initial load
+      const modelsToStart = models.value.filter(model => model.status !== 'running')
+      if (modelsToStart.length > 0) {
+        console.log(`Auto-starting ${modelsToStart.length} models on initial load`)
+        try {
+          // Add all models to operating set
+          modelsToStart.forEach(model => {
+            operatingModels.value.add(model.id)
+            model.status = 'starting'
+          })
+
+          // Update local state immediately for better UX
+          setTimeout(() => {
+            modelsToStart.forEach(model => {
+              model.status = 'running'
+              model.lastUpdated = new Date().toISOString()
+            })
+            hasChanges.value = true
+            // Don't show notification for auto-start
+          }, 500)
+        } catch (error) {
+          console.error('Error auto-starting models:', error)
+        } finally {
+          // Remove all models from operating set
+          modelsToStart.forEach(model => {
+            operatingModels.value.delete(model.id)
+          })
+        }
+      }
     })
+    
+    // Check if we've already auto-started models this session
+    const hasAutoStarted = ref(false)
 
     return {
         // State
@@ -1995,7 +2066,10 @@ export default {
       openTrainModal,
       closeTrainModal,
       startTraining,
-      stopTraining
+      stopTraining,
+      
+      // Source handling
+      onSourceChange
     }
   }
 }
@@ -2084,14 +2158,14 @@ export default {
 
 .model-status.connected {
   background-color: #f5f5f5;
-  color: var(--success-color);
-  border: 1px solid var(--success-color);
+  color: #333333;
+  border: 1px solid #cccccc;
 }
 
 .model-status.disconnected {
-  background-color: #f5f5f5;
-  color: var(--error-color);
-  border: 1px solid var(--error-color);
+  background-color: #f8f8f8;
+  color: #666666;
+  border: 1px solid #dddddd;
 }
 
 .model-status.testing {
@@ -2101,19 +2175,19 @@ export default {
 }
 
 .model-status.failed {
-  background-color: #f5f5f5;
-  color: var(--error-color);
-  border: 1px solid var(--error-color);
+  background-color: #f8f8f8;
+  color: #666666;
+  border: 1px solid #dddddd;
 }
 
 .model-status.running {
   background-color: #f5f5f5;
-  color: var(--success-color);
-  border: 1px solid var(--success-color);
+  color: #333333;
+  border: 1px solid #cccccc;
 }
 
 .model-status.stopped {
-  background-color: #f5f5f5;
+  background-color: #f8f8f8;
   color: #999999;
   border: 1px solid #dddddd;
 }
@@ -2128,7 +2202,7 @@ export default {
 }
 
 .model-active-indicator.active {
-  background-color: #f5f5f5;
+  background-color: #e6e6e6;
   color: #333333;
   border-color: #cccccc;
 }
@@ -2144,7 +2218,7 @@ export default {
 }
 
 .model-type-badge.local {
-  background-color: #f5f5f5;
+  background-color: #e6e6e6;
   color: #333333;
   border-color: #cccccc;
 }
@@ -2168,58 +2242,132 @@ export default {
 /* Model Actions */
 .model-actions {
   display: flex;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  gap: var(--spacing-xl);
   margin-bottom: var(--spacing-md);
+  padding: var(--spacing-xl);
+  background-color: #f9f9f9;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+/* Button Groups */
+.model-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  background-color: #ffffff;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.model-actions-group-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.model-actions-buttons {
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .control-btn {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: all var(--transition-fast);
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
+  background-color: #ffffff;
+  color: #333333;
+  min-width: 120px;
+  text-align: center;
 }
 
 .control-btn:hover:not(:disabled) {
-  background-color: #e6e6e6;
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .control-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .primary-btn {
   font-weight: 600;
+  background-color: #f0f0f0;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
 }
 
 .start-btn, .stop-btn, .restart-btn {
   font-weight: 500;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+  background-color: #ffffff;
+  color: #333333;
+  min-width: 120px;
+  text-align: center;
+}
+
+.start-btn:hover:not(:disabled),
+.stop-btn:hover:not(:disabled),
+.restart-btn:hover:not(:disabled) {
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.start-btn:disabled,
+.stop-btn:disabled,
+.restart-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .activation-btn, .remove-btn {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: all var(--transition-fast);
+  background-color: #ffffff;
+  color: #333333;
+  min-width: 120px;
+  text-align: center;
 }
 
 .activation-btn.active {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
+  background-color: #e6e6e6;
+  color: #333333;
+  font-weight: 600;
 }
 
 .activation-btn.inactive {
-  background-color: var(--bg-primary);
-  color: var(--text-secondary);
+  background-color: #ffffff;
+  color: #666666;
 }
 
 .activation-btn:hover:not(:disabled) {
@@ -2457,15 +2605,15 @@ export default {
 }
 
 .test-result.success {
-  background-color: #f5f5f5;
+  background-color: #e6e6e6;
   color: #333333;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #cccccc;
 }
 
 .test-result.error {
   background-color: #f8f8f8;
   color: #666666;
-  border: 1px solid #eeeeee;
+  border: 1px solid #dddddd;
 }
 
 /* Add Model Section */
@@ -2586,7 +2734,7 @@ export default {
   }
   
   .model-config-type.external {
-    background-color: #f5f5f5;
+    background-color: #e6e6e6;
     color: #333333;
     border: 1px solid #cccccc;
   }
@@ -2648,7 +2796,7 @@ export default {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top: 3px solid #333333;
+  border-top: 3px solid #555555;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16px;
@@ -2850,7 +2998,7 @@ export default {
 
 .progress-fill {
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #555555;
   transition: width var(--transition-fast);
 }
 
@@ -2870,18 +3018,18 @@ export default {
 }
 
 .training-status.training {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: #e6e6e6;
+  color: #333333;
 }
 
 .training-status.completed {
-  background-color: #e8f5e9;
-  color: #388e3c;
+  background-color: #e6e6e6;
+  color: #333333;
 }
 
 .training-status.error {
-  background-color: #ffebee;
-  color: #d32f2f;
+  background-color: #f8f8f8;
+  color: #666666;
 }
 
 .training-message {

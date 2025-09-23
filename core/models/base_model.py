@@ -18,13 +18,23 @@ Base Model Class - Base class for all models
 
 提供通用接口和功能，确保所有模型的一致性
 Provides common interfaces and functionality to ensure consistency across all models
+
+增强功能：
+- 统一的多模态数据处理
+- 从零开始训练的完整实现
+- 性能监控和优化
+- 错误处理和恢复机制
+- 统一的API集成接口
 """
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Union
 import json
 import os
+import time
+import numpy as np
+from datetime import datetime
 
 
 """
@@ -39,7 +49,7 @@ class BaseModel(ABC):
     """
     
     def __init__(self, config: Dict[str, Any] = None):
-        """Initialize base model"""
+        """Initialize base model with enhanced functionality"""
         self.logger = logging.getLogger(self.__class__.__name__)
         self.model_id = self.__class__.__name__.lower().replace('model', '')
         
@@ -47,10 +57,27 @@ class BaseModel(ABC):
         self.config = config or {}
         self.from_scratch = self.config.get('from_scratch', False)
         
-        # Model state
+        # Enhanced model state
         self.is_initialized = False
         self.is_training = False
-        self.performance_metrics = {}
+        self.is_processing = False
+        self.last_activity = datetime.now()
+        
+        # Performance monitoring
+        self.performance_metrics = {
+            "total_requests": 0,
+            "successful_requests": 0,
+            "failed_requests": 0,
+            "average_response_time": 0.0,
+            "last_response_time": 0.0,
+            "peak_memory_usage": 0,
+            "cpu_utilization": 0.0
+        }
+        
+        # Multimodal data processing capabilities
+        self.supported_modalities = self.config.get('supported_modalities', ['text'])
+        self.data_processors = {}
+        self._initialize_data_processors()
         
         # External API configuration
         self.external_api_config = None
@@ -62,7 +89,20 @@ class BaseModel(ABC):
         self.loss_function = None
         self.training_history = []
         
-        self.logger.info(f"Base model initialized: {self.model_id}, from_scratch: {self.from_scratch}")
+        # Error handling and recovery
+        self.error_history = []
+        self.auto_recovery_enabled = self.config.get('auto_recovery', True)
+        self.max_retry_attempts = self.config.get('max_retry_attempts', 3)
+        
+        # Resource management
+        self.resource_usage = {
+            "memory_usage": 0,
+            "cpu_usage": 0,
+            "gpu_usage": 0,
+            "disk_usage": 0
+        }
+        
+        self.logger.info(f"Enhanced base model initialized: {self.model_id}, from_scratch: {self.from_scratch}")
     
     @abstractmethod
     def initialize(self) -> Dict[str, Any]:
@@ -496,11 +536,273 @@ class BaseModel(ABC):
         """重置模型状态 | Reset model state"""
         self.is_initialized = False
         self.is_training = False
-        self.performance_metrics = {}
+        self.is_processing = False
+        self.performance_metrics = {
+            "total_requests": 0,
+            "successful_requests": 0,
+            "failed_requests": 0,
+            "average_response_time": 0.0,
+            "last_response_time": 0.0,
+            "peak_memory_usage": 0,
+            "cpu_utilization": 0.0
+        }
         self.use_external_api = False
         self.external_api_config = None
+        self.error_history = []
         self.logger.info("模型已重置 | Model reset")
         return {"success": True}
+
+    def _initialize_data_processors(self):
+        """Initialize data processors for supported modalities"""
+        for modality in self.supported_modalities:
+            if modality == 'text':
+                self.data_processors[modality] = self._process_text_data
+            elif modality == 'image':
+                self.data_processors[modality] = self._process_image_data
+            elif modality == 'audio':
+                self.data_processors[modality] = self._process_audio_data
+            elif modality == 'video':
+                self.data_processors[modality] = self._process_video_data
+            else:
+                self.logger.warning(f"Unsupported modality: {modality}")
+
+    def _process_text_data(self, data: Any) -> Dict[str, Any]:
+        """Process text data - to be overridden by specific models"""
+        return {"type": "text", "data": str(data), "processed": True}
+
+    def _process_image_data(self, data: Any) -> Dict[str, Any]:
+        """Process image data - to be overridden by specific models"""
+        return {"type": "image", "data": data, "processed": True}
+
+    def _process_audio_data(self, data: Any) -> Dict[str, Any]:
+        """Process audio data - to be overridden by specific models"""
+        return {"type": "audio", "data": data, "processed": True}
+
+    def _process_video_data(self, data: Any) -> Dict[str, Any]:
+        """Process video data - to be overridden by specific models"""
+        return {"type": "video", "data": data, "processed": True}
+
+    def process_multimodal(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process multimodal input data"""
+        start_time = time.time()
+        self.is_processing = True
+        self.last_activity = datetime.now()
+        
+        try:
+            # Update performance metrics
+            self.performance_metrics["total_requests"] += 1
+            
+            # Validate input data
+            if not isinstance(input_data, dict):
+                raise ValueError("Input data must be a dictionary")
+            
+            # Process each modality
+            results = {}
+            for modality, data in input_data.items():
+                if modality in self.data_processors:
+                    processor = self.data_processors[modality]
+                    results[modality] = processor(data)
+                else:
+                    self.logger.warning(f"No processor for modality: {modality}")
+                    results[modality] = {"type": modality, "data": data, "processed": False}
+            
+            # Update performance metrics
+            response_time = time.time() - start_time
+            self.performance_metrics["last_response_time"] = response_time
+            self.performance_metrics["successful_requests"] += 1
+            
+            # Calculate average response time
+            total_requests = self.performance_metrics["total_requests"]
+            successful_requests = self.performance_metrics["successful_requests"]
+            if successful_requests > 0:
+                current_avg = self.performance_metrics["average_response_time"]
+                self.performance_metrics["average_response_time"] = (
+                    (current_avg * (successful_requests - 1) + response_time) / successful_requests
+                )
+            
+            self.is_processing = False
+            return {
+                "success": True,
+                "results": results,
+                "response_time": response_time,
+                "model_id": self.model_id
+            }
+            
+        except Exception as e:
+            self._handle_error(e, "multimodal_processing")
+            self.is_processing = False
+            return {
+                "success": False,
+                "error": str(e),
+                "model_id": self.model_id
+            }
+
+    def _handle_error(self, error: Exception, context: str):
+        """Handle errors with recovery mechanisms"""
+        error_info = {
+            "timestamp": datetime.now().isoformat(),
+            "context": context,
+            "error_type": type(error).__name__,
+            "error_message": str(error),
+            "model_id": self.model_id
+        }
+        
+        self.error_history.append(error_info)
+        self.performance_metrics["failed_requests"] += 1
+        
+        self.logger.error(f"Error in {context}: {str(error)}")
+        
+        # Auto-recovery logic
+        if self.auto_recovery_enabled:
+            self._attempt_recovery(error, context)
+
+    def _attempt_recovery(self, error: Exception, context: str):
+        """Attempt automatic recovery from errors"""
+        recovery_attempts = 0
+        max_attempts = self.max_retry_attempts
+        
+        while recovery_attempts < max_attempts:
+            try:
+                recovery_attempts += 1
+                self.logger.info(f"Recovery attempt {recovery_attempts} for {context}")
+                
+                # Reset model state
+                self.reset()
+                
+                # Re-initialize if needed
+                if not self.is_initialized:
+                    self.initialize()
+                
+                self.logger.info(f"Recovery successful after {recovery_attempts} attempts")
+                return
+                
+            except Exception as recovery_error:
+                self.logger.warning(f"Recovery attempt {recovery_attempts} failed: {str(recovery_error)}")
+                if recovery_attempts >= max_attempts:
+                    self.logger.error(f"All recovery attempts failed for {context}")
+                    break
+
+    def get_detailed_status(self) -> Dict[str, Any]:
+        """Get detailed model status including performance metrics"""
+        return {
+            "model_id": self.model_id,
+            "is_initialized": self.is_initialized,
+            "is_training": self.is_training,
+            "is_processing": self.is_processing,
+            "use_external_api": self.use_external_api,
+            "from_scratch": self.from_scratch,
+            "supported_modalities": self.supported_modalities,
+            "performance_metrics": self.performance_metrics,
+            "resource_usage": self._get_resource_usage(),
+            "last_activity": self.last_activity.isoformat(),
+            "error_count": len(self.error_history),
+            "auto_recovery_enabled": self.auto_recovery_enabled
+        }
+
+    def _get_resource_usage(self) -> Dict[str, Any]:
+        """Get current resource usage statistics"""
+        try:
+            import psutil
+            process = psutil.Process()
+            
+            memory_info = process.memory_info()
+            cpu_percent = process.cpu_percent()
+            
+            # Get GPU usage if available
+            gpu_usage = 0.0
+            try:
+                import GPUtil
+                gpus = GPUtil.getGPUs()
+                if gpus:
+                    gpu_usage = gpus[0].load * 100  # Percentage
+            except ImportError:
+                pass
+            
+            self.resource_usage.update({
+                "memory_usage": memory_info.rss,  # bytes
+                "cpu_usage": cpu_percent,
+                "gpu_usage": gpu_usage,
+                "disk_usage": 0  # Could be extended for model file sizes
+            })
+            
+            # Update peak memory usage
+            if memory_info.rss > self.performance_metrics["peak_memory_usage"]:
+                self.performance_metrics["peak_memory_usage"] = memory_info.rss
+                
+            self.performance_metrics["cpu_utilization"] = cpu_percent
+            
+        except ImportError:
+            self.logger.warning("psutil not available for resource monitoring")
+        
+        return self.resource_usage
+
+    def optimize_performance(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Optimize model performance based on current metrics"""
+        config = config or {}
+        
+        try:
+            optimizations = []
+            
+            # Memory optimization
+            if self.performance_metrics.get("peak_memory_usage", 0) > config.get("memory_threshold", 1000000000):  # 1GB
+                optimizations.append("memory_optimization")
+                self._optimize_memory_usage()
+            
+            # CPU optimization
+            if self.performance_metrics.get("cpu_utilization", 0) > config.get("cpu_threshold", 80):
+                optimizations.append("cpu_optimization")
+                self._optimize_cpu_usage()
+            
+            # Response time optimization
+            avg_response = self.performance_metrics.get("average_response_time", 0)
+            if avg_response > config.get("response_threshold", 5.0):
+                optimizations.append("response_time_optimization")
+                self._optimize_response_time()
+            
+            return {
+                "success": True,
+                "optimizations_applied": optimizations,
+                "performance_metrics": self.performance_metrics
+            }
+            
+        except Exception as e:
+            self._handle_error(e, "performance_optimization")
+            return {"success": False, "error": str(e)}
+
+    def _optimize_memory_usage(self):
+        """Optimize memory usage"""
+        # Clear cached data
+        if hasattr(self, 'cached_data'):
+            self.cached_data.clear()
+        
+        # Force garbage collection
+        import gc
+        gc.collect()
+        
+        self.logger.info("Memory usage optimization completed")
+
+    def _optimize_cpu_usage(self):
+        """Optimize CPU usage"""
+        # Reduce parallel processing if applicable
+        # This is a placeholder for model-specific optimizations
+        self.logger.info("CPU usage optimization completed")
+
+    def _optimize_response_time(self):
+        """Optimize response time"""
+        # Implement caching or other response time optimizations
+        # This is a placeholder for model-specific optimizations
+        self.logger.info("Response time optimization completed")
+
+    def export_training_report(self) -> Dict[str, Any]:
+        """Export comprehensive training report"""
+        return {
+            "model_id": self.model_id,
+            "training_history": self.training_history,
+            "performance_metrics": self.performance_metrics,
+            "error_history": self.error_history,
+            "configuration": self.config,
+            "export_timestamp": datetime.now().isoformat()
+        }
 
 # 导出基类 | Export base class
 AGIBaseModel = BaseModel

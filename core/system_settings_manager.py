@@ -68,10 +68,10 @@ class SystemSettingsManager:
         self.settings_dir = os.path.join(os.path.dirname(__file__), 'data', 'settings')
         os.makedirs(self.settings_dir, exist_ok=True)
         
-        # 设置文件路径
+        # Settings file path
         self.settings_file = os.path.join(self.settings_dir, 'system_settings.json')
         
-        # 加载设置
+        # Load settings
         self.settings = self._load_settings()
 
     def _load_settings(self) -> Dict[str, Any]:

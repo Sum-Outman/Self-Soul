@@ -2762,9 +2762,6 @@ async def process_video(request: Request):
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to process video")
         raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Failed to process video")
-        raise HTTPException(status_code=500, detail=str(e))
 
 # Process audio input
 @app.post("/api/process/audio")
@@ -3082,79 +3079,5 @@ async def async_initialize_components():
     try:
         # Initialize AGI coordinator and other core components
         error_handler.log_info("Starting asynchronous initialization of system components", "System")
-        
-        # Load model modes from settings
-        error_handler.log_info("Loading model modes from settings", "System")
-        load_model_modes_from_settings()
-        
-        # Only initialize the most critical components to avoid network requests and time-consuming operations
-        # Other complex components can be initialized slowly in the background without affecting API service
-        
-        error_handler.log_info("Core system components initialization completed", "System")
-        error_handler.log_info("API service is now available, some components may still be initializing", "System")
     except Exception as e:
-        error_handler.handle_error(e, "System", "Error during asynchronous component initialization")
-        # Even if initialization fails, ensure API service remains operational
-
-# 主函数
-# Main function
-if __name__ == "__main__":
-    
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Self Soul AGI System')
-    parser.add_argument('--from-scratch', action='store_true', help='Start training from scratch without using existing knowledge')
-    args = parser.parse_args()
-    
-    # Set from_scratch flag to True by default to ensure all models train from scratch
-    from_scratch = True  # Force all models to train from scratch
-    # Override with command line argument if provided
-    if args.from_scratch is not None:
-        from_scratch = args.from_scratch
-    
-    # Initialize core components with from_scratch parameter where applicable
-    training_manager = TrainingManager(model_registry, from_scratch=from_scratch)
-    
-    emotion_system = EmotionAwarenessSystem()
-    
-    autonomous_learning_manager = AutonomousLearningManager(model_registry)
-    
-    system_settings_manager = SystemSettingsManager()
-    
-    system_monitor = EnhancedSystemMonitor()
-    
-    connection_manager = ConnectionManager()
-    
-    unified_cognitive_architecture = UnifiedCognitiveArchitecture()
-    
-    enhanced_meta_cognition = EnhancedMetaCognition()
-    
-    # Knowledge base is now handled through the model registry
-    # structured_knowledge_base = StructuredKnowledgeBase()  # This class has been removed
-    
-    intrinsic_motivation_system = IntrinsicMotivationSystem()
-    
-    explainable_ai = ExplainableAI()
-    
-    agi_coordinator = AGICoordinator(from_scratch=from_scratch)
-    
-    # Initialize AGI system with from_scratch parameter
-    from core.agi_core import initialize_agi_system
-    initialize_agi_system(from_scratch=from_scratch)
-    
-    # First start FastAPI service to ensure API can respond quickly
-    error_handler.log_info(f"Self Soul system starting up, main API will run on http://0.0.0.0:8000 {'(From Scratch Mode)' if from_scratch else ''}", "System")
-    
-    # Use threads to asynchronously initialize other components in the background
-    def initialize_in_background():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(async_initialize_components())
-        loop.close()
-    
-    # Start background initialization thread
-    background_thread = threading.Thread(target=initialize_in_background)
-    background_thread.daemon = True
-    background_thread.start()
-    
-    # Start main API service (this is a blocking call)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+        error_handler.handle_error(e, "System", "Failed to initialize components asynchronously")

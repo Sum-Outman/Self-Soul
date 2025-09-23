@@ -27,13 +27,14 @@ import time
 import numpy as np
 from typing import Dict, List, Any, Callable
 from core.error_handling import error_handler
+from core.models.base_model import BaseModel
 
 
 """
 PredictionModel类 - 中文类描述
 PredictionModel Class - English class description
 """
-class PredictionModel:
+class PredictionModel(BaseModel):
     """预测模型类
     Prediction Model Class
     """

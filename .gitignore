@@ -8,6 +8,8 @@ __pycache__/
 venv/
 ENV/
 env/
+python_env/
+.venv_new/
 agi_env_311/
 agi_env/
 .env

@@ -13,16 +13,31 @@
 """
 
 """
-模型注册表：管理所有AI模型的加载、注册和生命周期
-Model Registry: Manages loading, registration and lifecycle of all AI models
+AGI模型注册表：管理所有AI模型的加载、注册和生命周期，支持从零开始训练和AGI级别的协作
+AGI Model Registry: Manages loading, registration and lifecycle of all AI models with from-scratch training and AGI-level collaboration
 """
 import importlib
 import os
 import time
 import threading
-from typing import Dict, Any, Type, List, Optional, Tuple, Set
-from .error_handling import error_handler
-from .api_config_manager import APIConfigManager  # 新增API配置管理导入
+import random
+import asyncio
+import json
+from typing import Dict, Any, Type, List, Optional, Tuple, Set, Callable
+from core.error_handling import error_handler
+from core.api_config_manager import APIConfigManager
+from core.external_api_service import ExternalAPIService
+from core.agi_core import AGICore  # AGI核心组件
+from core.meta_learning_system import MetaLearningSystem  # 元学习系统
+from core.adaptive_learning_engine import AdaptiveLearningEngine  # 自适应学习引擎
+from core.autonomous_learning_manager import AutonomousLearningManager  # 自主学习管理器
+from core.agi_coordinator import AGICoordinator  # AGI协调器
+from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture  # 统一认知架构
+from core.self_learning import SelfLearningSystem  # 自我学习系统
+from core.context_memory import ContextMemory  # 上下文记忆
+from core.intrinsic_motivation_system import IntrinsicMotivationSystem  # 内在动机系统
+from core.creative_problem_solver import CreativeProblemSolver  # 创造性问题解决器
+from core.value_alignment import ValueAlignment  # 值对齐系统
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -174,25 +189,25 @@ class ModelRegistry:
         self.models = {}
         self.model_configs = {}
         self.model_types = {
-            'manager': 'core.models.manager.model.ManagerModel',           # A管理模型
-            'language': 'core.models.language.model.LanguageModel',        # B大语言模型
-            'audio': 'core.models.audio.model.AudioProcessingModel',       # C音频处理模型
-            'vision_image': 'core.models.vision.merged_model.UnifiedVisionModel',  # D图片视觉处理模型（已合并）
-            'vision_video': 'core.models.video.VideoVisionModel',  # E视频流视觉处理模型
-            'spatial': 'core.models.spatial.merged_model.SpatialPerceptionModel',           # F双目空间定位感知模型（已合并）
-            'sensor': 'core.models.sensor.model.SensorPerceptionModel',    # G传感器感知模型
-            'computer': 'core.models.computer.model.ComputerModel',        # H计算机控制模型
-            'motion': 'core.models.motion.model.MotionModel',              # I运动和执行器控制模型
-            'knowledge': 'core.models.knowledge.model.KnowledgeModel',     # J知识库专家模型
-            'programming': 'core.models.programming.model.ProgrammingModel', # K编程模型
-            'emotion': 'core.models.emotion.model.EmotionModel',           # 情感分析模型
-            'finance': 'core.models.finance.model.FinanceModel',           # 金融模型
-            'medical': 'core.models.medical.model.MedicalModel',           # 医疗模型
-            'planning': 'core.models.planning.model.PlanningModel',        # 规划模型
-            'prediction': 'core.models.prediction.model.PredictionModel',  # 预测模型
-            'collaboration': 'core.models.collaboration.model.CollaborationModel', # 协作模型
-            'optimization': 'core.models.optimization.model.OptimizationModel', # 优化模型
-            'autonomous': 'core.models.autonomous.model.AutonomousModel',  # 自主模型
+            'manager': 'core.models.manager.unified_manager_model.UnifiedManagerModel',           # A管理模型
+            'language': 'core.models.language.unified_language_model.UnifiedLanguageModel',        # B大语言模型
+            'audio': 'core.models.audio.unified_audio_model.UnifiedAudioModel',       # C音频处理模型
+            'vision_image': 'core.models.vision.unified_vision_model.UnifiedVisionModel',  # D图片视觉处理模型
+            'vision_video': 'core.models.video.unified_video_model.UnifiedVideoModel',  # E视频流视觉处理模型
+            'spatial': 'core.models.spatial.unified_spatial_model.UnifiedSpatialModel',           # F双目空间定位感知模型
+            'sensor': 'core.models.sensor.unified_sensor_model.UnifiedSensorModel',    # G传感器感知模型
+            'computer': 'core.models.computer.unified_computer_model.UnifiedComputerModel',        # H计算机控制模型
+            'motion': 'core.models.motion.unified_motion_model.UnifiedMotionModel',              # I运动和执行器控制模型
+            'knowledge': 'core.models.knowledge.unified_knowledge_model.UnifiedKnowledgeModel',     # J知识库专家模型
+            'programming': 'core.models.programming.unified_programming_model.UnifiedProgrammingModel', # K编程模型
+            'planning': 'core.models.planning.unified_planning_model.UnifiedPlanningModel',        # 规划模型
+            'emotion': 'core.models.emotion.unified_emotion_model.UnifiedEmotionModel',        # 情感模型
+            'finance': 'core.models.finance.unified_finance_model.UnifiedFinanceModel',        # 金融模型
+            'medical': 'core.models.medical.unified_medical_model.UnifiedMedicalModel',        # 医疗模型
+            'prediction': 'core.models.prediction.unified_prediction_model.UnifiedPredictionModel',        # 预测模型
+            'collaboration': 'core.models.collaboration.unified_collaboration_model.UnifiedCollaborationModel',        # 协作模型
+            'optimization': 'core.models.optimization.unified_optimization_model.UnifiedOptimizationModel',        # 优化模型
+            'autonomous': 'core.models.autonomous.unified_autonomous_model.UnifiedAutonomousModel',        # 自主模型
             'value_alignment': 'core.value_alignment.ValueAlignment'        # 值对齐模型
         }
         # 增强模型依赖关系管理 | Enhanced model dependency management
@@ -226,23 +241,51 @@ class ModelRegistry:
         self.joint_training_coordinator = None  # 联合训练协调器
         self.training_history = {}  # 训练历史记录
         
+        # AGI级别组件初始化
+        self.agi_core = AGICore()  # AGI核心系统
+        self.agi_coordinator = AGICoordinator()  # AGI协调器
+        self.cognitive_architecture = UnifiedCognitiveArchitecture()  # 统一认知架构
+        self.self_learning_system = SelfLearningSystem()  # 自我学习系统
+        self.context_memory = ContextMemory()  # 上下文记忆系统
+        self.intrinsic_motivation = IntrinsicMotivationSystem()  # 内在动机系统
+        self.creative_solver = CreativeProblemSolver()  # 创造性问题解决器
+        self.value_alignment = ValueAlignment()  # 值对齐系统
+        
         # 新增：认知融合引擎和跨模型知识迁移
         self.cognitive_fusion_engine = None  # 认知融合引擎
         self.knowledge_transfer_engine = None  # 知识迁移引擎
         self.context_manager = None  # 上下文管理器
         self.active_workflows = {}  # 活跃的工作流
         self.workflow_lock = threading.RLock()  # 工作流锁
-        self.executor = ThreadPoolExecutor(max_workers=10)  # 线程池用于并行模型执行
+        self.executor = ThreadPoolExecutor(max_workers=20)  # 增强线程池用于AGI级别的并行处理
         self.conflict_resolution_strategies = {
             'majority_vote': self._resolve_conflict_majority,
             'expert_model': self._resolve_conflict_expert,
-            'hierarchical': self._resolve_conflict_hierarchical
+            'hierarchical': self._resolve_conflict_hierarchical,
+            'agi_consensus': self._resolve_conflict_agi_consensus  # AGI共识策略
         }
-        self.default_conflict_strategy = 'majority_vote'  # 默认冲突解决策略
+        self.default_conflict_strategy = 'agi_consensus'  # 默认使用AGI共识策略
+        
+        # AGI级别的状态跟踪
+        self.agi_state = {
+            'consciousness_level': 0.1,  # 意识水平（0-1）
+            'learning_capability': 0.8,  # 学习能力
+            'problem_solving_ability': 0.7,  # 问题解决能力
+            'creativity_level': 0.6,  # 创造力水平
+            'ethical_alignment': 0.9,  # 伦理对齐度
+            'last_self_reflection': time.time(),  # 上次自我反思时间
+            'total_interactions': 0,  # 总交互次数
+            'knowledge_accumulation': 0.0  # 知识积累度
+        }
+        
+        # 从零开始训练的支持
+        self.from_scratch_training_enabled = True  # 启用从零开始训练
+        self.training_progress = {}  # 训练进度跟踪
+        self.knowledge_base_integration = {}  # 知识库集成状态
         
     def register_model(self, model_id: str, model_class: Type, config: Dict[str, Any] = None):
-        """注册一个新模型
-        Register a new model
+        """AGI增强版模型注册方法，支持从零开始训练和深度集成
+        AGI-enhanced model registration method with from-scratch training and deep integration support
         
         Args:
             model_id: 模型ID / Model ID
@@ -256,25 +299,93 @@ class ModelRegistry:
             error_handler.log_warning(f"模型 {model_id} 已存在，将被替换", "ModelRegistry")
         
         try:
+            # AGI级别的模型配置增强
+            enhanced_config = config or {}
+            
+            # 添加AGI系统集成配置
+            enhanced_config.update({
+                'agi_core': self.agi_core,
+                'cognitive_architecture': self.cognitive_architecture,
+                'self_learning_system': self.self_learning_system,
+                'context_memory': self.context_memory,
+                'from_scratch': self.from_scratch_training_enabled,
+                'model_registry': self  # 传递模型注册表引用
+            })
+            
             # 创建模型实例
-            model_instance = model_class(**(config or {}))
+            model_instance = model_class(**enhanced_config)
             self.models[model_id] = model_instance
-            self.model_configs[model_id] = config or {}
-            error_handler.log_info(f"成功注册模型: {model_id}", "ModelRegistry")
+            self.model_configs[model_id] = enhanced_config
+            
+            # AGI级别的模型初始化
+            self._initialize_agi_model(model_id, model_instance)
+            
+            error_handler.log_info(f"AGI级别成功注册模型: {model_id}", "ModelRegistry")
             return model_instance
         except Exception as e:
             error_handler.handle_error(e, "ModelRegistry", f"注册模型 {model_id} 失败")
             return None
+            
+    def _initialize_agi_model(self, model_id: str, model_instance):
+        """AGI级别的模型初始化
+        AGI-level model initialization
         
-    def load_model(self, model_id: str, config: Dict[str, Any] = None, force_reload: bool = False, priority: int = 1):
-        """增强版模型加载方法，支持智能依赖解析和优先级加载
-        Enhanced model loading method with intelligent dependency resolution and priority loading
+        Args:
+            model_id: 模型ID
+            model_instance: 模型实例
+        """
+        try:
+            # 初始化训练进度跟踪
+            self.training_progress[model_id] = {
+                'status': 'initialized',
+                'epochs_completed': 0,
+                'total_epochs': 0,
+                'accuracy': 0.0,
+                'loss': float('inf'),
+                'last_training_time': time.time(),
+                'from_scratch': self.from_scratch_training_enabled
+            }
+            
+            # 初始化知识库集成状态
+            self.knowledge_base_integration[model_id] = {
+                'integrated': False,
+                'knowledge_loaded': 0,
+                'last_learning_time': 0,
+                'learning_efficiency': 0.0
+            }
+            
+            # 如果模型支持AGI方法，进行深度集成
+            if hasattr(model_instance, 'initialize_agi'):
+                model_instance.initialize_agi(self.agi_core)
+                
+            # 通知AGI协调器新模型已注册
+            self.agi_coordinator.on_model_registered(model_id, model_instance)
+            
+            # 更新AGI状态
+            self.agi_state['total_interactions'] += 1
+            
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", f"初始化AGI模型 {model_id} 失败")
+            
+    def get_all_registered_models(self) -> List[str]:
+        """获取所有已注册的模型ID列表
+        Get list of all registered model IDs
+        
+        Returns:
+            List[str]: 所有已注册的模型ID列表
+        """
+        return list(self.models.keys())
+        
+    def load_model(self, model_id: str, config: Dict[str, Any] = None, force_reload: bool = False, priority: int = 1, from_scratch: bool = None):
+        """AGI增强版模型加载方法，支持从零开始训练和深度认知集成
+        AGI-enhanced model loading method with from-scratch training and deep cognitive integration support
         
         Args:
             model_id: 模型ID / Model ID
             config: 配置字典 / Configuration dictionary
             force_reload: 是否强制重新加载 / Whether to force reload
             priority: 加载优先级，数字越小优先级越高 / Loading priority, smaller number means higher priority
+            from_scratch: 是否从零开始训练，None表示使用全局设置 / Whether to train from scratch, None means use global setting
             
         Returns:
             object: 模型实例或None / Model instance or None
@@ -290,16 +401,16 @@ class ModelRegistry:
             error_handler.log_warning(f"未知模型类型: {model_id}", "ModelRegistry")
             return None
         
-        # 智能依赖解析 - 构建加载顺序图
-        dependency_order = self._get_dependency_loading_order(model_id)
+        # AGI级别的依赖解析 - 考虑认知依赖关系
+        dependency_order = self._get_agi_dependency_loading_order(model_id)
         
         # 按依赖顺序加载模型
         for dep_id in dependency_order:
             if dep_id not in self.models:
-                error_handler.log_info(f"正在加载模型 {model_id} 的依赖: {dep_id}", "ModelRegistry")
+                error_handler.log_info(f"AGI级别加载模型 {model_id} 的认知依赖: {dep_id}", "ModelRegistry")
                 # 递归加载依赖，但不重复加载当前模型
                 if dep_id != model_id:
-                    self.load_model(dep_id, force_reload=force_reload, priority=priority + 1)
+                    self.load_model(dep_id, force_reload=force_reload, priority=priority + 1, from_scratch=from_scratch)
         
         try:
             # 解析模块路径和类名
@@ -309,35 +420,210 @@ class ModelRegistry:
             # 获取类
             model_class = getattr(module, class_name)
             
-            # Enhance configuration - add connection information with other models
+            # AGI级别的配置增强
             if config is None:
                 config = {}
-            config['related_models'] = self._get_related_models(model_id)  # Get related models
-            config['priority'] = priority  # Set priority
+                
+            # 设置从零开始训练标志
+            if from_scratch is None:
+                from_scratch = self.from_scratch_training_enabled
+            config['from_scratch'] = from_scratch
             
-            # 优先级加载日志
+            # 增强配置 - 添加AGI系统集成
+            config.update({
+                'related_models': self._get_agi_related_models(model_id),  # 获取AGI级别的相关模型
+                'priority': priority,
+                'agi_system': self.agi_core,
+                'cognitive_context': self._get_cognitive_context(model_id),
+                'learning_capability': self.agi_state['learning_capability']
+            })
+            
+            # AGI优先级加载日志
             if priority <= 1:
-                error_handler.log_info(f"高优先级加载模型: {model_id}", "ModelRegistry")
+                error_handler.log_info(f"AGI高优先级加载模型: {model_id} (从零开始: {from_scratch})", "ModelRegistry")
             
             # 注册并返回模型实例
             model = self.register_model(model_id, model_class, config)
             
-            # 通知认知融合引擎新模型已加载
-            self._notify_model_loaded(model_id)
+            # AGI级别的模型加载通知
+            self._notify_agi_model_loaded(model_id, from_scratch)
             
             return model
         except Exception as e:
-            error_handler.handle_error(e, "ModelRegistry", f"加载模型 {model_id} 失败")
+            error_handler.handle_error(e, "ModelRegistry", f"AGI级别加载模型 {model_id} 失败")
             # 详细错误日志记录
             import traceback
             error_details = {
                 'model_id': model_id,
                 'error': str(e),
                 'timestamp': time.time(),
-                'stack_trace': traceback.format_exc()
+                'stack_trace': traceback.format_exc(),
+                'agi_state': self.agi_state.copy()
             }
-            self._log_error(error_details)
+            self._log_agi_error(error_details)
             return None
+            
+    def _get_agi_dependency_loading_order(self, model_id: str) -> List[str]:
+        """AGI级别的依赖加载顺序，考虑认知层次和功能依赖
+        AGI-level dependency loading order considering cognitive hierarchy and functional dependencies
+        
+        Args:
+            model_id: 模型ID / Model ID
+            
+        Returns:
+            list: 按AGI认知顺序排列的模型ID列表 / List of model IDs in AGI cognitive order
+        """
+        # AGI认知层次：基础认知 -> 专业认知 -> 高级认知
+        agi_cognitive_hierarchy = {
+            'knowledge': 100,      # 知识基础
+            'language': 90,        # 语言理解
+            'vision_image': 85,    # 视觉感知
+            'audio': 80,           # 听觉感知
+            'emotion': 75,         # 情感理解
+            'planning': 70,        # 规划能力
+            'prediction': 65,      # 预测能力
+            'collaboration': 60,   # 协作能力
+            'optimization': 55,    # 优化能力
+            'autonomous': 50,      # 自主能力
+            'manager': 40,         # 管理能力
+            'value_alignment': 30  # 值对齐（最高层次）
+        }
+        
+        visited = set()
+        order = []
+        
+        def cognitive_dfs(current_id, depth=0):
+            if current_id in visited or depth > 10:  # 防止无限递归
+                return
+            visited.add(current_id)
+            
+            # 先加载认知层次更高的依赖
+            dependencies = self.model_dependencies.get(current_id, [])
+            # 按认知层次排序依赖
+            dependencies.sort(key=lambda x: agi_cognitive_hierarchy.get(x, 0), reverse=True)
+            
+            for dep_id in dependencies:
+                if dep_id not in visited:
+                    cognitive_dfs(dep_id, depth + 1)
+            
+            order.append(current_id)
+        
+        cognitive_dfs(model_id)
+        return order
+        
+    def _get_agi_related_models(self, model_id: str) -> Dict[str, Any]:
+        """获取AGI级别的相关模型，包括认知关联和功能互补
+        Get AGI-level related models including cognitive associations and functional complements
+        
+        Args:
+            model_id: 模型ID / Model ID
+            
+        Returns:
+            dict: AGI级别的相关模型字典 / Dictionary of AGI-level related models
+        """
+        related = {}
+        
+        # 获取认知关联模型（基于AGI认知层次）
+        cognitive_hierarchy = self._get_cognitive_hierarchy()
+        current_level = cognitive_hierarchy.get(model_id, 0)
+        
+        for other_id, level in cognitive_hierarchy.items():
+            if other_id != model_id and abs(level - current_level) <= 20:  # 相近认知层次
+                if other_id in self.models:
+                    related[f"cognitive_peer_{other_id}"] = self.models[other_id]
+        
+        # 获取功能互补模型
+        functional_complements = self._get_functional_complements(model_id)
+        for comp_id in functional_complements:
+            if comp_id in self.models:
+                related[f"functional_complement_{comp_id}"] = self.models[comp_id]
+        
+        return related
+        
+    def _get_cognitive_hierarchy(self) -> Dict[str, int]:
+        """获取模型的认知层次评分
+        Get cognitive hierarchy scores for models
+        
+        Returns:
+            dict: 模型ID到认知层次评分的映射 / Mapping of model IDs to cognitive hierarchy scores
+        """
+        hierarchy = {
+            'knowledge': 100,      # 知识基础
+            'language': 90,        # 语言理解
+            'vision_image': 85,    # 视觉感知
+            'audio': 80,           # 听觉感知
+            'emotion': 75,         # 情感理解
+            'planning': 70,        # 规划能力
+            'prediction': 65,      # 预测能力
+            'collaboration': 60,   # 协作能力
+            'optimization': 55,    # 优化能力
+            'autonomous': 50,      # 自主能力
+            'manager': 40,         # 管理能力
+            'value_alignment': 30  # 值对齐（最高层次）
+        }
+        return hierarchy
+        
+    def _get_functional_complements(self, model_id: str) -> List[str]:
+        """获取功能互补模型列表
+        Get list of functionally complementary models
+        
+        Args:
+            model_id: 模型ID / Model ID
+            
+        Returns:
+            list: 功能互补模型ID列表 / List of functionally complementary model IDs
+        """
+        # 定义功能互补关系
+        complements = {
+            'language': ['knowledge', 'emotion'],
+            'vision_image': ['knowledge', 'spatial'],
+            'audio': ['language', 'emotion'],
+            'planning': ['knowledge', 'prediction'],
+            'prediction': ['knowledge', 'optimization'],
+            'manager': ['knowledge', 'language', 'planning']
+        }
+        return complements.get(model_id, [])
+        
+    def _get_cognitive_context(self, model_id: str) -> Dict[str, Any]:
+        """获取模型的认知上下文
+        Get cognitive context for model
+        
+        Args:
+            model_id: 模型ID / Model ID
+            
+        Returns:
+            dict: 认知上下文信息 / Cognitive context information
+        """
+        return {
+            'model_id': model_id,
+            'cognitive_level': self._get_cognitive_hierarchy().get(model_id, 50),
+            'agi_state': self.agi_state.copy(),
+            'available_models': list(self.models.keys()),
+            'timestamp': time.time()
+        }
+        
+    def _notify_agi_model_loaded(self, model_id: str, from_scratch: bool):
+        """AGI级别的模型加载通知
+        AGI-level model loaded notification
+        
+        Args:
+            model_id: 模型ID / Model ID
+            from_scratch: 是否从零开始训练 / Whether training from scratch
+        """
+        # 通知所有AGI组件
+        self.agi_core.on_model_loaded(model_id, from_scratch)
+        self.agi_coordinator.on_model_loaded(model_id)
+        self.cognitive_architecture.integrate_model(model_id, self.models[model_id])
+        
+        # 如果是知识库模型，启动自主学习
+        if model_id == 'knowledge' and from_scratch:
+            self._start_autonomous_knowledge_learning()
+            
+        # 更新AGI状态
+        self.agi_state['knowledge_accumulation'] += 0.1
+        self.agi_state['consciousness_level'] = min(1.0, self.agi_state['consciousness_level'] + 0.05)
+        
+        error_handler.log_info(f"AGI系统已集成模型: {model_id}", "ModelRegistry")
         
     def get_model(self, model_id: str):
         """获取已注册的模型实例
@@ -364,6 +650,15 @@ class ModelRegistry:
             dict: 模型字典 / Models dictionary
         """
         return self.models.copy()
+    
+    def get_registered_models(self):
+        """获取所有已注册的模型（别名方法）
+        Get all registered models (alias method)
+        
+        Returns:
+            dict: 模型字典 / Models dictionary
+        """
+        return self.get_all_models()
         
     def get_all_model_types(self):
         """获取所有模型类型
@@ -1235,47 +1530,68 @@ class ModelRegistry:
         Returns:
             object: 模型实例或API客户端
         """
-        # 验证API配置并规范化字段命名
-        # Validate API configuration and normalize field names
-        normalized_config = {}
-        if 'api_url' in api_config:
-            normalized_config['url'] = api_config['api_url']
-        elif 'url' in api_config:
-            normalized_config['url'] = api_config['url']
-        else:
-            error_handler.log_error(f"缺少必要的API配置项: api_url或url", "ModelRegistry")
-            return None
-            
-        if 'api_key' in api_config:
-            normalized_config['api_key'] = api_config['api_key']
-        else:
-            error_handler.log_error(f"缺少必要的API配置项: api_key", "ModelRegistry")
-            return None
-            
-        if 'model_name' in api_config:
-            normalized_config['model_name'] = api_config['model_name']
-        else:
-            normalized_config['model_name'] = model_id
-            
-        # 添加额外的配置字段
-        if 'source' in api_config:
-            normalized_config['source'] = api_config['source']
-        if 'endpoint' in api_config:
-            normalized_config['endpoint'] = api_config['endpoint']
-            
         try:
-            # 创建外部模型代理
-            external_model = ExternalModelProxy(model_id, normalized_config)
-            self.models[model_id] = external_model
-            self.model_configs[model_id] = normalized_config
+            # 创建外部API服务实例
+            external_service = ExternalAPIService()
             
-            # 测试连接
-            if not external_model.connect():
-                error_handler.log_error(f"无法连接到外部模型: {model_id}", "ModelRegistry")
+            # 验证API配置并规范化字段命名
+            normalized_config = {}
+            if 'api_url' in api_config:
+                normalized_config['url'] = api_config['api_url']
+            elif 'url' in api_config:
+                normalized_config['url'] = api_config['url']
+            else:
+                error_handler.log_error(f"缺少必要的API配置项: api_url或url", "ModelRegistry")
                 return None
                 
-            error_handler.log_info(f"成功加载并连接外部模型: {model_id}", "ModelRegistry")
-            return external_model
+            if 'api_key' in api_config:
+                normalized_config['api_key'] = api_config['api_key']
+            else:
+                error_handler.log_error(f"缺少必要的API配置项: api_key", "ModelRegistry")
+                return None
+                
+            if 'model_name' in api_config:
+                normalized_config['model_name'] = api_config['model_name']
+            else:
+                normalized_config['model_name'] = model_id
+                
+            # 添加额外的配置字段
+            if 'source' in api_config:
+                normalized_config['source'] = api_config['source']
+            else:
+                normalized_config['source'] = 'external'
+                
+            if 'endpoint' in api_config:
+                normalized_config['endpoint'] = api_config['endpoint']
+                
+            if 'provider' in api_config:
+                normalized_config['provider'] = api_config['provider']
+            else:
+                # 自动检测提供商
+                normalized_config['provider'] = external_service.detect_provider(normalized_config['url'])
+            
+            # 初始化API服务
+            init_result = external_service.initialize_api_service(
+                normalized_config['provider'],
+                normalized_config
+            )
+            
+            if not init_result:
+                error_handler.log_error(f"初始化外部API服务失败: {model_id}", "ModelRegistry")
+                return None
+            
+            # 测试连接
+            test_result = external_service.test_connection()
+            if not test_result.get('success', False):
+                error_handler.log_error(f"无法连接到外部模型: {model_id}, 错误: {test_result.get('error', '未知错误')}", "ModelRegistry")
+                return None
+                
+            # 注册外部服务实例
+            self.models[model_id] = external_service
+            self.model_configs[model_id] = normalized_config
+            
+            error_handler.log_info(f"成功加载并连接外部模型: {model_id} (提供商: {normalized_config['provider']})", "ModelRegistry")
+            return external_service
             
         except Exception as e:
             error_handler.handle_error(e, "ModelRegistry", f"加载外部模型 {model_id} 失败")
@@ -2392,17 +2708,67 @@ def test_external_api_connection(model_id: str, api_config: Dict[str, Any]) -> D
         Dict[str, Any]: 连接测试结果
     """
     try:
-        # 创建临时的外部模型代理进行连接测试
-        from .external_model_proxy import ExternalModelProxy
-        test_proxy = ExternalModelProxy(model_id, api_config)
+        # 创建ExternalAPIService实例进行连接测试
+        external_service = ExternalAPIService()
+        
+        # 验证API配置并规范化字段命名
+        normalized_config = {}
+        if 'api_url' in api_config:
+            normalized_config['url'] = api_config['api_url']
+        elif 'url' in api_config:
+            normalized_config['url'] = api_config['url']
+        else:
+            return {"status": "error", "message": "缺少必要的API配置项: api_url或url"}
+            
+        if 'api_key' in api_config:
+            normalized_config['api_key'] = api_config['api_key']
+        else:
+            return {"status": "error", "message": "缺少必要的API配置项: api_key"}
+            
+        if 'model_name' in api_config:
+            normalized_config['model_name'] = api_config['model_name']
+        else:
+            normalized_config['model_name'] = model_id
+            
+        # 添加额外的配置字段
+        if 'source' in api_config:
+            normalized_config['source'] = api_config['source']
+        else:
+            normalized_config['source'] = 'external'
+            
+        if 'endpoint' in api_config:
+            normalized_config['endpoint'] = api_config['endpoint']
+            
+        if 'provider' in api_config:
+            normalized_config['provider'] = api_config['provider']
+        else:
+            # 自动检测提供商
+            normalized_config['provider'] = external_service.detect_provider(normalized_config['url'])
+        
+        # 初始化API服务
+        init_result = external_service.initialize_api_service(
+            normalized_config['provider'],
+            normalized_config
+        )
+        
+        if not init_result:
+            return {"status": "error", "message": f"初始化外部API服务失败: {model_id}"}
         
         # 测试连接
-        status = test_proxy.get_status()
+        test_result = external_service.test_connection()
         
-        if status.get('status') == 'connected':
-            return {"status": "success", "message": "外部API连接成功", "api_status": status}
+        if test_result.get('success', False):
+            return {
+                "status": "success", 
+                "message": f"外部API连接成功 (提供商: {normalized_config['provider']})", 
+                "api_status": test_result
+            }
         else:
-            return {"status": "error", "message": f"外部API连接失败: {status.get('error', '未知错误')}"}
+            return {
+                "status": "error", 
+                "message": f"外部API连接失败: {test_result.get('error', '未知错误')}",
+                "details": test_result
+            }
     except Exception as e:
         error_handler.handle_error(e, "ModelRegistry", f"测试外部API连接失败: {model_id}")
         return {"status": "error", "message": str(e)}

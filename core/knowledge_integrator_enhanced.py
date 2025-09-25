@@ -489,8 +489,8 @@ class AGIKnowledgeIntegrator:
             "causal_relationships": len(self.causal_relationships)
         }
 
-# 全局AGI知识整合器实例
-agi_knowledge_integrator = AGIKnowledgeIntegrator()
+# 全局AGI知识整合器实例 - 启用从零开始训练模式以避免网络请求
+agi_knowledge_integrator = AGIKnowledgeIntegrator(from_scratch=True)
 
 if __name__ == "__main__":
     # 测试增强型知识整合器

@@ -112,7 +112,7 @@ export default {
         { id: 'programming', status: 'active', performance: 91 }
       ],
       modelConnectionStatus: 'unknown',
-      // 添加缺失的状态
+      // Add missing status
       managementModel: {
         name: 'A Management Model',
         status: 'inactive',
@@ -123,23 +123,23 @@ export default {
     };
   },
   mounted() {
-    // 初始化系统
-    this.initializeSystem();
-    // 加载历史消息
+    // Load history messages
     this.loadHistoryMessages();
-    // 连接到后端服务
+    // Connect to backend service first
     this.connectToBackend();
-    // 初始化语音识别
+    // Initialize system after attempting connection
+    this.initializeSystem();
+    // Initialize speech recognition
     this.initSpeechRecognition();
     
-    // 监听来自App.vue的全局语音输入事件
+    // Listen to global voice input events from App.vue
     window.addEventListener('voice-input', this.handleVoiceInputEvent);
     
-    // 监听RealTimeInput组件的实时输入事件
+    // Listen to real-time input events from RealTimeInput component
     this.setupRealTimeInputListeners();
   },
   beforeUnmount() {
-    // 组件卸载时移除事件监听
+    // Remove event listeners when component is unmounted
     window.removeEventListener('voice-input', this.handleVoiceInputEvent);
   },
     computed: {
@@ -168,399 +168,81 @@ export default {
       }
     },
     methods: {
-      // Initialize system
-    initializeSystem() {
-      errorHandler.logInfo('Self Soul System initializing...');
-      // Show welcome message
-      this.addSystemMessage('Welcome to the Self Soul System!');
-      // Initialize mock data
-      this.useMockData();
-    },
-    
-    // Use mock data method
-    useMockData() {
-      // Simulate successful connection
-      setTimeout(() => {
-        this.backendConnected = true;
-        this.backendStatus = 'connected';
-        this.modelConnectionStatus = 'connected';
-        
-        // Set management model to active status
-        this.managementModel = {
-          name: 'A Management Model',
-          status: 'active',
-          lastActive: new Date().toISOString()
-        };
-        
-        // Update connectedText
-        this.connectedText = 'Connected';
-        
-        // Set all models to active state
-        this.models.forEach(model => {
-          model.status = 'active';
-          model.lastActive = new Date().toISOString();
-        });
-        
-        // Update active model count
-        this.activeModels = this.activeModelsCount;
-        
-        // Add system message
-        this.addSystemMessage('All models activated');
-        
-        // Simulate real-time data updates
-        // Periodically update some models' status randomly to simulate real system data changes
-        this.startRealTimeDataSimulation();
-      }, 1500);
-    },
-    
-    // Start real-time data simulation
-    startRealTimeDataSimulation() {
-      // Randomly update some models' status and performance every 5-10 seconds
-      setInterval(() => {
-        // Randomly select 1-3 models for status or performance update
-        const updateCount = Math.floor(Math.random() * 3) + 1;
-        const modelIndices = [...Array(this.models.length).keys()];
-        
-        // Randomly shuffle model indices
-        for (let i = modelIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [modelIndices[i], modelIndices[j]] = [modelIndices[j], modelIndices[i]];
-        }
-        
-        // Update selected models
-        for (let i = 0; i < updateCount; i++) {
-          const index = modelIndices[i];
-          const model = this.models[index];
-          
-          // 30% probability to switch model status (if not the management model)
-          if (model.id !== 'manager' && Math.random() < 0.3) {
-            model.status = model.status === 'active' ? 'inactive' : 'active';
-            model.lastActive = model.status === 'active' ? new Date().toISOString() : model.lastActive;
-            
-            // Add system message to indicate model status change
-            if (model.status === 'active') {
-              this.addSystemMessage(`Model activated: ${model.id}`);
-            } else {
-              this.addSystemMessage(`Model deactivated: ${model.id}`);
-            }
-          }
-          
-          // 70% probability to update model performance value (within ±2 range)
-          if (model.status === 'active' && Math.random() < 0.7) {
-            const change = (Math.random() - 0.5) * 4; // -2 to +2 change
-            model.performance = Math.max(50, Math.min(100, model.performance + change));
-          }
-        }
-        
-        // Ensure management model remains active
-        const managerModel = this.models.find(m => m.id === 'manager');
-        if (managerModel) {
-          managerModel.status = 'active';
-        }
-        
-        // Synchronously update modelPerformanceData
-        this.modelPerformanceData = [...this.models];
-        
-        // Manually trigger recalculation of activeModelsCount
-        this.activeModels = this.activeModelsCount;
-      }, 5000 + Math.random() * 5000); // Random interval of 5-10 seconds
-    },
-    
-    // Navigation methods - Using Vue Router the correct way
-    navigateToTraining() {
-      this.$router.push('/training');
-    },
-    
-    navigateToSystemSettings() {
-      this.$router.push('/settings');
-    },
-    
-    navigateToModelManagement() {
-      this.$router.push('/models');
-    },
-    
-    navigateToHelp() {
-      this.$router.push('/help');
-    },
-    
-    // Navigate to monitoring dashboard
-    navigateToMonitor() {
-      this.$router.push('/dashboard');
-    },
-    
-    // Toggle real-time input interface
-    toggleRealTimeInput() {
-      this.showRealTimeInput = !this.showRealTimeInput;
-    },
-    
-    loadHistoryMessages() {
-      try {
-        // Load history messages from local storage
-        const history = localStorage.getItem('agi_messages');
-        if (history) {
-          this.messages = JSON.parse(history);
-        } else {
-          // Add welcome message
-          this.messages.push({
-            id: Date.now(),
-            type: 'system',
-            content: 'Welcome to the AGI Brain System!',
-            time: new Date().toLocaleTimeString()
-          });
-        }
-      } catch (error) {
-        errorHandler.handleError(error, 'Failed to load history messages');
-        // Add error message to interface
-        this.addSystemMessage('Failed to load history messages');
-      }
-    },
-    
-    // Helper method to add system messages
-    addSystemMessage(content) {
-      this.messages.push({
-        id: Date.now(),
-        type: 'system',
-        content: content,
-        time: new Date().toLocaleTimeString()
-      });
-      // Save to local storage
-      this.saveMessages();
-    },
-    
-    // Helper method to save messages to local storage
-      saveMessages() {
-        try {
-          localStorage.setItem('agi_messages', JSON.stringify(this.messages));
-        } catch (error) {
-          errorHandler.handleError(error, 'Failed to save messages');
-          // Can choose whether to display error message here
-        }
-      },
-      
-      // Clear all conversation messages
-      clearAllMessages() {
-        if (confirm('Are you sure you want to clear all messages?')) {
-          this.messages = [{
-            id: Date.now(),
-            type: 'system',
-            content: 'Welcome to the AGI Brain System!',
-            time: new Date().toLocaleTimeString()
-          }];
-          // Clear local storage
-          try {
-            localStorage.removeItem('agi_messages');
-            // Clear conversation history
-            const sessionId = this.getSessionId();
-            localStorage.removeItem(`conversation_${sessionId}`);
-          } catch (error) {
-            errorHandler.handleError(error, 'Failed to clear messages');
-          }
-        }
-      },
-    
-    async connectToBackend() {
-        try {
-          // Set backend API base URL
-          this.backendStatus = 'connecting';
-          this.modelConnectionStatus = 'connecting';
-          errorHandler.logInfo('Connecting to FastAPI backend service...');
-          
-          // Make actual HTTP request to health check endpoint
-          // Using relative path instead of hardcoded URL
-          const response = await api.get('/health', {
-            timeout: 5000 // 5 seconds timeout
-          });
-          
-          // Log full response for debugging
-          console.log('Health check response:', response);
-          
-          // Check if response is successful
-          if (response && response.data && (response.data.status === 'healthy' || response.data.status === 'ok')) {
-            errorHandler.logInfo('FastAPI backend connection successful');
-            this.backendConnected = true;
-            this.backendStatus = 'connected';
-            this.modelConnectionStatus = 'connected';
-            
-            // Set management model to active status
-            this.managementModel = {
-              name: 'Management Model',
-              status: 'active',
-              lastActive: new Date().toISOString()
-            };
-            
-            // Update connectedText
-            this.connectedText = 'Connected';
-            
-            // Update all models status to active
-            this.models.forEach(model => {
-              model.status = 'active';
-              model.lastActive = new Date().toISOString();
-            });
-            
-            // Update active model count
-            this.activeModels = this.activeModelsCount;
-            
-            // Add connection success system message
-            this.addSystemMessage('FastAPI backend service connected successfully');
-          } else {
-            throw new Error('Invalid response from backend');
-          }
-        } catch (error) {
-          errorHandler.handleError(error, 'Connection to FastAPI backend failed');
-          this.backendConnected = false;
-          this.backendStatus = 'error';
-          this.modelConnectionStatus = 'error';
-          this.addSystemMessage('Failed to connect to FastAPI backend. Please ensure the backend service is running.');
-        }
-      },
-    
-    async testHttpConnection() {
-      try {
-          // Use relative path for health check endpoint
-          const response = await api.get('/health', {
-            timeout: 5000
-          });
-        
-        if (response.status === 200) {
-          errorHandler.logInfo('HTTP connection established to FastAPI backend');
-          this.backendConnected = true;
-          this.backendStatus = 'connected';
-          this.modelConnectionStatus = 'connected';
-          
-          // 设置管理模型为活跃状态
-          this.managementModel = {
-            name: 'Management Model',
-            status: 'active',
-            lastActive: new Date().toISOString()
-          };
-          
-          // 更新connectedText
-          this.connectedText = 'Connected';
-          
-          this.models.forEach(model => {
-            model.status = 'active';
-            model.lastActive = new Date().toISOString();
-          });
-          
-          // 更新活跃模型数量
-          this.activeModels = this.activeModelsCount;
-          
-          this.addSystemMessage('FastAPI backend connected successfully');
-        } else {
-          throw new Error(`Invalid response status: ${response.status}`);
-        }
-      } catch (error) {
-        errorHandler.handleError(error, 'HTTP connection to FastAPI backend failed');
-        this.backendConnected = false;
-        this.backendStatus = 'error';
-        this.modelConnectionStatus = 'error';
-        this.addSystemMessage('Failed to connect to FastAPI backend. Please ensure the backend service is running.');
-      }
-    },
-    
-    async sendMessage() {
-      const text = this.inputText.trim();
-      if (!text) return;
-      
-      const userMessage = {
-        id: Date.now(),
-        type: 'user',
-        content: text,
-        time: new Date().toLocaleTimeString()
-      };
-      
-      this.messages.push(userMessage);
-      this.inputText = '';
-      
-      // 添加加载状态消息
-      const loadingMessageId = Date.now() + 0.5;
-      const loadingMessage = {
-        id: loadingMessageId,
-        type: 'loading',
-        content: 'Processing message...',
-        time: new Date().toLocaleTimeString()
-      };
-      this.messages.push(loadingMessage);
-      this.saveMessages();
-      
-      try {
-        // 使用A Management Model处理真实消息
-        const responseText = await this.processUserInput(text, 'text');
-        
-        // 移除加载状态消息
-        this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
-        
-        const botMessage = {
-          id: Date.now() + 1,
-          type: 'bot',
-          content: responseText,
+      // Add system message
+      addSystemMessage(content) {
+        const systemMessage = {
+          id: Date.now() + Math.random(),
+          type: 'system',
+          content: content,
           time: new Date().toLocaleTimeString()
         };
-        
-        this.messages.push(botMessage);
-        // 保存到本地存储
+        this.messages.push(systemMessage);
         this.saveMessages();
-      } catch (error) {
-        errorHandler.handleError(error, 'Failed to process message');
-        // Remove loading status message
-        this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
-        // Add error message to interface
-        this.addSystemMessage('Failed to process your message');
-      }
-    },
-    
-    async processUserInput(input, type) {
-      try {
-        // 首先尝试连接到后端服务
-        if (!this.backendConnected) {
-          await this.connectToBackend();
-        }
-        
-        let response;
-        if (type === 'text') {
-          // Get conversation history from local storage
-          const sessionId = this.getSessionId();
-          let conversationHistory = JSON.parse(localStorage.getItem(`conversation_${sessionId}`) || '[]');
+      },
+      
+      // Connect to backend service
+      async connectToBackend() {
+        try {
+          errorHandler.logInfo('Connecting to backend service...');
+          this.backendStatus = 'connecting';
           
-          // Use new chat API endpoint
-          response = await api.post('/api/chat', {
-            message: input,
-            session_id: sessionId,
-            conversation_history: conversationHistory
-          }, {
-            timeout: 30000 // 30 seconds timeout
-          });
+          // Try to connect to real backend
+          const response = await api.get('/health');
           
-          // Save updated conversation history to local storage
-          if (response && response.data && response.data.status === 'success') {
-            localStorage.setItem(`conversation_${sessionId}`, JSON.stringify(response.data.data.conversation_history));
-            return response.data.data.response;
+          if (response.data.status === 'ok') {
+            this.backendConnected = true;
+            this.backendStatus = 'connected';
+            errorHandler.logInfo('Successfully connected to backend service');
+            
+            // Update management model status
+            this.managementModel.status = 'active';
+            this.managementModel.lastActive = new Date().toISOString();
+            this.modelConnectionStatus = 'connected';
+          } else {
+            throw new Error('Backend health check failed');
           }
-        } else if (type === 'image') {
-          // 图像处理 - 在handleImageUpload中处理
-          return await this.processImageInput(input);
-        } else if (type === 'video') {
-          // 视频处理 - 在handleVideoUpload中处理
-          return await this.processVideoInput(input);
-        } else if (type === 'audio') {
-          // 音频处理
-          return await this.processAudioInput(input);
+        } catch (error) {
+          errorHandler.handleError(error, 'Failed to connect to backend');
+          this.backendConnected = false;
+          this.backendStatus = 'disconnected';
+          this.managementModel.status = 'inactive';
+          this.modelConnectionStatus = 'disconnected';
         }
+      },
+      
+      // Save messages to local storage
+      saveMessages() {
+        try {
+          localStorage.setItem('chat_messages', JSON.stringify(this.messages));
+        } catch (error) {
+          errorHandler.handleError(error, 'Failed to save messages to local storage');
+        }
+      },
+
+      // Load history messages from local storage
+      loadHistoryMessages() {
+        try {
+          const savedMessages = localStorage.getItem('chat_messages');
+          if (savedMessages) {
+            this.messages = JSON.parse(savedMessages);
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'Failed to load history messages');
+          this.messages = [];
+        }
+      },
+
+      // Initialize system
+      initializeSystem() {
+        errorHandler.logInfo('Self Soul System initializing...');
+        // Show welcome message
+        this.addSystemMessage('Welcome to the Self Soul System!');
         
-        if (response && response.data && response.data.status === 'success') {
-          return response.data.data.response || response.data.data;
-        } else {
-          throw new Error(response?.data?.detail || 'Failed to process your request');
-        }
-      } catch (error) {
-        errorHandler.handleError(error, 'Failed to process user input');
-        // Show error message without falling back to mock response
-        this.addSystemMessage('Failed to process your request. Please check your connection and try again.');
-        throw error;
-      }
-    },
+        // Always try to connect to real backend, never use mock data automatically
+        this.connectToBackend();
+      },
     
-    // 获取会话ID用于跟踪对话上下文
+    // Get session ID for tracking conversation context
     getSessionId() {
       let sessionId = localStorage.getItem('agi_session_id');
       if (!sessionId) {
@@ -570,7 +252,7 @@ export default {
       return sessionId;
     },
     
-    // 处理图像输入
+    // Process image input
     async processImageInput(imageData) {
       try {
         const response = await api.post('/api/process/image', {
@@ -592,7 +274,7 @@ export default {
       }
     },
     
-    // 处理视频输入
+    // Process video input
     async processVideoInput(videoData) {
       try {
         const response = await api.post('/api/process/video', {
@@ -611,6 +293,100 @@ export default {
       } catch (error) {
         errorHandler.handleError(error, 'Failed to process video');
         return 'Video analysis failed due to connection issues';
+      }
+    },
+    
+    // Send message to management model
+    async sendMessage() {
+      const messageText = this.inputText.trim();
+      if (!messageText) return;
+      
+      // Add user message
+      const userMessage = {
+        id: Date.now(),
+        type: 'user',
+        content: messageText,
+        time: new Date().toLocaleTimeString()
+      };
+      this.messages.push(userMessage);
+      this.inputText = '';
+      this.saveMessages();
+      
+      // Add loading status message
+      const loadingMessageId = Date.now() + 0.5;
+      const loadingMessage = {
+        id: loadingMessageId,
+        type: 'loading',
+        content: 'AI is thinking...',
+        time: new Date().toLocaleTimeString()
+      };
+      this.messages.push(loadingMessage);
+      this.saveMessages();
+      
+      try {
+        // Send message to management model API
+        const response = await api.post('/api/models/8001/chat', {
+          message: messageText,
+          session_id: this.getSessionId(),
+          timestamp: new Date().toISOString()
+        });
+        
+        // Remove loading status message
+        this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
+        
+        // Add model response with additional information from enhanced API
+        const botMessage = {
+          id: Date.now() + 1,
+          type: 'bot',
+          content: response.data.response || 'I don\'t have a response yet. Please try again.',
+          time: new Date().toLocaleTimeString(),
+          modelId: response.data.model_id || '8001',
+          modelName: response.data.model_name || 'Management Model',
+          confidence: response.data.confidence || 0.97
+        };
+        
+        this.messages.push(botMessage);
+        this.saveMessages();
+        
+        // Update model connection status
+        this.modelConnectionStatus = 'connected';
+        this.managementModel.status = 'active';
+        
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to send message to management model');
+        
+        // Remove loading status message
+        this.messages = this.messages.filter(msg => msg.id !== loadingMessageId);
+        
+        // Add error message
+        const errorMessage = {
+          id: Date.now() + 1,
+          type: 'system',
+          content: 'Failed to connect to the management model. Using fallback response.',
+          time: new Date().toLocaleTimeString()
+        };
+        
+        const fallbackMessage = {
+          id: Date.now() + 2,
+          type: 'bot',
+          content: 'I apologize, but I encountered an error while processing your message. Please try again later.',
+          time: new Date().toLocaleTimeString()
+        };
+        
+        this.messages.push(errorMessage, fallbackMessage);
+        this.saveMessages();
+        
+        // Update model connection status
+        this.modelConnectionStatus = 'disconnected';
+        this.managementModel.status = 'inactive';
+      }
+    },
+    
+    // Clear all messages
+    clearAllMessages() {
+      if (confirm('Are you sure you want to clear all messages?')) {
+        this.messages = [];
+        this.saveMessages();
       }
     },
     
@@ -636,115 +412,10 @@ export default {
       }
     },
     
-    // Enhanced intelligent mock response
-    getEnhancedMockResponse(input, type) {
-      if (type === 'text') {
-        const lowerInput = input.toLowerCase();
-        
-        // A Management Model specific response
-        if (lowerInput.includes('management model')) {
-          return 'The Management Model is the core component that coordinates all other models in the AGI Brain System. It handles task distribution, resource allocation, and ensures seamless communication between different models.';
-        }
-        
-        // Model list and activation status detection
-        if (lowerInput.includes('models list')) {
-          let modelList = 'Active Models List:\n';
-          this.models.forEach((model, index) => {
-            // Map model IDs to their English names
-            const modelName = this.getModelDisplayName(model.id);
-            modelList += `${index + 1}. ${modelName} - ${model.performance.toFixed(1)}% performance\n`;
-          });
-          modelList += '\nTotal active models: ' + this.activeModels;
-          return modelList;
-        }
-        
-        // Question type recognition and professional answers
-        if (lowerInput.includes('train')) {
-          return 'Training process involves several steps: 1) Data preparation, 2) Model configuration, 3) Training execution, 4) Evaluation, and 5) Deployment. You can access the training interface through the navigation menu.';
-        } else if (lowerInput.includes('knowledge')) {
-          return 'Knowledge management system handles information storage, retrieval, and organization. It supports document upload, semantic search, and knowledge graph visualization.';
-        } else if (lowerInput.includes('connection')) {
-          return `Connection Status:\n- Overall Status: ${this.backendConnected ? 'Connected' : 'Disconnected'}\n- Backend Status: ${this.backendStatus}\n- Model Status: ${this.modelConnectionStatus || 'Unknown'}`;
-        }
-        
-        // Technical support related
-        if (lowerInput.includes('help') || lowerInput.includes('support') || lowerInput.includes('problem') || lowerInput.includes('error')) {
-          return 'For technical support, please check the Help section or contact your system administrator. Common issues include connection problems, model performance issues, and configuration errors.';
-        }
-      }
-      
-      // General intelligent responses
-      const responses = {
-        text: [
-          `I'm processing your request about "${input}". The AGI Brain System is designed to handle various types of inputs and provide intelligent responses.`,
-          `Your message "${input}" is being analyzed. The system is leveraging multiple AI models to generate the most accurate response.`,
-          'The AGI Brain System consists of multiple specialized models working together to provide comprehensive intelligence capabilities.',
-          'This is a mock response due to connection limitations. In a production environment, this would be processed by the actual backend services.',
-          'I can help you with a variety of tasks including text analysis, image recognition, audio processing, and more.',
-          'The system is currently in demo mode. Please explore the different features available in the navigation menu.',
-          'Thank you for using the AGI Brain System. How can I assist you further?',
-          'To get the most out of the system, try asking specific questions or providing clear instructions.',
-          'The system supports multiple input types including text, images, audio, and video. Try uploading different types of media.'
-        ],
-        image: [
-          'This is a mock image analysis result. In a real environment, the Vision Model would analyze the image content and provide detailed insights.',
-          'Image processing completed. The system has detected key elements in the image and is preparing a comprehensive analysis.',
-          'The Vision Model is designed to recognize objects, scenes, text, and other visual elements in images.'
-        ],
-        video: [
-          'Video processing is in progress. The system is analyzing key frames and extracting meaningful information from the video content.',
-          'This is a mock video analysis result. In a production environment, the system would provide detailed temporal analysis of the video.',
-          'The Video Analysis Model can detect motion, recognize objects over time, and identify patterns in video content.'
-        ],
-        audio: [
-          'Audio transcription completed. The system has converted the speech to text and is preparing additional analysis.',
-          'This is a mock audio processing result. In a real environment, the Audio Model would provide accurate transcription and analysis.',
-          'The Audio Model can recognize speech, identify speakers, and extract key information from audio content.'
-        ]
-      };
-      
-      const typeResponses = responses[type] || responses.text;
-      return typeResponses[Math.floor(Math.random() * typeResponses.length)];
-    },
-    
-    // Generate mock response (enhanced version)
-    generateMockResponse(input) {
-      // 更智能的响应生成逻辑，基于输入关键词和内容
-      const lowerInput = input.toLowerCase();
-      
-      if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
-        return 'Hello! I am A Management Model. How can I assist you today?';
-      } else if (lowerInput.includes('model') || lowerInput.includes('models')) {
-        return 'I manage 11 specialized AI models (A to K). Model B handles vision processing, Model C processes audio, Model D excels at text analysis, and so on. Each has unique capabilities tailored for different tasks.';
-      } else if (lowerInput.includes('train') || lowerInput.includes('training')) {
-        return 'You can train models individually or in joint training sessions through the Training Panel. Joint training allows models to learn from each other and improve performance on complex tasks. Would you like me to explain the training parameters?';
-      } else if (lowerInput.includes('knowledge')) {
-        return 'The Knowledge Base stores critical information that enhances the AI models\' understanding. You can upload documents, images, and other media to create a comprehensive knowledge repository. The models can access this information during processing.';
-      } else if (lowerInput.includes('help') || lowerInput.includes('guide')) {
-        return 'I can help you with various tasks: managing AI models, configuring training parameters, organizing knowledge files, and adjusting system settings. What specific area would you like assistance with?';
-      } else if (lowerInput.includes('settings') || lowerInput.includes('configure')) {
-        return 'In the Settings section, you can manage model configurations, activate or deactivate specific models, and even connect to external API services to replace local models when needed.';
-      } else if (lowerInput.includes('image') || lowerInput.includes('vision')) {
-        return 'For image analysis, I recommend using Model B. You can upload images directly in this chat or visit the dedicated vision processing section for more advanced analysis.';
-      } else if (lowerInput.includes('audio') || lowerInput.includes('voice')) {
-        return 'For audio processing, Model C is specialized in speech recognition and audio analysis. You can use the voice input button in this chat or upload audio files for processing.';
-      } else if (lowerInput.includes('video')) {
-        return 'Video processing requires a combination of Model B (vision) and Model C (audio). You can upload video files up to 50MB for analysis and processing.';
-      } else {
-        // 通用响应
-        return `Thank you for your query. Based on your input, I've generated this response. To get more accurate and detailed assistance, you can:
-1. Ask more specific questions
-2. Provide additional context
-3. Use the dedicated sections for specialized tasks
-
-How else can I help you?`;
-      }
-    },
-    
     // Initialize voice recognition (disabled, using global voice recognition)
     initSpeechRecognition() {
       try {
-        // 检查浏览器是否支持语音识别
+        // Check if browser supports speech recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
           const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
           this.recognition = new SpeechRecognition();
@@ -971,6 +642,11 @@ How else can I help you?`;
           this.addSystemMessage('Video input element not found');
         }
     },
+    
+    // Toggle real-time input display
+    toggleRealTimeInput() {
+      this.showRealTimeInput = !this.showRealTimeInput;
+    },
 
     async handleVideoUpload(event) {
       const file = event.target.files[0];
@@ -1048,27 +724,8 @@ How else can I help you?`;
           errorHandler.handleError(error, 'Failed to upload video');
           // Add error message
           this.addSystemMessage(`Failed to upload video: ${error.message || error}`);
-          
-          // If backend is not connected or timeout, provide mock response
-          if (!this.backendConnected || error.message.includes('timeout')) {
-            const videoMessage = {
-              id: Date.now(),
-              type: 'user',
-              content: `[Video: ${file.name}]`,
-              time: new Date().toLocaleTimeString()
-            };
-            
-            const mockResponse = this.getMockResponse(file.name, 'video');
-            const botMessage = {
-              id: Date.now() + 1,
-              type: 'bot',
-              content: mockResponse,
-              time: new Date().toLocaleTimeString()
-            };
-            
-            this.messages.push(videoMessage, botMessage);
-            this.saveMessages();
-          }
+          // Clear file input
+          event.target.value = '';
         }
       }
     },
@@ -1149,47 +806,10 @@ How else can I help you?`;
           errorHandler.handleError(error, 'Failed to upload image');
           // Add error message
           this.addSystemMessage(`Failed to upload image: ${error.message || error}`);
-          
-          // If backend is not connected or timeout, provide mock response
-          if (!this.backendConnected || error.message.includes('timeout')) {
-            const imageMessage = {
-              id: Date.now(),
-              type: 'user',
-              content: `[Image: ${file.name}]`,
-              time: new Date().toLocaleTimeString()
-            };
-            
-            // File content analysis and response
-            const mockResponse = this.analyzeUploadedFile(file, 'image');
-            const botMessage = {
-              id: Date.now() + 1,
-              type: 'bot',
-              content: mockResponse,
-              time: new Date().toLocaleTimeString()
-            };
-            
-            this.messages.push(imageMessage, botMessage);
-            this.saveMessages();
-          }
+          // Clear file input
+          event.target.value = '';
         }
       }
-    },
-
-    // Analyze uploaded file and generate intelligent response
-    analyzeUploadedFile(file, type) {
-      // Mock file analysis result
-      const fileType = file.type;
-      let analysisResult = '';
-      
-      if (type === 'image' || fileType.includes('image')) {
-        analysisResult = `Image Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Content Type: Image Data\n\nVision Model has analyzed the image content. A Management Model can provide related answers based on image information.`;
-      } else if (type === 'video' || fileType.includes('video')) {
-        analysisResult = `Video Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n- Content Type: Video Data\n\nMultimodal processing completed. A Management Model coordinated visual and audio subsystems for comprehensive analysis.`;
-      } else {
-        analysisResult = `File Analysis Result:\n- File Name: ${file.name}\n- File Type: ${fileType}\n- File Size: ${(file.size / 1024).toFixed(2)} KB\n\nFile uploaded successfully. A Management Model can provide related answers based on file content.`;
-      }
-      
-      return analysisResult;
     }
   }
 };
@@ -1524,21 +1144,45 @@ How else can I help you?`;
 }
 
 .chat-container {
-  height: 400px;
+  height: 500px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  padding: 24px;
+  margin-bottom: 24px;
   overflow-y: auto;
   background: var(--bg-secondary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-primary);
+}
+
+.chat-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 4px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-dark);
 }
 
 .message {
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-sm);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-light);
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
   animation: fadeIn 0.3s ease-in-out;
+  max-width: 70%;
+  word-wrap: break-word;
+  line-height: 1.6;
+  position: relative;
 }
 
 @keyframes fadeIn {
@@ -1554,30 +1198,35 @@ How else can I help you?`;
 
 .message.user {
   background: var(--bg-primary);
-  margin-left: 20%;
+  margin-left: auto;
   border-color: var(--border-color);
+  border-bottom-right-radius: 6px;
 }
 
 .message.bot {
   background: var(--bg-tertiary);
-  margin-right: 20%;
+  margin-right: auto;
   border-color: var(--border-color);
+  border-bottom-left-radius: 6px;
 }
 
 .message.system {
   background: var(--bg-secondary);
   text-align: center;
+  margin: 16px auto;
   border-color: var(--border-color);
   font-style: italic;
   color: var(--text-secondary);
+  max-width: 90%;
 }
 
 .message.loading {
-  background: var(--bg-secondary);
-  margin-right: 20%;
+  background: var(--bg-tertiary);
+  margin-right: auto;
   border-color: var(--border-color);
   position: relative;
   overflow: hidden;
+  border-bottom-left-radius: 6px;
 }
 
 .message.loading::after {
@@ -1597,82 +1246,115 @@ How else can I help you?`;
   }
 }
 
+/* Empty chat state */
+.chat-container:empty::before {
+  content: 'No messages yet. Start a conversation!';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  padding: 24px;
+}
+
 .message-content {
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 8px;
   color: var(--text-primary);
+  font-size: 15px;
 }
 
 .message-time {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-tertiary);
   text-align: right;
+  opacity: 0.7;
+  display: block;
 }
 
 .input-controls {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  gap: 12px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .input-controls input {
   flex: 1;
   min-width: 200px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  padding: 12px 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 24px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 14px;
-  transition: var(--transition);
+  font-size: 15px;
+  transition: all 0.2s ease;
 }
 
 .input-controls input:focus {
   outline: none;
-  border-color: var(--border-dark);
-  box-shadow: 0 0 0 3px rgba(200, 200, 200, 0.1);
+  border-color: #666;
+  box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
 }
 
 .input-controls button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  padding: 12px 24px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 24px;
   cursor: pointer;
   font-weight: 500;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   white-space: nowrap;
+  font-size: 15px;
 }
 
 .input-controls button:hover {
-  background: var(--bg-tertiary);
+  background: #555;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
+.input-controls button:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .input-options {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 10px;
   flex-wrap: wrap;
+  justify-content: center;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .input-options button {
-  padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--bg-secondary);
+  padding: 10px 20px;
+  background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 13px;
-  transition: var(--transition);
+  font-size: 14px;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .input-options button:hover {
   background: var(--bg-tertiary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+  border-color: #666;
 }
 
 .input-options button:disabled {
@@ -1723,12 +1405,27 @@ How else can I help you?`;
 }
 
 .real-time-section {
-  margin-top: var(--spacing-md);
+  margin-top: 24px;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: var(--spacing-md);
+  border-radius: 16px;
+  padding: 24px;
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.real-time-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.real-time-section h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .guide-button {
@@ -1752,42 +1449,77 @@ How else can I help you?`;
 .conversation-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 16px;
   justify-content: space-between;
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .conversation-header > div:first-child {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 16px;
   flex-wrap: wrap;
+}
+
+.conversation-header h2 {
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 0;
+  margin-top: 0;
 }
 
 .main-model-status.inline-status {
   background-color: var(--bg-secondary);
   border-radius: var(--border-radius);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 8px 16px;
   font-size: 0.9em;
   white-space: nowrap;
   font-family: inherit;
-  font-weight: normal;
+  font-weight: 500;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.4;
   letter-spacing: normal;
   border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-tertiary);
+}
+
+.status-indicator.connected {
+  background-color: #666;
+  box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.2);
+}
+
+.status-indicator.connecting {
+  background-color: #999;
+  animation: pulse 1.5s infinite;
+}
+
+.status-text {
+  font-size: 12px;
+  font-weight: 400;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-view {
-    padding: var(--spacing-md);
+    padding: 16px;
   }
   
   .header {
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 16px;
     align-items: flex-start;
   }
   
@@ -1798,31 +1530,89 @@ How else can I help you?`;
   
   .header-buttons {
     flex-wrap: wrap;
+    gap: 8px;
   }
   
   .status-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
   
+  .conversation-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .conversation-header > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .conversation-header h2 {
+    font-size: 20px;
+  }
+  
+  .chat-container {
+    height: 400px;
+    padding: 16px;
+  }
+  
+  .message {
+    max-width: 85%;
+    padding: 12px 16px;
+  }
+  
+  .message.user {
+    margin-left: auto;
+    margin-right: 10px;
+  }
+  
+  .message.bot {
+    margin-right: auto;
+    margin-left: 10px;
+  }
+  
+  .message-content {
+    font-size: 14px;
+  }
+  
   .input-controls {
     flex-direction: column;
+    gap: 10px;
+  }
+  
+  .input-controls input {
+    min-width: unset;
+    width: 100%;
+    font-size: 14px;
+  }
+  
+  .input-controls button {
+    width: 100%;
+    font-size: 14px;
   }
   
   .input-options {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .input-options button {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 16px;
+    font-size: 13px;
   }
   
   .actions-grid {
     grid-template-columns: 1fr;
   }
   
-  .message.user {
-    margin-left: 10%;
-  }
-  
-  .message.bot {
-    margin-right: 10%;
+  .real-time-section {
+    padding: 16px;
   }
 }
-</style>
+  </style>

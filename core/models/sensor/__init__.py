@@ -3,6 +3,7 @@
 # Contains models for sensor data processing and perception
 # 包含传感器数据处理和感知模型
 
-from .model import SensorPerceptionModel
+# Import the actual sensor model implementation
+from .unified_sensor_model import UnifiedSensorModel as SensorPerceptionModel
 
 __all__ = ['SensorPerceptionModel']

@@ -35,6 +35,18 @@ import os
 import time
 import numpy as np
 from datetime import datetime
+import sys
+import importlib.util
+
+# 导入统一的外部API服务
+try:
+    # 尝试从core目录导入ExternalAPIService
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from external_api_service import ExternalAPIService
+    EXTERNAL_API_AVAILABLE = True
+except ImportError:
+    EXTERNAL_API_AVAILABLE = False
+    logging.warning("ExternalAPIService not available, models will use local processing only")
 
 
 """
@@ -101,6 +113,29 @@ class BaseModel(ABC):
             "gpu_usage": 0,
             "disk_usage": 0
         }
+        
+        # External API service integration
+        self.external_api_service = None
+        if EXTERNAL_API_AVAILABLE:
+            try:
+                self.external_api_service = ExternalAPIService(config.get('external_api_config', {}))
+                self.logger.info(f"External API service initialized for {self.model_id}")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize external API service: {str(e)}")
+        
+        # Enhanced model lifecycle management
+        self.model_version = self.config.get('version', '1.0.0')
+        self.model_metadata = {
+            "created_at": datetime.now().isoformat(),
+            "last_updated": datetime.now().isoformat(),
+            "version": self.model_version,
+            "from_scratch": self.from_scratch
+        }
+        
+        # Caching and performance optimization
+        self.cache_enabled = self.config.get('cache_enabled', True)
+        self.cache = {}
+        self.cache_ttl = self.config.get('cache_ttl', 300)  # 5 minutes default
         
         self.logger.info(f"Enhanced base model initialized: {self.model_id}, from_scratch: {self.from_scratch}")
     
@@ -803,6 +838,264 @@ class BaseModel(ABC):
             "configuration": self.config,
             "export_timestamp": datetime.now().isoformat()
         }
+
+    # === Enhanced Methods for External API Integration ===
+    
+    def use_external_api_service(self, api_type: str, service_type: str, data: Any) -> Dict[str, Any]:
+        """使用统一的外部API服务处理数据"""
+        if not self.external_api_service:
+            return {"success": False, "error": "External API service not available"}
+        
+        try:
+            start_time = time.time()
+            
+            # 根据API类型和数据类型调用相应的服务
+            if service_type == "image":
+                result = self.external_api_service.analyze_image(data, api_type)
+            elif service_type == "video":
+                result = self.external_api_service.analyze_video(data, api_type)
+            else:
+                return {"success": False, "error": f"Unsupported service type: {service_type}"}
+            
+            # 更新性能指标
+            response_time = time.time() - start_time
+            self._update_performance_metrics(response_time, True)
+            
+            return {
+                "success": True,
+                "api_type": api_type,
+                "service_type": service_type,
+                "result": result,
+                "response_time": response_time
+            }
+            
+        except Exception as e:
+            self._handle_error(e, "external_api_service")
+            return {"success": False, "error": str(e)}
+    
+    def get_external_api_capabilities(self) -> Dict[str, Any]:
+        """获取外部API服务的能力信息"""
+        if not self.external_api_service:
+            return {"success": False, "error": "External API service not available"}
+        
+        try:
+            capabilities = self.external_api_service.get_capabilities()
+            return {
+                "success": True,
+                "capabilities": capabilities,
+                "model_id": self.model_id
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    # === Enhanced Cache Management ===
+    
+    def _get_cache_key(self, data: Any) -> str:
+        """生成缓存键"""
+        import hashlib
+        data_str = str(data).encode('utf-8')
+        return hashlib.md5(data_str).hexdigest()
+    
+    def get_cached_result(self, data: Any) -> Optional[Dict[str, Any]]:
+        """从缓存中获取结果"""
+        if not self.cache_enabled:
+            return None
+        
+        cache_key = self._get_cache_key(data)
+        cached_item = self.cache.get(cache_key)
+        
+        if cached_item:
+            # 检查缓存是否过期
+            if time.time() - cached_item['timestamp'] < self.cache_ttl:
+                self.logger.debug(f"Cache hit for key: {cache_key}")
+                return cached_item['result']
+            else:
+                # 缓存过期，删除
+                del self.cache[cache_key]
+        
+        return None
+    
+    def set_cached_result(self, data: Any, result: Dict[str, Any]):
+        """设置缓存结果"""
+        if not self.cache_enabled:
+            return
+        
+        cache_key = self._get_cache_key(data)
+        self.cache[cache_key] = {
+            'result': result,
+            'timestamp': time.time()
+        }
+        
+        # 清理过期的缓存项
+        self._cleanup_expired_cache()
+    
+    def _cleanup_expired_cache(self):
+        """清理过期的缓存项"""
+        current_time = time.time()
+        expired_keys = []
+        
+        for key, item in self.cache.items():
+            if current_time - item['timestamp'] > self.cache_ttl:
+                expired_keys.append(key)
+        
+        for key in expired_keys:
+            del self.cache[key]
+        
+        if expired_keys:
+            self.logger.debug(f"Cleaned up {len(expired_keys)} expired cache items")
+    
+    def clear_cache(self):
+        """清空缓存"""
+        self.cache.clear()
+        self.logger.info("Cache cleared")
+    
+    # === Enhanced Model Metadata Management ===
+    
+    def update_metadata(self, updates: Dict[str, Any]):
+        """更新模型元数据"""
+        self.model_metadata.update(updates)
+        self.model_metadata["last_updated"] = datetime.now().isoformat()
+    
+    def get_metadata(self) -> Dict[str, Any]:
+        """获取模型元数据"""
+        return self.model_metadata.copy()
+    
+    def set_version(self, version: str):
+        """设置模型版本"""
+        self.model_version = version
+        self.model_metadata["version"] = version
+        self.model_metadata["last_updated"] = datetime.now().isoformat()
+    
+    # === Enhanced Performance Monitoring ===
+    
+    def _update_performance_metrics(self, response_time: float, success: bool):
+        """更新性能指标"""
+        self.performance_metrics["total_requests"] += 1
+        self.performance_metrics["last_response_time"] = response_time
+        
+        if success:
+            self.performance_metrics["successful_requests"] += 1
+        else:
+            self.performance_metrics["failed_requests"] += 1
+        
+        # 计算平均响应时间
+        successful_requests = self.performance_metrics["successful_requests"]
+        if successful_requests > 0:
+            current_avg = self.performance_metrics["average_response_time"]
+            self.performance_metrics["average_response_time"] = (
+                (current_avg * (successful_requests - 1) + response_time) / successful_requests
+            )
+    
+    def get_performance_summary(self) -> Dict[str, Any]:
+        """获取性能摘要"""
+        total_requests = self.performance_metrics["total_requests"]
+        successful_requests = self.performance_metrics["successful_requests"]
+        failed_requests = self.performance_metrics["failed_requests"]
+        
+        success_rate = (successful_requests / total_requests * 100) if total_requests > 0 else 0
+        
+        return {
+            "model_id": self.model_id,
+            "total_requests": total_requests,
+            "successful_requests": successful_requests,
+            "failed_requests": failed_requests,
+            "success_rate": round(success_rate, 2),
+            "average_response_time": round(self.performance_metrics["average_response_time"], 3),
+            "peak_memory_usage": self.performance_metrics["peak_memory_usage"],
+            "cpu_utilization": self.performance_metrics["cpu_utilization"]
+        }
+    
+    # === Enhanced Error Handling and Recovery ===
+    
+    def get_error_summary(self) -> Dict[str, Any]:
+        """获取错误摘要"""
+        error_counts = {}
+        for error in self.error_history:
+            error_type = error["error_type"]
+            error_counts[error_type] = error_counts.get(error_type, 0) + 1
+        
+        return {
+            "model_id": self.model_id,
+            "total_errors": len(self.error_history),
+            "error_counts": error_counts,
+            "recent_errors": self.error_history[-10:] if self.error_history else [],
+            "auto_recovery_enabled": self.auto_recovery_enabled,
+            "max_retry_attempts": self.max_retry_attempts
+        }
+    
+    def enable_auto_recovery(self, enabled: bool = True):
+        """启用或禁用自动恢复"""
+        self.auto_recovery_enabled = enabled
+        self.logger.info(f"Auto recovery {'enabled' if enabled else 'disabled'}")
+    
+    def set_max_retry_attempts(self, attempts: int):
+        """设置最大重试次数"""
+        self.max_retry_attempts = max(1, attempts)  # 至少1次
+        self.logger.info(f"Max retry attempts set to: {self.max_retry_attempts}")
+    
+    # === Enhanced Process Method with Caching and External API Support ===
+    
+    def process_enhanced(self, input_data: Dict[str, Any], use_cache: bool = True, 
+                        use_external_api: bool = False, api_type: str = "google") -> Dict[str, Any]:
+        """增强的处理方法，支持缓存和外部API"""
+        start_time = time.time()
+        self.is_processing = True
+        self.last_activity = datetime.now()
+        
+        try:
+            # 检查缓存
+            if use_cache and self.cache_enabled:
+                cached_result = self.get_cached_result(input_data)
+                if cached_result:
+                    self.is_processing = False
+                    return {
+                        "success": True,
+                        "result": cached_result,
+                        "cached": True,
+                        "response_time": time.time() - start_time,
+                        "model_id": self.model_id
+                    }
+            
+            # 处理逻辑
+            result = None
+            if use_external_api and self.external_api_service:
+                # 使用外部API服务
+                api_result = self.use_external_api_service(api_type, "image", input_data)
+                if api_result["success"]:
+                    result = api_result["result"]
+                else:
+                    self.logger.warning(f"External API failed, falling back to local processing: {api_result.get('error')}")
+            
+            # 如果外部API失败或未使用，使用本地处理
+            if result is None:
+                result = self.process(input_data)
+            
+            # 更新缓存
+            if use_cache and self.cache_enabled and result.get("success", False):
+                self.set_cached_result(input_data, result)
+            
+            # 更新性能指标
+            response_time = time.time() - start_time
+            self._update_performance_metrics(response_time, True)
+            
+            self.is_processing = False
+            return {
+                "success": True,
+                "result": result,
+                "cached": False,
+                "response_time": response_time,
+                "model_id": self.model_id,
+                "external_api_used": use_external_api and result is not None
+            }
+            
+        except Exception as e:
+            self._handle_error(e, "enhanced_processing")
+            self.is_processing = False
+            return {
+                "success": False,
+                "error": str(e),
+                "model_id": self.model_id
+            }
 
 # 导出基类 | Export base class
 AGIBaseModel = BaseModel

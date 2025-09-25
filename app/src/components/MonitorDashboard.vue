@@ -155,69 +155,38 @@ export default {
     async refreshData() {
       this.isRefreshing = true;
       try {
-        // Simulate data refresh
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        this.updateMetrics();
-        this.addDataStreamItem();
+        // Try to fetch real data from backend
+        // In production, this should make API calls to get real-time monitoring data
+        // For now, we'll keep minimal structure without simulation
+        console.log('Attempting to fetch real monitoring data from backend...');
+        // Future implementation would have:
+        // const response = await api.get('/api/monitoring/data');
+        // this.updateWithRealData(response.data);
       } catch (error) {
+        console.error('Failed to fetch monitoring data:', error);
         this.$errorHandler.handleError(error, 'MonitorDashboard - refreshData');
       } finally {
         this.isRefreshing = false;
       }
     },
     loadInitialData() {
-      // Load initial data
-      this.systemUptime = this.calculateUptime();
-      this.activeModelsCount = Math.floor(Math.random() * 5) + 3;
+      // Initialize with placeholder values
+      this.systemUptime = '00:00:00';
+      this.activeModelsCount = 0;
     },
-    updateMetrics() {
-      // Update metric data
-      this.cpuUsage = Math.floor(Math.random() * 30) + 30;
-      this.memoryUsage = Math.floor(Math.random() * 40) + 40;
-      this.activeModelsCount = Math.floor(Math.random() * 5) + 3;
-      
-      // Update model metrics
-      this.modelMetrics.forEach(metric => {
-        const change = Math.random() * 10 - 5;
-        metric.change = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
-        metric.trend = change > 0 ? 'up' : change < 0 ? 'down' : 'stable';
-      });
-    },
-    addDataStreamItem() {
-      // Add new data stream item
-      const models = ['Language', 'Audio', 'Vision', 'Knowledge', 'Manager', 'Sensor', 'Spatial'];
-      const types = ['processing', 'success', 'error', 'training', 'update', 'coordination'];
-      const details = [
-        'Processing user query',
-        'Task completed successfully',
-        'Training in progress',
-        'Model updated',
-        'Coordinating tasks',
-        'Sensor data received',
-        'Spatial analysis complete'
-      ];
-      
-      const now = new Date();
-      const timestamp = now.toTimeString().split(' ')[0];
-      
-      this.dataStream.unshift({
-        timestamp,
-        model: models[Math.floor(Math.random() * models.length)],
-        type: types[Math.floor(Math.random() * types.length)],
-        details: details[Math.floor(Math.random() * details.length)]
-      });
-      
-      // Keep data stream length
-      if (this.dataStream.length > 20) {
-        this.dataStream.pop();
+    updateWithRealData(data) {
+      // Update component with real data from backend
+      // This would be implemented once backend API is available
+      if (data) {
+        this.systemStatus = data.systemStatus || 'normal';
+        this.systemUptime = data.systemUptime || '00:00:00';
+        this.activeModelsCount = data.activeModelsCount || 0;
+        this.totalModelsCount = data.totalModelsCount || 0;
+        this.cpuUsage = data.cpuUsage || 0;
+        this.memoryUsage = data.memoryUsage || 0;
+        this.modelMetrics = data.modelMetrics || [];
+        this.dataStream = data.dataStream || [];
       }
-    },
-    calculateUptime() {
-      // Calculate system uptime
-      const hours = Math.floor(Math.random() * 24);
-      const minutes = Math.floor(Math.random() * 60);
-      const seconds = Math.floor(Math.random() * 60);
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
   },
   watch: {

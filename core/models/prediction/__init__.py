@@ -3,6 +3,7 @@
 # Contains models for predictive analysis and forecasting
 # 包含预测分析和预报模型
 
-from .model import PredictionModel
+# Import the actual prediction model implementation
+from .unified_prediction_model import UnifiedPredictionModel as PredictionModel
 
 __all__ = ['PredictionModel']

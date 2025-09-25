@@ -27,11 +27,11 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from core.error_handling import error_handler
 from core.model_registry import ModelRegistry
-from core.training.joint_training_coordinator import JointTrainingCoordinator
-from core.models.prediction.model import PredictionModel
-from core.models.planning.model import PlanningModel
-from core.models.language.model import AdvancedLanguageModel
-from core.models.knowledge.model import KnowledgeModel
+from core.joint_training_coordinator import JointTrainingCoordinator
+from core.models.prediction import PredictionModel
+from core.models.planning import PlanningModel
+from core.models.language import AdvancedLanguageModel
+from core.models.knowledge import KnowledgeModel
 from collections import defaultdict
 
 """

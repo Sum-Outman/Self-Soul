@@ -12,12 +12,20 @@ export const letterToIdMap = {
   'C': 'audio',             // Audio Processing Model
   'D': 'vision_image',      // Image Vision Model
   'E': 'vision_video',      // Video Vision Model
-  'F': 'spatial',           // Spatial Perception Model
-  'G': 'sensor',            // Sensor Perception Model
-  'H': 'computer',          // Computer Control Model
-  'I': 'motion',            // Motion and Actuator Model
+  'F': 'spatial_positioning', // Spatial Positioning Model
+  'G': 'sensor_perception', // Sensor Perception Model
+  'H': 'computer_control',  // Computer Control Model
+  'I': 'motion_control',    // Motion and Actuator Control Model
   'J': 'knowledge',         // Knowledge Expert Model
-  'K': 'programming'        // Programming Model
+  'K': 'programming',       // Programming Model
+  'L': 'planning',          // Planning Model
+  'M': 'autonomous',        // Autonomous Model
+  'N': 'emotion',           // Emotion Model
+  'O': 'spatial',           // Spatial Model
+  'P': 'computer_vision',   // Computer Vision Model
+  'Q': 'sensor',            // Sensor Model
+  'R': 'motion',            // Motion Model
+  'S': 'prediction'         // Prediction Model
 };
 
 // 字符串ID到字母ID的映射
@@ -27,12 +35,20 @@ export const idToLetterMap = {
   'audio': 'C',
   'vision_image': 'D',
   'vision_video': 'E',
-  'spatial': 'F',
-  'sensor': 'G',
-  'computer': 'H',
-  'motion': 'I',
+  'spatial_positioning': 'F',
+  'sensor_perception': 'G',
+  'computer_control': 'H',
+  'motion_control': 'I',
   'knowledge': 'J',
-  'programming': 'K'
+  'programming': 'K',
+  'planning': 'L',
+  'autonomous': 'M',
+  'emotion': 'N',
+  'spatial': 'O',
+  'computer_vision': 'P',
+  'sensor': 'Q',
+  'motion': 'R',
+  'prediction': 'S'
 };
 
 // 所有字母ID列表

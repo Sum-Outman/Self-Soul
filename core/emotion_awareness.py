@@ -35,11 +35,11 @@ from core.data_processor import DataProcessor
 from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
 from core.value_alignment import ValueSystem as ValueAlignmentSystem
 from core.advanced_reasoning import AdvancedReasoningEngine as AdvancedReasoningSystem
-from core.meta_learning_system import MetaLearningSystem as AGIMetaLearner
+# MetaLearningSystem will be imported locally to avoid circular import
 from core.optimization.model_optimizer import ModelOptimizer as NeuralArchitectureOptimizer
 from core.multimodal_processor import MultimodalProcessor
 from core.self_reflection_module import SelfReflectionModule as SelfReflectionEngine
-from core.advanced_self_learning import AdvancedSelfLearningSystem
+from core.self_learning import AGISelfLearningSystem as AdvancedSelfLearningSystem
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 
 
@@ -136,11 +136,13 @@ class AGIEmotionAwarenessSystem:
             'cognitive_reframing': 0.7  # 认知重构
         }
         
-        # 初始化AGI核心组件
-        # Initialize AGI core components
-        self.knowledge_integrator = AGIKnowledgeIntegrator()
+        # 初始化AGI核心组件 - 启用从零开始训练模式以避免网络请求
+        # Initialize AGI core components - Enable from_scratch mode to avoid network requests
+        self.knowledge_integrator = AGIKnowledgeIntegrator(from_scratch=True)
         self.value_system = ValueAlignmentSystem()
         self.reasoning_system = AdvancedReasoningSystem()
+        # Import locally to avoid circular import
+        from core.meta_learning_system import MetaLearningSystem as AGIMetaLearner
         self.meta_learner = AGIMetaLearner()
         self.neural_optimizer = NeuralArchitectureOptimizer()
         self.multimodal_processor = MultimodalProcessor()
@@ -1111,8 +1113,7 @@ class AGIEmotionAwarenessSystem:
         
         return reflection
 
-# 创建全局实例
-agi_emotion_system = AGIEmotionAwarenessSystem()
+# Global instance will be created in main.py after all dependencies are loaded
 
 
 class EmotionAnalyzer:
@@ -1123,17 +1124,16 @@ class EmotionAnalyzer:
     def __init__(self):
         """初始化高级情感分析器
            Initialize advanced emotion analyzer"""
-        # 初始化情感分析模型
+        # 初始化情感分析模型 - 使用从零开始训练的内部模型
         try:
-            # 使用transformer-based情感分析模型
-            self.sentiment_analyzer = pipeline(
-                "sentiment-analysis",
-                model="nlptown/bert-base-multilingual-uncased-sentiment",
-                framework="pt"
-            )
+            # 从core/advanced_emotion_analysis.py导入从零开始训练的情感分析器
+            from core.advanced_emotion_analysis import AdvancedEmotionAnalyzer
             
-            # 句子嵌入模型用于语义相似性
-            self.embedding_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+            # 使用内部从零开始训练的情感分析器
+            self.sentiment_analyzer = AdvancedEmotionAnalyzer(from_scratch=True)
+            
+            # 使用简单的内部嵌入模型，避免外部依赖
+            self.embedding_model = None  # 不使用外部嵌入模型
             
             # 情感词汇增强库
             self.emotion_lexicon_enhanced = {
@@ -1683,7 +1683,7 @@ class EmotionAwarenessModule:
             print(f"响应增强错误: {e}")
             return response
 
-# 创建全局实例
+# Create global instances
 emotion_analyzer = EmotionAnalyzer()
-emotion_awareness_system = agi_emotion_system
+emotion_awareness_system = AGIEmotionAwarenessSystem()
 emotion_awareness_module = EmotionAwarenessModule()

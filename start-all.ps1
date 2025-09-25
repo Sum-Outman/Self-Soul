@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-Starts all components of the AGI Brain System.
+Starts all core components of the Self Soul AGI System.
 .DESCRIPTION
-This script starts both the frontend application and the mock API server simultaneously.
+This script starts the main API server, frontend application, realtime stream manager and performance monitoring service simultaneously.
 It creates separate terminal windows for each component for better management.
 .EXAMPLE
 PS> .\start-all.ps1
@@ -11,7 +11,7 @@ PS> .\start-all.ps1
 # Stop any existing processes on required ports to avoid conflicts
 Write-Host "Stopping any processes using required ports..." -ForegroundColor Yellow
 try {
-    Get-NetTCPConnection -LocalPort 5175, 8000 -ErrorAction SilentlyContinue | ForEach-Object {
+    Get-NetTCPConnection -LocalPort 5175, 8000, 8765, 8081 -ErrorAction SilentlyContinue | ForEach-Object {
         Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
         Write-Host "Stopped process $($_.OwningProcess) on port $($_.LocalPort)"
     }
@@ -19,19 +19,37 @@ try {
     Write-Host "No existing processes to stop."
 }
 
-# Start the mock API server in a new PowerShell window
-Write-Host "Starting Mock API Server on port 8000..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\simple_mock_server.py'`""
+# Install Python dependencies if needed
+Write-Host "Installing/updating Python dependencies..." -ForegroundColor Green
+Start-Process powershell -ArgumentList "-NoExit -Command `"python -m pip install -r '$PSScriptRoot\requirements.txt'`""
 
-# Wait a moment to ensure the server starts properly
-Start-Sleep -Seconds 2
+# Wait a moment to ensure dependencies are installed
+Start-Sleep -Seconds 5
+
+# Start the main API server in a new PowerShell window
+Write-Host "Starting Main API Server on port 8000..." -ForegroundColor Green
+Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\main.py'`""
+
+# Start the realtime stream manager in a new PowerShell window
+Write-Host "Starting Realtime Stream Manager on port 8765..." -ForegroundColor Green
+Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\realtime_stream_manager.py'`""
+
+# Wait a moment to ensure the stream manager starts properly
+Start-Sleep -Seconds 3
+
+# Start the performance monitoring service in a new PowerShell window
+Write-Host "Starting Performance Monitoring Service on port 8081..." -ForegroundColor Green
+Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\system_monitor.py'`""
+
+# Wait a moment to ensure all services start properly
+Start-Sleep -Seconds 3
 
 # Start the frontend application in a new PowerShell window
 Write-Host "Starting AGI Brain System frontend on port 5175..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"Set-Location -Path '$PSScriptRoot\app'; npm run dev`""
+Start-Process powershell -ArgumentList "-NoExit -Command `"Set-Location -Path '$PSScriptRoot\app'; npm install; npm run dev`""
 
 # Display instructions for the user
 Write-Host "\nAGI Brain System Components Started:" -ForegroundColor Cyan
-Write-Host "- Mock API Server: http://localhost:8000"
+Write-Host "- Main API Server: http://localhost:8000"
 Write-Host "- Frontend Application: http://localhost:5175"
 Write-Host "\nTo stop all components, simply close the terminal windows." -ForegroundColor Yellow

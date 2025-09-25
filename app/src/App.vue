@@ -3,19 +3,19 @@
     <!-- Top Navigation Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Soul</span>
+        <span class="system-title">Self Brain</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->
         <router-link to="/" class="menu-link">Home</router-link>
         <router-link to="/training" class="menu-link">Training</router-link>
         <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
-        <router-link to="/chat-from-scratch" class="menu-link">Chat From Scratch</router-link>
         <router-link to="/settings" class="menu-link">Settings</router-link>
         <router-link to="/help" class="menu-link">Help</router-link>
         
         <!-- Server Connection Status -->
         <div class="connection-status" :style="{ color: connectionColor }">
+          <span class="status-indicator" :style="{ backgroundColor: connectionColor }"></span>
           {{ connectionStatus }}
         </div>
       </div>
@@ -50,7 +50,7 @@ export default {
         .then(response => {
           isConnected.value = true;
           connectionStatus.value = 'Connected to Main API';
-          connectionColor.value = '#333333'; // Dark gray for connected
+          connectionColor.value = '#4caf50'; // Green for connected
           
           // If there's a new server message, show notification
           if (response.data && response.data.status) {
@@ -60,7 +60,7 @@ export default {
         .catch(error => {
           isConnected.value = false;
           connectionStatus.value = 'Main API Disconnected';
-          connectionColor.value = '#666666'; // Medium gray for disconnected
+          connectionColor.value = '#f44336'; // Red for disconnected
           console.error('Server connection error:', error);
         });
     };
@@ -68,26 +68,13 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        errorHandler.logInfo('AGI Brain System components are initializing in the background...')
+        errorHandler.logInfo('AGI Brain System components are initializing...')
         
-        // Simulate background initialization process
-        Promise.all([
-          delay(300), // Language related initialization (simplified)
-          delay(500), // Connect to backend services
-          delay(800)  // Preload necessary models
-        ]).then(() => {
-          errorHandler.logInfo('AGI Brain System components initialization completed')
-        }).catch(error => {
-          errorHandler.handleError('Error during system components initialization:', error)
-        })
+        // Directly log initialization completion
+        errorHandler.logInfo('AGI Brain System components initialization completed')
       } catch (error) {
         errorHandler.handleError('Error during system components initialization:', error)
       }
-    }
-    
-    // Helper function
-    const delay = (ms) => {
-      return new Promise(resolve => setTimeout(resolve, ms))
     }
     
     // Life cycle hooks
@@ -207,25 +194,13 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   font-size: 14px;
-  color: var(--text-primary);
 }
 
 .status-indicator {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: #666;
-  transition: background-color 0.3s ease;
-}
-
-.status-indicator.connected {
-  background-color: #333333; /* Dark gray indicates connected */
-  box-shadow: 0 0 8px rgba(51, 51, 51, 0.4);
-}
-
-.status-indicator.disconnected {
-  background-color: #666666; /* Medium gray indicates disconnected */
-  box-shadow: 0 0 8px rgba(102, 102, 102, 0.4);
+  flex-shrink: 0;
 }
 
 .status-text {

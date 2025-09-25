@@ -220,7 +220,6 @@ export default {
   },
   mounted() {
     this.listDevices();
-    this.setupSensorSimulation();
   },
   beforeDestroy() {
     this.stopCamera();
@@ -561,18 +560,8 @@ export default {
     
     // Set Up Sensor Simulation
     setupSensorSimulation() {
-      // 模拟传感器数据更新
-      setInterval(() => {
-        if (this.isSensorDataActive) {
-          this.sensorData = {
-            temperature: (20 + Math.random() * 10).toFixed(1) + '°C',
-            humidity: (40 + Math.random() * 20).toFixed(0) + '%',
-            acceleration: (Math.random() * 2).toFixed(1) + 'g',
-            light: (100 + Math.random() * 900).toFixed(0) + 'lux',
-            distance: (50 + Math.random() * 100).toFixed(0) + 'cm'
-          };
-        }
-      }, 1000);
+      // Removed sensor data simulation
+      // In production, this should connect to real sensor devices
     },
 
     // Toggle Real-time Dialog

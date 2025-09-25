@@ -1,4 +1,4 @@
-/* Self Soul 系统主样式 */
+/* Self Brain System Main Styles */
 
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-/* Using system fonts for clean English appearance */
-
+/* Clean black, white, gray light theme variables */
 :root {
-  /* Clean black, white, gray light theme variables */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f8f8;
   --bg-tertiary: #f0f0f0;
@@ -28,14 +26,14 @@
   --border-light: #f0f0f0;
   --border-dark: #cccccc;
   --primary-color: #555555;
-  --primary-hover: #444444;
+  --primary-hover: #333333;
   --secondary-color: #777777;
-  --secondary-hover: #666666;
+  --secondary-hover: #555555;
   --accent-color: #888888;
-  --accent-hover: #777777;
-  --success-color: #4caf50;
-  --warning-color: #ff9800;
-  --error-color: #f44336;
+  --accent-hover: #666666;
+  --success-color: #555555;
+  --warning-color: #666666;
+  --error-color: #666666;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
@@ -45,12 +43,10 @@
   --border-radius-lg: 12px;
   --transition: all 0.2s ease-in-out;
   --transition-fast: all 0.1s ease-in-out;
-  --font-family: 'Segoe UI', sans-serif;
+  --font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-/* 强制使用浅色模式，移除深色模式支持 */
-/* 确保无论系统设置如何，都使用浅色主题 */
-
+/* Force light mode, ensure light theme regardless of system settings */
 
 * {
   margin: 0;
@@ -59,11 +55,13 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-family);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
   transition: var(--transition);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
@@ -73,12 +71,79 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
+  width: 100%;
 }
 
-/* 通用按钮样式 */
+/* Navigation Bar Styles */
+.top-menu-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+}
+
+.system-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.menu-link {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  position: relative;
+}
+
+.menu-link:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+}
+
+.menu-link.router-link-active {
+  color: var(--primary-color);
+  background-color: var(--bg-tertiary);
+  font-weight: 600;
+}
+
+.menu-link.router-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background-color: var(--primary-color);
+  border-radius: 1px;
+}
+
+/* Common Button Styles */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -94,6 +159,7 @@ body {
   transition: var(--transition);
   text-decoration: none;
   gap: 8px;
+  outline: none;
 }
 
 .btn:hover {
@@ -104,6 +170,10 @@ body {
 
 .btn:active {
   transform: translateY(0);
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-accent {
@@ -534,6 +604,18 @@ body {
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   cursor: not-allowed;
+}
+
+/* View Container Styles */
+.home-view,
+.train-view,
+.knowledge-view,
+.settings-view,
+.help-view {
+  flex: 1;
+  padding: 32px 24px;
+  background-color: var(--bg-secondary);
+  min-height: 0;
 }
 
 /* 响应式设计 */

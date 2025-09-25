@@ -1,73 +1,53 @@
-// Simple notification test script
+import { notificationManager } from './notification/index.js'
 
-// This script tests the notification system by displaying different types of notifications
-// with various configurations. It's designed to be imported and used in a component
-// to verify that the notification system works correctly.
-
-import { notify } from '../plugins/notification.js'
-
-// Test function to show all notification types
-function testNotifications() {
-  console.log('Running notification system tests...')
-  
-  // Test info notification
-  notify.info({
-    title: 'Information',
-    message: 'This is a test info notification',
-    duration: 3000,
-    position: 'top-right'
-  })
-  
-  // Test success notification
-  notify.success({
-    title: 'Success',
-    message: 'This is a test success notification',
-    duration: 4000,
-    position: 'top-left'
-  })
-  
-  // Test warning notification
-  notify.warning({
-    title: 'Warning',
-    message: 'This is a test warning notification',
-    duration: 5000,
-    position: 'bottom-right'
-  })
-  
-  // Test error notification
-  notify.error({
-    title: 'Error',
-    message: 'This is a test error notification',
-    duration: 6000,
-    position: 'bottom-left'
-  })
-  
-  // Test notification without title
-  setTimeout(() => {
-    notify.info({
-      message: 'This notification has no title',
-      duration: 3000,
-      position: 'top-center'
+/**
+ * Test notification system function
+ * This function tests all notification types and positions
+ */
+export const testNotifications = () => {
+  try {
+    // Clear existing notifications first
+    notificationManager.closeAllNotifications()
+    
+    // Test info notification
+    notificationManager.info({
+      message: 'This is an information notification',
+      position: 'top-right',
+      duration: 5000
     })
-  }, 1000)
-  
-  // Test notification with custom duration
-  setTimeout(() => {
-    notify.success({
-      title: 'Long Duration',
-      message: 'This notification stays for 10 seconds',
-      duration: 10000,
-      position: 'bottom-center'
-    })
-  }, 2000)
-  
-  // Test notification with minimal configuration (just message)
-  setTimeout(() => {
-    notify.info('Minimal notification with just a message')
-  }, 3000)
-  
-  console.log('Notification tests completed. Check UI for results.')
+    
+    // Test success notification
+    setTimeout(() => {
+      notificationManager.success({
+        message: 'This is a success notification',
+        position: 'top-left',
+        duration: 5000
+      })
+    }, 1000)
+    
+    // Test warning notification
+    setTimeout(() => {
+      notificationManager.warning({
+        message: 'This is a warning notification',
+        position: 'bottom-right',
+        duration: 5000
+      })
+    }, 2000)
+    
+    // Test error notification
+    setTimeout(() => {
+      notificationManager.error({
+        message: 'This is an error notification',
+        position: 'bottom-left',
+        duration: 5000
+      })
+    }, 3000)
+    
+    console.log('Notification system test completed')
+  } catch (error) {
+    console.error('Error in notification system test:', error)
+    throw error
+  }
 }
 
-// Export the test function
 export default testNotifications

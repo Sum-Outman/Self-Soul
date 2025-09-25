@@ -3,6 +3,7 @@
 # Contains models for task planning and strategy development
 # 包含任务规划和策略制定模型
 
-from .model import PlanningModel
+# Import the actual planning model implementation
+from .unified_planning_model import UnifiedPlanningModel as PlanningModel
 
 __all__ = ['PlanningModel']

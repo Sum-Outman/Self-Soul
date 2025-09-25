@@ -1,11 +1,17 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: () => import('../views/HomeView.vue'),
     alias: ['/index.html', '/home', '/main']
+  },
+  {
+    path: '/conversation',
+    name: 'Conversation',
+    component: () => import('../views/Conversation.vue')
   },
   {
     path: '/training',
@@ -27,16 +33,7 @@ const routes = [
     name: 'Help',
     component: () => import('../views/HelpView.vue')
   },
-  {
-    path: '/chat-from-scratch',
-    name: 'ChatFromScratch',
-    component: () => import('../views/ChatFromScratch.vue')
-  },
-  {
-    path: '/notification-test',
-    name: 'NotificationTest',
-    component: () => import('../components/NotificationTester.vue')
-  },
+
   // Ensure all unknown paths redirect to home
   {
     path: '/:pathMatch(.*)*',

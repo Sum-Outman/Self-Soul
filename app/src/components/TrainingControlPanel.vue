@@ -51,7 +51,7 @@
           </select>
         </div>
 
-      <!-- 联合训练特定选项 -->
+      <!-- Joint training specific options -->
       <div v-if="trainingMode === 'joint'" class="joint-training-options">
         <div class="option">
           <label>Training Strategy:</label>
@@ -74,14 +74,14 @@
           </button>
         </div>
 
-        <!-- 推荐组合显示 -->
+        <!-- Recommended combinations display -->
         <div v-if="recommendedCombinations.length > 0" class="recommended-combinations">
           <h4>Recommended Combinations</h4>
           <div v-for="(combo, index) in recommendedCombinations" :key="index" class="combo-item">
             <input type="radio" :id="'combo-' + index" :value="combo.models" v-model="selectedCombination">
             <label :for="'combo-' + index">
               {{ combo.name }} ({{ combo.models.join(', ') }})
-              <span class="combo-score">得分: {{ combo.score.toFixed(2) }}</span>
+            <span class="combo-score">Score: {{ combo.score.toFixed(2) }}</span>
             </label>
           </div>
         </div>
@@ -178,11 +178,11 @@ export default {
         { id: 'autonomous', name: 'Autonomous Model' }
       ],
       selectedModels: ['manager', 'language', 'audio', 'vision_image', 'vision_video', 'spatial', 'sensor', 'computer', 'motion', 'knowledge', 'programming'],
-      modelSources: {}, // 存储每个模型的来源 (local/external)
-      externalConfigs: {}, // 存储外部模型配置
-      connectionStatus: {}, // 存储连接测试状态
+      modelSources: {}, // Store the source of each model (local/external)
+      externalConfigs: {}, // Store external model configurations
+      connectionStatus: {}, // Store connection test status
       trainingMode: 'joint',
-      // 联合训练特定变量 | Joint training specific variables
+      // Joint training specific variables
       trainingStrategy: 'standard',
       knowledgeAssist: false,
       recommendedCombinations: [],
@@ -208,11 +208,11 @@ export default {
     
     async loadSavedConfigs() {
       try {
-        // 在纯前端模式下，加载本地存储的配置
+        // In pure frontend mode, load locally stored configurations
         const savedConfigs = localStorage.getItem('trainingConfigs');
         if (savedConfigs) {
           const configs = JSON.parse(savedConfigs);
-          // 应用保存的配置
+          // Apply saved configurations
           if (configs.modelSources) {
             this.modelSources = configs.modelSources;
           }
@@ -239,7 +239,7 @@ export default {
     },
     
     onTrainingModeChange() {
-      // 当训练模式改变时重置联合训练相关选项
+      // Reset joint training related options when training mode changes
       if (this.trainingMode !== 'joint') {
         this.trainingStrategy = 'standard';
         this.knowledgeAssist = false;
@@ -250,14 +250,14 @@ export default {
 
     async loadRecommendedCombinations() {
       try {
-        // 构建查询参数
+        // Build query parameters
         const params = new URLSearchParams({
             models: this.selectedModels.join(','),
             strategy: this.trainingStrategy,
             knowledgeAssist: this.knowledgeAssist.toString()
           });
           
-          // 调用后端API获取推荐的联合训练组合 (GET方法)
+          // Call backend API to get recommended joint training combinations (GET method)
           const response = await api.get(`/api/joint-training/recommendations?${params}`);
         
         if (result.status === 'success') {
@@ -287,7 +287,7 @@ export default {
       try {
         this.isTraining = true;
         
-        // 构建训练配置
+        // Build training configuration
         const trainingConfig = {
           mode: this.trainingMode,
           models: this.selectedModels,
@@ -299,7 +299,7 @@ export default {
           }
         };
         
-        // 如果是联合训练，添加联合训练特定配置
+        // If it's joint training, add joint training specific configuration
         if (this.trainingMode === 'joint') {
           trainingConfig.jointTraining = {
             strategy: this.trainingStrategy,
@@ -308,12 +308,12 @@ export default {
           };
         }
         
-        // 确定API端点
+        // Determine API endpoint
         const apiEndpoint = this.trainingMode === 'joint' 
           ? '/api/joint-training/start' 
           : '/api/train';
         
-        // 调用后端API启动训练
+        // Call backend API to start training
         const response = await api.post(apiEndpoint, trainingConfig);
         
         if (response.data.status === 'success') {
@@ -324,13 +324,13 @@ export default {
             type: 'success'
           });
           
-          // 开始轮询训练状态
+          // Start polling training status
           this.startPollingTrainingStatus();
         } else {
           throw new Error(result.detail || 'Failed to start training');
         }
       } catch (error) {
-        console.error('启动训练失败:', error);
+        console.error('Training start failed:', error);
         this.$notify({
             title: 'Error',
             message: error.message || 'Failed to start training',
@@ -350,7 +350,7 @@ export default {
             if (response.data.status === 'success') {
               const status = response.data.data;
             
-            // 更新训练进度
+            // Update training progress
             if (status.progress !== undefined) {
               this.trainingProgress = this.selectedModels.map(modelId => ({
                 id: modelId,
@@ -358,7 +358,7 @@ export default {
               }));
             }
             
-            // 检查训练是否完成
+            // Check if training is completed
             if (status.status === 'completed' || status.status === 'failed') {
               this.stopTraining();
               
@@ -369,7 +369,7 @@ export default {
                   type: 'success'
                 });
                 
-                // 获取训练结果
+                // Get training results
                 await this.loadTrainingResults();
               } else {
                 this.$notify({
@@ -381,18 +381,18 @@ export default {
             }
           }
         } catch (error) {
-          console.error('获取训练状态失败:', error);
+          console.error('Failed to get training status:', error);
         }
-      }, 2000); // 每2秒轮询一次
+      }, 2000); // Poll every 2 seconds
     },
     
     async loadTrainingResults() {
       try {
-        // 使用api实例获取训练历史
+        // Use api instance to get training history
         const response = await api.get('/api/training/history');
         
         if (response.data.status === 'success') {
-          // 查找当前任务的训练结果
+          // Find training results for current job
           const currentJob = response.data.data.find(job => job.job_id === this.jobId);
           if (currentJob && currentJob.metrics) {
             this.trainingMetrics = Object.entries(currentJob.metrics).map(([modelId, metrics]) => ({
@@ -405,7 +405,7 @@ export default {
         }
       } catch (error) {
         console.error('Failed to load training results:', error);
-        // 如果后端API不存在，设置一个空的训练指标数组
+        // If backend API doesn't exist, set an empty training metrics array
         this.trainingMetrics = [];
       }
     },
@@ -421,7 +421,7 @@ export default {
         model: modelId,
         loss: Math.random() * 0.5,
         accuracy: 80 + Math.random() * 20,
-        trainingTime: 30 + Math.random() * 120 // 30-150秒
+        trainingTime: 30 + Math.random() * 120 // 30-150 seconds
       }));
     },
     
@@ -439,29 +439,29 @@ export default {
         });
       
       try {
-        // 获取外部配置 | Get external configuration
+        // Get external configuration
         const config = this.externalConfigs[modelId];
         if (!config.endpoint || !config.apiKey) {
           throw new Error('Missing configuration parameters');
         }
         
-        // 调用后端API进行真实连接测试 | Call backend API for real connection test
-        const response = await api.post('/api/test-connection', {
-          modelId: modelId,
-          endpoint: config.endpoint,
-          apiKey: config.apiKey,
-          modelName: config.modelName
+        // Call backend API for real connection test
+        const response = await api.post('/api/models/test-connection', {
+          model_id: modelId,
+          api_url: config.endpoint,
+          api_key: config.apiKey,
+          model_name: config.modelName
         });
         
         const result = response.data;
         
-        if (result.success) {
+        if (result.status === 'success') {
           this.$set(this.connectionStatus, modelId, {
                 status: 'success',
                 message: 'Connection successful'
               });
           
-          // 保存成功的配置到系统设置 | Save successful configuration to system settings
+          // Save successful configuration to system settings
           await this.saveModelConfig(modelId, config);
         } else {
           this.$set(this.connectionStatus, modelId, {
@@ -479,32 +479,35 @@ export default {
     
     async saveModelConfig(modelId, config) {
       try {
-        // 保存模型配置到后端 | Save model configuration to backend
-        await api.post('/api/save-model-config', {
-          modelId: modelId,
-          config: config,
-          source: 'external'
+        // Save model configuration to backend
+        await api.post(`/api/models/${modelId}/switch-to-external`, {
+          api_url: config.endpoint,
+          api_key: config.apiKey,
+          model_name: config.modelName
         });
       } catch (error) {
-        console.error('保存配置失败 | Failed to save configuration:', error);
+        console.error('Failed to save configuration:', error);
       }
     },
     
     async loadSavedConfigs() {
       try {
-        // 为每个模型加载已保存的配置 | Load saved configuration for each model
-        for (const model of this.availableModels) {
-          const response = await api.get(`/api/model-config/${model.id}`);
-          const result = response.data;
+        // Load all system settings, including model configurations
+        const response = await api.get('/api/settings');
+        const result = response.data;
+        
+        if (result.status === 'success' && result.data && result.data.models) {
+          const modelsSettings = result.data.models;
           
-          if (result.success && result.data) {
-            const config = result.data;
+          // Set configuration for each model
+          for (const model of this.availableModels) {
+            const config = modelsSettings[model.id] || {};
             
-            // 设置模型来源 | Set model source
-            if (config.source === 'external' || config.type === 'api') {
+            // Set model source
+            if (config.source === 'api' || config.type === 'api') {
               this.$set(this.modelSources, model.id, 'external');
               
-              // 设置外部配置 | Set external configuration
+              // Set external configuration
               this.$set(this.externalConfigs, model.id, {
                 endpoint: config.api_url || config.endpoint || '',
                 apiKey: config.api_key || '',
@@ -518,8 +521,10 @@ export default {
                 modelName: ''
               });
             }
-          } else {
-            // 默认设置 | Default settings
+          }
+        } else {
+          // Default settings
+          for (const model of this.availableModels) {
             this.$set(this.modelSources, model.id, 'local');
             this.$set(this.externalConfigs, model.id, {
               endpoint: '',
@@ -849,7 +854,7 @@ tr:hover {
   background-color: #f5f7fa;
 }
 
-/* 响应式设计 */
+/* Responsive Design */
 @media (max-width: 768px) {
   .training-control-panel {
     padding: 15px;

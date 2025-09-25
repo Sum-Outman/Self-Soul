@@ -69,9 +69,9 @@ class InternalModelProxy:
                 from ..models.knowledge.model import KnowledgeModel
                 self.internal_model = KnowledgeModel(self.model_config)
             else:
-                # Default to base model for unknown types
-                from ..models.base_model import BaseModel
-                self.internal_model = BaseModel(self.model_config)
+                # Default to composite base model for unknown types
+                from ..models.base.composite_base_model import CompositeBaseModel
+                self.internal_model = CompositeBaseModel(self.model_config)
             
             # Initialize the model
             init_result = self.internal_model.initialize()

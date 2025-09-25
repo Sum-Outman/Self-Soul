@@ -13,11 +13,12 @@
 """
 
 """
-AGI Brain System Main Entry File
-# Self Soul AGI System
+Self Soul AGI System Main Entry File
+# Self Soul
 
-Copyright (c) 2025 AGI Brain Team
+Copyright (c) 2025 Self Soul Team
 Licensed under the Apache License, Version 2.0
+Contact: silencecrowtom@qq.com
 """
 import os
 import sys
@@ -96,6 +97,17 @@ value_alignment = ValueAlignment()
 
 # AGI system coordinator will be initialized in main function
 agi_coordinator = None
+
+# Initialize FastAPI application
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="Self Soul AGI System",
+    description="Advanced General Intelligence System with autonomous learning and self-improvement capabilities",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url=None
+)
 
 # Global variables for model mode management
 _model_modes = {}
@@ -441,32 +453,7 @@ def test_external_api_connection(connection_data: dict) -> dict:
             "message": str(e)
         }
 
-app = FastAPI(
-    title="Self Soul AGI System",
-    description="Advanced General Intelligence System with autonomous learning and self-improvement capabilities",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url=None
-)
-
-# Configure CORS to allow frontend access
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 from core.model_service_manager import model_service_manager
-
-# Health check endpoint
-@app.get("/health")
-def health_check():
-    """
-    Health check endpoint for frontend to verify backend connectivity
-    """
-    return {"status": "healthy", "version": "1.0.0"}
 
 # WebSocket endpoints
 @app.websocket("/ws/training/{job_id}")
@@ -747,6 +734,101 @@ async def chat_with_model(input_data: dict):
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to process chat request")
         raise HTTPException(status_code=500, detail="Failed to process chat request")
+
+# Manager Model Chat API endpoint
+@app.post("/api/models/8001/chat")
+async def chat_with_manager_model(input_data: dict):
+    """
+    Chat with the manager model
+
+    Args:
+        input_data: Dictionary containing chat information
+            - message: User's message
+            - session_id: Unique session identifier
+            - conversation_history: Optional conversation history
+            - query_type: Optional query type
+            - model_id: Optional model ID
+            - confidence: Optional confidence level
+            - parameters: Optional additional parameters
+            - request_type: Optional request type
+            - user_id: Optional user ID
+            - timestamp: Optional timestamp
+            - lang: Optional language code
+            - system_prompt: Optional system prompt
+        
+    Returns:
+        Chat response with enhanced manager model capabilities
+    """
+    try:
+        # Extract input data
+        message = input_data.get("message", "")
+        session_id = input_data.get("session_id", f"session_{datetime.now().timestamp()}")
+        conversation_history = input_data.get("conversation_history", [])
+        query_type = input_data.get("query_type", "text")
+        model_id = input_data.get("model_id", "manager")
+        confidence = input_data.get("confidence", 0.8)
+        parameters = input_data.get("parameters", {})
+        request_type = input_data.get("request_type", "chat")
+        user_id = input_data.get("user_id", "default_user")
+        timestamp = input_data.get("timestamp", datetime.now().isoformat())
+        lang = input_data.get("lang", "en")
+        system_prompt = input_data.get("system_prompt", "")
+        
+        # Prepare full context for manager model
+        context = {
+            "session_id": session_id,
+            "conversation_history": conversation_history,
+            "query_type": query_type,
+            "model_id": model_id,
+            "confidence": confidence,
+            "parameters": parameters,
+            "request_type": request_type,
+            "user_id": user_id,
+            "timestamp": timestamp,
+            "lang": lang,
+            "system_prompt": system_prompt
+        }
+        
+        # Get manager model
+        manager_model = model_registry.get_model("manager")
+        if not manager_model:
+            raise HTTPException(status_code=500, detail="Manager model not loaded")
+        
+        # Process message with manager model
+        # Using process_input with text modality
+        response = manager_model.process_input({
+            "text": message,
+            "type": "text",
+            "context": context
+        }, modality="text", context=context)
+        
+        # Update conversation history
+        conversation_history.append({"role": "user", "content": message})
+        conversation_history.append({"role": "assistant", "content": response.get("text", "")})
+        
+        # Limit conversation history to 50 messages
+        if len(conversation_history) > 50:
+            conversation_history = conversation_history[-50:]
+        
+        # Enhance response with manager model specific fields
+        return {
+            "status": "success",
+            "data": {
+                "response": response.get("text", ""),
+                "conversation_history": conversation_history,
+                "session_id": session_id,
+                "confidence": response.get("confidence", confidence),
+                "response_type": response.get("action", "text"),
+                "model_id": "manager",
+                "port": 8001,
+                "timestamp": datetime.now().isoformat(),
+                "processing_time": response.get("processing_time", 0),
+                "context": context
+            }
+        }
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to process manager model chat request")
+        raise HTTPException(status_code=500, detail="Failed to process manager model chat request")
 
 # Process video input
 @app.post("/api/process/video")
@@ -1443,50 +1525,6 @@ async def get_performance_stats():
         error_handler.handle_error(e, "API", "Failed to get performance statistics")
         raise HTTPException(status_code=500, detail="Failed to get performance statistics")
 
-# Test external API connection
-@app.post("/api/test-connection")
-async def test_connection(connection_data: dict):
-    """
-    Test external API connection
-    
-    Args:
-        connection_data: Connection test data including api_endpoint, api_key, model_name, api_type, etc.
-        
-    Returns:
-        Connection test result
-    """
-    try:
-        endpoint = connection_data.get("api_endpoint", "")
-        api_key = connection_data.get("api_key", "")
-        model_name = connection_data.get("model_name", "")
-        api_type = connection_data.get("api_type", "generic")
-        
-        if not endpoint or not api_key:
-            return {"success": False, "message": "API endpoint and key cannot be empty"}
-        
-        # Use API model connector to test connection
-        test_result = api_model_connector._test_connection(endpoint, api_key)
-        
-        # If connection is successful, save configuration to system settings
-        if test_result["success"]:
-            model_id = connection_data.get("modelId", "")
-            if model_id:
-                # Save API configuration
-                config = {
-                    "api_url": endpoint,
-                    "api_key": api_key,
-                    "model_name": model_name,
-                    "api_type": api_type,
-                    "source": "external"
-                }
-                system_settings_manager.update_model_setting(model_id, config)
-        
-        return test_result
-        
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Connection test failed")
-        return {"success": False, "message": f"Connection test exception: {str(e)}"}
-
 # Dashboard API endpoints
 
 # Get dashboard system metrics
@@ -1950,12 +1988,14 @@ async def get_all_models_config():
     try:
         models_config = system_settings_manager.get_settings().get("models", {})
         models_status = model_registry.get_all_models_status()
+        # 直接调用全局函数获取模型模式
         models_mode = get_all_models_mode()
         
         # Merge configuration, status, and mode information
         result = []
         for model_id, config in models_config.items():
-            status = next((s for s in models_status if s["id"] == model_id), {})
+            # Fix: models_status is a dictionary, not a list
+            status = models_status.get(model_id, {})
             mode = models_mode.get(model_id, "local")
             
             result.append({
@@ -2808,53 +2848,9 @@ async def process_audio(audio_data: dict):
 
 # Knowledge Base API endpoints
 
-# Get knowledge files
-@app.get("/api/knowledge/files")
-async def get_knowledge_files():
-    """
-    Get list of knowledge files
-    
-    Returns:
-        List of knowledge files
-    """
-    try:
-        # Mock files data
-        mock_files = [
-            {"id": "1", "name": "system_architecture.pdf", "type": "pdf", "size": "2.5 MB", "last_modified": "2024-01-15T10:30:00", "domain": "System Architecture"},
-            {"id": "2", "name": "model_documentation.md", "type": "md", "size": "1.2 MB", "last_modified": "2024-01-14T15:45:00", "domain": "Model Documentation"},
-            {"id": "3", "name": "user_manual.docx", "type": "docx", "size": "3.7 MB", "last_modified": "2024-01-13T09:20:00", "domain": "User Guide"}
-        ]
-        return {"status": "success", "files": mock_files}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Failed to get knowledge files")
-        raise HTTPException(status_code=500, detail=str(e))
 
-# Get knowledge statistics
-@app.get("/api/knowledge/stats")
-async def get_knowledge_stats():
-    """
-    Get knowledge base statistics
-    
-    Returns:
-        Knowledge base statistics
-    """
-    try:
-        # Mock statistics data
-        stats = {
-            "total_files": 42,
-            "total_size": "128 MB",
-            "last_updated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "domains": [
-                {"name": "System Architecture", "count": 8},
-                {"name": "Model Documentation", "count": 12},
-                {"name": "User Guide", "count": 5},
-                {"name": "Technical Papers", "count": 17}
-            ]
-        }
-        return {"status": "success", "stats": stats}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Failed to get knowledge statistics")
-        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # Search knowledge base
 @app.get("/api/knowledge/search")
@@ -3022,7 +3018,14 @@ async def get_knowledge_files():
     Get list of knowledge files
     """
     try:
-        # Simulated knowledge file data
+        # Get actual knowledge files
+        from core.knowledge.knowledge_enhancer import KnowledgeEnhancer
+        knowledge_enhancer = KnowledgeEnhancer()
+        files = knowledge_enhancer.get_available_knowledge_files()
+        return {"status": "success", "files": files}
+    except Exception as e:
+        error_handler.log_warning(f"Failed to get actual knowledge files, using mock data: {str(e)}", "API")
+        # Fallback to mock data if actual data retrieval fails
         mock_files = [
             {"id": "1", "name": "system_architecture.pdf", "type": "pdf", "size": "2.5 MB", "last_modified": "2024-01-15T10:30:00"},
             {"id": "2", "name": "model_documentation.md", "type": "md", "size": "1.2 MB", "last_modified": "2024-01-14T15:45:00"},
@@ -3031,9 +3034,6 @@ async def get_knowledge_files():
             {"id": "5", "name": "user_manual.docx", "type": "docx", "size": "4.1 MB", "last_modified": "2024-01-11T11:05:00"}
         ]
         return {"status": "success", "files": mock_files}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Failed to get knowledge files")
-        return {"status": "error", "message": "Failed to get knowledge files"}
 
 # System statistics endpoint
 @app.get("/api/system/stats")

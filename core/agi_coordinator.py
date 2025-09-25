@@ -21,10 +21,10 @@ from core.model_registry import ModelRegistry
 from core.error_handling import error_handler
 from core.fusion.multimodal import MultimodalFusion
 from core.training_manager import TrainingManager
-from core.unified_self_learning import UnifiedSelfLearningSystem
+from core.self_learning import AGISelfLearningSystem as UnifiedSelfLearningSystem
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
 from core.enhanced_meta_cognition import EnhancedMetaCognition
-from core.models.knowledge.model import KnowledgeModel
+from core.models.knowledge import KnowledgeModel
 from core.intrinsic_motivation_system import IntrinsicMotivationSystem
 from core.explainable_ai import ExplainableAI
 from core.value_alignment import ValueAlignment

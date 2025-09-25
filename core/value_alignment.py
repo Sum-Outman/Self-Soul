@@ -1165,6 +1165,26 @@ class ValueSystem:
         
         return SimpleArchitectureOptimizer()
         
+
+        
+    def _create_custom_text_encoder(self):
+        """Create custom text encoder - AGI-level internal implementation"""
+        # Create a simple text encoder neural network
+        class SimpleTextEncoder(nn.Module):
+            def __init__(self):
+                super(SimpleTextEncoder, self).__init__()
+                self.encoder_layer = nn.TransformerEncoderLayer(d_model=768, nhead=8)
+                self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=3)
+                self.output_layer = nn.Linear(768, 768)  # Maintain consistent output dimension
+            
+            def forward(self, x):
+                # Simple forward pass
+                x = self.transformer_encoder(x)
+                x = self.output_layer(x)
+                return x
+        
+        return SimpleTextEncoder()
+        
     def _create_custom_tokenizer(self):
         """Create custom tokenizer - AGI-level internal implementation"""
         class SimpleTokenizer:
@@ -1172,49 +1192,31 @@ class ValueSystem:
                 # Basic tokenization rules
                 self.special_tokens = {'[PAD]': 0, '[UNK]': 1, '[CLS]': 2, '[SEP]': 3}
                 self.max_length = 512
-            
+                
             def tokenize(self, text):
                 # Simple whitespace tokenization with basic preprocessing
                 text = text.lower().strip()
                 text = re.sub(r'[.,!?;]', '', text)  # Remove punctuation
                 tokens = text.split()
                 return tokens[:self.max_length]  # Truncate to max length
-            
-            def convert_tokens_to_ids(self, tokens):
-                # Simple token to ID mapping (mock implementation)
-                # In a real implementation, this would use a proper vocabulary
-                return [hash(token) % 10000 + len(self.special_tokens) for token in tokens]  # Simple hash-based mapping
-            
-            def encode(self, text, truncation=True, padding=False, max_length=None):
-                # Combine tokenization and ID conversion
+                
+            def __call__(self, text, return_tensors="pt", max_length=512, truncation=True, padding=True):
+                # Basic tokenization with padding and truncation
                 tokens = self.tokenize(text)
-                if truncation and max_length and len(tokens) > max_length:
-                    tokens = tokens[:max_length]
-                ids = self.convert_tokens_to_ids(tokens)
-                return ids
-            
-        def decode(self, ids):
-            # Simple ID to token mapping (mock implementation)
-            # In a real implementation, this would use the inverse of the vocabulary
-            tokens = [f'token_{id}' if id >= len(self.special_tokens) else list(self.special_tokens.keys())[id] for id in ids]
-            return ' '.join(tokens)
-
-        def __call__(self, text, return_tensors="pt", max_length=512, truncation=True, padding=True):
-            # Tokenize and convert to IDs
-            tokens = self.tokenize(text)
-            if truncation and len(tokens) > max_length:
-                tokens = tokens[:max_length]
-            ids = self.convert_tokens_to_ids(tokens)
-            
-            # Handle padding
-            if padding and len(ids) < max_length:
-                ids.extend([0] * (max_length - len(ids)))  # 0 is the ID for [PAD]
-            
-            # Return in requested format
-            if return_tensors == "pt":
-                return {'input_ids': torch.tensor([ids])}
-            else:
-                return {'input_ids': [ids]}
+                token_ids = [self.special_tokens.get(token, 1) for token in tokens]  # Use [UNK] for unknown tokens
+                
+                # Handle padding and truncation
+                if truncation and len(token_ids) > max_length:
+                    token_ids = token_ids[:max_length]
+                
+                if padding and len(token_ids) < max_length:
+                    token_ids.extend([0] * (max_length - len(token_ids)))
+                
+                # Return in requested format
+                if return_tensors == "pt":
+                    return {'input_ids': torch.tensor([token_ids])}
+                else:
+                    return {'input_ids': [token_ids]}
         
         return SimpleTokenizer()
         
@@ -1699,9 +1701,9 @@ class EthicalReasoner:
                     'positive_similarity': 0,
                     'negative_similarity': 0
                 }
-            }
+            }        
     
-def _evaluate_rights_based(self, dilemma, context, deep_analysis):
+    def _evaluate_rights_based(self, dilemma, context, deep_analysis):
         """Deep rights-based evaluation"""
         try:
             # Ensure deep_analysis is a dictionary type
@@ -1764,9 +1766,9 @@ def _evaluate_rights_based(self, dilemma, context, deep_analysis):
                     'positive_similarity': 0,
                     'negative_similarity': 0
                 }
-            }
+            }        
     
-def _evaluate_care_ethics(self, dilemma, context, deep_analysis):
+    def _evaluate_care_ethics(self, dilemma, context, deep_analysis):
         """Deep care ethics evaluation"""
         try:
             # Ensure deep_analysis is a dictionary type

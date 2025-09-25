@@ -16,10 +16,28 @@ from collections import defaultdict, deque
 import random
 from pathlib import Path
 import uuid
+import threading
+import time
+from dataclasses import dataclass
+import statistics
+import random
+from collections import defaultdict
 
 # 设置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# 从autonomous_learning_manager.py集成的配置类
+@dataclass
+class AutonomousConfig:
+    """自主学习配置"""
+    training_interval: int = 3600  # 训练间隔（秒）
+    optimization_interval: int = 1800  # 优化间隔（秒）
+    monitoring_interval: int = 300  # 监控间隔（秒）
+    learning_interval: int = 300  # 学习循环间隔（秒）
+    min_improvement_threshold: float = 0.1  # 最小改进阈值
+    max_training_iterations: int = 10  # 最大训练迭代次数
+    enable_continuous_learning: bool = True  # 启用持续学习
 
 class AGISelfLearningSystem:
     """
@@ -93,6 +111,30 @@ class AGISelfLearningSystem:
         # 设备和优化设置
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         logger.info(f"使用设备: {self.device}")
+        
+        # 从autonomous_learning_manager.py集成的功能
+        self.config = AutonomousConfig()
+        self.running = False
+        self.learning_thread = None
+        self.performance_history = defaultdict(list)
+        self.improvement_suggestions = []
+        self.model_references = {}
+        
+        # 学习进度和状态跟踪
+        self.learning_progress = 0.0
+        self.current_learning_status = 'idle'  # idle, running, paused, completed
+        self.learning_domains = []
+        self.learning_priority = 'balanced'
+        self.learning_logs = []
+        self.max_logs = 50
+        
+        # 模型状态跟踪
+        self.model_status_tracking = defaultdict(lambda: {
+            'last_trained': None,
+            'performance_score': 0.0,
+            'improvement_rate': 0.0,
+            'training_priority': 0
+        })
     
     def initialize(self) -> bool:
         """
@@ -215,6 +257,313 @@ class AGISelfLearningSystem:
             logger.info("知识保存成功")
         except Exception as e:
             logger.error(f"保存知识失败: {e}")
+
+    # 从autonomous_learning_manager.py集成的方法
+    def start_autonomous_learning_cycle(self, domains=None, priority='balanced'):
+        """启动自主学习循环"""
+        if self.running:
+            logger.info("自主学习循环已在运行中")
+            return False
+        
+        # 设置学习参数
+        self.learning_domains = domains or []
+        self.learning_priority = priority
+        
+        # 重置进度和状态
+        self.learning_progress = 0.0
+        self.current_learning_status = 'running'
+        self.learning_logs = []
+        
+        # 添加启动日志
+        self._add_learning_log(f"开始自主学习，领域: {self.learning_domains}, 优先级: {self.learning_priority}")
+        
+        self.running = True
+        self.learning_thread = threading.Thread(target=self._autonomous_learning_cycle)
+        self.learning_thread.daemon = True
+        self.learning_thread.start()
+        
+        logger.info("自主学习循环已启动")
+        return True
+        
+    def stop_autonomous_learning_cycle(self):
+        """停止自主学习循环"""
+        self.running = False
+        self.current_learning_status = 'idle'
+        self._add_learning_log("自主学习已停止")
+        
+        if self.learning_thread and self.learning_thread.is_alive():
+            self.learning_thread.join(timeout=5.0)
+            
+        logger.info("自主学习循环已停止")
+        return True
+        
+    def _autonomous_learning_cycle(self):
+        """自主学习循环的内部实现"""
+        try:
+            total_cycles = self.config.max_training_iterations
+            current_cycle = 0
+            
+            while self.running and current_cycle < total_cycles:
+                try:
+                    current_cycle += 1
+                    
+                    # 更新进度
+                    self.learning_progress = min((current_cycle / total_cycles) * 100, 100)
+                    
+                    # 执行学习循环
+                    self._execute_learning_cycle()
+                    
+                    # 等待下一个学习周期
+                    wait_time = self.config.learning_interval
+                    for i in range(wait_time // 1000):
+                        if not self.running:
+                            break
+                        time.sleep(1)
+                        # 每1秒小幅度更新进度
+                        self.learning_progress = min(self.learning_progress + (100/(total_cycles*wait_time)), 100)
+                except Exception as e:
+                    logger.error(f"自主学习循环出错: {e}")
+                    self._add_learning_log(f"学习循环出错: {str(e)}")
+                    time.sleep(5)
+            
+            # 学习完成
+            if self.running:
+                self.learning_progress = 100
+                self.current_learning_status = 'completed'
+                self._add_learning_log("自主学习完成")
+                self.running = False
+        except Exception as e:
+            logger.error(f"自主学习循环严重错误: {e}")
+            self._add_learning_log(f"学习循环严重错误: {str(e)}")
+            self.learning_progress = 0
+            self.current_learning_status = 'idle'
+            self.running = False
+    
+    def _execute_learning_cycle(self):
+        """执行单个学习循环"""
+        # 评估当前知识状态
+        self._evaluate_knowledge_state()
+        
+        # 选择学习目标
+        learning_target = self._select_learning_target()
+        
+        if learning_target:
+            # 执行学习任务
+            self._execute_learning_task(learning_target)
+            
+            # 添加任务执行日志
+            self._add_learning_log(f"已完成学习任务: {learning_target}")
+        
+        # 生成学习报告
+        self._generate_learning_report()
+    
+    def _evaluate_knowledge_state(self):
+        """评估当前知识状态"""
+        # 评估知识架构的完整性
+        knowledge_completeness = self._assess_knowledge_completeness()
+        
+        # 评估学习效率
+        learning_efficiency = self.self_monitoring['learning_efficiency']
+        
+        # 更新性能历史
+        self.performance_history['knowledge_state'].append({
+            'timestamp': datetime.now(),
+            'completeness': knowledge_completeness,
+            'efficiency': learning_efficiency
+        })
+    
+    def _assess_knowledge_completeness(self):
+        """评估知识完整性"""
+        total_concepts = len(self.knowledge_architecture['semantic_memory']['concepts'])
+        total_patterns = len(self.knowledge_architecture['semantic_memory']['patterns'])
+        total_rules = len(self.knowledge_architecture['procedural_memory']['rules'])
+        total_causal_models = len(self.knowledge_architecture['causal_models'])
+        
+        # 计算综合完整性分数
+        completeness_score = min(1.0, (total_concepts * 0.3 + total_patterns * 0.2 + 
+                                     total_rules * 0.3 + total_causal_models * 0.2) / 100)
+        
+        return completeness_score
+    
+    def _select_learning_target(self):
+        """选择学习目标"""
+        # 基于当前知识状态和学习优先级选择目标
+        if self.learning_priority == 'exploration':
+            return self._select_exploration_target()
+        elif self.learning_priority == 'exploitation':
+            return self._select_exploitation_target()
+        else:  # balanced
+            return self._select_balanced_target()
+    
+    def _select_exploration_target(self):
+        """选择探索性学习目标"""
+        # 优先选择新的、未充分探索的知识领域
+        exploration_targets = [
+            'causal_discovery',
+            'pattern_identification', 
+            'concept_abstraction',
+            'meta_learning_optimization'
+        ]
+        return random.choice(exploration_targets)
+    
+    def _select_exploitation_target(self):
+        """选择利用性学习目标"""
+        # 优先优化现有知识和技能
+        exploitation_targets = [
+            'knowledge_consolidation',
+            'skill_refinement',
+            'performance_optimization',
+            'error_correction'
+        ]
+        return random.choice(exploitation_targets)
+    
+    def _select_balanced_target(self):
+        """选择平衡性学习目标"""
+        balanced_targets = [
+            'knowledge_integration',
+            'transfer_learning',
+            'adaptive_learning',
+            'reflective_learning'
+        ]
+        return random.choice(balanced_targets)
+    
+    def _execute_learning_task(self, task_type):
+        """执行学习任务"""
+        try:
+            logger.info(f"开始执行学习任务: {task_type}")
+            
+            # 根据任务类型执行不同的学习策略
+            if task_type == 'causal_discovery':
+                self._execute_causal_discovery()
+            elif task_type == 'pattern_identification':
+                self._execute_pattern_identification()
+            elif task_type == 'knowledge_integration':
+                self._execute_knowledge_integration()
+            elif task_type == 'transfer_learning':
+                self._execute_transfer_learning()
+            else:
+                # 默认执行通用学习任务
+                self._execute_general_learning()
+            
+            logger.info(f"完成学习任务: {task_type}")
+        except Exception as e:
+            logger.error(f"执行学习任务时出错: {task_type}, 错误: {e}")
+    
+    def _execute_causal_discovery(self):
+        """执行因果发现任务"""
+        # 从经验中提取潜在的因果关系
+        recent_experiences = list(self.experience_replay)[-10:]
+        for experience in recent_experiences:
+            if 'interaction' in experience:
+                self._causal_learning(experience['interaction'])
+    
+    def _execute_pattern_identification(self):
+        """执行模式识别任务"""
+        # 分析知识架构中的模式
+        patterns = self.knowledge_architecture['semantic_memory']['patterns']
+        if len(patterns) < 5:  # 如果模式较少，进行模式发现
+            self._identify_advanced_patterns(
+                torch.tensor([0.5] * 10, device=self.device),
+                {'type': 'pattern_discovery', 'context': 'autonomous_learning'}
+            )
+    
+    def _execute_knowledge_integration(self):
+        """执行知识整合任务"""
+        # 整合不同记忆系统中的知识
+        self._consolidate_knowledge(
+            {'type': 'knowledge_integration'},
+            {'basic_learning': {'success': True, 'concepts_learned': 1}}
+        )
+    
+    def _execute_transfer_learning(self):
+        """执行迁移学习任务"""
+        # 尝试将知识迁移到新领域
+        self._transfer_learning(
+            {'type': 'cross_domain_transfer', 'context': 'autonomous_learning'}
+        )
+    
+    def _execute_general_learning(self):
+        """执行通用学习任务"""
+        # 执行基础学习循环
+        interaction_data = {
+            'type': 'autonomous_learning',
+            'input': {'learning_goal': 'general_improvement'},
+            'output': {'learning_result': 'success'},
+            'context': {'autonomous': True}
+        }
+        self.learn_from_interaction(interaction_data)
+    
+    def _generate_learning_report(self):
+        """生成学习报告"""
+        report = {
+            'timestamp': datetime.now(),
+            'learning_progress': self.learning_progress,
+            'knowledge_completeness': self._assess_knowledge_completeness(),
+            'learning_efficiency': self.self_monitoring['learning_efficiency'],
+            'improvement_suggestions': self.improvement_suggestions.copy()
+        }
+        
+        # 清空改进建议，为下一轮做准备
+        self.improvement_suggestions = []
+        
+        # 记录报告
+        self._add_learning_log(f"学习报告生成: 进度{self.learning_progress}%, 完整性{report['knowledge_completeness']:.2f}")
+    
+    def suggest_improvement(self, suggestion):
+        """添加改进建议"""
+        self.improvement_suggestions.append(suggestion)
+        logger.info(f"添加改进建议: {suggestion}")
+        
+    def get_learning_progress(self):
+        """获取自主学习进度"""
+        return {
+            "progress": round(self.learning_progress, 2),
+            "status": self.current_learning_status,
+            "logs": self.learning_logs.copy(),
+            "domains": self.learning_domains,
+            "priority": self.learning_priority
+        }
+    
+    def _add_learning_log(self, message):
+        """添加学习日志"""
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "message": message
+        }
+        
+        self.learning_logs.append(log_entry)
+        
+        # 限制日志数量
+        if len(self.learning_logs) > self.max_logs:
+            self.learning_logs = self.learning_logs[-self.max_logs:]
+    
+    def update_config(self, config):
+        """更新配置"""
+        for key, value in config.items():
+            if hasattr(self.config, key):
+                setattr(self.config, key, value)
+        
+        logger.info(f"更新自主学习配置: {config}")
+    
+    def reset_autonomous_learning(self):
+        """重置自主学习过程"""
+        self.performance_history = defaultdict(list)
+        self.improvement_suggestions = []
+        self.model_status_tracking = defaultdict(lambda: {
+            'last_trained': None,
+            'performance_score': 0.0,
+            'improvement_rate': 0.0,
+            'training_priority': 0
+        })
+        
+        # 重置进度和状态
+        self.learning_progress = 0.0
+        self.current_learning_status = 'idle'
+        self.learning_domains = []
+        self.learning_priority = 'balanced'
+        self.learning_logs = []
+        
+        logger.info("重置自主学习过程")
     
     def learn_from_interaction(self, interaction_data: Dict[str, Any]) -> Dict[str, Any]:
         """

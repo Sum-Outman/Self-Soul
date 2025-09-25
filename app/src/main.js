@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app');
     if (appContainer) {
       app.mount('#app')
-      console.log('AGI Brain System has been successfully mounted!')
+      console.log('Self Soul System has been successfully mounted!')
     } else {
       console.error('Error: Application mount point not found!')
     }

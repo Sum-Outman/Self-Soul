@@ -14,18 +14,18 @@
 
 # Models package initialization file
 # Import all core models
-from .manager.model import ManagerModel
-from .language.model import LanguageModel
-from .audio.model import AudioProcessingModel
-from .vision.merged_model import UnifiedVisionModel
+from .manager import ManagerModel
+from .language import LanguageModel
+from .audio import AudioProcessingModel
+from .vision import VisionModel
 from .video import VideoVisionModel
-from .spatial.merged_model import SpatialPerceptionModel
-from .sensor.model import SensorPerceptionModel
-from .computer.model import ComputerModel
-from .motion.model import MotionModel
-from .knowledge.model import KnowledgeModel
-from .programming.model import ProgrammingModel
-from .planning.model import PlanningModel
+from .spatial import SpatialPerceptionModel
+from .sensor import SensorPerceptionModel
+from .computer import ComputerModel
+from .motion import MotionModel
+from .knowledge import KnowledgeModel
+from .programming import ProgrammingModel
+from .planning import PlanningModel
 
 # Import model registry
 from core.model_registry import model_registry
@@ -34,7 +34,7 @@ from core.model_registry import model_registry
 model_registry.register_model("manager", ManagerModel)
 model_registry.register_model("language", LanguageModel)
 model_registry.register_model("audio", AudioProcessingModel)
-model_registry.register_model("image_vision", UnifiedVisionModel)
+model_registry.register_model("image_vision", VisionModel)
 model_registry.register_model("video_vision", VideoVisionModel)
 model_registry.register_model("spatial", SpatialPerceptionModel)
 model_registry.register_model("sensor", SensorPerceptionModel)

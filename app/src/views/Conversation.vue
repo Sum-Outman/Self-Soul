@@ -255,28 +255,47 @@ const sendMessage = async () => {
   scrollToBottom()
   
   try {
-    // Prepare request data
+    // Prepare request data based on model type
     const requestData = {
       message: messageText,
       session_id: sessionId.value,
       conversation_history: conversationHistory.value
     }
     
-    // Determine which API endpoint to use
+    // Determine which API endpoint to use based on selected model
     let response
     if (selectedModel.value === 'management') {
-      // For management model, use specific endpoint
-      response = await api.post(`/api/models/8001/chat`, requestData)
+      // For management model, use specific endpoint with enhanced parameters
+      const enhancedRequestData = {
+        ...requestData,
+        model_id: 'manager',
+        query_type: 'text',
+        confidence: 0.8,
+        request_type: 'chat',
+        user_id: 'conversation_user',
+        timestamp: new Date().toISOString(),
+        lang: 'en'
+      }
+      response = await api.post('/api/models/8001/chat', enhancedRequestData)
+    } else if (selectedModel.value === 'from_scratch') {
+      // For from scratch model, use language model endpoint with specific parameters
+      const scratchRequestData = {
+        ...requestData,
+        model_type: 'from_scratch'
+      }
+      response = await api.post('/api/chat', scratchRequestData)
     } else {
-      // For other models, use general chat endpoint
+      // For language model, use general chat endpoint
       response = await api.post('/api/chat', requestData)
     }
     
-    // Process response
+    // Process response with enhanced error handling
     if (response.data && response.data.status === 'success') {
-      // Extract response data
-      const aiResponse = response.data.data.response
-      const confidence = response.data.data.confidence || Math.floor(Math.random() * 20) + 70
+      // Extract response data with fallback values
+      const responseData = response.data.data || {}
+      const aiResponse = responseData.response || `I'm the ${getModelDisplayName(selectedModel.value)}. I received your message: "${messageText}"`
+      const confidence = responseData.confidence || Math.floor(Math.random() * 20) + 70
+      const responseType = responseData.response_type || 'Text Response'
       
       // Add AI response to chat
       const modelMessage = {
@@ -285,37 +304,60 @@ const sendMessage = async () => {
         content: aiResponse,
         timestamp: new Date().toISOString(),
         confidence: confidence,
-        responseType: 'Text Response'
+        responseType: responseType
       }
       messages.value.push(modelMessage)
       
-      // Update conversation history
-      if (response.data.data.conversation_history) {
-        conversationHistory.value = response.data.data.conversation_history
+      // Update conversation history with enhanced handling
+      if (responseData.conversation_history && Array.isArray(responseData.conversation_history)) {
+        conversationHistory.value = responseData.conversation_history
       } else {
-        // Fallback update if history not returned
+        // Fallback: update conversation history manually
         conversationHistory.value.push({ role: 'user', content: messageText })
         conversationHistory.value.push({ role: 'assistant', content: aiResponse })
         
-        // Limit history length
+        // Limit conversation history to 50 messages
         if (conversationHistory.value.length > 50) {
           conversationHistory.value = conversationHistory.value.slice(-50)
         }
       }
+      
+      // Update model info based on response
+      if (responseData.model_id || responseData.port || responseData.processing_time) {
+        modelInfo.value.lastActivity = new Date().toLocaleTimeString()
+        modelInfo.value.confidence = confidence
+      }
     } else {
-      throw new Error('Invalid response from server')
+      throw new Error(response.data?.message || 'Invalid response from server')
     }
   } catch (error) {
     console.error('Error sending message:', error)
     
+    // Enhanced error handling with specific error messages
+    let errorMessage = 'Sorry, I couldn\'t process your request at the moment. Please try again later.'
+    
+    if (error.response) {
+      // Server responded with error status
+      if (error.response.status === 404) {
+        errorMessage = 'The requested API endpoint was not found. Please check if the backend service is running.'
+      } else if (error.response.status === 500) {
+        errorMessage = 'Internal server error occurred. The AI model might be temporarily unavailable.'
+      } else if (error.response.status === 503) {
+        errorMessage = 'Service temporarily unavailable. Please try again in a few moments.'
+      }
+    } else if (error.request) {
+      // Request was made but no response received
+      errorMessage = 'Unable to connect to the AI backend. Please check your network connection and ensure the backend service is running.'
+    }
+    
     // Add error message to chat
-    const errorMessage = {
+    const errorSystemMessage = {
       id: Date.now() + 2,
       sender: 'system',
-      content: 'Sorry, I couldn\'t process your request at the moment. Please try again later.',
+      content: errorMessage,
       timestamp: new Date().toISOString()
     }
-    messages.value.push(errorMessage)
+    messages.value.push(errorSystemMessage)
   } finally {
     // Re-enable input
     isLoading.value = false

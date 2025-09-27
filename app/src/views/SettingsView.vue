@@ -865,15 +865,19 @@ export default {
     // Load training status for all models
     const loadTrainingStatus = async () => {
       try {
-        const response = await api.get('/api/models/training/status')
+        const response = await api.get('/api/training/sessions')
         const data = response.data
         // Update models with training status
         models.value.forEach(model => {
-          const status = data.training_statuses?.find(s => s.model_id === model.id) || { isTraining: false, progress: 0, status: 'idle' }
-          model.trainingStatus = {
-            isTraining: status.status === 'training',
-            progress: status.progress || 0,
-            status: status.status || 'idle'
+          const session = data.data?.find(s => s.model_ids?.includes(model.id))
+          if (session) {
+            model.trainingStatus = {
+              isTraining: session.status === 'training',
+              progress: session.progress || 0,
+              status: session.status || 'idle'
+            }
+          } else {
+            model.trainingStatus = { isTraining: false, progress: 0, status: 'idle' }
           }
         })
       } catch (error) {

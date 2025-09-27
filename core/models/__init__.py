@@ -28,7 +28,8 @@ from .programming import ProgrammingModel
 from .planning import PlanningModel
 
 # Import model registry
-from core.model_registry import model_registry
+from core.model_registry import get_model_registry
+model_registry = get_model_registry()
 
 # Register all models to registry
 model_registry.register_model("manager", ManagerModel)

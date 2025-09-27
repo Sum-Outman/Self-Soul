@@ -26,7 +26,8 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from core.error_handling import error_handler
-from core.model_registry import ModelRegistry
+# 延迟导入以避免循环依赖
+# from core.model_registry import ModelRegistry  # 模型注册表
 from core.joint_training_coordinator import JointTrainingCoordinator
 from core.models.prediction import PredictionModel
 from core.models.planning import PlanningModel

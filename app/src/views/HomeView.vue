@@ -3,6 +3,42 @@
     <!-- User Guide Component -->
     <UserGuide v-if="showUserGuide" @close="showUserGuide = false" />
     
+    <!-- Multi-camera and Device Status Section -->
+    <div class="device-status-section">
+      <h3>Multi-camera & Device Status</h3>
+      <div class="device-grid">
+        <div class="device-card" v-for="camera in cameras" :key="camera.id">
+          <div class="device-header">
+            <span class="device-name">{{ camera.name }}</span>
+            <span class="device-status" :class="camera.status"></span>
+          </div>
+          <div class="device-controls">
+            <button @click="toggleCamera(camera.id)" class="device-btn">
+              {{ camera.active ? 'Stop' : 'Start' }}
+            </button>
+            <button @click="configureCamera(camera.id)" class="device-btn">
+              Settings
+            </button>
+          </div>
+        </div>
+        
+        <div class="device-card" v-for="device in externalDevices" :key="device.id">
+          <div class="device-header">
+            <span class="device-name">{{ device.name }}</span>
+            <span class="device-status" :class="device.status"></span>
+          </div>
+          <div class="device-controls">
+            <button @click="toggleDevice(device.id)" class="device-btn">
+              {{ device.connected ? 'Disconnect' : 'Connect' }}
+            </button>
+            <button @click="configureDevice(device.id)" class="device-btn">
+              Config
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Page Content Area -->
     
     <div class="input-area">
@@ -119,7 +155,27 @@ export default {
         lastActive: null
       },
       connectedText: '',
-      activeModels: 0
+      activeModels: 0,
+      // Multi-camera support data
+      cameras: [
+        { id: 'camera1', name: 'Left Camera', status: 'available', active: false, stream: null },
+        { id: 'camera2', name: 'Right Camera', status: 'available', active: false, stream: null },
+        { id: 'camera3', name: 'Depth Camera', status: 'available', active: false, stream: null }
+      ],
+      // External devices and sensors data
+      externalDevices: [
+        { id: 'sensor1', name: 'Temperature Sensor', status: 'available', connected: false, type: 'sensor' },
+        { id: 'sensor2', name: 'Motion Sensor', status: 'available', connected: false, type: 'sensor' },
+        { id: 'device1', name: 'Robotic Arm', status: 'available', connected: false, type: 'actuator' },
+        { id: 'device2', name: 'LED Controller', status: 'available', connected: false, type: 'actuator' }
+      ],
+      // Sensor data storage
+      sensorData: {
+        temperature: null,
+        motion: false,
+        humidity: null,
+        pressure: null
+      }
     };
   },
   mounted() {
@@ -583,6 +639,153 @@ export default {
         errorHandler.handleError(error, 'Failed to process real-time file data');
         this.addSystemMessage('Failed to process file');
       }
+    },
+
+    // Multi-camera control methods
+    toggleCamera(cameraId) {
+      const camera = this.cameras.find(cam => cam.id === cameraId);
+      if (camera) {
+        camera.active = !camera.active;
+        if (camera.active) {
+          this.startCameraStream(cameraId);
+          this.addSystemMessage(`${camera.name} started`);
+        } else {
+          this.stopCameraStream(cameraId);
+          this.addSystemMessage(`${camera.name} stopped`);
+        }
+      }
+    },
+
+    configureCamera(cameraId) {
+      const camera = this.cameras.find(cam => cam.id === cameraId);
+      if (camera) {
+        // Show camera configuration dialog
+        const resolution = prompt(`Configure ${camera.name}:\nEnter resolution (e.g., 1920x1080):`, '1920x1080');
+        if (resolution) {
+          camera.config = { resolution };
+          this.addSystemMessage(`${camera.name} configured with ${resolution}`);
+        }
+      }
+    },
+
+    // External device control methods
+    toggleDevice(deviceId) {
+      const device = this.externalDevices.find(dev => dev.id === deviceId);
+      if (device) {
+        device.connected = !device.connected;
+        if (device.connected) {
+          this.connectDevice(deviceId);
+          this.addSystemMessage(`${device.name} connected`);
+        } else {
+          this.disconnectDevice(deviceId);
+          this.addSystemMessage(`${device.name} disconnected`);
+        }
+      }
+    },
+
+    configureDevice(deviceId) {
+      const device = this.externalDevices.find(dev => dev.id === deviceId);
+      if (device) {
+        // Show device configuration dialog
+        const config = prompt(`Configure ${device.name}:\nEnter configuration parameters:`, 'default');
+        if (config) {
+          device.config = { parameters: config };
+          this.addSystemMessage(`${device.name} configured`);
+        }
+      }
+    },
+
+    // Camera stream management
+    async startCameraStream(cameraId) {
+      try {
+        const camera = this.cameras.find(cam => cam.id === cameraId);
+        if (camera) {
+          // Simulate camera stream initialization
+          camera.stream = `stream_${cameraId}_${Date.now()}`;
+          camera.status = 'active';
+          
+          // Start sensor data updates for this camera
+          this.startSensorDataUpdates();
+        }
+      } catch (error) {
+        errorHandler.handleError(error, `Failed to start camera stream: ${cameraId}`);
+      }
+    },
+
+    stopCameraStream(cameraId) {
+      const camera = this.cameras.find(cam => cam.id === cameraId);
+      if (camera) {
+        camera.stream = null;
+        camera.status = 'available';
+        
+        // Stop sensor data updates if all cameras are off
+        if (this.cameras.every(cam => !cam.active)) {
+          this.stopSensorDataUpdates();
+        }
+      }
+    },
+
+    // Device connection management
+    async connectDevice(deviceId) {
+      try {
+        const device = this.externalDevices.find(dev => dev.id === deviceId);
+        if (device) {
+          // Simulate device connection
+          device.status = 'connected';
+          
+          // Start sensor data collection for sensors
+          if (device.type === 'sensor') {
+            this.startSensorDataUpdates();
+          }
+        }
+      } catch (error) {
+        errorHandler.handleError(error, `Failed to connect device: ${deviceId}`);
+      }
+    },
+
+    disconnectDevice(deviceId) {
+      const device = this.externalDevices.find(dev => dev.id === deviceId);
+      if (device) {
+        device.status = 'available';
+        
+        // Stop sensor data collection if no sensors are connected
+        if (this.externalDevices.every(dev => dev.type !== 'sensor' || !dev.connected)) {
+          this.stopSensorDataUpdates();
+        }
+      }
+    },
+
+    // Sensor data management
+    startSensorDataUpdates() {
+      // Start periodic sensor data updates
+      if (!this.sensorUpdateInterval) {
+        this.sensorUpdateInterval = setInterval(() => {
+          this.updateSensorData();
+        }, 2000); // Update every 2 seconds
+      }
+    },
+
+    stopSensorDataUpdates() {
+      // Stop sensor data updates
+      if (this.sensorUpdateInterval) {
+        clearInterval(this.sensorUpdateInterval);
+        this.sensorUpdateInterval = null;
+      }
+    },
+
+    updateSensorData() {
+      // Simulate sensor data updates
+      this.sensorData = {
+        temperature: this.generateRandomValue(20, 30, 1),
+        motion: Math.random() > 0.8,
+        humidity: this.generateRandomValue(40, 80, 1),
+        pressure: this.generateRandomValue(980, 1020, 1)
+      };
+    },
+
+    generateRandomValue(min, max, precision = 0) {
+      const value = Math.random() * (max - min) + min;
+      return precision === 0 ? Math.round(value) : Number(value.toFixed(precision));
     },
 
     // Set up real-time input listeners
@@ -1511,6 +1714,169 @@ export default {
   font-weight: 400;
 }
 
+/* Multi-camera and Device Status Section Styles */
+.device-status-section {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+}
+
+.device-status-section h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.device-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  background: var(--bg-primary);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.device-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+}
+
+.device-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.device-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.device-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.device-status.available {
+  background-color: #4caf50; /* Green */
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.device-status.active {
+  background-color: #2196f3; /* Blue */
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.device-status.connected {
+  background-color: #4caf50; /* Green */
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.device-status.error {
+  background-color: #f44336; /* Red */
+  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.3);
+}
+
+.device-controls {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: space-between;
+}
+
+.device-btn {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.device-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+}
+
+.device-btn:active {
+  transform: translateY(0);
+}
+
+/* Sensor data display styles */
+.sensor-data-section {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-primary);
+}
+
+.sensor-data-section h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.sensor-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.sensor-data-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.sensor-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.sensor-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sensor-value.true {
+  color: #4caf50;
+}
+
+.sensor-value.false {
+  color: #f44336;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-view {
@@ -1613,6 +1979,23 @@ export default {
   
   .real-time-section {
     padding: 16px;
+  }
+  
+  .device-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .device-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .device-btn {
+    width: 100%;
+  }
+  
+  .sensor-data-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
   </style>

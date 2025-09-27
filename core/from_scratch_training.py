@@ -26,7 +26,7 @@ from datetime import datetime
 
 from core.error_handling import error_handler
 from core.system_settings_manager import system_settings_manager
-from core.model_registry import model_registry
+from core.model_registry import get_model_registry
 # 删除未使用的training_manager导入
 # unified_self_learning模块不存在，暂时注释掉
 # from core.unified_self_learning import unified_self_learning
@@ -44,6 +44,8 @@ class FromScratchTrainingManager:
         self.training_tasks = {}
         # Training status lock
         self.lock = threading.Lock()
+        # Get model registry instance
+        self.model_registry = get_model_registry()
         # AGI-compliant training configuration
         self.default_training_config = {
             "epochs": 100,
@@ -106,7 +108,7 @@ class FromScratchTrainingManager:
         try:
             with self.lock:
                 # Check if model exists
-                if not model_registry.is_model_registered(model_id):
+                if not self.model_registry.is_model_registered(model_id):
                     return {"success": False, "message": f"Model {model_id} is not registered"}
                 
                 # Check if model is already training
@@ -211,8 +213,8 @@ class FromScratchTrainingManager:
                 system_settings_manager.update_model_setting(model_id, {"type": "local"})
             
             # Unload current model if loaded
-            if model_registry.is_model_loaded(model_id):
-                model_registry.unload_model(model_id)
+            if self.model_registry.is_model_loaded(model_id):
+                self.model_registry.unload_model(model_id)
             
             # Get suitable dataset for model type
             dataset_result = dataset_manager.get_training_dataset_for_model(model_id, config.get("dataset_name"))
@@ -241,7 +243,7 @@ class FromScratchTrainingManager:
         """
         try:
             # Get architecture configuration based on model ID
-            architecture_config = model_registry.get_model_architecture_template(model_id)
+            architecture_config = self.model_registry.get_model_architecture_template(model_id)
             
             # Adjust architecture based on configuration
             if config.get("custom_architecture"):
@@ -277,7 +279,7 @@ class FromScratchTrainingManager:
             
             # If loss function is set to "auto", select based on model type
             if loss_function == "auto":
-                model_type = model_registry.get_model_type(model_id)
+                model_type = self.model_registry.get_model_type(model_id)
                 loss_function = self._get_default_loss_function(model_type)
             
             # Set learning rate scheduler
@@ -307,7 +309,7 @@ class FromScratchTrainingManager:
         """
         try:
             # Get the model instance
-            model = model_registry.get_model_instance(model_id)
+            model = self.model_registry.get_model_instance(model_id)
             if not model:
                 self._update_training_status(model_id, "failed", error=f"Model instance not found: {model_id}")
                 return
@@ -371,7 +373,7 @@ class FromScratchTrainingManager:
             dataset_name = dataset.get("dataset_name", "unknown")
             
             # Get model type to determine appropriate data format
-            model_type = model_registry.get_model_type(model_id)
+            model_type = self.model_registry.get_model_type(model_id)
             
             # Prepare data based on model type
             training_data = self._format_training_data_for_model_type(model_type, dataset)
@@ -567,10 +569,12 @@ class FromScratchTrainingManager:
             })
             
             # Notify autonomous learning system for model evaluation
-            unified_self_learning.evaluate_model(model_id)
+            # unified_self_learning module is not available, using alternative approach
+            from core.autonomous_learning_manager import autonomous_learning_manager
+            autonomous_learning_manager.evaluate_model(model_id)
             
             # Load the trained model
-            model_registry.load_model(model_id)
+            self.model_registry.load_model(model_id)
             
         except Exception as e:
             error_handler.handle_error(e, "FromScratchTraining", f"Training finalization failed: {model_id}")
@@ -760,7 +764,7 @@ class FromScratchTrainingManager:
                 json.dump(model_data, f, ensure_ascii=False, indent=2)
                 
             # Notify model registry to update model information
-            model_registry.update_model_info(model_id, {"is_trained_from_scratch": True})
+            self.model_registry.update_model_info(model_id, {"is_trained_from_scratch": True})
             
         except Exception as e:
             error_handler.handle_error(e, "FromScratchTraining", f"Failed to save final model: {model_id}")
@@ -856,7 +860,7 @@ class FromScratchTrainingManager:
         """
         try:
             # Get all registered model IDs
-            registered_models = model_registry.get_all_registered_models()
+            registered_models = self.model_registry.get_all_registered_models()
             if not registered_models:
                 return {"success": False, "message": "No registered models found"}
             

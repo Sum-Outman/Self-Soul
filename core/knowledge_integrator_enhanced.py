@@ -16,7 +16,6 @@ import networkx as nx
 from collections import deque
 import hashlib
 from datetime import datetime
-from transformers import BertTokenizer, BertModel
 import pickle
 from pathlib import Path
 
@@ -40,23 +39,20 @@ class EnhancedKnowledgeRelation:
 class DeepKnowledgeRepresentation(nn.Module):
     """深度知识表示网络"""
     
-    def __init__(self, embedding_dim: int = 768, hidden_dim: int = 1024, from_scratch: bool = False):
+    def __init__(self, embedding_dim: int = 768, hidden_dim: int = 1024, from_scratch: bool = True):
         super(DeepKnowledgeRepresentation, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-        self.from_scratch = from_scratch
         
-        if self.from_scratch:
-            # In from_scratch mode, use a simple embedding layer instead of BERT
-            logger.info("Using simple embedding layer (from_scratch mode)")
-            self.simple_embedding = nn.Embedding(10000, embedding_dim)  # Simple embedding for from_scratch
-            # Use random initialization for tokens
-            self.token_to_id = {}
-            self.next_id = 0
-        else:
-            # BERT-based semantic encoder
-            self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-            self.bert_model = BertModel.from_pretrained('bert-base-uncased')
+        # 强制使用从零开始训练模式，避免外部模型依赖
+        self.from_scratch = True
+        
+        # 使用简单的嵌入层而不是BERT
+        logger.info("Using simple embedding layer (from_scratch mode only)")
+        self.simple_embedding = nn.Embedding(10000, embedding_dim)  # Simple embedding for from_scratch
+        # 使用随机初始化的token
+        self.token_to_id = {}
+        self.next_id = 0
         
         # Relation encoding network
         self.relation_encoder = nn.Sequential(
@@ -123,11 +119,29 @@ class DeepKnowledgeRepresentation(nn.Module):
                 embeddings = self.simple_embedding(token_tensor)
             return embeddings.mean(dim=1)  # 平均池化
         else:
-            # Use BERT for encoding
-            inputs = self.tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=128)
-            with torch.no_grad():
-                outputs = self.bert_model(**inputs)
-            return outputs.last_hidden_state.mean(dim=1)  # 平均池化
+            # Use BERT for encoding - lazy import to avoid download at module import
+            try:
+                from transformers import BertTokenizer, BertModel
+                
+                # Initialize tokenizer and model if not already done
+                if not hasattr(self, 'tokenizer'):
+                    self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                if not hasattr(self, 'bert_model'):
+                    self.bert_model = BertModel.from_pretrained('bert-base-uncased')
+                
+                inputs = self.tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=128)
+                with torch.no_grad():
+                    outputs = self.bert_model(**inputs)
+                return outputs.last_hidden_state.mean(dim=1)  # 平均池化
+            except ImportError:
+                # Fallback to simple embedding if transformers not available
+                logger.warning("BERT tokenizer not available, falling back to simple embedding")
+                tokens = text.lower().split()
+                token_ids = [hash(token) % 10000 for token in tokens[:128]]
+                token_tensor = torch.tensor([token_ids + [0] * (128 - len(token_ids))])
+                with torch.no_grad():
+                    embeddings = nn.Embedding(10000, self.embedding_dim)(token_tensor)
+                return embeddings.mean(dim=1)
 
 class AGIKnowledgeIntegrator:
     """

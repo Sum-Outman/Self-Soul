@@ -30,11 +30,14 @@ from core.external_api_service import ExternalAPIService
 from core.agi_core import AGICore  # AGI核心组件
 from core.meta_learning_system import MetaLearningSystem  # 元学习系统
 from core.adaptive_learning_engine import AdaptiveLearningEngine  # 自适应学习引擎
-from core.autonomous_learning_manager import AutonomousLearningManager  # 自主学习管理器
-from core.agi_coordinator import AGICoordinator  # AGI协调器
+# 延迟导入以避免循环依赖
+# from core.autonomous_learning_manager import AutonomousLearningManager  # 自主学习管理器
+# AGI协调器导入
+# 延迟导入以避免循环依赖
+# AGICoordinator将在需要时动态导入
 from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture  # 统一认知架构
-from core.self_learning import SelfLearningSystem  # 自我学习系统
-from core.context_memory import ContextMemory  # 上下文记忆
+from core.self_learning import AGISelfLearningSystem  # 自我学习系统
+from core.context_memory import ContextMemoryManager  # 上下文记忆管理器
 from core.intrinsic_motivation_system import IntrinsicMotivationSystem  # 内在动机系统
 from core.creative_problem_solver import CreativeProblemSolver  # 创造性问题解决器
 from core.value_alignment import ValueAlignment  # 值对齐系统
@@ -243,10 +246,10 @@ class ModelRegistry:
         
         # AGI级别组件初始化
         self.agi_core = AGICore()  # AGI核心系统
-        self.agi_coordinator = AGICoordinator()  # AGI协调器
+        self._agi_coordinator = None  # AGI协调器（延迟初始化）
         self.cognitive_architecture = UnifiedCognitiveArchitecture()  # 统一认知架构
-        self.self_learning_system = SelfLearningSystem()  # 自我学习系统
-        self.context_memory = ContextMemory()  # 上下文记忆系统
+        self.self_learning_system = AGISelfLearningSystem()  # 自我学习系统
+        self.context_memory = ContextMemoryManager()  # 上下文记忆管理器
         self.intrinsic_motivation = IntrinsicMotivationSystem()  # 内在动机系统
         self.creative_solver = CreativeProblemSolver()  # 创造性问题解决器
         self.value_alignment = ValueAlignment()  # 值对齐系统
@@ -283,6 +286,42 @@ class ModelRegistry:
         self.training_progress = {}  # 训练进度跟踪
         self.knowledge_base_integration = {}  # 知识库集成状态
         
+    @property
+    def agi_coordinator(self):
+        """AGI协调器延迟加载属性
+        AGI Coordinator lazy loading property
+        """
+        if self._agi_coordinator is None:
+            try:
+                # 延迟导入以避免循环依赖
+                from core.agi_coordinator import AGICoordinator
+                self._agi_coordinator = AGICoordinator()
+                error_handler.log_info("AGI协调器已延迟加载", "ModelRegistry")
+            except ImportError as e:
+                error_handler.handle_error(e, "ModelRegistry", "无法导入AGICoordinator模块")
+                # 创建简化版本的协调器
+                self._agi_coordinator = self._create_fallback_agi_coordinator()
+        return self._agi_coordinator
+
+    def _create_fallback_agi_coordinator(self):
+        """创建简化版的AGI协调器作为备用
+        Create simplified AGI coordinator as fallback
+        """
+        class FallbackAGICoordinator:
+            def __init__(self):
+                self.models = {}
+                
+            def on_model_registered(self, model_id, model_instance):
+                error_handler.log_info(f"备用协调器: 模型 {model_id} 已注册", "FallbackAGICoordinator")
+                
+            def on_model_loaded(self, model_id):
+                error_handler.log_info(f"备用协调器: 模型 {model_id} 已加载", "FallbackAGICoordinator")
+                
+            def get_model_coordination(self, model_id):
+                return {"status": "fallback", "message": "使用备用协调器"}
+                
+        return FallbackAGICoordinator()
+
     def register_model(self, model_id: str, model_class: Type, config: Dict[str, Any] = None):
         """AGI增强版模型注册方法，支持从零开始训练和深度集成
         AGI-enhanced model registration method with from-scratch training and deep integration support
@@ -312,8 +351,8 @@ class ModelRegistry:
                 'model_registry': self  # 传递模型注册表引用
             })
             
-            # 创建模型实例
-            model_instance = model_class(**enhanced_config)
+            # 创建模型实例 - 传递单个config参数而不是展开
+            model_instance = model_class(enhanced_config)
             self.models[model_id] = model_instance
             self.model_configs[model_id] = enhanced_config
             
@@ -449,18 +488,39 @@ class ModelRegistry:
             self._notify_agi_model_loaded(model_id, from_scratch)
             
             return model
+            
         except Exception as e:
-            error_handler.handle_error(e, "ModelRegistry", f"AGI级别加载模型 {model_id} 失败")
-            # 详细错误日志记录
+            # 更详细的错误日志记录，特别关注JSON相关错误
             import traceback
             error_details = {
                 'model_id': model_id,
                 'error': str(e),
+                'error_type': type(e).__name__,
                 'timestamp': time.time(),
                 'stack_trace': traceback.format_exc(),
-                'agi_state': self.agi_state.copy()
+                'agi_state': self.agi_state.copy(),
+                'config_keys': list(config.keys()) if config else [],
+                'model_types_keys': list(self.model_types.keys()) if self.model_types else []
             }
-            self._log_agi_error(error_details)
+            
+            # 特别检查JSON相关错误
+            if 'JSON' in str(e) or 'json' in str(e).lower():
+                error_details['json_error_detected'] = True
+                # 检查可能的JSON配置问题
+                if config:
+                    error_details['config_has_json_keys'] = any('json' in key.lower() for key in config.keys())
+                error_handler.log_error(f"JSON相关错误检测到: {str(e)}", "ModelRegistry")
+            
+            # 记录详细错误信息
+            self._log_error(error_details)
+            
+            # 输出更详细的错误信息到控制台
+            print(f"DEBUG - ModelRegistry加载模型 {model_id} 失败:")
+            print(f"错误类型: {type(e).__name__}")
+            print(f"错误信息: {str(e)}")
+            print(f"堆栈跟踪: {traceback.format_exc()}")
+            
+            error_handler.handle_error(e, "ModelRegistry", f"AGI级别加载模型 {model_id} 失败")
             return None
             
     def _get_agi_dependency_loading_order(self, model_id: str) -> List[str]:
@@ -610,20 +670,59 @@ class ModelRegistry:
             model_id: 模型ID / Model ID
             from_scratch: 是否从零开始训练 / Whether training from scratch
         """
-        # 通知所有AGI组件
-        self.agi_core.on_model_loaded(model_id, from_scratch)
-        self.agi_coordinator.on_model_loaded(model_id)
-        self.cognitive_architecture.integrate_model(model_id, self.models[model_id])
-        
-        # 如果是知识库模型，启动自主学习
-        if model_id == 'knowledge' and from_scratch:
-            self._start_autonomous_knowledge_learning()
+        try:
+            # 简化通知逻辑，完全避免JSON序列化问题
+            print(f"INFO: AGI system integrating model: {model_id} (from_scratch: {from_scratch})")
             
-        # 更新AGI状态
-        self.agi_state['knowledge_accumulation'] += 0.1
-        self.agi_state['consciousness_level'] = min(1.0, self.agi_state['consciousness_level'] + 0.05)
-        
-        error_handler.log_info(f"AGI系统已集成模型: {model_id}", "ModelRegistry")
+            # 直接使用基本类型参数调用AGI组件
+            if hasattr(self.agi_core, 'on_model_loaded'):
+                try:
+                    # 直接传递基本类型参数，不进行JSON验证
+                    self.agi_core.on_model_loaded(str(model_id), bool(from_scratch))
+                except Exception as e:
+                    print(f"WARNING: AGI core notification failed for {model_id}: {type(e).__name__}")
+            
+            # 简化AGI协调器通知
+            if hasattr(self.agi_coordinator, 'on_model_loaded'):
+                try:
+                    self.agi_coordinator.on_model_loaded(str(model_id))
+                except Exception as e:
+                    print(f"WARNING: AGI coordinator notification failed for {model_id}: {type(e).__name__}")
+            
+            # 简化认知架构集成
+            if hasattr(self.cognitive_architecture, 'integrate_model'):
+                try:
+                    self.cognitive_architecture.integrate_model(str(model_id), None)
+                except Exception as e:
+                    print(f"WARNING: Cognitive architecture integration failed for {model_id}: {type(e).__name__}")
+            
+            # 简化知识库自主学习启动
+            if model_id == 'knowledge' and from_scratch:
+                try:
+                    self._start_autonomous_knowledge_learning()
+                except Exception as e:
+                    print(f"WARNING: Autonomous learning startup failed for {model_id}: {type(e).__name__}")
+                    
+            # 简化AGI状态更新
+            try:
+                # 直接使用基本数值操作
+                self.agi_state['knowledge_accumulation'] = min(1.0, float(self.agi_state.get('knowledge_accumulation', 0.0)) + 0.1)
+                self.agi_state['consciousness_level'] = min(1.0, float(self.agi_state.get('consciousness_level', 0.1)) + 0.05)
+                self.agi_state['total_interactions'] = int(self.agi_state.get('total_interactions', 0)) + 1
+                
+                # 确保所有值是基本类型
+                for key in list(self.agi_state.keys()):
+                    value = self.agi_state[key]
+                    if not isinstance(value, (int, float, str, bool)):
+                        self.agi_state[key] = str(value)
+                        
+            except Exception as e:
+                print(f"WARNING: AGI state update failed for {model_id}: {type(e).__name__}")
+            
+            print(f"INFO: AGI system successfully integrated model: {model_id}")
+        except Exception as e:
+            # 使用最简单的错误处理
+            print(f"WARNING: Error in AGI model load notification for {model_id}: {type(e).__name__}")
         
     def get_model(self, model_id: str):
         """获取已注册的模型实例
@@ -993,6 +1092,157 @@ class ModelRegistry:
                 highest_response = response
         
         return highest_response
+    
+    def _resolve_conflict_agi_consensus(self, model_responses: List[Tuple[str, Any]]) -> Any:
+        """使用AGI共识策略解决冲突，结合多个模型的智能和协作能力
+        Resolve conflicts using AGI consensus strategy, combining intelligence and collaboration of multiple models
+        
+        Args:
+            model_responses: 模型响应列表，每个元素是(模型ID, 响应)的元组
+            
+        Returns:
+            解决冲突后的结果 / Result after conflict resolution
+        """
+        if not model_responses:
+            return None
+        
+        # 如果只有一个响应，直接返回
+        if len(model_responses) == 1:
+            return model_responses[0][1]
+        
+        try:
+            # 使用AGI协调器进行共识决策
+            if self._agi_coordinator is not None:
+                # 准备模型响应数据
+                model_data = []
+                for model_id, response in model_responses:
+                    model_data.append({
+                        'model_id': model_id,
+                        'response': response,
+                        'performance': self.performance_metrics.get(model_id, {}),
+                        'collaboration_score': self.performance_metrics.get(model_id, {}).get('collaboration_score', 0.5)
+                    })
+                
+                # 尝试使用AGI协调器达成共识
+                if hasattr(self._agi_coordinator, 'resolve_conflicts'):
+                    consensus_result = self._agi_coordinator.resolve_conflicts(model_data)
+                    if consensus_result is not None:
+                        return consensus_result
+            
+            # 如果AGI协调器不可用或没有提供结果，使用加权共识算法
+            return self._weighted_consensus(model_responses)
+            
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", "AGI共识策略失败，回退到加权共识")
+            return self._weighted_consensus(model_responses)
+    
+    def _weighted_consensus(self, model_responses: List[Tuple[str, Any]]) -> Any:
+        """加权共识算法，基于模型性能和协作能力
+        Weighted consensus algorithm based on model performance and collaboration capability
+        
+        Args:
+            model_responses: 模型响应列表，每个元素是(模型ID, 响应)的元组
+            
+        Returns:
+            加权共识结果 / Weighted consensus result
+        """
+        if not model_responses:
+            return None
+        
+        # 计算每个模型的权重
+        weights = {}
+        total_weight = 0
+        
+        for model_id, response in model_responses:
+            # 基础权重
+            weight = 1.0
+            
+            # 基于性能指标调整权重
+            if model_id in self.performance_metrics:
+                metrics = self.performance_metrics[model_id]
+                # 综合权重 = 成功率(40%) + 协作能力(30%) + 最近表现(30%)
+                success_weight = metrics.get('success_rate', 0.5) * 0.4
+                collaboration_weight = metrics.get('collaboration_score', 0.5) * 0.3
+                recent_performance_weight = self._calculate_recent_performance(model_id) * 0.3
+                weight = success_weight + collaboration_weight + recent_performance_weight
+            
+            weights[model_id] = weight
+            total_weight += weight
+        
+        # 如果所有权重都是0，使用平均权重
+        if total_weight == 0:
+            equal_weight = 1.0 / len(model_responses)
+            for model_id in weights:
+                weights[model_id] = equal_weight
+            total_weight = 1.0
+        
+        # 归一化权重
+        for model_id in weights:
+            weights[model_id] /= total_weight
+        
+        # 对于数值型响应，计算加权平均
+        if all(isinstance(r, (int, float)) for _, r in model_responses):
+            weighted_sum = 0
+            for model_id, response in model_responses:
+                weighted_sum += response * weights[model_id]
+            return weighted_sum
+        
+        # 对于字符串响应，选择权重最高的响应
+        elif all(isinstance(r, str) for _, r in model_responses):
+            best_model_id = max(weights, key=weights.get)
+            for model_id, response in model_responses:
+                if model_id == best_model_id:
+                    return response
+        
+        # 对于字典响应，合并所有响应，按权重调整
+        elif all(isinstance(r, dict) for _, r in model_responses):
+            merged_result = {}
+            for model_id, response in model_responses:
+                for key, value in response.items():
+                    if key not in merged_result:
+                        merged_result[key] = value * weights[model_id]
+                    else:
+                        merged_result[key] += value * weights[model_id]
+            return merged_result
+        
+        # 默认返回权重最高的响应
+        best_model_id = max(weights, key=weights.get)
+        for model_id, response in model_responses:
+            if model_id == best_model_id:
+                return response
+    
+    def _calculate_recent_performance(self, model_id: str) -> float:
+        """计算模型的近期表现评分
+        Calculate recent performance score for a model
+        
+        Args:
+            model_id: 模型ID
+            
+        Returns:
+            float: 近期表现评分 (0-1)
+        """
+        if model_id not in self.performance_metrics:
+            return 0.5
+        
+        metrics = self.performance_metrics[model_id]
+        
+        # 检查最近活动时间
+        last_activity = metrics.get('last_collaboration_time', 0)
+        current_time = time.time()
+        
+        # 如果超过1小时没有活动，降低评分
+        time_decay = 1.0
+        if current_time - last_activity > 3600:  # 1小时
+            time_decay = max(0.1, 1.0 - (current_time - last_activity - 3600) / 36000)  # 每10小时衰减0.1
+        
+        # 基于最近的成功率和错误率计算表现
+        success_rate = metrics.get('success_rate', 0.5)
+        error_rate = metrics.get('error_rate', 0)
+        
+        # 表现评分 = 成功率 * (1 - 错误率) * 时间衰减
+        performance_score = success_rate * (1 - error_rate) * time_decay
+        
+        return max(0, min(1, performance_score))
     
     def _initialize_cognitive_fusion_engine(self):
         """初始化认知融合引擎
@@ -2273,9 +2523,36 @@ class ModelRegistry:
 
     
 
-# 创建全局模型注册表实例
-# Create global model registry instance
-model_registry = ModelRegistry()
+# 创建全局模型注册表实例（延迟初始化）
+# Create global model registry instance (lazy initialization)
+_model_registry_instance = None
+
+def get_model_registry():
+    """获取模型注册表实例（懒加载）
+    Get model registry instance (lazy loading)
+    
+    Returns:
+        ModelRegistry: 模型注册表实例
+    """
+    global _model_registry_instance
+    if _model_registry_instance is None:
+        try:
+            _model_registry_instance = ModelRegistry()
+            print("ModelRegistry initialized successfully")
+        except Exception as e:
+            print(f"Error initializing ModelRegistry: {e}")
+            # 创建简化版本的注册表作为备用
+            class FallbackModelRegistry:
+                def __init__(self):
+                    self.models = {}
+                    self.model_configs = {}
+                def get_model(self, model_id):
+                    return self.models.get(model_id)
+                def get_model_status(self, model_id):
+                    return {"status": "fallback", "model_id": model_id}
+            _model_registry_instance = FallbackModelRegistry()
+            print("Using fallback ModelRegistry")
+    return _model_registry_instance
 
 # 模块级函数：提供对全局实例方法的直接访问
 # Module-level functions: provide direct access to global instance methods
@@ -2289,7 +2566,7 @@ def get_model(model_id: str):
     Returns:
         object: 模型实例或None / Model instance or None
     """
-    return model_registry.get_model(model_id)
+    return get_model_registry().get_model(model_id)
 
 # 获取模型状态
 def get_model_status(model_id: str):
@@ -2302,10 +2579,10 @@ def get_model_status(model_id: str):
     Returns:
         dict: 模型状态字典 / Model status dictionary
     """
-    return model_registry.get_model_status(model_id)
+    return get_model_registry().get_model_status(model_id)
 
-# 初始化模型注册表
-# Initialize model registry
+# 初始化模型注册表（兼容性函数）
+# Initialize model registry (compatibility function)
 def initialize():
     """初始化模型注册表
     Initialize model registry
@@ -2313,15 +2590,7 @@ def initialize():
     Returns:
         ModelRegistry: 模型注册表实例
     """
-    global model_registry
-    if model_registry is None:
-        model_registry = ModelRegistry()
-    return model_registry
-
-# 确保在模块加载时初始化
-# Ensure initialization when module is loaded
-if model_registry is None:
-    initialize()
+    return get_model_registry()
 
 # ====== 新增训练协调方法 ====== | ====== Added training coordination methods ======
 

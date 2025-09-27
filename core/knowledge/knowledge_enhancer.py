@@ -23,7 +23,7 @@ from datetime import datetime
 from enum import Enum
 
 from ..error_handling import error_handler
-from ..model_registry import model_registry
+from ..model_registry import ModelRegistry
 
 
 class LearningMode(Enum):
@@ -59,12 +59,13 @@ class KnowledgeEnhancer:
         self.learning_history = []
         self.integration_patterns = {}
         self.knowledge_graph = {}
+        self.model_registry = ModelRegistry()
         
     async def enhance_knowledge_model(self, mode: LearningMode = LearningMode.ACTIVE, 
                                     focus_areas: List[str] = None) -> Dict[str, Any]:
         """增强知识库模型 / Enhance knowledge model"""
         try:
-            knowledge_model = model_registry.get_model("knowledge")
+            knowledge_model = self.model_registry.get_model("knowledge")
             if not knowledge_model:
                 error_handler.log_error("知识库模型未找到", "KnowledgeEnhancer")
                 return {"status": "error", "message": "Knowledge model not found"}
@@ -91,7 +92,7 @@ class KnowledgeEnhancer:
     async def integrate_model_knowledge(self, model_id: str, knowledge_data: Any) -> bool:
         """整合其他模型的知识 / Integrate knowledge from other models"""
         try:
-            knowledge_model = model_registry.get_model("knowledge")
+            knowledge_model = self.model_registry.get_model("knowledge")
             if not knowledge_model:
                 return False
             

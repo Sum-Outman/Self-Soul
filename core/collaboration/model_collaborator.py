@@ -42,7 +42,7 @@ from collections import deque
 import json
 
 from core.error_handling import error_handler
-from core.model_registry import model_registry
+from core.model_registry import get_model_registry
 
 
 """
@@ -289,7 +289,7 @@ class ModelCollaborationOrchestrator:
         
         for model_id in config.model_ids:
             try:
-                model = model_registry.get_model(model_id)
+                model = get_model_registry().get_model(model_id)
                 if not model:
                     error_msg = f"模型未找到: {model_id}"
                     self.logger.error(error_msg)
@@ -357,7 +357,7 @@ class ModelCollaborationOrchestrator:
         
         # 创建并行任务
         for model_id in config.model_ids:
-            model = model_registry.get_model(model_id)
+            model = get_model_registry().get_model(model_id)
             if not model:
                 error_msg = f"模型未找到: {model_id}"
                 self.logger.error(error_msg)
@@ -492,7 +492,7 @@ class ModelCollaborationOrchestrator:
         """
         # 获取条件判断模型
         condition_model_id = config.parameters.get("condition_model", config.model_ids[0])
-        condition_model = model_registry.get_model(condition_model_id)
+        condition_model = get_model_registry().get_model(condition_model_id)
         
         if not condition_model:
             error_msg = f"条件模型未找到: {condition_model_id}"

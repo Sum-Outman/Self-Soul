@@ -30,7 +30,7 @@ import logging
 from collections import deque
 
 from ..error_handling import error_handler
-from ..model_registry import model_registry
+from ..model_registry import get_model_registry
 
 
 class OptimizationStrategy(Enum):
@@ -441,6 +441,7 @@ class ModelOptimizer:
             dict: 优化结果
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(model_id)
             if not model:
                 error_handler.log_error(f"模型 {model_id} 未找到", "ModelOptimizer")
@@ -522,6 +523,7 @@ class ModelOptimizer:
         Analyze model dependencies
         """
         dependencies = {}
+        model_registry = get_model_registry()
         for model_id in model_ids:
             model = model_registry.get_model(model_id)
             if model and hasattr(model, 'get_dependencies'):
@@ -604,6 +606,7 @@ class ModelOptimizer:
         Performance optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             baseline = self._get_performance_baseline(task.model_id)
             
@@ -652,6 +655,7 @@ class ModelOptimizer:
         Accuracy optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             baseline = self._get_performance_baseline(task.model_id)
             
@@ -700,6 +704,7 @@ class ModelOptimizer:
         Efficiency optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             baseline = self._get_performance_baseline(task.model_id)
             
@@ -748,6 +753,7 @@ class ModelOptimizer:
         Collaboration optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             
             # 协作优化逻辑
@@ -794,6 +800,7 @@ class ModelOptimizer:
         Joint optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             # 获取相关模型
             related_models = model_registry.get_related_models(task.model_id)
             
@@ -837,6 +844,7 @@ class ModelOptimizer:
         Adaptive optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             baseline = self._get_performance_baseline(task.model_id)
             
@@ -884,6 +892,7 @@ class ModelOptimizer:
         Knowledge-based optimization strategy
         """
         try:
+            model_registry = get_model_registry()
             model = model_registry.get_model(task.model_id)
             
             # 从本地知识库获取优化建议

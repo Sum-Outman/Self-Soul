@@ -17,17 +17,18 @@ import os
 import random
 import numpy as np
 from datetime import datetime
-from core.model_registry import ModelRegistry
-from core.error_handling import error_handler
-from core.fusion.multimodal import MultimodalFusion
-from core.training_manager import TrainingManager
-from core.self_learning import AGISelfLearningSystem as UnifiedSelfLearningSystem
-from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
-from core.enhanced_meta_cognition import EnhancedMetaCognition
-from core.models.knowledge import KnowledgeModel
-from core.intrinsic_motivation_system import IntrinsicMotivationSystem
-from core.explainable_ai import ExplainableAI
-from core.value_alignment import ValueAlignment
+# 延迟导入以避免循环依赖
+# ModelRegistry 将在 __init__ 方法中延迟导入
+from error_handling import error_handler
+from fusion.multimodal import MultimodalFusion
+from training_manager import TrainingManager
+from self_learning import AGISelfLearningSystem as UnifiedSelfLearningSystem
+from unified_cognitive_architecture import UnifiedCognitiveArchitecture
+from enhanced_meta_cognition import EnhancedMetaCognition
+from models.knowledge import KnowledgeModel
+from intrinsic_motivation_system import IntrinsicMotivationSystem
+from explainable_ai import ExplainableAI
+from value_alignment import ValueAlignment
 
 
 """
@@ -38,6 +39,9 @@ class AGICoordinator:
     """Self Soul  AGI中央协调器，管理和协调所有认知组件"""
     
     def __init__(self, from_scratch: bool = False):
+        # 延迟导入以避免循环依赖
+        from core.model_registry import ModelRegistry
+        
         # 初始化统一认知架构
         self.cognitive_architecture = UnifiedCognitiveArchitecture()
         
@@ -121,8 +125,8 @@ class AGICoordinator:
             
             # 根据模型类型和能力加权计算
             model_weights = {
-                'language': 0.15, 'audio': 0.10, 'image_vision': 0.12,
-                'video_vision': 0.08, 'sensor': 0.05, 'manager': 0.20,
+                'language': 0.15, 'audio': 0.10, 'vision_image': 0.12,
+                'vision_video': 0.08, 'sensor': 0.05, 'manager': 0.20,
                 'planning': 0.10, 'reasoning': 0.15, 'learning': 0.05
             }
             
@@ -441,7 +445,7 @@ class AGICoordinator:
     """
     def _process_image_input(self, image_data):
         """处理图像输入"""
-        image_model = self.model_registry.get_model('image_vision')
+        image_model = self.model_registry.get_model('vision_image')
         if not image_model:
             raise RuntimeError("图像模型未加载")
         
@@ -461,7 +465,7 @@ class AGICoordinator:
     """
     def _process_video_input(self, video_data):
         """处理视频输入"""
-        video_model = self.model_registry.get_model('video_vision')
+        video_model = self.model_registry.get_model('vision_video')
         if not video_model:
             raise RuntimeError("视频模型未加载")
         

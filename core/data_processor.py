@@ -127,7 +127,6 @@ def preprocess_video(video_data, max_resolution, min_fps, max_fps):
         # 出错时返回原始视频数据
         # Return original video data on error
         return video_data
-    JSON = "json"
 
 
 """

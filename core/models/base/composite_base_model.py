@@ -51,6 +51,9 @@ class CompositeBaseModel(
             model_config: Configuration dictionary for the model
             **kwargs: Additional initialization parameters
         """
+        # Initialize instance-level logger first
+        self.logger = logging.getLogger(__name__)
+        
         # Initialize all mixins in the correct order
         PerformanceMonitoringMixin.__init__(self)
         ExternalAPIIntegrationMixin.__init__(self)
@@ -69,7 +72,7 @@ class CompositeBaseModel(
         # Initialize model state
         self._initialize_model_state()
         
-        logger.info(f"CompositeBaseModel initialized: {self.model_name} v{self.model_version}")
+        self.logger.info(f"CompositeBaseModel initialized: {self.model_name} v{self.model_version}")
     
     def _initialize_model_state(self):
         """Initialize the model's internal state."""
@@ -107,7 +110,7 @@ class CompositeBaseModel(
             # Apply caching if enabled
             cache_key = self._generate_cache_key(processed_input, kwargs)
             if self.is_caching_enabled() and self.is_cached(cache_key):
-                logger.debug("Retrieving result from cache")
+                self.logger.debug("Retrieving result from cache")
                 result = self.get_cached_result(cache_key)
             else:
                 # Perform actual inference
@@ -129,7 +132,7 @@ class CompositeBaseModel(
             # Handle errors using error handling mixin
             recovery_result = self.handle_error(e, context={'operation': 'inference'})
             if recovery_result.get('recovered', False):
-                logger.info("Error recovered, retrying operation")
+                self.logger.info("Error recovered, retrying operation")
                 return self.process_input(input_data, **kwargs)
             else:
                 raise
@@ -164,7 +167,7 @@ class CompositeBaseModel(
             Pre-processed input data
         """
         # Default implementation - can be overridden by subclasses
-        logger.debug("Preprocessing input data")
+        self.logger.debug("Preprocessing input data")
         return input_data
     
     def _postprocess_output(self, inference_result: Any, **kwargs) -> Any:
@@ -179,7 +182,7 @@ class CompositeBaseModel(
             Post-processed output
         """
         # Default implementation - can be overridden by subclasses
-        logger.debug("Postprocessing inference result")
+        self.logger.debug("Postprocessing inference result")
         return inference_result
     
     def _generate_cache_key(self, input_data: Any, kwargs: Dict[str, Any]) -> str:
@@ -237,7 +240,7 @@ class CompositeBaseModel(
         Returns:
             True if initialization successful
         """
-        logger.info(f"Initializing model: {self.model_name}")
+        self.logger.info(f"Initializing model: {self.model_name}")
         
         try:
             # Perform model-specific initialization
@@ -247,11 +250,11 @@ class CompositeBaseModel(
             # Update model state
             self._initialize_model_state()
             
-            logger.info("Model initialization completed successfully")
+            self.logger.info("Model initialization completed successfully")
             return True
             
         except Exception as e:
-            logger.error(f"Model initialization failed: {e}")
+            self.logger.error(f"Model initialization failed: {e}")
             return False
     
     def shutdown(self) -> bool:
@@ -261,7 +264,7 @@ class CompositeBaseModel(
         Returns:
             True if shutdown successful
         """
-        logger.info(f"Shutting down model: {self.model_name}")
+        self.logger.info(f"Shutting down model: {self.model_name}")
         
         try:
             # Release resources
@@ -276,11 +279,11 @@ class CompositeBaseModel(
             self.is_initialized = False
             self.model_state['shutdown_time'] = self._get_timestamp()
             
-            logger.info("Model shutdown completed successfully")
+            self.logger.info("Model shutdown completed successfully")
             return True
             
         except Exception as e:
-            logger.error(f"Model shutdown failed: {e}")
+            self.logger.error(f"Model shutdown failed: {e}")
             return False
     
     def _get_timestamp(self) -> float:
@@ -333,7 +336,7 @@ class SpecializedAGIModel(CompositeBaseModel):
             Inference result
         """
         # Example implementation - replace with actual inference logic
-        logger.info("Performing specialized inference")
+        self.logger.info("Performing specialized inference")
         
         # Apply AGI reasoning capabilities
         reasoning_result = self.reason_about_problem(
@@ -359,7 +362,7 @@ class SpecializedAGIModel(CompositeBaseModel):
     
     def _custom_initialization(self, initialization_data: Any = None):
         """Custom initialization for the specialized model."""
-        logger.info("Performing specialized model initialization")
+        self.logger.info("Performing specialized model initialization")
         
         # Initialize specialized capabilities
         if initialization_data:
@@ -368,7 +371,7 @@ class SpecializedAGIModel(CompositeBaseModel):
         # Enable specific AGI capabilities
         self.enable_from_scratch_training(True)
         
-        logger.info("Specialized model initialization completed")
+        self.logger.info("Specialized model initialization completed")
 
 
 # Factory function for creating model instances

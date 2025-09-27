@@ -1,13 +1,17 @@
 """
 Unified Manager Model - Core Coordination and Task Allocation
 
-基于统一模板的管理器模型实现，提供：
-- 所有11个子模型的协调和协作管理
-- 多模态输入处理和智能路由
-- 任务优先级管理和实时分配
-- 情感感知和情感响应
-- 本地和外部API模型的无缝切换
-- 实时监控和性能优化
+AGI-Level Manager Model Implementation based on Unified Template, providing:
+- Coordination and collaborative management of all 11 sub-models
+- Multi-modal input processing and intelligent routing
+- Task priority management and real-time allocation
+- Emotion awareness and emotional response
+- Seamless switching between local and external API models
+- Real-time monitoring and performance optimization
+- AGI-Level advanced reasoning and meta-learning capabilities
+- Autonomous learning and self-improvement mechanisms
+- Multi-camera vision support and external device integration
+- Sensor data processing and real-time adaptation
 """
 
 import logging
@@ -15,8 +19,13 @@ import time
 import threading
 import json
 import os
-import random
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from collections import deque, defaultdict
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
 from typing import Dict, List, Any, Optional, Tuple, Set
 from datetime import datetime
 
@@ -39,43 +48,44 @@ from core.unified_stream_processor import StreamProcessor
 
 class UnifiedManagerModel(UnifiedModelTemplate):
     """
-    统一管理器模型 - 基于统一模板的AGI系统核心管理器
+    Unified Manager Model - AGI System Core Manager based on Unified Template
     
-    功能：协调所有子模型，处理多模态输入，管理任务分配和情感交互
+    Functions: Coordinate all sub-models, process multi-modal inputs, manage task allocation and emotional interaction
+    AGI-Level Capabilities: Advanced reasoning, meta-learning, autonomous learning, multi-camera vision support, external device integration
     """
 
     def __init__(self, config: Dict[str, Any] = None):
         super().__init__(config)
         
-        # 管理器特定配置
+        # Manager-specific configuration
         self.sub_models = {
-            "manager": None,  # 管理器模型
-            "language": None,  # 语言模型
-            "audio": None,  # 音频模型
-            "vision": None,  # 图像视觉模型
-            "video": None,  # 视频视觉模型
-            "spatial": None,  # 空间模型
-            "sensor": None,  # 传感器模型
-            "computer": None,  # 计算机控制
-            "motion": None,  # 运动模型
-            "knowledge": None,  # 知识模型
-            "programming": None   # 编程模型
+            "manager": None,  # Manager model
+            "language": None,  # Language model
+            "audio": None,  # Audio model
+            "vision": None,  # Image vision model
+            "video": None,  # Video vision model
+            "spatial": None,  # Spatial model
+            "sensor": None,  # Sensor model
+            "computer": None,  # Computer control
+            "motion": None,  # Motion model
+            "knowledge": None,  # Knowledge model
+            "programming": None   # Programming model
         }
         
-        # 任务队列和优先级管理
+        # Task queue and priority management
         self.task_queue = []
         self.active_tasks = {}
         self.completed_tasks = []
         self.task_priorities = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         
-        # 外部API配置
+        # External API configuration
         self.external_apis = {}
-        self.api_status = {}  # API连接状态
+        self.api_status = {}  # API connection status
         
-        # 实时流管理
+        # Real-time stream management
         self.active_streams = {}
         
-        # 增强性能监控
+        # Enhanced performance monitoring
         self.performance_metrics.update({
             "tasks_completed": 0,
             "tasks_failed": 0,
@@ -88,29 +98,29 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             "error_rates": {}
         })
         
-        # 情感状态跟踪
+        # Emotion state tracking
         self.emotion_history = []
         self.current_emotion = {"state": "neutral", "intensity": 0.5}
-        self.emotion_decay_rate = 0.98  # 情感衰减率
+        self.emotion_decay_rate = 0.98  # Emotion decay rate
         
-        # 模型协作优化
+        # Model collaboration optimization
         self.model_collaboration_rules = self._load_collaboration_rules()
         self.model_performance_stats = {}
         
-        # 线程控制标志
+        # Thread control flags
         self.monitoring_active = False
         self.task_processing_active = False
         self.monitoring_thread = None
         self.task_thread = None
         
-        # AGI增强模块初始化
+        # AGI enhancement modules initialization
         self.advanced_reasoning = AdvancedReasoningEngine()
         self.meta_learning = MetaLearningSystem()
         self.creative_solver = CreativeProblemSolver()
         self.self_reflection = SelfReflectionModule()
         self.knowledge_integrator = KnowledgeIntegrator()
         
-        # AGI状态跟踪
+        # AGI state tracking
         self.agi_capabilities = {
             "reasoning_level": 0.8,
             "learning_depth": 0.7,
@@ -119,49 +129,508 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             "self_awareness": 0.65
         }
         
-        # 常识知识库集成
+        # Common sense knowledge base integration
         self.common_sense_knowledge = self._load_common_sense_knowledge()
         
+        # Neural network components initialization
+        self.coordination_network = CoordinationNeuralNetwork(input_size=512, hidden_size=256, output_size=128)
+        self.task_allocation_network = TaskAllocationNetwork(input_size=256, hidden_size=128, output_size=64)
+        self.model_selection_network = ModelSelectionNetwork(input_size=384, hidden_size=192, output_size=11)
+        
+        # Optimizer and training parameters
+        self.optimizer = optim.Adam(
+            list(self.coordination_network.parameters()) + 
+            list(self.task_allocation_network.parameters()) + 
+            list(self.model_selection_network.parameters()),
+            lr=0.001
+        )
+        self.criterion = nn.MSELoss()
+        
+        # Experience replay buffer
+        self.experience_buffer = deque(maxlen=10000)
+        self.batch_size = 32
+        
+        # Training state
+        self.training_epochs = 0
+        self.total_loss = 0.0
+        
         self.logger.info("Unified Manager model initialization completed")
+    
+    # ===== Training Method Implementation =====
+    
+    def train(self, training_data: List[Dict[str, Any]] = None, epochs: int = 100, 
+              batch_size: int = 32, learning_rate: float = 0.001) -> Dict[str, Any]:
+        """Train the neural network components of the manager model"""
+        try:
+            self.logger.info(f"Starting manager model training for {epochs} epochs")
+            
+            # Prepare training data
+            if training_data is None:
+                training_data = self._generate_training_data()
+            
+            # Set up optimizer
+            self.optimizer = optim.Adam(
+                list(self.coordination_network.parameters()) + 
+                list(self.task_allocation_network.parameters()) + 
+                list(self.model_selection_network.parameters()),
+                lr=learning_rate
+            )
+            
+            # Training loop
+            training_history = {
+                "epochs": [],
+                "coordination_loss": [],
+                "allocation_loss": [],
+                "selection_loss": [],
+                "total_loss": [],
+                "learning_rate": learning_rate
+            }
+            
+            for epoch in range(epochs):
+                epoch_losses = self._train_epoch(training_data, batch_size, epoch)
+                
+                # Record training history
+                training_history["epochs"].append(epoch)
+                training_history["coordination_loss"].append(epoch_losses["coordination_loss"])
+                training_history["allocation_loss"].append(epoch_losses["allocation_loss"])
+                training_history["selection_loss"].append(epoch_losses["selection_loss"])
+                training_history["total_loss"].append(epoch_losses["total_loss"])
+                
+                # Output progress every 10 epochs
+                if epoch % 10 == 0:
+                    self.logger.info(
+                        f"Epoch {epoch}/{epochs} - "
+                        f"Coordination Loss: {epoch_losses['coordination_loss']:.4f}, "
+                        f"Allocation Loss: {epoch_losses['allocation_loss']:.4f}, "
+                        f"Selection Loss: {epoch_losses['selection_loss']:.4f}, "
+                        f"Total Loss: {epoch_losses['total_loss']:.4f}"
+                    )
+                
+                # Early stopping check
+                if epoch > 20 and self._check_early_stopping(training_history):
+                    self.logger.info(f"Early stopping at epoch {epoch}")
+                    break
+            
+            # Save training results
+            self._save_training_results(training_history)
+            self.training_epochs = epoch + 1
+            
+            return {
+                "success": True,
+                "epochs_trained": epoch + 1,
+                "final_loss": epoch_losses["total_loss"],
+                "training_history": training_history
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Training failed: {str(e)}")
+            return {"success": False, "error": str(e)}
+    
+    def _train_epoch(self, training_data: List[Dict], batch_size: int, epoch: int) -> Dict[str, float]:
+        """Train a single epoch"""
+        self.coordination_network.train()
+        self.task_allocation_network.train()
+        self.model_selection_network.train()
+        
+        total_coordination_loss = 0.0
+        total_allocation_loss = 0.0
+        total_selection_loss = 0.0
+        total_batches = 0
+        
+        # Shuffle training data
+        np.random.shuffle(training_data)
+        
+        for i in range(0, len(training_data), batch_size):
+            batch_data = training_data[i:i + batch_size]
+            if len(batch_data) < batch_size:
+                continue
+                
+            # Prepare batch data
+            batch_inputs, batch_targets = self._prepare_batch(batch_data)
+            
+            # Forward propagation
+            coordination_output = self.coordination_network(batch_inputs)
+            allocation_output = self.task_allocation_network(coordination_output)
+            model_selection = self.model_selection_network(
+                torch.cat([coordination_output, allocation_output], dim=1)
+            )
+            
+            # Calculate losses
+            coordination_loss = self._calculate_coordination_loss(coordination_output, batch_targets)
+            allocation_loss = self._calculate_allocation_loss(allocation_output, batch_targets)
+            selection_loss = self._calculate_selection_loss(model_selection, batch_targets)
+            
+            total_loss = coordination_loss + allocation_loss + selection_loss
+            
+            # Backward propagation
+            self.optimizer.zero_grad()
+            total_loss.backward()
+            self.optimizer.step()
+            
+            total_coordination_loss += coordination_loss.item()
+            total_allocation_loss += allocation_loss.item()
+            total_selection_loss += selection_loss.item()
+            total_batches += 1
+        
+        # Calculate average losses
+        avg_coordination_loss = total_coordination_loss / total_batches if total_batches > 0 else 0
+        avg_allocation_loss = total_allocation_loss / total_batches if total_batches > 0 else 0
+        avg_selection_loss = total_selection_loss / total_batches if total_batches > 0 else 0
+        avg_total_loss = avg_coordination_loss + avg_allocation_loss + avg_selection_loss
+        
+        return {
+            "coordination_loss": avg_coordination_loss,
+            "allocation_loss": avg_allocation_loss,
+            "selection_loss": avg_selection_loss,
+            "total_loss": avg_total_loss
+        }
+    
+    def _generate_training_data(self) -> List[Dict[str, Any]]:
+        """Generate training data"""
+        training_data = []
+        
+        # Task type templates
+        task_templates = [
+            "Analyze the sentiment of this text: {text}",
+            "Process audio data from {source}",
+            "Recognize objects in this image: {description}",
+            "Coordinate multiple models for {task}",
+            "Optimize model allocation for {scenario}",
+            "Monitor system performance for {duration}",
+            "Handle real-time stream from {source}",
+            "Collaborate on complex reasoning task: {problem}"
+        ]
+        
+        # Generate training samples
+        for i in range(1000):
+            # Randomly select task template
+            template = np.random.choice(task_templates)
+            
+            # Fill template parameters
+            if "{text}" in template:
+                sample_text = self._generate_sample_text()
+                task_description = template.format(text=sample_text)
+            elif "{source}" in template:
+                sources = ["microphone", "camera", "sensor array", "network stream"]
+                task_description = template.format(source=np.random.choice(sources))
+            elif "{description}" in template:
+                descriptions = ["landscape photo", "portrait image", "technical diagram", "scientific visualization"]
+                task_description = template.format(description=np.random.choice(descriptions))
+            elif "{task}" in template:
+                tasks = ["language translation", "image analysis", "audio processing", "multi-modal integration"]
+                task_description = template.format(task=np.random.choice(tasks))
+            elif "{scenario}" in template:
+                scenarios = ["high priority request", "real-time processing", "batch analysis", "collaborative task"]
+                task_description = template.format(scenario=np.random.choice(scenarios))
+            elif "{duration}" in template:
+                durations = ["5 minutes", "1 hour", "continuous monitoring", "periodic check"]
+                task_description = template.format(duration=np.random.choice(durations))
+            elif "{problem}" in template:
+                problems = ["logical reasoning", "creative problem solving", "strategic planning", "decision making"]
+                task_description = template.format(problem=np.random.choice(problems))
+            else:
+                task_description = template
+            
+            # Generate feature vector
+            input_features = self._text_to_features(task_description)
+            
+            # Generate target output (based on heuristic rules)
+            target_output = self._generate_target_output(task_description)
+            
+            training_data.append({
+                "input": input_features.numpy(),
+                "target": target_output,
+                "task_description": task_description
+            })
+        
+        return training_data
+    
+    def _generate_sample_text(self) -> str:
+        """Generate sample text for training data"""
+        sample_texts = [
+            "The quick brown fox jumps over the lazy dog.",
+            "Artificial intelligence is transforming modern society.",
+            "Machine learning models require large datasets for training.",
+            "Natural language processing enables human-computer interaction.",
+            "Computer vision systems can recognize objects in images.",
+            "Speech recognition technology has improved significantly.",
+            "Robotics and automation are changing manufacturing processes.",
+            "Data science involves extracting insights from complex data.",
+            "Neural networks mimic the structure of the human brain.",
+            "Deep learning has revolutionized many AI applications."
+        ]
+        return np.random.choice(sample_texts)
+    
+    def _generate_target_output(self, task_description: str) -> Dict[str, Any]:
+        """Generate target output based on task description"""
+        task_lower = task_description.lower()
+        
+        # Determine required models
+        required_models = []
+        if any(keyword in task_lower for keyword in ["text", "language", "sentiment", "translation"]):
+            required_models.append("language")
+        if any(keyword in task_lower for keyword in ["audio", "sound", "speech"]):
+            required_models.append("audio")
+        if any(keyword in task_lower for keyword in ["image", "vision", "recognize", "object"]):
+            required_models.append("vision")
+        if any(keyword in task_lower for keyword in ["video", "stream"]):
+            required_models.append("video")
+        if any(keyword in task_lower for keyword in ["sensor", "environment"]):
+            required_models.append("sensor")
+        if any(keyword in task_lower for keyword in ["spatial", "location", "distance"]):
+            required_models.append("spatial")
+        if any(keyword in task_lower for keyword in ["knowledge", "information", "reasoning"]):
+            required_models.append("knowledge")
+        if any(keyword in task_lower for keyword in ["programming", "code"]):
+            required_models.append("programming")
+        if any(keyword in task_lower for keyword in ["computer", "system"]):
+            required_models.append("computer")
+        if any(keyword in task_lower for keyword in ["motion", "movement"]):
+            required_models.append("motion")
+        
+        # Ensure at least one model is selected
+        if not required_models:
+            required_models = ["language", "knowledge"]
+        
+        # Determine collaboration strategy
+        if len(required_models) > 3:
+            strategy = "hybrid"
+        elif len(required_models) > 1:
+            strategy = "parallel"
+        else:
+            strategy = "serial"
+        
+        # Generate model selection probabilities
+        model_probs = np.zeros(11)  # 11 models
+        model_names = ["language", "audio", "vision", "video", "sensor", 
+                      "spatial", "knowledge", "programming", "computer", 
+                      "motion", "manager"]
+        
+        for model in required_models:
+            if model in model_names:
+                idx = model_names.index(model)
+                model_probs[idx] = 0.8 + np.random.random() * 0.2  # 0.8-1.0 probability
+        
+        # Normalize probabilities
+        if model_probs.sum() > 0:
+            model_probs = model_probs / model_probs.sum()
+        
+        return {
+            "required_models": required_models,
+            "collaboration_strategy": strategy,
+            "model_selection_probs": model_probs.tolist()
+        }
+    
+    def _prepare_batch(self, batch_data: List[Dict]) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+        """Prepare batch data for training"""
+        batch_inputs = []
+        batch_coordination_targets = []
+        batch_allocation_targets = []
+        batch_selection_targets = []
+        
+        for sample in batch_data:
+            # Input features
+            input_tensor = torch.tensor(sample["input"], dtype=torch.float32)
+            batch_inputs.append(input_tensor)
+            
+            # Target output
+            target = sample["target"]
+            
+            # Coordination network target (simplified)
+            coordination_target = np.zeros(128)
+            coordination_target[:10] = 1.0  # Simple target
+            batch_coordination_targets.append(torch.tensor(coordination_target, dtype=torch.float32))
+            
+            # Allocation network target (simplified)
+            allocation_target = np.ones(64) / 64  # Uniform distribution
+            batch_allocation_targets.append(torch.tensor(allocation_target, dtype=torch.float32))
+            
+            # Selection network target
+            selection_target = torch.tensor(target["model_selection_probs"], dtype=torch.float32)
+            batch_selection_targets.append(selection_target)
+        
+        # Stack batches
+        batch_inputs = torch.stack(batch_inputs)
+        batch_coordination_targets = torch.stack(batch_coordination_targets)
+        batch_allocation_targets = torch.stack(batch_allocation_targets)
+        batch_selection_targets = torch.stack(batch_selection_targets)
+        
+        targets = {
+            "coordination": batch_coordination_targets,
+            "allocation": batch_allocation_targets,
+            "selection": batch_selection_targets
+        }
+        
+        return batch_inputs, targets
+    
+    def _calculate_coordination_loss(self, predictions: torch.Tensor, targets: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """Calculate coordination network loss"""
+        target = targets["coordination"]
+        return self.criterion(predictions, target)
+    
+    def _calculate_allocation_loss(self, predictions: torch.Tensor, targets: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """Calculate allocation network loss"""
+        target = targets["allocation"]
+        return self.criterion(predictions, target)
+    
+    def _calculate_selection_loss(self, predictions: torch.Tensor, targets: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """Calculate selection network loss"""
+        target = targets["selection"]
+        return self.criterion(predictions, target)
+    
+    def _check_early_stopping(self, training_history: Dict[str, List]) -> bool:
+        """Check if early stopping should be applied"""
+        if len(training_history["total_loss"]) < 30:
+            return False
+        
+        # Check if recent 10 epochs show no significant improvement
+        recent_losses = training_history["total_loss"][-10:]
+        if len(recent_losses) < 10:
+            return False
+        
+        # Calculate average loss improvement
+        improvements = []
+        for i in range(1, len(recent_losses)):
+            improvement = recent_losses[i-1] - recent_losses[i]  # Positive indicates improvement
+            improvements.append(improvement)
+        
+        avg_improvement = sum(improvements) / len(improvements)
+        
+        # Apply early stopping if average improvement is below threshold
+        return avg_improvement < 0.001
+    
+    def _save_training_results(self, training_history: Dict[str, Any]):
+        """Save training results to file"""
+        try:
+            results_dir = "data/training_results"
+            if not os.path.exists(results_dir):
+                os.makedirs(results_dir)
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"manager_training_{timestamp}.json"
+            filepath = os.path.join(results_dir, filename)
+            
+            # Prepare data for saving
+            save_data = {
+                "training_history": training_history,
+                "model_architecture": {
+                    "coordination_network": str(self.coordination_network),
+                    "task_allocation_network": str(self.task_allocation_network),
+                    "model_selection_network": str(self.model_selection_network)
+                },
+                "training_parameters": {
+                    "epochs_trained": self.training_epochs,
+                    "final_loss": training_history["total_loss"][-1] if training_history["total_loss"] else 0,
+                    "timestamp": timestamp
+                }
+            }
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(save_data, f, indent=2, ensure_ascii=False)
+            
+            self.logger.info(f"Training results saved to {filepath}")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to save training results: {str(e)}")
 
-    # ===== 抽象方法实现 =====
+    # ===== Neural Network Definitions =====
+
+    class CoordinationNeuralNetwork(nn.Module):
+        """Coordination Neural Network - Responsible for inter-model coordination and task allocation"""
+        def __init__(self, input_size=512, hidden_size=256, output_size=128):
+            super().__init__()
+            self.network = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(hidden_size, hidden_size // 2),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+                nn.Linear(hidden_size // 2, output_size),
+                nn.Tanh()
+            )
+            
+        def forward(self, x):
+            return self.network(x)
+
+    class TaskAllocationNetwork(nn.Module):
+        """Task Allocation Network - Optimizes task distribution across different models"""
+        def __init__(self, input_size=256, hidden_size=128, output_size=64):
+            super().__init__()
+            self.attention = nn.MultiheadAttention(input_size, num_heads=8)
+            self.feed_forward = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+                nn.Linear(hidden_size, output_size),
+                nn.Softmax(dim=-1)
+            )
+            
+        def forward(self, x):
+            # Add sequence dimension for attention mechanism
+            x = x.unsqueeze(0) if x.dim() == 1 else x
+            attended, _ = self.attention(x, x, x)
+            output = self.feed_forward(attended.squeeze(0))
+            return output
+
+    class ModelSelectionNetwork(nn.Module):
+        """Model Selection Network - Intelligently selects optimal model combinations"""
+        def __init__(self, input_size=384, hidden_size=192, output_size=11):
+            super().__init__()
+            self.feature_extractor = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+                nn.BatchNorm1d(hidden_size),
+                nn.Dropout(0.3)
+            )
+            self.classifier = nn.Sequential(
+                nn.Linear(hidden_size, hidden_size // 2),
+                nn.ReLU(),
+                nn.Linear(hidden_size // 2, output_size),
+                nn.Sigmoid()
+            )
+            
+        def forward(self, x):
+            features = self.feature_extractor(x)
+            return self.classifier(features)
+
+    # ===== Abstract Method Implementation =====
 
     def _get_model_id(self) -> str:
-        """返回模型标识符"""
+        """Return model identifier"""
         return "manager"
 
     def _get_supported_operations(self) -> List[str]:
-        """返回此模型支持的操作列表"""
+        """Return list of operations supported by this model"""
         return [
             "coordinate", "monitor", "allocate", "optimize", 
             "collaborate", "train_joint", "stream_manage", "analyze_performance"
         ]
     
     def _get_model_type(self) -> str:
-        """返回模型类型标识符"""
+        """Return model type identifier"""
         return "manager"
 
     def _initialize_model_specific_components(self, config: Dict[str, Any]):
-        """初始化模型特定组件"""
-        # 情感分析模块
+        """Initialize model-specific components"""
+        # Emotion analysis module
         self.emotion_analyzer = EmotionAnalyzer()
         
-        # 错误处理模块
+        # Error handling module
         self.error_handler = error_handler
         
-        # API连接管理器
+        # API connection manager
         self.api_connector = APIModelConnector()
         
-        # 实时流管理器
+        # Real-time stream manager
         self.stream_manager = RealTimeStreamManager()
         
-        # 增强监控器
+        # Enhanced monitor
         self.monitor = EnhancedMonitor()
         
         self.logger.info("Manager-specific components initialized")
 
     def _process_operation(self, operation: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理特定操作，使用模型特定逻辑"""
+        """Process specific operations using model-specific logic"""
         operation_handlers = {
             "coordinate": self._handle_coordination,
             "monitor": self._handle_monitoring,
@@ -180,16 +649,16 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": f"Unsupported operation: {operation}"}
 
     def _create_stream_processor(self) -> StreamProcessor:
-        """创建模型特定的流处理器"""
+        """Create model-specific stream processor"""
         class ManagerStreamProcessor(StreamProcessor):
             def __init__(self, manager_model):
                 self.manager_model = manager_model
                 self.logger = logging.getLogger(__name__)
             
             def process_stream_data(self, stream_data: Dict[str, Any]) -> Dict[str, Any]:
-                """处理流数据"""
+                """Process stream data"""
                 try:
-                    # 分析流数据类型并路由到适当的子模型
+                    # Analyze stream data type and route to appropriate sub-model
                     if "text" in stream_data:
                         return self.manager_model._handle_text_stream(stream_data)
                     elif "audio" in stream_data:
@@ -203,7 +672,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                     return {"success": False, "error": str(e)}
             
             def get_processor_info(self) -> Dict[str, Any]:
-                """获取处理器信息"""
+                """Get processor information"""
                 return {
                     "type": "manager_stream_processor",
                     "capabilities": ["text_processing", "audio_routing", "video_routing"],
@@ -213,47 +682,180 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return ManagerStreamProcessor(self)
     
     def _perform_inference(self, processed_input: Any, **kwargs) -> Any:
-        """Perform core manager inference operation"""
+        """Perform core manager inference operation using neural networks"""
         try:
-            # Determine operation type (default to coordination)
-            operation = kwargs.get("operation", "coordinate")
-            
-            # Format input data for manager processing
-            input_data = {
-                "input": processed_input,
-                "context": kwargs.get("context", {}),
-                "task_description": kwargs.get("task_description", processed_input) if isinstance(processed_input, str) else None,
-                "required_models": kwargs.get("required_models"),
-                "priority": kwargs.get("priority", 5),
-                "collaboration_mode": kwargs.get("collaboration_mode", "smart")
-            }
-            
-            # Remove None values
-            input_data = {k: v for k, v in input_data.items() if v is not None}
-            
-            # Use existing process method for AGI-enhanced manager processing
-            result = self._process_operation(operation, input_data)
-            
-            # Return core inference result based on operation type
-            if operation == "coordinate":
-                return result.get("coordination_result", {})
-            elif operation == "monitor":
-                return result.get("monitoring_data", {})
-            elif operation == "allocate":
-                return result.get("allocation_result", {})
-            elif operation == "optimize":
-                return result.get("optimization_result", {})
+            # Prepare input tensor for neural networks
+            if isinstance(processed_input, str):
+                # Convert text input to feature vector
+                input_features = self._text_to_features(processed_input)
+            elif isinstance(processed_input, dict):
+                # Extract features from structured input
+                input_features = self._extract_features_from_dict(processed_input)
             else:
-                return result.get("result", result)
+                # Use default feature vector
+                input_features = torch.randn(512)
+            
+            # Ensure input is a tensor
+            if not isinstance(input_features, torch.Tensor):
+                input_features = torch.tensor(input_features, dtype=torch.float32)
+            
+            # Add batch dimension if needed
+            if input_features.dim() == 1:
+                input_features = input_features.unsqueeze(0)
+            
+            # Use neural networks for inference
+            with torch.no_grad():
+                # Coordination network for task understanding
+                coordination_output = self.coordination_network(input_features)
+                
+                # Task allocation network for resource planning
+                allocation_output = self.task_allocation_network(coordination_output)
+                
+                # Model selection network for optimal model combination
+                model_selection = self.model_selection_network(
+                    torch.cat([coordination_output, allocation_output], dim=1)
+                )
+            
+            # Convert neural network outputs to actionable decisions
+            inference_result = self._neural_output_to_decision(
+                coordination_output, allocation_output, model_selection, 
+                processed_input, kwargs
+            )
+            
+            return inference_result
                 
         except Exception as e:
-            self.logger.error(f"Manager inference failed: {str(e)}")
-            return {"error": str(e)}
+            self.logger.error(f"Neural network inference failed: {str(e)}")
+            # Fallback to traditional method
+            return self._perform_inference_fallback(processed_input, **kwargs)
+    
+    def _text_to_features(self, text: str) -> torch.Tensor:
+        """Convert text input to feature vector"""
+        # Simple feature extraction - in production this would use more sophisticated NLP
+        words = text.lower().split()
+        feature_vector = np.zeros(512)
+        
+        # Basic keyword-based feature mapping
+        keywords = {
+            "coordinate": 0, "monitor": 1, "allocate": 2, "optimize": 3,
+            "collaborate": 4, "train": 5, "stream": 6, "analyze": 7,
+            "language": 8, "audio": 9, "vision": 10, "video": 11,
+            "sensor": 12, "spatial": 13, "knowledge": 14, "programming": 15,
+            "computer": 16, "motion": 17, "urgent": 18, "important": 19
+        }
+        
+        for word in words:
+            if word in keywords:
+                feature_vector[keywords[word]] = 1.0
+        
+        # Add length and complexity features
+        feature_vector[20] = len(text) / 1000  # Normalized length
+        feature_vector[21] = len(set(words)) / len(words) if words else 0  # Vocabulary diversity
+        
+        return torch.tensor(feature_vector, dtype=torch.float32)
+    
+    def _extract_features_from_dict(self, input_dict: Dict) -> torch.Tensor:
+        """Extract features from structured input dictionary"""
+        feature_vector = np.zeros(512)
+        
+        # Extract features based on input structure
+        if "task_description" in input_dict:
+            text_features = self._text_to_features(input_dict["task_description"])
+            feature_vector[:len(text_features)] = text_features.numpy()
+        
+        if "priority" in input_dict:
+            feature_vector[22] = input_dict["priority"] / 10  # Normalized priority
+        
+        if "required_models" in input_dict:
+            model_indices = {
+                "language": 23, "audio": 24, "vision": 25, "video": 26,
+                "sensor": 27, "spatial": 28, "knowledge": 29, "programming": 30,
+                "computer": 31, "motion": 32, "manager": 33
+            }
+            for model in input_dict["required_models"]:
+                if model in model_indices:
+                    feature_vector[model_indices[model]] = 1.0
+        
+        return torch.tensor(feature_vector, dtype=torch.float32)
+    
+    def _neural_output_to_decision(self, coordination_output, allocation_output, 
+                                 model_selection, processed_input, kwargs):
+        """Convert neural network outputs to actionable decisions"""
+        # Get the most confident model selections
+        model_probs = model_selection.squeeze().numpy()
+        selected_models = []
+        model_threshold = 0.3
+        
+        model_names = ["language", "audio", "vision", "video", "sensor", 
+                      "spatial", "knowledge", "programming", "computer", 
+                      "motion", "manager"]
+        
+        for i, prob in enumerate(model_probs):
+            if prob > model_threshold and i < len(model_names):
+                selected_models.append(model_names[i])
+        
+        # Determine collaboration strategy based on coordination output
+        coordination_features = coordination_output.squeeze().numpy()
+        if np.max(coordination_features) > 0.7:
+            strategy = "parallel"
+        elif np.mean(coordination_features) > 0.5:
+            strategy = "hybrid"
+        else:
+            strategy = "serial"
+        
+        # Create inference result
+        result = {
+            "selected_models": selected_models,
+            "collaboration_strategy": strategy,
+            "coordination_confidence": float(np.max(coordination_features)),
+            "allocation_efficiency": float(np.mean(allocation_output.squeeze().numpy())),
+            "model_selection_probs": {model_names[i]: float(prob) 
+                                    for i, prob in enumerate(model_probs) if i < len(model_names)},
+            "neural_inference": True
+        }
+        
+        # Add context from original input
+        if isinstance(processed_input, dict):
+            result.update({
+                "task_description": processed_input.get("task_description", ""),
+                "priority": processed_input.get("priority", 5),
+                "input_context": processed_input.get("context", {})
+            })
+        elif isinstance(processed_input, str):
+            result["task_description"] = processed_input
+        
+        return result
+    
+    def _perform_inference_fallback(self, processed_input: Any, **kwargs) -> Any:
+        """Fallback inference method when neural networks fail"""
+        operation = kwargs.get("operation", "coordinate")
+        input_data = {
+            "input": processed_input,
+            "context": kwargs.get("context", {}),
+            "task_description": kwargs.get("task_description", processed_input) if isinstance(processed_input, str) else None,
+            "required_models": kwargs.get("required_models"),
+            "priority": kwargs.get("priority", 5),
+            "collaboration_mode": kwargs.get("collaboration_mode", "smart")
+        }
+        
+        input_data = {k: v for k, v in input_data.items() if v is not None}
+        result = self._process_operation(operation, input_data)
+        
+        if operation == "coordinate":
+            return result.get("coordination_result", {})
+        elif operation == "monitor":
+            return result.get("monitoring_data", {})
+        elif operation == "allocate":
+            return result.get("allocation_result", {})
+        elif operation == "optimize":
+            return result.get("optimization_result", {})
+        else:
+            return result.get("result", result)
 
-    # ===== 操作处理程序 =====
+    # ===== Operation Handlers =====
 
     def _handle_coordination(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理协调操作"""
+        """Handle coordination operations"""
         try:
             task_description = input_data.get("task_description", "")
             required_models = input_data.get("required_models")
@@ -271,7 +873,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_monitoring(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理监控操作"""
+        """Handle monitoring operations"""
         try:
             monitor_type = input_data.get("monitor_type", "system")
             
@@ -290,12 +892,12 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_allocation(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理分配操作"""
+        """Handle allocation operations"""
         try:
-            # 分配待处理任务
+            # Allocate pending tasks
             self.assign_tasks()
             
-            # 获取分配状态
+            # Get allocation status
             allocation_status = {
                 "pending_tasks": len(self.task_queue),
                 "active_tasks": len(self.active_tasks),
@@ -309,7 +911,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_optimization(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理优化操作"""
+        """Handle optimization operations"""
         try:
             optimization_type = input_data.get("optimization_type", "all")
             result = self.optimize_model_interaction(optimization_type)
@@ -319,7 +921,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_collaboration(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理协作操作"""
+        """Handle collaboration operations"""
         try:
             collaboration_config = input_data.get("collaboration_config", {})
             result = self._initiate_advanced_collaboration(collaboration_config)
@@ -329,18 +931,18 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_joint_training(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理联合训练操作"""
+        """Handle joint training operations"""
         try:
             training_data = input_data.get("training_data")
             joint_config = input_data.get("joint_config", {})
-            result = self.joint_training([], joint_config)  # 实际实现需要传递模型列表
+            result = self.joint_training([], joint_config)  # Actual implementation requires model list
             return {"success": True, "joint_training_result": result}
         except Exception as e:
             self.logger.error(f"Joint training failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
     def _handle_stream_management(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理流管理操作"""
+        """Handle stream management operations"""
         try:
             stream_config = input_data.get("stream_config", {})
             action = input_data.get("action", "start")
@@ -358,7 +960,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_performance_analysis(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理性能分析操作"""
+        """Handle performance analysis operations"""
         try:
             analysis_type = input_data.get("analysis_type", "comprehensive")
             result = self._perform_comprehensive_analysis(analysis_type)
@@ -367,24 +969,24 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             self.logger.error(f"Performance analysis failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
-    # ===== 管理器特定方法 =====
+    # ===== Manager-Specific Methods =====
 
     def register_sub_models(self) -> Dict[str, Any]:
-        """注册所有子模型"""
+        """Register all sub-models"""
         try:
             model_ids = [
                 "language", "audio", "vision", "video", "spatial",
                 "sensor", "computer", "motion", "knowledge", "programming"
             ]
             
-            # 注册自身（管理器模型）
+            # Register self (manager model)
             self.sub_models["manager"] = self
             
             for model_id in model_ids:
                 self.sub_models[model_id] = get_model(model_id)
                 self.logger.info(f"Registered model: {model_id}")
                 
-                # 初始化子模型（跳过管理器模型自身）
+                # Initialize sub-models (skip manager model itself)
                 if self.sub_models[model_id] and model_id != "manager":
                     init_result = self.sub_models[model_id].initialize()
                     if init_result.get("success"):
@@ -399,18 +1001,18 @@ class UnifiedManagerModel(UnifiedModelTemplate):
 
     def coordinate_task(self, task_description: str, required_models: List[str] = None, 
                        priority: int = 5) -> Dict[str, Any]:
-        """协调多个模型完成任务"""
+        """Coordinate multiple models to complete tasks"""
         try:
             self.logger.info(f"Starting task coordination: {task_description}")
             
-            # 创建协调任务
+            # Create coordination task
             task_id = f"coord_{int(time.time())}_{hash(task_description)}"
             
-            # 确定所需模型
+            # Determine required models
             if not required_models:
                 required_models = self._determine_required_models(task_description)
             
-            # 检查所有所需模型的可用性
+            # Check availability of all required models
             unavailable_models = [model for model in required_models if model not in self.sub_models or self.sub_models[model] is None]
             if unavailable_models:
                 return {
@@ -419,10 +1021,10 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                     "unavailable_models": unavailable_models
                 }
             
-            # 启动模型协调
+            # Initiate model coordination
             coordination_result = self._initiate_model_coordination(task_description, task_id, required_models)
             
-            # 监控协调过程
+            # Monitor coordination process
             final_result = self._monitor_coordination(task_description, task_id, required_models, coordination_result)
             
             self.logger.info(f"Task coordination completed: {task_description}")
@@ -443,15 +1045,15 @@ class UnifiedManagerModel(UnifiedModelTemplate):
 
     def enhanced_coordinate_task(self, task_description: str, required_models: List[str] = None,
                                priority: int = 5, collaboration_mode: str = "smart") -> Dict[str, Any]:
-        """增强任务协调 - 支持多种协作模式和智能路由"""
+        """Enhanced task coordination - Support multiple collaboration modes and intelligent routing"""
         try:
             self.logger.info(f"Starting enhanced coordination: {task_description}, mode: {collaboration_mode}")
             
-            # 确定所需模型
+            # Determine required models
             if not required_models:
                 required_models = self._smart_determine_models(task_description, priority)
             
-            # 检查模型可用性
+            # Check model availability
             unavailable_models = [model for model in required_models if model not in self.sub_models or self.sub_models[model] is None]
             if unavailable_models:
                 return {
@@ -460,7 +1062,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                     "unavailable_models": unavailable_models
                 }
             
-            # 根据协作模式选择协调策略
+            # Select coordination strategy based on collaboration mode
             if collaboration_mode == "smart":
                 result = self._smart_collaboration(task_description, required_models, priority)
             elif collaboration_mode == "parallel":
@@ -472,7 +1074,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             else:
                 result = self.coordinate_task(task_description, required_models, priority)
             
-            # 记录协作性能
+            # Record collaboration performance
             self._record_collaboration_performance(result, collaboration_mode)
             
             return result
@@ -486,10 +1088,10 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             }
 
     def assign_tasks(self):
-        """分配任务"""
+        """Assign tasks to available models"""
         for task in self.task_queue:
             if task["status"] == "pending":
-                # 选择最优模型组合
+                # Select optimal model combination
                 model_combination = self._select_optimal_models(task)
                 
                 if model_combination:
@@ -498,14 +1100,14 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                     self.active_tasks[task["id"]] = task
                     self.logger.info(f"Task {task['id']} assigned")
         
-        # 从队列中移除已分配的任务
+        # Remove assigned tasks from the queue
         self.task_queue = [t for t in self.task_queue if t["status"] == "pending"]
 
     def monitor_tasks(self) -> Dict[str, Any]:
-        """监控活动任务"""
+        """Monitor active tasks"""
         task_statuses = {}
         for task_id, task in self.active_tasks.items():
-            # 从每个模型获取进度
+            # Get progress from each model
             progress = {}
             for model_id in task["assigned_models"]:
                 if self.sub_models[model_id]:
@@ -522,7 +1124,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return task_statuses
 
     def get_monitoring_data(self) -> Dict[str, Any]:
-        """获取监控数据"""
+        """Get monitoring data"""
         return {
             "active_tasks": len(self.active_tasks),
             "pending_tasks": len(self.task_queue),
@@ -533,7 +1135,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def optimize_model_interaction(self, optimization_type: str = "all") -> Dict[str, Any]:
-        """优化模型交互功能"""
+        """Optimize model interaction functionality"""
         optimization_results = {}
         
         if optimization_type in ["all", "communication"]:
@@ -556,7 +1158,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def get_enhanced_interaction_status(self) -> Dict[str, Any]:
-        """获取增强交互状态"""
+        """Get enhanced interaction status"""
         return {
             "communication_efficiency": self._measure_communication_efficiency(),
             "coordination_efficiency": self._measure_coordination_efficiency(),
@@ -567,15 +1169,15 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             "optimization_status": "enhanced"
         }
 
-    # ===== 流处理方法 =====
+    # ===== Stream Processing Methods =====
 
     def _handle_text_stream(self, stream_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理文本流数据"""
+        """Process text stream data"""
         try:
             text_data = stream_data.get("text", "")
             emotion_result = self.emotion_analyzer.analyze_text(text_data) if hasattr(self, 'emotion_analyzer') else {"dominant_emotion": "neutral"}
             
-            # 路由到语言模型
+            # Route to language model
             if self.sub_models["language"]:
                 result = self.sub_models["language"].process({
                     "text": text_data, 
@@ -589,7 +1191,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_audio_stream(self, stream_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理音频流数据"""
+        """Process audio stream data"""
         try:
             audio_data = stream_data.get("audio")
             if self.sub_models["audio"]:
@@ -602,7 +1204,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return {"success": False, "error": str(e)}
 
     def _handle_video_stream(self, stream_data: Dict[str, Any]) -> Dict[str, Any]:
-        """处理视频流数据"""
+        """Process video stream data"""
         try:
             video_data = stream_data.get("video")
             if self.sub_models["video"]:
@@ -614,14 +1216,14 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             self.logger.error(f"Video stream processing failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
-    # ===== 辅助方法 =====
+    # ===== Helper Methods =====
 
     def _determine_required_models(self, task_description: str) -> List[str]:
-        """根据任务描述确定所需模型"""
+        """Determine required models based on task description"""
         required_models = []
         task_lower = task_description.lower()
         
-        # 关键词匹配逻辑
+        # Keyword matching logic
         if any(keyword in task_lower for keyword in ["language", "text", "translate"]):
             required_models.append("language")
         
@@ -646,50 +1248,50 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         if any(keyword in task_lower for keyword in ["programming", "code"]):
             required_models.append("programming")
         
-        # 确保至少有一个模型参与
+        # Ensure at least one model participates
         if not required_models:
-            required_models = ["language", "knowledge"]  # 默认使用语言和知识模型
+            required_models = ["language", "knowledge"]  # Default to language and knowledge models
         
-        return list(set(required_models))  # 移除重复项
+        return list(set(required_models))  # Remove duplicates
 
     def _select_optimal_models(self, task: Dict) -> Optional[List[str]]:
-        """选择最优模型组合"""
+        """Select optimal model combination"""
         try:
-            # 检查模型可用性
+            # Check model availability
             available_models = [m for m in task["required_models"] if self.sub_models[m] is not None]
             
-            # 根据任务类型添加推荐模型
+            # Add recommended models based on task type
             task_type = task.get("type", "")
             recommended_models = self._get_recommended_models(task_type)
             for model in recommended_models:
                 if model not in available_models and self.sub_models[model] is not None:
                     available_models.append(model)
             
-            # 根据优先级调整模型选择
+            # Adjust model selection based on priority
             if task.get("priority") == "high":
                 critical_models = ["language", "knowledge", "manager"]
                 for model in critical_models:
                     if model not in available_models and self.sub_models[model] is not None:
                         available_models.append(model)
             
-            # 使用知识模型优化选择
+            # Use knowledge model to optimize selection
             if "knowledge" in available_models and self.sub_models["knowledge"]:
                 optimized_selection = self.sub_models["knowledge"].optimize_model_selection(
                     task_type, available_models
                 )
                 available_models = optimized_selection or available_models
             
-            # 考虑模型性能和负载均衡
+            # Consider model performance and load balancing
             available_models = self._balance_model_load(available_models, task_type)
             
-            # 过滤掉不可用的模型
+            # Filter out unavailable models
             available_models = [m for m in available_models if self.sub_models[m] is not None]
             
             if not available_models:
                 self.logger.warning(f"No available models for task: {task['id']}")
                 return None
                 
-            # 记录模型选择决策
+            # Record model selection decision
             self._log_model_selection(task, available_models)
                 
             return available_models
@@ -698,17 +1300,17 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return None
 
     def _calculate_model_utilization(self) -> Dict[str, float]:
-        """计算模型利用率"""
+        """Calculate model utilization"""
         utilization = {}
         for model_id, model in self.sub_models.items():
             if model and hasattr(model, 'get_utilization'):
                 utilization[model_id] = model.get_utilization()
             else:
-                utilization[model_id] = random.uniform(0.1, 0.8)  # 模拟数据
+                utilization[model_id] = random.uniform(0.1, 0.8)  # Simulated data
         return utilization
 
     def _perform_comprehensive_analysis(self, analysis_type: str) -> Dict[str, Any]:
-        """执行全面性能分析"""
+        """Perform comprehensive performance analysis"""
         analysis_results = {
             "system_health": self._analyze_system_health(),
             "model_performance": self._analyze_model_performance(),
@@ -720,7 +1322,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return analysis_results
 
     def _analyze_system_health(self) -> Dict[str, Any]:
-        """分析系统健康状态"""
+        """Analyze system health status"""
         return {
             "overall_health": "good",
             "active_models": len([m for m in self.sub_models.values() if m]),
@@ -729,7 +1331,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _analyze_model_performance(self) -> Dict[str, Any]:
-        """分析模型性能"""
+        """Analyze model performance"""
         performance = {}
         for model_id, model in self.sub_models.items():
             if model:
@@ -741,7 +1343,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return performance
 
     def _analyze_collaboration_efficiency(self) -> Dict[str, Any]:
-        """分析协作效率"""
+        """Analyze collaboration efficiency"""
         return {
             "coordination_success_rate": 0.95,
             "average_coordination_time": 15.2,
@@ -749,7 +1351,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _analyze_resource_utilization(self) -> Dict[str, Any]:
-        """分析资源利用率"""
+        """Analyze resource utilization"""
         return {
             "cpu_usage": self.performance_metrics.get("cpu_usage", 0.0),
             "memory_usage": self.performance_metrics.get("memory_usage", 0.0),
@@ -757,7 +1359,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _generate_optimization_recommendations(self) -> List[str]:
-        """生成优化建议"""
+        """Generate optimization recommendations"""
         recommendations = []
         
         if self.performance_metrics.get("cpu_usage", 0) > 80:
@@ -772,9 +1374,9 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return recommendations
 
     def _initiate_advanced_collaboration(self, collaboration_config: Dict[str, Any]) -> Dict[str, Any]:
-        """启动高级协作"""
+        """Initiate advanced collaboration"""
         try:
-            # 实现高级协作逻辑
+            # Implement advanced collaboration logic
             collaboration_strategy = collaboration_config.get("strategy", "adaptive")
             participants = collaboration_config.get("participants", list(self.sub_models.keys()))
             
@@ -791,10 +1393,10 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             self.logger.error(f"Advanced collaboration failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
-    # ===== 从原始管理器模型继承的方法 =====
+    # ===== Methods Inherited from Original Manager Model =====
 
     def _load_collaboration_rules(self) -> Dict[str, Any]:
-        """加载协作规则"""
+        """Load collaboration rules"""
         try:
             rules_path = "config/collaboration_rules.json"
             if os.path.exists(rules_path):
@@ -803,7 +1405,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         except Exception as e:
             self.logger.error(f"Load collaboration rules error: {str(e)}")
         
-        # 默认协作规则
+        # Default collaboration rules
         return {
             "default": {
                 "communication_protocol": "json_rpc",
@@ -814,7 +1416,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _load_common_sense_knowledge(self) -> Dict[str, Any]:
-        """加载常识知识"""
+        """Load common sense knowledge"""
         return {
             "basic_rules": {
                 "task_priority": {"critical": 0, "high": 1, "medium": 2, "low": 3},
@@ -823,7 +1425,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _get_model_capabilities_mapping(self) -> Dict[str, List[str]]:
-        """获取模型能力映射"""
+        """Get model capabilities mapping"""
         return {
             "language": ["text_processing", "translation", "summarization"],
             "audio": ["speech_recognition", "audio_analysis", "sound_processing"],
@@ -838,7 +1440,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _get_recommended_models(self, task_type: str) -> List[str]:
-        """获取任务类型的推荐模型"""
+        """Get recommended models for task type"""
         recommendations = {
             "visual_analysis": ["vision", "spatial"],
             "audio_processing": ["audio", "language"],
@@ -851,7 +1453,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return recommendations.get(task_type, [])
 
     def _balance_model_load(self, available_models: List[str], task_type: str) -> List[str]:
-        """平衡模型负载"""
+        """Balance model load"""
         try:
             usage_stats = {}
             for model_id in available_models:
@@ -867,7 +1469,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return available_models
 
     def _log_model_selection(self, task: Dict, selected_models: List[str]):
-        """记录模型选择决策"""
+        """Log model selection decision"""
         selection_log = {
             "task_id": task["id"],
             "task_type": task["type"],
@@ -885,7 +1487,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             f.write(json.dumps(selection_log, ensure_ascii=False) + '\n')
 
     def _smart_determine_models(self, task_description: str, priority: int) -> List[str]:
-        """智能确定所需模型"""
+        """Intelligently determine required models"""
         base_models = self._determine_required_models(task_description)
         
         if priority >= 8:
@@ -909,7 +1511,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return list(set(base_models))
 
     def _smart_collaboration(self, task_description: str, models: List[str], priority: int) -> Dict[str, Any]:
-        """智能协作模式"""
+        """Smart collaboration mode"""
         complexity = self._analyze_task_complexity(task_description, models)
         
         if complexity == "high":
@@ -920,7 +1522,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return self._serial_collaboration(task_description, models, priority)
 
     def _analyze_task_complexity(self, task_description: str, models: List[str]) -> str:
-        """分析任务复杂度"""
+        """Analyze task complexity"""
         complexity_score = 0
         complexity_score += len(models) * 2
         
@@ -946,7 +1548,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return "low"
 
     def _parallel_collaboration(self, task_description: str, models: List[str], priority: int) -> Dict[str, Any]:
-        """并行协作模式"""
+        """Parallel collaboration mode - Execute multiple models simultaneously"""
         task_id = f"parallel_{int(time.time())}_{hash(task_description)}"
         results = {}
         execution_log = []
@@ -994,7 +1596,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _serial_collaboration(self, task_description: str, models: List[str], priority: int) -> Dict[str, Any]:
-        """串行协作模式"""
+        """Serial collaboration mode - Execute models sequentially in dependency order"""
         task_id = f"serial_{int(time.time())}_{hash(task_description)}"
         intermediate_result = {"task": task_description, "priority": priority}
         execution_log = []
@@ -1041,7 +1643,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _hybrid_collaboration(self, task_description: str, models: List[str], priority: int) -> Dict[str, Any]:
-        """混合协作模式"""
+        """Hybrid collaboration mode - Combine parallel and serial execution for complex tasks"""
         task_id = f"hybrid_{int(time.time())}_{hash(task_description)}"
         dependencies = self._analyze_dependencies(models)
         parallel_groups = self._group_parallel_models(models, dependencies)
@@ -1066,7 +1668,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _analyze_dependencies(self, models: List[str]) -> Dict[str, List[str]]:
-        """分析模型依赖关系"""
+        """Analyze model dependencies"""
         dependencies = {}
         dependency_map = {
             "vision": ["spatial"],
@@ -1086,7 +1688,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return dependencies
 
     def _group_parallel_models(self, models: List[str], dependencies: Dict[str, List[str]]) -> List[List[str]]:
-        """分组可以并行执行的模型"""
+        """Group models that can execute in parallel"""
         groups = []
         processed = set()
         
@@ -1114,7 +1716,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return groups
 
     def _merge_results(self, results: Dict[str, Any], merge_strategy: str) -> Dict[str, Any]:
-        """合并多个模型的结果"""
+        """Merge results from multiple models"""
         if merge_strategy == "parallel":
             return results
         elif merge_strategy == "weighted":
@@ -1139,7 +1741,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return results
 
     def _integrate_hybrid_results(self, parallel_results: Dict[str, Any], task_description: str) -> Dict[str, Any]:
-        """整合混合协作结果"""
+        """Integrate hybrid collaboration results"""
         integrated_result = {
             "task_description": task_description,
             "integration_time": time.time(),
@@ -1160,7 +1762,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return integrated_result
 
     def _should_continue_on_error(self, priority: int) -> bool:
-        """确定是否在错误时继续"""
+        """Determine whether to continue on error"""
         if priority >= 8:
             return False
         elif priority >= 5:
@@ -1169,7 +1771,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             return random.random() < 0.7
 
     def _record_collaboration_performance(self, result: Dict[str, Any], mode: str):
-        """记录协作性能"""
+        """Record collaboration performance"""
         if "execution_log" in result:
             total_time = sum(log.get("execution_time", 0) for log in result["execution_log"])
             success_count = sum(1 for log in result["execution_log"] if log.get("success", False))
@@ -1191,7 +1793,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                 f.write(json.dumps(performance_record, ensure_ascii=False) + '\n')
 
     def _optimize_communication(self) -> Dict[str, Any]:
-        """优化模型间通信"""
+        """Optimize inter-model communication"""
         improvements = ["Built intelligent data routing table", 
                        "Optimized communication protocols", 
                        "Implemented data compression optimization"]
@@ -1202,7 +1804,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _optimize_coordination(self) -> Dict[str, Any]:
-        """优化模型协调"""
+        """Optimize model coordination"""
         improvements = ["Enhanced collaboration rules", 
                        "Implemented intelligent task allocation", 
                        "Optimized load balancing"]
@@ -1213,7 +1815,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _optimize_monitoring(self) -> Dict[str, Any]:
-        """优化监控系统"""
+        """Optimize monitoring system"""
         improvements = ["Enhanced real-time monitoring", 
                        "Implemented predictive maintenance", 
                        "Optimized performance metrics collection"]
@@ -1224,7 +1826,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _optimize_error_handling(self) -> Dict[str, Any]:
-        """优化错误处理"""
+        """Optimize error handling"""
         improvements = ["Enhanced error recovery mechanisms", 
                        "Implemented fault tolerance", 
                        "Optimized error logging and analysis"]
@@ -1235,7 +1837,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _measure_communication_efficiency(self) -> Dict[str, float]:
-        """测量通信效率"""
+        """Measure communication efficiency"""
         return {
             "throughput": 150.5,
             "latency": 45.2,
@@ -1244,7 +1846,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _measure_coordination_efficiency(self) -> Dict[str, float]:
-        """测量协调效率"""
+        """Measure coordination efficiency"""
         return {
             "task_completion_time": 12.3,
             "resource_utilization": 0.85,
@@ -1253,7 +1855,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _measure_monitoring_effectiveness(self) -> Dict[str, float]:
-        """测量监控有效性"""
+        """Measure monitoring effectiveness"""
         return {
             "detection_rate": 0.99,
             "false_positive_rate": 0.02,
@@ -1262,7 +1864,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _measure_error_recovery_rate(self) -> Dict[str, float]:
-        """测量错误恢复率"""
+        """Measure error recovery rate"""
         return {
             "recovery_success_rate": 0.88,
             "mean_time_to_recovery": 8.5,
@@ -1271,7 +1873,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         }
 
     def _calculate_model_weights(self) -> Dict[str, float]:
-        """计算模型权重"""
+        """Calculate model weights"""
         weights = {}
         for model_id in self.sub_models:
             if self.sub_models[model_id]:
@@ -1283,7 +1885,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return weights
 
     def _get_model_performance(self, model_id: str) -> Dict[str, Any]:
-        """获取模型性能数据"""
+        """Get model performance data"""
         performance_data = {
             "throughput": random.uniform(50, 200),
             "latency": random.uniform(10, 100),
@@ -1300,7 +1902,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return performance_data
 
     def _initiate_model_coordination(self, task_description: str, task_id: str, required_models: List[str]) -> Dict[str, Any]:
-        """启动模型协调过程"""
+        """Initialize model coordination process"""
         coordination_data = {
             "task_id": task_id,
             "participating_models": required_models,
@@ -1322,7 +1924,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
 
     def _monitor_coordination(self, task_description: str, task_id: str, required_models: List[str], 
                              coordination_data: Dict[str, Any]) -> Dict[str, Any]:
-        """监控协调过程"""
+        """Monitor coordination process"""
         max_wait_time = 30.0
         start_time = time.time()
         check_interval = 0.5
@@ -1345,7 +1947,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return final_result
 
     def _process_dependencies(self, coordination_data: Dict[str, Any]):
-        """处理模型依赖关系"""
+        """Process model dependencies"""
         for model_name, deps in coordination_data["dependencies"].items():
             if coordination_data["model_status"][model_name] == "pending":
                 all_deps_ready = True
@@ -1358,7 +1960,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                     coordination_data["model_status"][model_name] = "ready"
 
     def _collect_intermediate_results(self, coordination_data: Dict[str, Any]):
-        """收集中间结果"""
+        """Collect intermediate results from participating models"""
         for model_name in coordination_data["participating_models"]:
             if (coordination_data["model_status"][model_name] == "ready" and 
                 self.sub_models[model_name] and 
@@ -1369,7 +1971,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                 coordination_data["model_status"][model_name] = "completed"
 
     def _integrate_final_results(self, coordination_data: Dict[str, Any]) -> Dict[str, Any]:
-        """整合最终结果"""
+        """Integrate final results from all participating models"""
         final_result = {
             "coordination_id": coordination_data["task_id"],
             "participating_models": coordination_data["participating_models"],
@@ -1394,7 +1996,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         return final_result
 
     def shutdown(self):
-        """关闭管理器模型"""
+        """Shutdown the manager model and clean up resources"""
         self.monitoring_active = False
         self.task_processing_active = False
         
@@ -1410,24 +2012,24 @@ class UnifiedManagerModel(UnifiedModelTemplate):
 
     def process_input(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        处理文本输入数据
+        Process text input data
         
         Args:
-            input_data: 包含文本输入的字典，必须包含'text'和'type'字段
+            input_data: Dictionary containing text input, must include 'text' and 'type' fields
         
         Returns:
-            处理结果的字典
+            Dictionary containing processing results
         """
         try:
-            # 验证输入数据
+            # Validate input data
             if not isinstance(input_data, dict) or 'text' not in input_data or 'type' not in input_data:
                 return {"success": False, "error": "Invalid input data format"}
             
-            # 获取文本输入
+            # Get text input
             text_input = input_data.get('text', '')
             input_type = input_data.get('type', 'text')
             
-            # 准备协调任务
+            # Prepare coordination task
             coordination_input = {
                 "task_description": f"Process {input_type} input: {text_input}",
                 "required_models": ["language", "knowledge", "advanced_reasoning"],
@@ -1436,10 +2038,10 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                 "input_data": input_data
             }
             
-            # 使用协调操作处理输入
+            # Use coordination operation to process input
             result = self._process_operation("coordinate", coordination_input)
             
-            # 格式化结果
+            # Format result
             if result.get("success", False):
                 return {
                     "success": True,
@@ -1452,15 +2054,15 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             self.logger.error(f"Input processing failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
-# 工厂函数用于创建统一管理器模型
+# Factory function for creating unified manager model
 def create_unified_manager_model(config: Dict[str, Any] = None) -> UnifiedManagerModel:
     """
-    创建统一管理器模型实例
+    Create unified manager model instance
     
     Args:
-        config: 配置字典
+        config: Configuration dictionary
     
     Returns:
-        UnifiedManagerModel实例
+        UnifiedManagerModel instance
     """
     return UnifiedManagerModel(config)

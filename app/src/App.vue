@@ -3,7 +3,7 @@
     <!-- Top Navigation Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Brain</span>
+        <span class="system-title">Self Soul</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->

@@ -11,7 +11,7 @@
 
     <!-- Import Tab -->
     <div v-if="activeTab === 'import'" class="content">
-      <h2>Import Knowledge</h2>
+        <h2>Import Knowledge</h2>
       <div class="import-section">
         <div class="upload-area">
           <input type="file" ref="fileInput" multiple @change="handleFileUpload" style="display: none;">
@@ -47,7 +47,7 @@
     <div v-else-if="activeTab === 'browse'" class="content">
       <div class="browse-controls">
         <div class="search-box">
-          <input type="text" v-model="searchQuery" placeholder="Search knowledge content...">
+        <input type="text" v-model="searchQuery" placeholder="Search knowledge content...">
           <select v-model="searchDomain">
             <option value="">All Domains</option>
             <option v-for="domain in domains" :key="domain" :value="domain">
@@ -106,7 +106,7 @@
             <input type="text" v-model="searchFileQuery" placeholder="Search files..." @input="filterFiles">
           </div>
           <div class="sort-controls">
-            <select v-model="sortBy" @change="sortFiles">
+              <select v-model="sortBy" @change="sortFiles">
                 <option value="name">Sort by Name</option>
                 <option value="size">Sort by Size</option>
                 <option value="date">Sort by Date</option>
@@ -143,7 +143,7 @@
         </div>
       </div>
 
-      <div v-else class="no-files">
+        <div v-else class="no-files">
           No files available
         </div>
         
@@ -292,12 +292,12 @@
           <button @click="closePreview" class="close-btn">&times;</button>
         </div>
         <div class="preview-content">
-          <div v-if="previewLoading" class="loading-preview">
-            Loading preview...
-          </div>
-          <div v-else-if="previewError" class="preview-error">
-            Error loading preview
-          </div>
+        <div v-if="previewLoading" class="loading-preview">
+          Loading preview...
+        </div>
+        <div v-else-if="previewError" class="preview-error">
+          Error loading preview
+        </div>
           <div v-else-if="isTextFile(currentPreviewFile)" class="text-preview">
             <pre>{{ currentFileContent }}</pre>
           </div>

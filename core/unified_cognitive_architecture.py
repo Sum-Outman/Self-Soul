@@ -23,7 +23,8 @@ import json
 from enum import Enum
 import re
 import random
-from .model_registry import model_registry
+# 移除循环导入，改为延迟加载
+# model_registry将在运行时通过依赖注入传递
 
 # 添加SimpleOutput类用于模型输出
 class SimpleOutput:

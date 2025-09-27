@@ -29,15 +29,20 @@ import random
 import logging
 import numpy as np
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Callable
-from .error_handling import error_handler
-from .model_registry import ModelRegistry
-from .meta_learning_system import MetaLearningSystem
-from .knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIntegrator
-from .self_reflection_module import SelfReflectionModule
-from .adaptive_learning_engine import AdaptiveLearningEngine
-from .knowledge.knowledge_enhancer import KnowledgeEnhancer
-from .models.knowledge import KnowledgeModel
+from typing import Dict, List, Any, Optional, Callable, TYPE_CHECKING
+from core.error_handling import error_handler
+from core.model_registry import get_model_registry
+
+# 延迟导入以避免循环依赖
+if TYPE_CHECKING:
+    from core.model_registry import ModelRegistry
+
+from core.meta_learning_system import MetaLearningSystem
+from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIntegrator
+from core.self_reflection_module import SelfReflectionModule
+from core.adaptive_learning_engine import AdaptiveLearningEngine
+from core.knowledge.knowledge_enhancer import KnowledgeEnhancer
+from core.models.knowledge import KnowledgeModel
 from core.autonomous_learning_manager import AutonomousLearningManager
 
 
@@ -47,7 +52,7 @@ TrainingManager Class - English class description
 class TrainingManager:
     """Model Training Manager"""
     
-    def __init__(self, model_registry: ModelRegistry, from_scratch: bool = False):
+    def __init__(self, model_registry: 'ModelRegistry', from_scratch: bool = False):
         self.model_registry = model_registry
         self.training_jobs = {}
         self.training_history = self._load_training_history() if not from_scratch else []
@@ -1152,33 +1157,45 @@ class TrainingManager:
         return enhanced_item
 
     def _enhance_text_data(self, text):
-        """智能增强文本数据 - 使用AGI上下文感知增强"""
+        """智能增强文本数据 - 使用真实的文本增强技术"""
         try:
-            # AGI增强：基于语义理解的智能文本增强
-            if len(text.split()) > 5:  # 长文本使用更复杂的增强
-                # 语义保持的增强策略
-                enhancements = [
-                    lambda t: f"{t} [AGI增强:上下文扩展]",
-                    lambda t: t.replace("Sample", "AGI优化"),
-                    lambda t: t + " - 基于多模态理解的增强版本",
-                    lambda t: t.capitalize() + " (语义增强)",
-                    lambda t: self._apply_semantic_augmentation(t),
-                    lambda t: self._generate_contextual_variation(t)
-                ]
-            else:
-                # 短文本增强
-                enhancements = [
-                    lambda t: f"{t} [AGI增强]",
-                    lambda t: t.replace("Sample", "智能样本"),
-                    lambda t: t + " - 多模态增强",
-                    lambda t: self._apply_quick_semantic_enhancement(t)
-                ]
-            
-            return random.choice(enhancements)(text)
+            # 简单的同义词替换增强
+            synonyms = {
+                "good": ["excellent", "great", "superb", "wonderful"],
+                "bad": ["poor", "terrible", "awful", "negative"],
+                "big": ["large", "huge", "massive", "enormous"],
+                "small": ["tiny", "little", "miniature", "petite"],
+                "quick": ["fast", "rapid", "speedy", "brisk"],
+                "slow": ["leisurely", "gradual", "sluggish", "unhurried"]
+            }
+
+            words = text.split()
+            enhanced_words = []
+            for word in words:
+                # 检查单词是否有同义词
+                if word.lower() in synonyms:
+                    # 以50%的概率替换为同义词
+                    if random.random() < 0.5:
+                        enhanced_words.append(random.choice(synonyms[word.lower()]))
+                    else:
+                        enhanced_words.append(word)
+                else:
+                    enhanced_words.append(word)
+
+            enhanced_text = " ".join(enhanced_words)
+
+            # 如果文本太短，我们还可以添加其他增强，比如随机插入一个词
+            if len(words) < 5:
+                # 随机插入一个词
+                insert_pos = random.randint(0, len(enhanced_words))
+                enhanced_words.insert(insert_pos, "very")
+                enhanced_text = " ".join(enhanced_words)
+
+            return enhanced_text
+
         except Exception as e:
-            error_handler.log_warning(f"智能文本增强失败，使用回退: {e}", "TrainingManager")
-            # 回退到基本增强
-            return text + " [基础增强]"
+            error_handler.log_warning(f"文本增强失败，使用原始文本: {e}", "TrainingManager")
+            return text
 
     def _apply_semantic_augmentation(self, text):
         """应用语义增强 - 保持语义不变的内容重组"""

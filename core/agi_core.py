@@ -829,6 +829,28 @@ class AGICore:
         
         logger.info("AGI core system initialized")
     
+    def on_model_loaded(self, model_id: str, from_scratch: bool):
+        """Handle model loaded notification from ModelRegistry
+        
+        Args:
+            model_id: The ID of the model that was loaded
+            from_scratch: Whether the model was trained from scratch
+        """
+        try:
+            logger.info(f"AGI Core received model loaded notification: {model_id} (from_scratch: {from_scratch})")
+            
+            # Update AGI state based on new model
+            self.agi_state['total_interactions'] += 1
+            self.agi_state['consciousness_level'] = min(1.0, self.agi_state['consciousness_level'] + 0.01)
+            
+            # If this is a from-scratch training, update learning capability
+            if from_scratch:
+                self.agi_state['learning_capability'] = min(1.0, self.agi_state['learning_capability'] + 0.05)
+                logger.info(f"AGI learning capability enhanced by from-scratch training of {model_id}")
+            
+        except Exception as e:
+            logger.error(f"Error in AGICore.on_model_loaded for {model_id}: {str(e)}")
+    
     def process_input(self, input_data: Any, modality: str = "text", 
                      context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Process input data for cognition and reasoning"""

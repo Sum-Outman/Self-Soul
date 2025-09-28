@@ -482,13 +482,13 @@ async def startup_event():
         dataset_manager = DatasetManager()
         
         error_handler.log_info("Initializing training manager...", "System")
-        training_manager = TrainingManager()
+        training_manager = TrainingManager(model_registry)
         
         error_handler.log_info("Initializing emotion awareness system...", "System")
         emotion_system = AGIEmotionAwarenessSystem()
         
         error_handler.log_info("Initializing autonomous learning manager...", "System")
-        autonomous_learning_manager = AutonomousLearningManager()
+        autonomous_learning_manager = AutonomousLearningManager(model_registry)
         
         error_handler.log_info("Initializing system monitor...", "System")
         system_monitor = SystemMonitor()
@@ -2081,9 +2081,9 @@ async def update_models_config(models_data: list):
                 "active": model_data.get("active", current_config.get("active", True))
             }
             
-        # Update API configuration
-        if model_data.get("source") == "api":
-            updated_config["api_config"] = model_data.get("api_config", {})
+            # Update API configuration
+            if model_data.get("source") == "api":
+                updated_config["api_config"] = model_data.get("api_config", {})
             
             # Save updated configuration
             system_settings_manager.update_model_setting(model_id, updated_config)
@@ -2969,6 +2969,384 @@ async def get_knowledge_files():
         ]
         return {"status": "success", "files": mock_files}
 
+# Hardware configuration endpoints
+
+# Get hardware configuration
+@app.get("/api/hardware/config")
+async def get_hardware_config():
+    """
+    Get current hardware configuration
+    
+    Returns:
+        Hardware configuration including cameras, sensors, and actuators
+    """
+    try:
+        # Get hardware configuration from system settings
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        
+        # Return default configuration if none exists
+        if not hardware_config:
+            hardware_config = {
+                "camera_settings": {
+                    "max_cameras": 4,
+                    "default_resolution": "1280x720",
+                    "supported_interfaces": ["usb", "ethernet", "csi"],
+                    "frame_rate": 30,
+                    "auto_detect": True
+                },
+                "sensor_settings": {
+                    "supported_sensors": [
+                        "temperature", "humidity", "accelerometer", "gyroscope",
+                        "pressure", "distance", "infrared", "light", "smoke"
+                    ],
+                    "polling_interval": 1000,
+                    "data_format": "json"
+                },
+                "actuator_settings": {
+                    "supported_protocols": ["uart", "i2c", "spi", "pwm"],
+                    "default_baud_rate": 9600,
+                    "timeout_ms": 5000
+                },
+                "communication_settings": {
+                    "max_retries": 3,
+                    "retry_delay_ms": 100,
+                    "connection_timeout_ms": 10000
+                },
+                "cameras": [
+                    {
+                        "id": "camera_1",
+                        "name": "Primary Camera",
+                        "type": "usb",
+                        "resolution": "1280x720",
+                        "frame_rate": 30,
+                        "status": "connected",
+                        "port": "/dev/video0"
+                    }
+                ],
+                "sensors": [
+                    {
+                        "id": "sensor_1",
+                        "name": "Temperature Sensor",
+                        "type": "temperature",
+                        "protocol": "i2c",
+                        "address": "0x48",
+                        "status": "connected",
+                        "current_value": 25.5
+                    }
+                ],
+                "actuators": [
+                    {
+                        "id": "actuator_1",
+                        "name": "Motor Controller",
+                        "type": "motor",
+                        "protocol": "pwm",
+                        "channel": 1,
+                        "status": "connected"
+                    }
+                ]
+            }
+        
+        return {"status": "success", "data": hardware_config}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get hardware configuration")
+        raise HTTPException(status_code=500, detail="Failed to get hardware configuration")
+
+# Update hardware configuration
+@app.post("/api/hardware/config")
+async def update_hardware_config(hardware_data: dict):
+    """
+    Update hardware configuration
+    
+    Args:
+        hardware_data: New hardware configuration data
+        
+    Returns:
+        Update result
+    """
+    try:
+        # Validate hardware configuration
+        required_sections = ["camera_settings", "sensor_settings", "actuator_settings"]
+        for section in required_sections:
+            if section not in hardware_data:
+                raise HTTPException(status_code=400, detail=f"Missing required section: {section}")
+        
+        # Get current settings
+        settings = system_settings_manager.get_settings()
+        
+        # Update hardware configuration
+        settings["hardware_config"] = hardware_data
+        
+        # Save updated settings
+        system_settings_manager.update_settings(settings)
+        
+        return {"status": "success", "message": "Hardware configuration updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to update hardware configuration")
+        raise HTTPException(status_code=500, detail="Failed to update hardware configuration")
+
+# Test hardware connections
+@app.post("/api/hardware/test-connections")
+async def test_hardware_connections():
+    """
+    Test all hardware connections
+    
+    Returns:
+        Connection test results
+    """
+    try:
+        # Get current hardware configuration
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        
+        # Simulate hardware connection testing
+        test_results = {
+            "cameras": [],
+            "sensors": [],
+            "actuators": [],
+            "overall_status": "success",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Test camera connections
+        cameras = hardware_config.get("cameras", [])
+        for camera in cameras:
+            camera_id = camera.get("id", "unknown")
+            camera_name = camera.get("name", "Unknown Camera")
+            camera_type = camera.get("type", "unknown")
+            
+            # Simulate camera connection test
+            connected = True  # In real implementation, this would test actual connection
+            test_results["cameras"].append({
+                "id": camera_id,
+                "name": camera_name,
+                "type": camera_type,
+                "connected": connected,
+                "message": "Camera connected successfully" if connected else "Camera connection failed"
+            })
+        
+        # Test sensor connections
+        sensors = hardware_config.get("sensors", [])
+        for sensor in sensors:
+            sensor_id = sensor.get("id", "unknown")
+            sensor_name = sensor.get("name", "Unknown Sensor")
+            sensor_type = sensor.get("type", "unknown")
+            
+            # Simulate sensor connection test
+            connected = True  # In real implementation, this would test actual connection
+            test_results["sensors"].append({
+                "id": sensor_id,
+                "name": sensor_name,
+                "type": sensor_type,
+                "connected": connected,
+                "message": "Sensor connected successfully" if connected else "Sensor connection failed"
+            })
+        
+        # Test actuator connections
+        actuators = hardware_config.get("actuators", [])
+        for actuator in actuators:
+            actuator_id = actuator.get("id", "unknown")
+            actuator_name = actuator.get("name", "Unknown Actuator")
+            actuator_type = actuator.get("type", "unknown")
+            
+            # Simulate actuator connection test
+            connected = True  # In real implementation, this would test actual connection
+            test_results["actuators"].append({
+                "id": actuator_id,
+                "name": actuator_name,
+                "type": actuator_type,
+                "connected": connected,
+                "message": "Actuator connected successfully" if connected else "Actuator connection failed"
+            })
+        
+        # Check if any connections failed
+        all_connections = test_results["cameras"] + test_results["sensors"] + test_results["actuators"]
+        failed_connections = [conn for conn in all_connections if not conn.get("connected", False)]
+        
+        if failed_connections:
+            test_results["overall_status"] = "partial"
+            test_results["failed_count"] = len(failed_connections)
+        
+        return {"status": "success", "data": test_results}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to test hardware connections")
+        raise HTTPException(status_code=500, detail="Failed to test hardware connections")
+
+# Get camera feed
+@app.websocket("/ws/camera-feed/{camera_id}")
+async def websocket_camera_feed(websocket: WebSocket, camera_id: str):
+    """
+    Real-time camera feed WebSocket endpoint
+    
+    Args:
+        websocket: WebSocket connection
+        camera_id: Camera ID
+    """
+    await connection_manager.connect(websocket)
+    try:
+        # Get hardware configuration to verify camera exists
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        cameras = hardware_config.get("cameras", [])
+        
+        camera = next((cam for cam in cameras if cam.get("id") == camera_id), None)
+        if not camera:
+            await websocket.send_json({
+                "type": "error",
+                "message": f"Camera {camera_id} not found"
+            })
+            return
+        
+        await websocket.send_json({
+            "type": "connected",
+            "message": f"Camera feed connection established for {camera.get('name', camera_id)}"
+        })
+        
+        # Simulate camera feed (in real implementation, this would stream actual camera data)
+        frame_count = 0
+        while True:
+            # Simulate frame data
+            frame_data = {
+                "camera_id": camera_id,
+                "frame_number": frame_count,
+                "timestamp": datetime.now().isoformat(),
+                "resolution": camera.get("resolution", "1280x720"),
+                "data_type": "simulated"  # In real implementation, this would be actual frame data
+            }
+            
+            await websocket.send_json({
+                "type": "camera_frame",
+                "data": frame_data
+            })
+            
+            frame_count += 1
+            await asyncio.sleep(0.033)  # ~30 FPS
+            
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
+    except Exception as e:
+        error_handler.handle_error(e, "WebSocket", f"Camera feed WebSocket error: {camera_id}")
+        connection_manager.disconnect(websocket)
+
+# Sensor data stream
+@app.websocket("/ws/sensor-data/{sensor_id}")
+async def websocket_sensor_data(websocket: WebSocket, sensor_id: str):
+    """
+    Real-time sensor data WebSocket endpoint
+    
+    Args:
+        websocket: WebSocket connection
+        sensor_id: Sensor ID
+    """
+    await connection_manager.connect(websocket)
+    try:
+        # Get hardware configuration to verify sensor exists
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        sensors = hardware_config.get("sensors", [])
+        
+        sensor = next((sens for sens in sensors if sens.get("id") == sensor_id), None)
+        if not sensor:
+            await websocket.send_json({
+                "type": "error",
+                "message": f"Sensor {sensor_id} not found"
+            })
+            return
+        
+        await websocket.send_json({
+            "type": "connected",
+            "message": f"Sensor data stream established for {sensor.get('name', sensor_id)}"
+        })
+        
+        # Simulate sensor data stream
+        while True:
+            # Simulate sensor reading based on sensor type
+            sensor_type = sensor.get("type", "unknown")
+            if sensor_type == "temperature":
+                value = 20 + (5 * (datetime.now().second % 10) / 10)  # Simulate temperature variation
+                unit = "°C"
+            elif sensor_type == "humidity":
+                value = 50 + (20 * (datetime.now().second % 10) / 10)  # Simulate humidity variation
+                unit = "%"
+            elif sensor_type == "accelerometer":
+                value = {
+                    "x": (datetime.now().second % 10) - 5,
+                    "y": (datetime.now().second % 8) - 4,
+                    "z": (datetime.now().second % 12) - 6
+                }
+                unit = "m/s²"
+            else:
+                value = (datetime.now().second % 100)  # Default simulated value
+                unit = "units"
+            
+            sensor_data = {
+                "sensor_id": sensor_id,
+                "sensor_type": sensor_type,
+                "value": value,
+                "unit": unit,
+                "timestamp": datetime.now().isoformat(),
+                "quality": "good"
+            }
+            
+            await websocket.send_json({
+                "type": "sensor_reading",
+                "data": sensor_data
+            })
+            
+            await asyncio.sleep(1)  # Update every second
+            
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
+    except Exception as e:
+        error_handler.handle_error(e, "WebSocket", f"Sensor data WebSocket error: {sensor_id}")
+        connection_manager.disconnect(websocket)
+
+# Control actuator
+@app.post("/api/hardware/actuators/{actuator_id}/control")
+async def control_actuator(actuator_id: str, control_data: dict):
+    """
+    Control an actuator
+    
+    Args:
+        actuator_id: Actuator ID
+        control_data: Control commands and parameters
+        
+    Returns:
+        Control result
+    """
+    try:
+        # Get hardware configuration to verify actuator exists
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        actuators = hardware_config.get("actuators", [])
+        
+        actuator = next((act for act in actuators if act.get("id") == actuator_id), None)
+        if not actuator:
+            raise HTTPException(status_code=404, detail=f"Actuator {actuator_id} not found")
+        
+        # Extract control parameters
+        command = control_data.get("command", "")
+        parameters = control_data.get("parameters", {})
+        
+        # Simulate actuator control (in real implementation, this would send actual commands)
+        control_result = {
+            "actuator_id": actuator_id,
+            "command": command,
+            "parameters": parameters,
+            "success": True,
+            "message": f"Actuator {actuator_id} executed command: {command}",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return {"status": "success", "data": control_result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to control actuator {actuator_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to control actuator {actuator_id}")
+
 # System statistics endpoint
 @app.get("/api/system/stats")
 async def get_system_stats():
@@ -3015,3 +3393,32 @@ async def async_initialize_components():
         error_handler.log_info("Starting asynchronous initialization of system components", "System")
     except Exception as e:
         error_handler.handle_error(e, "System", "Failed to initialize components asynchronously")
+
+
+# Server startup code
+if __name__ == "__main__":
+    """
+    Main entry point for starting the Self Soul AGI system backend server
+    """
+    error_handler.log_info("Starting Self Soul AGI system backend server...", "System")
+    
+    # Start the FastAPI application with uvicorn (Python 3.6.3 compatible)
+    # Use traditional event loop approach instead of asyncio.run() which is not available in Python 3.6
+    config = uvicorn.Config(
+        "core.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info",
+        access_log=True
+    )
+    server = uvicorn.Server(config)
+    
+    # Use the traditional event loop approach for Python 3.6 compatibility
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(server.serve())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.close()

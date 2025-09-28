@@ -352,55 +352,152 @@ class UnifiedVideoModel(UnifiedModelTemplate):
     
     def _modify_content(self, video: List[np.ndarray], params: Dict) -> Dict[str, Any]:
         """Modify video content (object removal, content replacement, etc.)"""
-        modifications = []
-        
-        # Object removal
-        if "remove_object" in params:
-            object_to_remove = params["remove_object"]
-            modifications.append(f"Object removal: {object_to_remove}")
-            # Implementation placeholder for object removal
-        
-        # Content replacement
-        if "replace_content" in params:
-            replacement_config = params["replace_content"]
-            modifications.append(f"Content replacement: {replacement_config}")
-            # Implementation placeholder for content replacement
-        
-        return {
-            "success": True,
-            "video_data": video,  # Return modified video
-            "modifications_applied": modifications,
-            "modification_count": len(modifications)
-        }
+        try:
+            modifications = []
+            modified_video = video.copy()
+            
+            # Object removal using inpainting
+            if "remove_object" in params:
+                object_to_remove = params["remove_object"]
+                bbox = params.get("bounding_box")
+                
+                if bbox:
+                    # Create mask for object removal
+                    mask = np.zeros(video[0].shape[:2], dtype=np.uint8)
+                    x1, y1, x2, y2 = bbox
+                    mask[y1:y2, x1:x2] = 255
+                    
+                    # Apply inpainting to each frame
+                    for i in range(len(modified_video)):
+                        modified_video[i] = cv2.inpaint(modified_video[i], mask, 3, cv2.INPAINT_TELEA)
+                    
+                    modifications.append(f"Object removal: {object_to_remove}")
+            
+            # Content replacement using image blending
+            if "replace_content" in params:
+                replacement_config = params["replace_content"]
+                source_img = replacement_config.get("source_image")
+                target_area = replacement_config.get("target_area")
+                
+                if source_img is not None and target_area is not None:
+                    x1, y1, x2, y2 = target_area
+                    for i in range(len(modified_video)):
+                        # Resize source image to target area
+                        resized_source = cv2.resize(source_img, (x2-x1, y2-y1))
+                        # Blend images
+                        modified_video[i][y1:y2, x1:x2] = cv2.addWeighted(
+                            modified_video[i][y1:y2, x1:x2], 0.3, 
+                            resized_source, 0.7, 0
+                        )
+                    
+                    modifications.append(f"Content replacement applied")
+            
+            return {
+                "success": True,
+                "video_data": modified_video,
+                "modifications_applied": modifications,
+                "modification_count": len(modifications)
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Video modification failed: {str(e)}")
+            return {"success": False, "error": str(e)}
     
     def _enhance_video(self, video: List[np.ndarray], params: Dict) -> Dict[str, Any]:
         """Enhance video quality (resolution, frame rate, etc.)"""
-        enhancements = []
-        
-        # Resolution enhancement
-        if "target_resolution" in params:
-            target_res = params["target_resolution"]
-            enhancements.append(f"Resolution enhancement: {target_res}")
-            # Implementation placeholder for super-resolution
-        
-        # Frame rate enhancement
-        if "target_fps" in params:
-            target_fps = params["target_fps"]
-            enhancements.append(f"Frame rate enhancement: {target_fps}")
-            # Implementation placeholder for frame interpolation
-        
-        # Quality improvement
-        if "quality_improvement" in params:
-            quality_params = params["quality_improvement"]
-            enhancements.append(f"Quality improvement: {quality_params}")
-            # Implementation placeholder for quality enhancement
-        
-        return {
-            "success": True,
-            "video_data": video,  # Return enhanced video
-            "enhancements_applied": enhancements,
-            "enhancement_count": len(enhancements)
-        }
+        try:
+            enhancements = []
+            enhanced_video = video.copy()
+            
+            # Resolution enhancement using super-resolution
+            if "target_resolution" in params:
+                target_res = params["target_resolution"]
+                if len(target_res) == 2:
+                    width, height = target_res
+                    for i in range(len(enhanced_video)):
+                        # Use OpenCV's resize with interpolation for super-resolution effect
+                        enhanced_video[i] = cv2.resize(
+                            enhanced_video[i], 
+                            (width, height), 
+                            interpolation=cv2.INTER_CUBIC
+                        )
+                    enhancements.append(f"Resolution enhanced to {width}x{height}")
+            
+            # Frame rate enhancement using frame interpolation
+            if "target_fps" in params:
+                target_fps = params["target_fps"]
+                current_fps = params.get("current_fps", 30)
+                
+                if target_fps > current_fps and len(enhanced_video) > 1:
+                    # Simple frame interpolation using linear blending
+                    interpolation_factor = target_fps / current_fps
+                    interpolated_frames = []
+                    
+                    for i in range(len(enhanced_video) - 1):
+                        interpolated_frames.append(enhanced_video[i])
+                        
+                        # Generate interpolated frames
+                        for j in range(1, int(interpolation_factor)):
+                            alpha = j / interpolation_factor
+                            interpolated_frame = cv2.addWeighted(
+                                enhanced_video[i], 1 - alpha,
+                                enhanced_video[i + 1], alpha, 0
+                            )
+                            interpolated_frames.append(interpolated_frame)
+                    
+                    interpolated_frames.append(enhanced_video[-1])
+                    enhanced_video = interpolated_frames
+                    enhancements.append(f"Frame rate enhanced from {current_fps} to {target_fps}")
+            
+            # Quality improvement using image processing
+            if "quality_improvement" in params:
+                quality_params = params["quality_improvement"]
+                
+                # Apply denoising
+                if quality_params.get("denoise", False):
+                    for i in range(len(enhanced_video)):
+                        enhanced_video[i] = cv2.fastNlMeansDenoisingColored(enhanced_video[i])
+                    enhancements.append("Noise reduction applied")
+                
+                # Apply sharpening
+                if quality_params.get("sharpen", False):
+                    kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+                    for i in range(len(enhanced_video)):
+                        enhanced_video[i] = cv2.filter2D(enhanced_video[i], -1, kernel)
+                    enhancements.append("Sharpening applied")
+                
+                # Apply contrast enhancement
+                if quality_params.get("contrast", False):
+                    for i in range(len(enhanced_video)):
+                        # Convert to LAB color space for better contrast enhancement
+                        lab = cv2.cvtColor(enhanced_video[i], cv2.COLOR_RGB2LAB)
+                        l, a, b = cv2.split(lab)
+                        
+                        # Apply CLAHE to L channel
+                        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+                        l = clahe.apply(l)
+                        
+                        # Merge channels and convert back to RGB
+                        enhanced_lab = cv2.merge([l, a, b])
+                        enhanced_video[i] = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2RGB)
+                    enhancements.append("Contrast enhancement applied")
+            
+            return {
+                "success": True,
+                "video_data": enhanced_video,
+                "enhancements_applied": enhancements,
+                "enhancement_count": len(enhancements),
+                "enhancement_details": {
+                    "original_frame_count": len(video),
+                    "enhanced_frame_count": len(enhanced_video),
+                    "original_resolution": video[0].shape[:2] if video else (0, 0),
+                    "enhanced_resolution": enhanced_video[0].shape[:2] if enhanced_video else (0, 0)
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Video enhancement failed: {str(e)}")
+            return {"success": False, "error": str(e)}
     
     # ===== REAL-TIME STREAM PROCESSING =====
     

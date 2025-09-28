@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <!-- 系统状态概览 | System Status Overview -->
+    <!-- System Status Overview -->
     <div class="status-overview">
       <div class="status-card" :class="systemStatus">
         <h3>System Status</h3>
@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <!-- 模型性能指标 | Model Performance Metrics -->
+    <!-- Model Performance Metrics -->
     <div class="metrics-section">
       <h3>Model Performance Metrics</h3>
         <div class="metrics-grid">
@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <!-- 实时数据流 | Real-time Data Stream -->
+    <!-- Real-time Data Stream -->
     <div class="data-stream-section">
       <h3>Real-time Data Stream</h3>
         <div class="stream-container">
@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <!-- 图表可视化 | Chart Visualization -->
+    <!-- Chart Visualization -->
     <div class="charts-section">
       <h3>Performance Charts</h3>
         <div class="charts-grid">

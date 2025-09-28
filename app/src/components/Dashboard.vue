@@ -124,13 +124,13 @@ export default {
     }
   },
   mounted() {
-    // 模拟实时数据更新
+    // Simulate real-time data updates
     setInterval(() => {
       this.cpuUsage = Math.min(100, Math.max(10, this.cpuUsage + (Math.random() - 0.5) * 5));
       this.memoryUsage = Math.min(100, Math.max(20, this.memoryUsage + (Math.random() - 0.5) * 3));
       this.gpuUsage = Math.min(100, Math.max(15, this.gpuUsage + (Math.random() - 0.5) * 4));
       
-      // 更新传感器数据
+      // Update sensor data
       this.sensors.forEach(sensor => {
         if (sensor.id === 'temp') {
           sensor.value = (25 + Math.random() * 5).toFixed(1);
@@ -143,7 +143,7 @@ export default {
         }
       });
       
-      // 随机更新模型状态
+      // Randomly update model status
       this.models.forEach(model => {
         if (Math.random() > 0.9) {
           model.status = Math.random() > 0.5 ? 'warning' : 'error';
@@ -152,7 +152,7 @@ export default {
         }
       });
       
-      // 更新情感状态
+      // Update emotion state
       this.emotionValue = Math.max(0, Math.min(100, this.emotionValue + (Math.random() - 0.5) * 10));
       if (this.emotionValue > 70) {
         this.emotionState = 'Excited';

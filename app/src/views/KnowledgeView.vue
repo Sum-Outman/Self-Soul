@@ -388,7 +388,7 @@ export default {
       }
     };
 
-    // 模拟搜索结果
+    // Mock search results
     const getMockSearchResults = (query, domain) => {
       const mockResults = [
         {
@@ -426,7 +426,7 @@ export default {
       } catch (error) {
         // Check if connection error
         if (error.code === 'ECONNREFUSED') {
-          // 明确告诉用户后端服务未启动
+          // Clearly inform the user that the backend service is not running
           errorHandler.handleError(error, 'Backend service not running. Please start the Python backend with "python core/main.py".');
         } else {
           errorHandler.handleError(error, 'Failed to load statistics');
@@ -617,7 +617,7 @@ export default {
       } catch (error) {
         // Check if connection error
         if (error.code === 'ECONNREFUSED') {
-          // 明确告诉用户后端服务未启动
+          // Clearly inform the user that the backend service is not running
           errorHandler.handleError(error, 'Backend service not running. Please start the Python backend with "python core/main.py".');
         } else {
           errorHandler.handleError(error, 'Failed to load files');
@@ -809,11 +809,11 @@ export default {
         // Try to download from server with timeout
         const controller = new AbortController();
         
-        // 由于需要blob响应类型，这里不使用封装的api实例，直接使用axios
+        // Due to the need for blob response type, use axios directly instead of the encapsulated api instance
         const response = await axios.get(`/api/knowledge/files/${file.id}/download`, {
           responseType: 'blob',
           signal: controller.signal,
-          timeout: 30000 // 30秒超时
+          timeout: 30000 // 30 seconds timeout
         });
         
         if (response.status !== 200) {

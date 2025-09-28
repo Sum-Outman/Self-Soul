@@ -671,50 +671,30 @@ class ModelRegistry:
             from_scratch: 是否从零开始训练 / Whether training from scratch
         """
         try:
-            # 简化通知逻辑，完全避免JSON序列化问题
+            # 简化通知逻辑，完全避免递归循环
             print(f"INFO: AGI system integrating model: {model_id} (from_scratch: {from_scratch})")
             
-            # 直接使用基本类型参数调用AGI组件
-            if hasattr(self.agi_core, 'on_model_loaded'):
-                try:
-                    # 直接传递基本类型参数，不进行JSON验证
-                    self.agi_core.on_model_loaded(str(model_id), bool(from_scratch))
-                except Exception as e:
-                    print(f"WARNING: AGI core notification failed for {model_id}: {type(e).__name__}")
-            
-            # 简化AGI协调器通知
-            if hasattr(self.agi_coordinator, 'on_model_loaded'):
-                try:
-                    self.agi_coordinator.on_model_loaded(str(model_id))
-                except Exception as e:
-                    print(f"WARNING: AGI coordinator notification failed for {model_id}: {type(e).__name__}")
-            
-            # 简化认知架构集成
-            if hasattr(self.cognitive_architecture, 'integrate_model'):
-                try:
-                    self.cognitive_architecture.integrate_model(str(model_id), None)
-                except Exception as e:
-                    print(f"WARNING: Cognitive architecture integration failed for {model_id}: {type(e).__name__}")
-            
-            # 简化知识库自主学习启动
-            if model_id == 'knowledge' and from_scratch:
-                try:
-                    self._start_autonomous_knowledge_learning()
-                except Exception as e:
-                    print(f"WARNING: Autonomous learning startup failed for {model_id}: {type(e).__name__}")
-                    
-            # 简化AGI状态更新
+            # 避免递归调用 - 只进行基本的状态更新
             try:
                 # 直接使用基本数值操作
-                self.agi_state['knowledge_accumulation'] = min(1.0, float(self.agi_state.get('knowledge_accumulation', 0.0)) + 0.1)
-                self.agi_state['consciousness_level'] = min(1.0, float(self.agi_state.get('consciousness_level', 0.1)) + 0.05)
-                self.agi_state['total_interactions'] = int(self.agi_state.get('total_interactions', 0)) + 1
+                knowledge_acc = float(self.agi_state.get('knowledge_accumulation', 0.0))
+                consciousness = float(self.agi_state.get('consciousness_level', 0.1))
+                interactions = int(self.agi_state.get('total_interactions', 0))
+                
+                self.agi_state['knowledge_accumulation'] = min(1.0, knowledge_acc + 0.1)
+                self.agi_state['consciousness_level'] = min(1.0, consciousness + 0.05)
+                self.agi_state['total_interactions'] = interactions + 1
+                self.agi_state['last_self_reflection'] = time.time()
                 
                 # 确保所有值是基本类型
-                for key in list(self.agi_state.keys()):
-                    value = self.agi_state[key]
-                    if not isinstance(value, (int, float, str, bool)):
-                        self.agi_state[key] = str(value)
+                safe_agi_state = {}
+                for key, value in self.agi_state.items():
+                    if isinstance(value, (int, float, str, bool)):
+                        safe_agi_state[key] = value
+                    else:
+                        safe_agi_state[key] = str(value)
+                
+                self.agi_state = safe_agi_state
                         
             except Exception as e:
                 print(f"WARNING: AGI state update failed for {model_id}: {type(e).__name__}")

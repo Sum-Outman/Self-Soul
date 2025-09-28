@@ -76,13 +76,13 @@ export default {
     const commandHistory = ref([])
     const historyIndex = ref(-1)
 
-    // 直接返回prompt属性值或默认提示符
+    // Directly return the prompt property value or the default prompt
     const displayPrompt = computed(() => {
-      // 优先使用传入的prompt属性值
+      // Prefer the passed prompt property value
       if (props.prompt && props.prompt !== '$') {
         return props.prompt
       }
-      // 直接返回默认值
+      // Directly return the default value
       return '$'
     })
 
@@ -110,7 +110,7 @@ export default {
         emit('command', command)
         inputValue.value = ''
         
-        // 自动滚动到底部
+        // Automatically scroll to the bottom
         scrollToBottom()
       }
     }
@@ -138,7 +138,7 @@ export default {
         return `log-${log.level}`
       }
       
-      // 根据消息内容推断级别
+      // Infer level based on message content
       const message = log.message.toLowerCase()
       if (message.includes('error') || message.includes('failed')) {
         return 'log-error'
@@ -156,7 +156,7 @@ export default {
       emit('clear')
     }
 
-    // 监听日志变化，自动滚动
+    // Monitor log changes and automatically scroll
     watch(() => props.logs, () => {
       scrollToBottom()
     }, { deep: true })
@@ -318,7 +318,7 @@ export default {
   background: #264f78;
 }
 
-/* 黑白灰主题变体 */
+/* Black and white theme variant */
 .terminal-window.light {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);

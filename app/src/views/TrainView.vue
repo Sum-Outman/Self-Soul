@@ -848,8 +848,6 @@ import TerminalWindow from '@/components/TerminalWindow.vue';
 export default {
     setup() {
       
-
-      
       // Training mode
     const trainingMode = ref('individual');
     
@@ -868,10 +866,10 @@ export default {
         // This ensures all models defined in model_services_config.json are displayed
         loadMockModels();
         
-        // 显示信息提示
+        // Display information message
         showInfo('Models loaded successfully');
       } catch (error) {
-        // 记录错误
+        // Log error
         console.error('Error loading models:', error);
         showWarning('Failed to load models. Please refresh the page.');
         loadMockModels();
@@ -1260,7 +1258,7 @@ export default {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
-          timeout: 30000 // 30秒超时
+          timeout: 30000 // 30 second timeout
         });
         
         // Add newly uploaded dataset
@@ -1283,16 +1281,16 @@ export default {
     
     // Simulate training process - provide demo data when API is unavailable
     const simulateTrainingProcess = () => {
-      // 使用模拟的job_id
-      currentJobId.value = 'mock_' + Date.now();
-      
-      // 模拟训练参数
+        // Use mock job_id
+        currentJobId.value = 'mock_' + Date.now();
+        
+        // Simulate training parameters
       const epochs = parameters.value.epochs || 10;
-      const delayPerEpoch = 2000; // 每轮2秒
+      const delayPerEpoch = 2000; // 2 seconds per epoch
       let currentProgress = 0;
       let currentTrainingEpoch = 0;
       
-      // 模拟训练进度更新
+        // Simulate training progress updates
       const simulationInterval = setInterval(() => {
         if (currentTrainingEpoch >= epochs || !isTraining.value) {
           clearInterval(simulationInterval);
@@ -1301,7 +1299,7 @@ export default {
           const mockEvaluation = generateMockEvaluationResults();
           evaluationResults.value = mockEvaluation;
           
-          // 完成训练
+          // Complete training
           completeTraining();
           return;
         }
@@ -1309,73 +1307,73 @@ export default {
         currentTrainingEpoch++;
         currentEpoch.value = currentTrainingEpoch;
         
-        // 模拟损失和准确率变化
+          // Simulate loss and accuracy changes
         const baseAccuracy = 50 + Math.random() * 30; // 50-80% baseline
-        const epochAccuracy = baseAccuracy + (currentTrainingEpoch * 2); // 每轮增加约2%
-        currentAccuracy.value = Math.min(epochAccuracy, 98); // 上限98%
+        const epochAccuracy = baseAccuracy + (currentTrainingEpoch * 2); // Increase about 2% per epoch
+        currentAccuracy.value = Math.min(epochAccuracy, 98); // Cap at 98%
         
         const baseLoss = 1.5 - Math.random() * 0.5; // 1.0-1.5 baseline
-        const epochLoss = baseLoss - (currentTrainingEpoch * 0.1); // 每轮减少约0.1
-        currentLoss.value = Math.max(epochLoss, 0.05); // 下限0.05
+        const epochLoss = baseLoss - (currentTrainingEpoch * 0.1); // Decrease about 0.1 per epoch
+        currentLoss.value = Math.max(epochLoss, 0.05); // Minimum 0.05
         
-        // 更新验证指标
-        validationLoss.value = currentLoss.value * 1.1; // 验证损失稍高
-        validationAccuracy.value = currentAccuracy.value * 0.95; // 验证准确率稍低
+          // Update validation metrics
+        validationLoss.value = currentLoss.value * 1.1; // Validation loss slightly higher
+        validationAccuracy.value = currentAccuracy.value * 0.95; // Validation accuracy slightly lower
         
-        // 更新进度
+          // Update progress
         currentProgress = (currentTrainingEpoch / epochs) * 100;
         trainingProgress.value = Math.floor(currentProgress);
         
-        // 添加训练日志
+          // Add training logs
         addLog(`Epoch ${currentTrainingEpoch}/${epochs} completed - Loss: ${currentLoss.value.toFixed(4)}, Accuracy: ${currentAccuracy.value.toFixed(2)}%, Validation Loss: ${validationLoss.value.toFixed(4)}, Validation Accuracy: ${validationAccuracy.value.toFixed(2)}%`);
       }, delayPerEpoch);
       
-      // 确保在停止训练时清除模拟定时器
+      // Ensure simulation timer is cleared when stopping training
       const stopTrainingOriginal = stopTraining;
       const stopTrainingWithClear = () => {
         clearInterval(simulationInterval);
         stopTrainingOriginal();
-        // 恢复原始函数
+        // Restore original function
         stopTraining = stopTrainingOriginal;
       };
-      // 临时替换stopTraining函数以确保模拟定时器被清除
+      // Temporarily replace stopTraining function to ensure simulation timer is cleared
       stopTraining = stopTrainingWithClear;
     };
     
-    // 生成模拟评估结果
+    // Generate mock evaluation results
     const generateMockEvaluationResults = () => {
-      // 根据选中的模型类型生成不同的评估指标
+      // Generate different evaluation metrics based on selected model types
       const selectedModelTypes = selectedModels.value.map(m => {
         const model = availableModels.value.find(model => model.id === m);
         return model ? model.backendId : m;
       });
       
-      // 基础准确率（根据模型组合变化）
+      // Base accuracy (varies based on model combination)
       let baseAccuracy = 70 + Math.random() * 25; // 70-95%
       let precision = 0.75 + Math.random() * 0.2;
       let recall = 0.7 + Math.random() * 0.25;
       let f1Score = 2 * (precision * recall) / (precision + recall);
       
-      // 为不同类型的模型调整指标
+      // Adjust metrics for different model types
       if (selectedModelTypes.some(type => type.includes('vision') || type.includes('image'))) {
-        baseAccuracy += 5; // 视觉模型准确率稍高
+        baseAccuracy += 5; // Vision models have slightly higher accuracy
       }
       if (selectedModelTypes.some(type => type.includes('language'))) {
-        precision += 0.05; // 语言模型精确率稍高
+        precision += 0.05; // Language models have slightly higher precision
       }
       if (selectedModelTypes.some(type => type.includes('knowledge'))) {
-        recall += 0.05; // 知识模型召回率稍高
+        recall += 0.05; // Knowledge models have slightly higher recall
         f1Score = 2 * (precision * recall) / (precision + recall);
       }
       
-      // 生成混淆矩阵（4x4示例）
+      // Generate confusion matrix (4x4 example)
       const labels = ['Class 1', 'Class 2', 'Class 3', 'Class 4'];
       const confusionMatrix = [];
       
       for (let i = 0; i < labels.length; i++) {
         const row = [];
         for (let j = 0; j < labels.length; j++) {
-          // 对角线元素值较大，非对角线较小
+          // Diagonal elements have larger values, off-diagonal smaller
           if (i === j) {
             row.push(Math.floor(80 + Math.random() * 20));
           } else {
@@ -1385,7 +1383,7 @@ export default {
         confusionMatrix.push(row);
       }
       
-      // 归一化混淆矩阵
+      // Normalize confusion matrix
       for (let i = 0; i < confusionMatrix.length; i++) {
         const rowSum = confusionMatrix[i].reduce((a, b) => a + b, 0);
         if (rowSum > 0) {
@@ -1403,7 +1401,7 @@ export default {
         f1Score: f1Score,
         labels: labels,
         confusionMatrix: confusionMatrix,
-        // 添加额外的评估指标
+        // Add additional evaluation metrics
         aucRoc: 0.8 + Math.random() * 0.18,
         trainingTime: new Date() - startTime,
         modelParams: selectedModels.value.length * 1000000 + Math.random() * 5000000,
@@ -1431,15 +1429,15 @@ export default {
         trainingLogs.value = [];
         evaluationResults.value = null;
         
-        // 重置计时器
+        // Reset timer
         startTime = new Date();
         updateElapsedTime();
         trainingTimer = setInterval(updateElapsedTime, 1000);
         
-        // 添加开始日志
+        // Add start log
         addLog(`Training started in ${trainingMode.value} mode with models: ${selectedModels.value.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ')} using dataset: ${datasets.value.find(d => d.id === selectedDataset.value).name}`);
         
-        // 准备训练请求数据
+        // Prepare training request data
         const trainingData = {
           models: selectedModels.value.map(modelId => {
             const model = availableModels.value.find(m => m.id === modelId);
@@ -1455,21 +1453,21 @@ export default {
           fromScratch: parameters.value.fromScratch || false
         };
         
-        // 调用FastAPI后端的开始训练接口
+        // Call FastAPI backend training start API
         try {
           const response = await api.post('/api/training/start', trainingData);
           
           currentJobId.value = response.data.job_id;
           addLog(`Training job created with ID: ${currentJobId.value}`);
           
-          // 启动WebSocket连接获取实时更新
+          // Start WebSocket connection for real-time updates
           startWebSocketConnection(currentJobId.value);
         } catch (apiError) {
-          // 如果API调用失败，使用模拟数据
+          // If API call fails, use mock data
           addLog(`Failed to connect to server: ${apiError.message || 'Unknown error'}`);
           addLog('Using mock training data for demonstration');
           
-          // 模拟训练过程
+          // Simulate training process
           simulateTrainingProcess();
         }
       } catch (error) {
@@ -1489,7 +1487,7 @@ export default {
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${wsProtocol}://localhost:8765/ws/training/${jobId}`;
         
-        // 添加连接尝试日志
+        // Add connection attempt log
         addLog('Connecting to WebSocket: ' + wsUrl.replace(/^(wss?:\/\/[^/]+).*/, '$1/...'));
         
         websocketConnection.value = new WebSocket(wsUrl);
@@ -1517,7 +1515,7 @@ export default {
                 currentLoss.value = data.loss;
                 currentAccuracy.value = data.accuracy;
                 
-                // 如果有额外的训练指标，也进行更新
+                // If there are additional training metrics, update them too
                 if (data.validation_loss !== undefined) {
                   validationLoss.value = data.validation_loss;
                 }
@@ -1625,12 +1623,12 @@ export default {
 
     // Start status polling (enhanced version with error handling and adaptive polling interval)
     const startStatusPolling = (jobId) => {
-      // 避免重复启动轮询
+      // Avoid duplicate polling startup
       if (statusPollingInterval.value) {
         clearInterval(statusPollingInterval.value);
       }
       
-      let pollingInterval = 2000; // 初始2秒间隔
+      let pollingInterval = 2000; // Initial 2 second interval
       let consecutiveFailures = 0;
       const maxFailures = 3;
       
@@ -1642,19 +1640,19 @@ export default {
           
           const status = response.data;
           
-          // 重置失败计数器
+          // Reset failure counter
           consecutiveFailures = 0;
           
-          // 根据训练进度自适应调整轮询间隔
+          // Adaptive polling interval based on training progress
           if (status.progress > 90) {
-            pollingInterval = 1000; // 接近完成时轮询更频繁
+            pollingInterval = 1000; // Poll more frequently when nearing completion
           } else if (status.progress > 50) {
             pollingInterval = 1500;
           } else {
             pollingInterval = 2000;
           }
           
-          // 更新训练状态
+          // Update training status
           if (status.progress !== undefined) {
             trainingProgress.value = status.progress;
           }
@@ -1668,7 +1666,7 @@ export default {
             currentAccuracy.value = status.accuracy;
           }
           
-          // 更新其他可能的指标
+          // Update other possible metrics
           if (status.validation_loss !== undefined) {
             validationLoss.value = status.validation_loss;
           }
@@ -1676,14 +1674,14 @@ export default {
             validationAccuracy.value = status.validation_accuracy;
           }
           
-          // 如果有日志消息，也添加到日志中
+          // If there are log messages, add them to logs too
           if (status.logs && status.logs.length > 0) {
             status.logs.forEach(log => {
               addLog(log.message, log.level || 'info');
             });
           }
           
-          // 如果训练完成，停止轮询
+          // If training is complete, stop polling
           if (status.status === 'completed' || status.status === 'failed' || status.status === 'stopped') {
             clearInterval(statusPollingInterval.value);
             
@@ -1703,20 +1701,20 @@ export default {
         } catch (error) {
           consecutiveFailures++;
           
-          // 记录错误但继续尝试
+          // Log error but continue trying
             if (consecutiveFailures <= maxFailures) {
               addLog('Polling error (attempt ' + consecutiveFailures + '/' + maxFailures + '): ' + error.message, 'warning');
               
-              // 失败时增加轮询间隔
+              // Increase polling interval on failure
               pollingInterval = Math.min(10000, pollingInterval * 1.5);
             } else {
-              // 超过最大失败次数，显示错误并停止训练
+              // Exceeded maximum failures, show error and stop training
               addLog('Maximum polling failures reached (' + maxFailures + ')', 'error');
               addLog('Failed to communicate with server', 'error');
               
               clearInterval(statusPollingInterval.value);
               
-              // 如果训练仍在进行中，停止训练
+              // If training is still in progress, stop training
               if (isTraining.value) {
                 showError('Training stopped due to connection issues');
                 stopTraining();
@@ -1731,12 +1729,12 @@ export default {
     const completeTraining = () => {
       clearInterval(trainingTimer);
       
-      // 添加到训练历史 - 保存前端字母ID用于显示
+      // Add to training history - save frontend letter IDs for display
       const duration = (new Date() - startTime) / 1000;
       const accuracy = evaluationResults.value ? evaluationResults.value.accuracy : 0;
       const loss = evaluationResults.value ? evaluationResults.value.loss : 0;
       
-      // 添加详细的训练总结
+      // Add detailed training summary
       addLog('====================================================');
       addLog('Training complete summary:', {
         models: selectedModels.value.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', '),
@@ -1745,7 +1743,7 @@ export default {
       });
       addLog('Final metrics: Accuracy: ' + accuracy.toFixed(2) + '%, Loss: ' + loss.toFixed(4));
       
-      // 如果有详细评估结果，显示更多信息
+      // If there are detailed evaluation results, show more information
         if (evaluationResults.value) {
           if (evaluationResults.value.precision !== undefined) {
             addLog('Precision: ' + (evaluationResults.value.precision * 100).toFixed(2) + '%');
@@ -1758,19 +1756,19 @@ export default {
           }
         }
         
-        // 计算训练效率指标
+        // Calculate training efficiency metrics
         const epochs = parameters.value.epochs;
-        const efficiency = accuracy / (epochs * duration / 3600); // 每小时每轮次的准确率提升
+        const efficiency = accuracy / (epochs * duration / 3600); // Accuracy improvement per hour per epoch
         const efficiencyRating = efficiency > 50 ? 'excellent' : efficiency > 30 ? 'good' : efficiency > 15 ? 'satisfactory' : 'room for improvement';
         addLog('Training efficiency: ' + efficiencyRating.charAt(0).toUpperCase() + efficiencyRating.slice(1) + ' (' + efficiency.toFixed(2) + ')');
       
       addLog('====================================================');
       
-      // 更新训练历史
+      // Update training history
       trainingHistory.value.unshift({
         id: Date.now(),
         date: new Date(),
-        models: [...selectedModels.value], // 保存前端字母ID用于显示
+        models: [...selectedModels.value], // Save frontend letter IDs for display
         dataset: datasets.value.find(d => d.id === selectedDataset.value).name,
         duration: duration,
         accuracy: accuracy,
@@ -1779,10 +1777,10 @@ export default {
         strategy: selectedStrategy.value
       });
       
-      // 重新加载训练历史以确保与后端同步
+      // Reload training history to ensure synchronization with backend
       loadTrainingHistory();
       
-      // 显示成功消息
+      // Show success message
       showSuccess('Training completed successfully');
     };
     
@@ -1794,7 +1792,7 @@ export default {
       }
 
       try {
-        // 尝试通过API停止训练
+        // Try to stop training via API
         if (currentJobId.value && !currentJobId.value.startsWith('mock_')) {
           await api.post('/api/training/stop', { job_id: currentJobId.value });
           addLog('Training stop request sent to server');
@@ -1803,12 +1801,12 @@ export default {
         addLog(`Failed to send stop request to server: ${error.message || 'Unknown error'}`);
         showWarning('Failed to communicate with server, stopping locally');
       } finally {
-        // 本地清理训练状态
+        // Local cleanup of training state
         isTraining.value = false;
         clearInterval(trainingTimer);
         clearInterval(statusPollingInterval.value);
         
-        // 关闭WebSocket连接
+        // Close WebSocket connection
         if (websocketConnection.value) {
           websocketConnection.value.close();
           websocketConnection.value = null;
@@ -1840,7 +1838,7 @@ export default {
         type
       };
       
-      // 5秒后自动清除错误
+      // Auto-clear error after 5 seconds
       setTimeout(() => {
         errorState.value.hasError = false;
       }, 5000);
@@ -1851,12 +1849,12 @@ export default {
     // Load training history
     const loadTrainingHistory = async () => {
       try {
-        // 调用FastAPI后端获取训练历史
+        // Call FastAPI backend to get training history
         const response = await api.get('/api/training/history');
         
-        // 严格检查响应数据结构
+        // Strictly check response data structure
         if (response && response.data && Array.isArray(response.data.history)) {
-          // 处理后端返回的历史数据
+          // Process backend returned history data
           trainingHistory.value = response.data.history.map(item => ({
             id: item.id,
             date: new Date(item.timestamp),
@@ -1871,14 +1869,14 @@ export default {
           
           showInfo('Training history loaded successfully');
         } else {
-          // 响应格式不正确时，显示错误并使用模拟数据
+          // When response format is incorrect, show error and use mock data
           console.warn('Training history response format incorrect');
           showWarning('Failed to load training history: Using mock data for demonstration');
           loadMockTrainingHistory();
         }
       } catch (error) {
         console.error('Failed to load training history:', error);
-        // 如果API不存在或后端不可用，使用模拟数据
+        // If API doesn't exist or backend is unavailable, use mock data
         showWarning('Backend service unavailable. Using mock training history for demonstration.');
         loadMockTrainingHistory();
       }
@@ -1929,18 +1927,18 @@ export default {
     const addLog = (message, type = 'info') => {
       const timestamp = new Date().toLocaleTimeString();
       
-      // 添加日志条目，包含类型信息用于样式化
+      // Add log entry with type information for styling
       trainingLogs.value.push({
         timestamp,
         message,
         type // info, success, warning, error, debug
       });
       
-      // 保持日志滚动到底部，优化滚动性能
+      // Keep logs scrolled to bottom, optimize scrolling performance
       nextTick(() => {
         const logContainer = document.getElementById('training-logs');
         if (logContainer) {
-          // 使用requestAnimationFrame确保滚动流畅
+          // Use requestAnimationFrame to ensure smooth scrolling
           requestAnimationFrame(() => {
             logContainer.scrollTop = logContainer.scrollHeight;
           });
@@ -1953,14 +1951,14 @@ export default {
       await loadAvailableModels();
       await loadTrainingHistory();
       
-      // 设置默认选中的模型
+      // Set default selected models
       if (availableModels.value.length > 0) {
-        // 确保默认选中的模型是有效的
+        // Ensure default selected models are valid
         selectedModels.value = selectedModels.value.filter(modelId => 
           availableModels.value.some(m => m.id === modelId)
         );
         
-        // 如果没有有效的选中模型，选择第一个
+        // If no valid selected models, select the first one
         if (selectedModels.value.length === 0 && availableModels.value.length > 0) {
           selectedModels.value = [availableModels.value[0].id];
         }
@@ -1981,8 +1979,6 @@ export default {
         websocketConnection.value.close();
       }
     });
-    
-
     
     // Export functionality
 return {
@@ -2056,11 +2052,11 @@ return {
       viewSession(id) {
         addLog(`Viewing session details: ${id}`);
         try {
-          // 查找对应的会话
+          // Find corresponding session
           const session = trainingHistory.value.find(s => s.id === id);
           if (session) {
-            // 在实际应用中，这里应该打开一个详情模态框
-            // 但为了快速修复，我们可以简单地弹出一个alert显示会话信息
+            // In actual application, this should open a details modal
+            // But for quick fix, we can simply show an alert with session info
             const sessionDetails = `Session ID: ${session.id}\nDate: ${this.formatDate(session.date)}\nModels: ${session.models.join(', ')}\nDataset: ${session.dataset}\nDuration: ${this.formatDuration(session.duration)}\nAccuracy: ${session.accuracy}%`;
             alert(sessionDetails);
           }
@@ -2073,20 +2069,20 @@ return {
       compareSession(id) {
         addLog(`Comparing session: ${id}`);
         try {
-          // 查找对应的会话
+          // Find corresponding session
           const session = trainingHistory.value.find(s => s.id === id);
           if (session) {
-            // 检查会话是否已被选中
+            // Check if session is already selected
             const sessionIndex = comparingSessions.value.findIndex(s => s.id === id);
             
             if (sessionIndex === -1) {
-              // 添加到比较列表
+              // Add to comparison list
               comparingSessions.value.push(session);
               addLog(`Added session ${id} to comparison`);
               
-              // 如果已经选择了两个或更多会话，可以执行简单的比较
+              // If two or more sessions are already selected, perform simple comparison
               if (comparingSessions.value.length >= 2) {
-                // 找出最佳表现的会话
+                // Find best performing session
                 let bestSession = comparingSessions.value[0];
                 comparingSessions.value.forEach(s => {
                   if (s.accuracy > bestSession.accuracy) {
@@ -2096,12 +2092,12 @@ return {
                   }
                 });
                 
-                // 显示比较结果
+                // Show comparison results
                 addLog(`=== Session Comparison Results ===`);
                 addLog(`Best performing session: ${bestSession.id} with ${bestSession.accuracy.toFixed(2)}% accuracy`);
                 addLog(`Sessions compared: ${comparingSessions.value.length}`);
                 
-                // 清空比较列表
+                // Clear comparison list
                 comparingSessions.value = [];
                 showInfo('Session comparison completed. Check logs for results.');
               } else if (comparingSessions.value.length === 1) {

@@ -245,7 +245,7 @@ export default {
           this.selectedMicrophone = this.microphones[0].deviceId;
         }
       } catch (error) {
-        console.error('获取设备列表失败:', error);
+        console.error('Failed to get device list:', error);
       }
     },
     
@@ -310,17 +310,17 @@ export default {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // 获取图像数据
+      // Get image data
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       
-      // 发送到处理模型
+      // Send to processing model
       this.processImageData(imageData);
     },
     
     // Process Image Data
     processImageData(imageData) {
-      console.log('处理图像数据:', imageData);
-      // 实际实现中会发送到图像处理模型
+      console.log('Processing image data:', imageData);
+      // In production, this will be sent to the image processing model
       this.$emit('image-data', imageData);
     },
     
@@ -346,11 +346,11 @@ export default {
         this.isMicrophoneActive = true;
         this.hasInputData = true;
         
-        // 设置音频分析器
+        // Set up audio analyzer
         this.setupAudioAnalyser();
         this.showSuccess('Microphone started successfully.');
       } catch (error) {
-        console.error('启动麦克风失败:', error);
+        console.error('Failed to start microphone:', error);
         this.showError('Failed to start microphone.');
       }
     },
@@ -378,7 +378,7 @@ export default {
       source.connect(this.analyser);
       this.analyser.fftSize = 256;
       
-      // 开始可视化
+      // Start visualization
       this.visualizeAudio();
     },
     
@@ -520,8 +520,8 @@ export default {
     async startAudioStream() {
       try {
         if (this.audioStreamUrl) {
-          // 这里需要实现音频流处理
-          console.log('启动音频流:', this.audioStreamUrl);
+          // Audio stream processing needs to be implemented here
+          console.log('Starting audio stream:', this.audioStreamUrl);
           this.isAudioStreamActive = true;
           this.hasInputData = true;
           this.showSuccess('Audio stream started');
@@ -550,7 +550,7 @@ export default {
     startSensorData() {
       this.isSensorDataActive = true;
       this.hasInputData = true;
-      // 实际实现中会连接真实传感器
+      // In production, this should connect to real sensors
     },
     
     // Stop Sensor Data
@@ -576,15 +576,15 @@ export default {
     // Start Real-time Dialog
     async startRealTimeDialog() {
       try {
-        // 连接WebSocket
+        // Connect WebSocket
         await this.connectWebSocket();
         
-        // 启动音频捕获
+        // Start audio capture
         if (this.isMicrophoneActive) {
           this.startAudioCapture();
         }
         
-        // 启动视频捕获
+        // Start video capture
         if (this.isCameraActive) {
           this.startVideoCapture();
         }
@@ -599,26 +599,26 @@ export default {
 
     // Stop Real-time Dialog
     async stopRealTimeDialog() {
-      // 停止音频捕获
+      // Stop audio capture
       if (this.audioCaptureInterval) {
         clearInterval(this.audioCaptureInterval);
         this.audioCaptureInterval = null;
       }
       
-      // 停止视频捕获
+      // Stop video capture
       if (this.videoCaptureInterval) {
         clearInterval(this.videoCaptureInterval);
         this.videoCaptureInterval = null;
       }
       
-      // 清理音频处理器资源
+      // Clean up audio processor resources
       if (this.audioProcessor) {
-        // 关闭AudioContext以释放资源
+        // Close AudioContext to release resources
         this.audioProcessor.close();
         this.audioProcessor = null;
       }
       
-      // 断开WebSocket连接
+      // Disconnect WebSocket
       await this.disconnectWebSocket();
       
       this.isRealTimeDialogActive = false;
@@ -673,11 +673,11 @@ export default {
         const message = JSON.parse(data);
         
         if (message.type === 'response') {
-          // 处理AI响应
+          // Process AI response
           this.realTimeResponses.push(message.content);
           this.$emit('real-time-response', message.content);
           
-          // 如果响应包含语音，可以在这里播放
+          // If response contains audio, play it here
           if (message.audio) {
             this.playAudioResponse(message.audio);
           }
@@ -687,13 +687,13 @@ export default {
           this.showInfo(message.content);
         }
       } catch (error) {
-        console.error('处理WebSocket消息失败:', error);
+        console.error('Failed to process WebSocket message:', error);
       }
     },
 
     // Handle WebSocket Error
     handleWebSocketError(error) {
-      console.error('WebSocket错误:', error);
+      console.error('WebSocket error:', error);
       this.showError('WebSocket connection error.');
     },
 
@@ -704,7 +704,7 @@ export default {
         return;
       }
       
-      // 创建音频处理器
+      // Create audio processor
       this.audioProcessor = new (window.AudioContext || window.webkitAudioContext)();
       const source = this.audioProcessor.createMediaStreamSource(this.audioStream);
       const processor = this.audioProcessor.createScriptProcessor(4096, 1, 1);
@@ -720,11 +720,11 @@ export default {
       };
       
       this.audioCaptureInterval = setInterval(() => {
-        // 定期发送音频数据
+        // Send audio data periodically
         if (this.isWebSocketConnected && this.isRealTimeDialogActive) {
           this.captureAudioFrame();
         }
-      }, 100); // 每100毫秒发送一次
+      }, 100); // Send every 100ms
     },
 
     // Capture Audio Frame
@@ -735,7 +735,7 @@ export default {
       const dataArray = new Uint8Array(bufferLength);
       this.analyser.getByteFrequencyData(dataArray);
       
-      // 发送音频数据到服务器
+      // Send audio data to server
       if (this.isWebSocketConnected) {
         this.realTimeWebSocket.send(JSON.stringify({
           type: 'audio',
@@ -748,7 +748,7 @@ export default {
     // Send Audio Data
     sendAudioData(audioData) {
       if (this.isWebSocketConnected && this.realTimeWebSocket) {
-        // 将音频数据转换为适合传输的格式
+        // Convert audio data to suitable format for transmission
         const compressedData = this.compressAudioData(audioData);
         
         this.realTimeWebSocket.send(JSON.stringify({
@@ -761,12 +761,12 @@ export default {
 
     // Compress Audio Data
     compressAudioData(audioData) {
-      // 简单的压缩：采样和量化
+      // Simple compression: sampling and quantization
       const compressed = [];
-      const sampleRate = 10; // 每10个样本取1个
+      const sampleRate = 10; // Take 1 sample every 10 samples
       
       for (let i = 0; i < audioData.length; i += sampleRate) {
-        compressed.push(Math.round(audioData[i] * 100) / 100); // 量化到2位小数
+        compressed.push(Math.round(audioData[i] * 100) / 100); // Quantized to 2 decimal places
       }
       
       return compressed;
@@ -783,7 +783,7 @@ export default {
         if (this.isWebSocketConnected && this.isRealTimeDialogActive) {
           this.captureVideoFrame();
         }
-      }, 100); // 每100毫秒捕获一帧
+      }, 100); // Capture one frame every 100 milliseconds
     },
 
     // Capture Video Frame
@@ -798,11 +798,11 @@ export default {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // 获取图像数据并压缩
+      // Get image data and compress
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       const compressedImage = this.compressImageData(imageData);
       
-      // 发送到服务器
+      // Send to server
       if (this.isWebSocketConnected) {
         this.realTimeWebSocket.send(JSON.stringify({
           type: 'video',
@@ -816,16 +816,16 @@ export default {
 
     // Compress Image Data
     compressImageData(imageData) {
-      // 简单的压缩：降低分辨率和质量
+      // Simple compression: reduce resolution and quality
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       
-      // 降低分辨率
+      // Reduce resolution
       const scale = 0.5;
       canvas.width = imageData.width * scale;
       canvas.height = imageData.height * scale;
       
-      // 绘制缩放后的图像
+      // Draw scaled image
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d');
       tempCanvas.width = imageData.width;
@@ -834,8 +834,8 @@ export default {
       
       ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
       
-      // 获取压缩后的图像数据
-      return canvas.toDataURL('image/jpeg', 0.7); // 70%质量
+      // Get compressed image data
+      return canvas.toDataURL('image/jpeg', 0.7); // 70% quality
     },
 
     // Play Audio Response
@@ -846,13 +846,13 @@ export default {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const source = audioContext.createBufferSource();
         
-        // 这里需要根据音频数据格式进行解码和播放
-        // 实际实现中可能需要base64解码或其他格式处理
-        console.log('播放音频响应:', audioData);
+        // Decode and play based on audio data format
+        // In production, may need base64 decoding or other format processing
+        console.log('Playing audio response:', audioData);
         
         source.start();
       } catch (error) {
-        console.error('播放音频响应失败:', error);
+        console.error('Failed to play audio response:', error);
       }
     },
     
@@ -887,13 +887,13 @@ export default {
     
     // Process Fused Data
     processFusedData() {
-      console.log('处理融合数据:', {
+      console.log('Processing fused data:', {
         audioVisual: this.fuseAudioVisual,
         sensorCamera: this.fuseSensorCamera,
         allModalities: this.fuseAllModalities
       });
       
-      // 实际实现中会发送到主模型进行融合处理
+      // In production, this will be sent to the main model for fusion processing
       this.$emit('process-fused-data', {
         audioVisual: this.fuseAudioVisual,
         sensorCamera: this.fuseSensorCamera,

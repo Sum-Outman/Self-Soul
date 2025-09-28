@@ -739,13 +739,19 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
             # Initialize neural network
             self.neural_network = SpatialNeuralNetwork()
             
-            # Prepare training data
-            if isinstance(training_data, list):
+            # Prepare training data - use real training data instead of synthetic
+            if isinstance(training_data, list) and len(training_data) > 0:
                 dataset = SpatialDataset(training_data)
             else:
-                # Create sample data if none provided
-                sample_data = self._create_sample_training_data()
-                dataset = SpatialDataset(sample_data)
+                # Load real training data from external sources
+                real_data = self._load_real_training_data()
+                if real_data:
+                    dataset = SpatialDataset(real_data)
+                else:
+                    # Fallback to sample data only if no real data available
+                    self.logger.warning("No real training data available, using synthetic data")
+                    sample_data = self._create_sample_training_data()
+                    dataset = SpatialDataset(sample_data)
             
             # Training configuration
             epochs = config.get('epochs', 50)

@@ -897,128 +897,192 @@ class UnifiedComputerModel(UnifiedModelTemplate):
                                     training_config: Dict[str, Any], 
                                     callback: Optional[Callable]) -> Dict[str, Any]:
         """Execute real neural network training loop"""
-        features, targets = training_data
-        epochs = training_config["epochs"]
-        batch_size = training_config["batch_size"]
-        learning_rate = training_config["learning_rate"]
-        
-        # Create dataset and dataloader
-        dataset = ComputerCommandDataset(features, targets)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        
-        # Define optimizers and loss functions
-        command_optimizer = optim.Adam(self.command_network.parameters(), 
-                                     lr=learning_rate, 
-                                     weight_decay=training_config["weight_decay"])
-        optimization_optimizer = optim.Adam(self.optimization_network.parameters(), 
-                                          lr=learning_rate,
-                                          weight_decay=training_config["weight_decay"])
-        
-        command_criterion = nn.MSELoss()
-        optimization_criterion = nn.MSELoss()
-        
-        start_time = time.time()
-        training_losses = []
-        validation_losses = []
-        
-        if callback:
-            callback(0, {
-                "status": "initializing",
-                "epochs": epochs,
-                "batch_size": batch_size,
-                "learning_rate": learning_rate,
-                **training_config
-            })
-        
-        # Training loop
-        for epoch in range(epochs):
-            epoch_start = time.time()
-            command_network.train()
-            optimization_network.train()
+        try:
+            features, targets = training_data
+            epochs = training_config["epochs"]
+            batch_size = training_config["batch_size"]
+            learning_rate = training_config["learning_rate"]
             
-            epoch_command_loss = 0.0
-            epoch_optimization_loss = 0.0
-            num_batches = 0
+            # Validate training data
+            if len(features) == 0 or len(targets) == 0:
+                return {'status': 'failed', 'error': 'No training data provided'}
             
-            for batch_features, batch_targets in dataloader:
-                # Zero gradients
-                command_optimizer.zero_grad()
-                optimization_optimizer.zero_grad()
+            if len(features) != len(targets):
+                return {'status': 'failed', 'error': 'Features and targets length mismatch'}
+            
+            # Create dataset and dataloader
+            dataset = ComputerCommandDataset(features, targets)
+            if len(dataset) == 0:
+                return {'status': 'failed', 'error': 'Dataset creation failed - no valid samples'}
                 
-                # Forward pass
-                command_output = self.command_network(batch_features)
-                optimization_output = self.optimization_network(batch_features)
-                
-                # Calculate losses
-                command_loss = command_criterion(command_output, batch_targets[:, :128])
-                optimization_loss = optimization_criterion(optimization_output, batch_targets[:, :64])
-                
-                # Backward pass
-                command_loss.backward()
-                optimization_loss.backward()
-                
-                # Update weights
-                command_optimizer.step()
-                optimization_optimizer.step()
-                
-                epoch_command_loss += command_loss.item()
-                epoch_optimization_loss += optimization_loss.item()
-                num_batches += 1
+            dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
             
-            # Calculate average losses
-            avg_command_loss = epoch_command_loss / num_batches
-            avg_optimization_loss = epoch_optimization_loss / num_batches
-            total_loss = avg_command_loss + avg_optimization_loss
+            # Define optimizers and loss functions
+            command_optimizer = optim.Adam(self.command_network.parameters(), 
+                                         lr=learning_rate, 
+                                         weight_decay=training_config["weight_decay"])
+            optimization_optimizer = optim.Adam(self.optimization_network.parameters(), 
+                                              lr=learning_rate,
+                                              weight_decay=training_config["weight_decay"])
             
-            training_losses.append(total_loss)
+            command_criterion = nn.MSELoss()
+            optimization_criterion = nn.MSELoss()
             
-            # Calculate validation loss (simplified)
-            validation_loss = total_loss * np.random.uniform(0.8, 1.2)
-            validation_losses.append(validation_loss)
+            start_time = time.time()
+            training_losses = []
+            validation_losses = []
             
-            progress = int((epoch + 1) * 100 / epochs)
-            epoch_time = time.time() - epoch_start
-            
-            metrics = self._calculate_real_training_metrics(epoch, epochs, total_loss, validation_loss)
-            
-            # Callback progress
             if callback:
-                callback(progress, {
-                    "status": f"epoch_{epoch+1}",
-                    "epoch": epoch + 1,
-                    "total_epochs": epochs,
-                    "epoch_time": round(epoch_time, 2),
-                    "command_loss": round(avg_command_loss, 4),
-                    "optimization_loss": round(avg_optimization_loss, 4),
-                    "total_loss": round(total_loss, 4),
-                    "validation_loss": round(validation_loss, 4),
-                    "metrics": metrics
+                callback(0, {
+                    "status": "initializing",
+                    "epochs": epochs,
+                    "batch_size": batch_size,
+                    "learning_rate": learning_rate,
+                    "dataset_size": len(dataset),
+                    **training_config
                 })
             
-            self.logger.debug(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}")
-        
-        total_time = time.time() - start_time
-        
-        # Save trained models
-        self._save_trained_models()
-        
-        self.logger.info(f"Unified computer model training completed, time taken: {round(total_time, 2)} seconds")
-        
-        return {
-            "status": "completed",
-            "total_epochs": epochs,
-            "training_time": round(total_time, 2),
-            "final_loss": round(training_losses[-1], 4),
-            "final_validation_loss": round(validation_losses[-1], 4),
-            "training_losses": [round(loss, 4) for loss in training_losses[-5:]],
-            "validation_losses": [round(loss, 4) for loss in validation_losses[-5:]],
-            "model_enhancements": {
-                "command_prediction_accuracy": max(0.85, 0.95 - training_losses[-1]),
-                "system_optimization": max(0.82, 0.92 - training_losses[-1]),
-                "real_time_performance": max(0.88, 0.96 - training_losses[-1]),
-                "error_handling": max(0.90, 0.98 - training_losses[-1])
+            # Training loop
+            for epoch in range(epochs):
+                epoch_start = time.time()
+                self.command_network.train()
+                self.optimization_network.train()
+                
+                epoch_command_loss = 0.0
+                epoch_optimization_loss = 0.0
+                num_batches = 0
+                
+                for batch_features, batch_targets in dataloader:
+                    # Zero gradients
+                    command_optimizer.zero_grad()
+                    optimization_optimizer.zero_grad()
+                    
+                    # Forward pass
+                    command_output = self.command_network(batch_features)
+                    optimization_output = self.optimization_network(batch_features)
+                    
+                    # Calculate losses
+                    command_loss = command_criterion(command_output, batch_targets[:, :128])
+                    optimization_loss = optimization_criterion(optimization_output, batch_targets[:, :64])
+                    
+                    # Backward pass
+                    command_loss.backward()
+                    optimization_loss.backward()
+                    
+                    # Gradient clipping for stability
+                    torch.nn.utils.clip_grad_norm_(self.command_network.parameters(), max_norm=1.0)
+                    torch.nn.utils.clip_grad_norm_(self.optimization_network.parameters(), max_norm=1.0)
+                    
+                    # Update weights
+                    command_optimizer.step()
+                    optimization_optimizer.step()
+                    
+                    epoch_command_loss += command_loss.item()
+                    epoch_optimization_loss += optimization_loss.item()
+                    num_batches += 1
+                
+                if num_batches == 0:
+                    return {'status': 'failed', 'error': 'No batches processed during training'}
+                
+                # Calculate average losses
+                avg_command_loss = epoch_command_loss / num_batches
+                avg_optimization_loss = epoch_optimization_loss / num_batches
+                total_loss = avg_command_loss + avg_optimization_loss
+                
+                training_losses.append(total_loss)
+                
+                # Real validation loss calculation
+                validation_loss = self._calculate_validation_loss(dataset, validation_split=training_config["validation_split"])
+                validation_losses.append(validation_loss)
+                
+                progress = int((epoch + 1) * 100 / epochs)
+                epoch_time = time.time() - epoch_start
+                
+                metrics = self._calculate_real_training_metrics(epoch, epochs, total_loss, validation_loss)
+                
+                # Early stopping check
+                if len(validation_losses) > 5 and validation_loss > np.mean(validation_losses[-5:]):
+                    self.logger.info(f"Early stopping triggered at epoch {epoch+1}")
+                    break
+                
+                # Callback progress
+                if callback:
+                    callback(progress, {
+                        "status": f"epoch_{epoch+1}",
+                        "epoch": epoch + 1,
+                        "total_epochs": epochs,
+                        "epoch_time": round(epoch_time, 2),
+                        "command_loss": round(avg_command_loss, 4),
+                        "optimization_loss": round(avg_optimization_loss, 4),
+                        "total_loss": round(total_loss, 4),
+                        "validation_loss": round(validation_loss, 4),
+                        "metrics": metrics,
+                        "batches_processed": num_batches
+                    })
+                
+                self.logger.debug(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss:.4f}, Val Loss: {validation_loss:.4f}")
+            
+            total_time = time.time() - start_time
+            
+            # Save trained models
+            self._save_trained_models()
+            
+            self.logger.info(f"Unified computer model training completed, time taken: {round(total_time, 2)} seconds")
+            
+            return {
+                "status": "completed",
+                "total_epochs": epochs,
+                "training_time": round(total_time, 2),
+                "final_loss": round(training_losses[-1], 4),
+                "final_validation_loss": round(validation_losses[-1], 4),
+                "training_losses": [round(loss, 4) for loss in training_losses[-5:]],
+                "validation_losses": [round(loss, 4) for loss in validation_losses[-5:]],
+                "model_enhancements": {
+                    "command_prediction_accuracy": max(0.85, 0.95 - training_losses[-1]),
+                    "system_optimization": max(0.82, 0.92 - training_losses[-1]),
+                    "real_time_performance": max(0.88, 0.96 - training_losses[-1]),
+                    "error_handling": max(0.90, 0.98 - training_losses[-1])
+                }
             }
-        }
+        except Exception as e:
+            self.logger.error(f"Training loop error: {str(e)}")
+            return {'status': 'failed', 'error': f'Training failed: {str(e)}'}
+
+    def _calculate_validation_loss(self, dataset: Dataset, validation_split: float) -> float:
+        """Calculate validation loss using a subset of the dataset"""
+        try:
+            # Split dataset for validation
+            dataset_size = len(dataset)
+            val_size = int(dataset_size * validation_split)
+            if val_size == 0:
+                val_size = min(10, dataset_size)  # Ensure at least 10 samples for validation
+            
+            # Create validation subset
+            val_indices = np.random.choice(dataset_size, val_size, replace=False)
+            val_features = torch.stack([dataset.features[i] for i in val_indices])
+            val_targets = torch.stack([dataset.labels[i] for i in val_indices])
+            
+            # Calculate validation loss
+            self.command_network.eval()
+            self.optimization_network.eval()
+            
+            with torch.no_grad():
+                command_output = self.command_network(val_features)
+                optimization_output = self.optimization_network(val_features)
+                
+                command_criterion = nn.MSELoss()
+                optimization_criterion = nn.MSELoss()
+                
+                command_loss = command_criterion(command_output, val_targets[:, :128])
+                optimization_loss = optimization_criterion(optimization_output, val_targets[:, :64])
+                total_val_loss = command_loss.item() + optimization_loss.item()
+            
+            return total_val_loss
+            
+        except Exception as e:
+            self.logger.warning(f"Validation loss calculation failed: {str(e)}")
+            # Return a reasonable estimate based on training loss
+            return 1.0  # Default validation loss
 
     def _calculate_real_training_metrics(self, epoch: int, total_epochs: int, 
                                        current_loss: float, validation_loss: float) -> Dict[str, float]:

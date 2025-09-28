@@ -777,51 +777,134 @@ class UnifiedAudioModel(UnifiedModelTemplate):
             return {"status": "error", "error": str(e)}
     
     def _simulate_real_time_stream(self, duration: float, sample_rate: int, config: Dict) -> Dict[str, Any]:
-        """Simulate real-time stream processing for testing"""
+        """Real-time stream processing with actual audio capture"""
         import time
+        import sounddevice as sd
+        import queue
         
-        self.logger.info(f"Simulating real-time audio stream for {duration}s")
+        self.logger.info(f"Starting real-time audio stream with sounddevice for {duration}s")
         
-        start_time = time.time()
-        processed_frames = 0
-        speech_detected = False
-        emotion_results = []
-        processed_texts = []
-        
-        # Simulate stream processing
-        while time.time() - start_time < duration:
-            # Simulate audio frame processing
-            frame_duration = 0.1  # 100ms frames
-            time.sleep(frame_duration)
-            processed_frames += 1
+        try:
+            # Create queue for audio data
+            audio_queue = queue.Queue()
+            is_streaming = True
+            stream_results = {
+                "audio_data": [],
+                "speech_detected": False,
+                "emotion_analysis": {},
+                "processed_text": "",
+                "stream_duration": 0.0
+            }
             
-            # Simulate speech detection (every 5 frames)
-            if processed_frames % 5 == 0:
-                speech_detected = True
-                simulated_text = f"Simulated speech frame {processed_frames}"
-                processed_texts.append(simulated_text)
+            def audio_callback(indata, frames, time, status):
+                """Callback function for audio stream"""
+                if status:
+                    self.logger.warning(f"Audio stream status: {status}")
                 
-                # Simulate emotion analysis
-                emotion_result = {
-                    "emotion": "neutral",
-                    "confidence": 0.7 + 0.3 * (processed_frames % 10) / 10,
-                    "intensity": 0.5
-                }
-                emotion_results.append(emotion_result)
-        
-        # Final results
-        final_emotion = emotion_results[-1] if emotion_results else {"emotion": "neutral", "confidence": 0.0, "intensity": 0.0}
-        final_text = processed_texts[-1] if processed_texts else "No speech detected"
-        
-        return {
-            "status": "completed",
-            "stream_duration": time.time() - start_time,
-            "processed_frames": processed_frames,
-            "speech_detected": speech_detected,
-            "processed_text": final_text,
-            "emotion_analysis": final_emotion,
-            "warning": "Simulated stream processing - install PyAudio for real audio processing"
-        }
+                # Convert audio data to numpy array
+                audio_array = indata.copy().flatten()
+                audio_queue.put(audio_array)
+            
+            # Start audio stream
+            stream = sd.InputStream(
+                samplerate=sample_rate,
+                channels=1,
+                callback=audio_callback,
+                blocksize=1024
+            )
+            
+            def process_audio_data():
+                """Process audio data from queue"""
+                start_time = datetime.now()
+                processed_frames = 0
+                
+                while is_streaming or not audio_queue.empty():
+                    try:
+                        # Get audio data from queue with timeout
+                        audio_data = audio_queue.get(timeout=1.0)
+                        processed_frames += 1
+                        
+                        # Real processing
+                        if len(audio_data) > 0:
+                            # Speech detection
+                            features = self._extract_speech_features(audio_data)
+                            energy = features.get("energy", 0)
+                            
+                            if energy > 0.01:  # Speech detected
+                                stream_results["speech_detected"] = True
+                                
+                                # Real-time speech recognition
+                                text = self._speech_to_text(audio_data)
+                                if text and text != "No speech detected":
+                                    stream_results["processed_text"] = text
+                                
+                                # Real-time emotion analysis
+                                emotion_result = self._analyze_audio_emotion_with_agi(audio_data, {})
+                                stream_results["emotion_analysis"] = emotion_result
+                            
+                            # Store audio data for analysis
+                            stream_results["audio_data"].append(audio_data)
+                            
+                        # Calculate stream duration
+                        current_time = datetime.now()
+                        stream_results["stream_duration"] = (current_time - start_time).total_seconds()
+                        
+                    except queue.Empty:
+                        continue
+                    except Exception as e:
+                        self.logger.error(f"Audio processing error: {str(e)}")
+            
+            # Start processing thread
+            import threading
+            processing_thread = threading.Thread(target=process_audio_data)
+            processing_thread.daemon = True
+            processing_thread.start()
+            
+            # Start stream
+            stream.start()
+            self.logger.info("Real-time audio stream started with sounddevice")
+            
+            # Stream for specified duration
+            start_time = time.time()
+            while time.time() - start_time < duration:
+                if not stream.active:
+                    break
+                time.sleep(0.1)
+            
+            # Stop stream
+            is_streaming = False
+            stream.stop()
+            stream.close()
+            
+            # Wait for processing thread to finish
+            processing_thread.join(timeout=5.0)
+            
+            # Final processing
+            if stream_results["audio_data"]:
+                combined_audio = np.concatenate(stream_results["audio_data"])
+                stream_results["total_audio_length"] = len(combined_audio) / sample_rate
+                
+                if stream_results["speech_detected"]:
+                    final_emotion = self._analyze_audio_emotion_with_agi(combined_audio, {})
+                    stream_results["final_emotion_analysis"] = final_emotion
+            
+            self.logger.info(f"Real-time audio stream completed: {stream_results['stream_duration']:.2f}s")
+            
+            return {
+                "status": "completed",
+                "results": stream_results,
+                "stream_duration": stream_results["stream_duration"],
+                "speech_detected": stream_results["speech_detected"],
+                "processed_text": stream_results["processed_text"],
+                "emotion_analysis": stream_results.get("final_emotion_analysis", {})
+            }
+            
+        except ImportError:
+            self.logger.error("sounddevice not available for real audio processing")
+            return {"status": "error", "error": "sounddevice library required for real audio processing"}
+        except Exception as e:
+            self.logger.error(f"Real-time audio stream failed: {str(e)}")
+            return {"status": "error", "error": str(e)}
     
     # Audio Effect Implementations
     def _apply_echo_effect(self, audio_data: np.ndarray, delay: float = 0.3, decay: float = 0.5) -> np.ndarray:
@@ -1405,29 +1488,47 @@ class UnifiedAudioModel(UnifiedModelTemplate):
             self.logger.error(f"Speech feature extraction for training failed: {str(e)}")
             return {}
     
-    def _basic_speech_recognition(self, features: Dict[str, Any], language: str = "en") -> str:
-        """Basic speech recognition using feature analysis"""
+    def _calculate_speech_probability(self, energy: float, spectral_centroid: float, 
+                                    zero_crossing_rate: float, mfcc_features: np.ndarray) -> float:
+        """Calculate speech probability using AGI-enhanced multi-feature analysis"""
         try:
-            # Simple rule-based recognition based on audio features
-            energy = features.get("energy", 0)
-            spectral_centroid = features.get("spectral_centroid_mean", 0)
-            zero_crossing_rate = features.get("zero_crossing_rate_mean", 0)
+            # Normalize features
+            energy_norm = min(1.0, energy / 0.1)  # Normalize to 0-1 range
+            spectral_centroid_norm = min(1.0, spectral_centroid / 5000)  # Normalize to 0-1 range
+            zero_crossing_rate_norm = min(1.0, zero_crossing_rate / 0.5)  # Normalize to 0-1 range
             
-            # Basic speech detection
-            if energy > 0.01 and spectral_centroid > 1000 and zero_crossing_rate > 0.1:
-                # This would be replaced with actual speech recognition logic
-                if language == "zh":
-                    return "检测到中文语音"
-                elif language == "en":
-                    return "Speech detected"
-                else:
-                    return "Speech detected"
-            else:
-                return "No speech detected"
-                
+            # Analyze MFCC features for speech patterns
+            mfcc_variance = np.var(mfcc_features) if len(mfcc_features) > 0 else 0
+            mfcc_variance_norm = min(1.0, mfcc_variance / 100)
+            
+            # AGI-enhanced probability calculation using weighted combination
+            weights = {
+                'energy': 0.3,
+                'spectral_centroid': 0.25,
+                'zero_crossing_rate': 0.25,
+                'mfcc_variance': 0.2
+            }
+            
+            probability = (
+                weights['energy'] * energy_norm +
+                weights['spectral_centroid'] * spectral_centroid_norm +
+                weights['zero_crossing_rate'] * zero_crossing_rate_norm +
+                weights['mfcc_variance'] * mfcc_variance_norm
+            )
+            
+            # Apply AGI reasoning for context-aware adjustment
+            probability = self._apply_agi_speech_reasoning(probability, {
+                'energy': energy_norm,
+                'spectral_centroid': spectral_centroid_norm,
+                'zero_crossing_rate': zero_crossing_rate_norm,
+                'mfcc_variance': mfcc_variance_norm
+            })
+            
+            return min(1.0, max(0.0, probability))
+            
         except Exception as e:
-            self.logger.error(f"Basic speech recognition failed: {str(e)}")
-            return "Recognition error"
+            self.logger.error(f"Speech probability calculation failed: {str(e)}")
+            return 0.5  # Default to uncertain probability
     
     def _basic_speech_synthesis(self, text: str, emotion: Dict = None) -> np.ndarray:
         """Basic speech synthesis using simple waveform generation"""

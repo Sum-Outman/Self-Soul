@@ -46,7 +46,7 @@ export default {
     
     // Check server connection status
     const checkServerConnection = () => {
-      api.get('/health') // 使用统一的API实例和相对路径
+      api.get('/health') // Use unified API instance and relative path
         .then(response => {
           isConnected.value = true;
           connectionStatus.value = 'Connected to Main API';
@@ -111,9 +111,9 @@ export default {
 </script>
 
 <style scoped>
-/* 使用main.css中定义的黑白灰浅色主题变量 */
+/* Use black, white and gray light theme variables defined in main.css */
 
-/* 全局样式重置 */
+/* Global style reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -127,14 +127,14 @@ body {
   background-color: var(--bg-primary);
 }
 
-/* App容器样式 */
+/* App container styles */
 #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* 顶部菜单栏样式 - 使用黑白灰浅色主题 */
+/* Top menu bar styles - using black, white and gray light theme */
 .top-menu-bar {
   background: var(--bg-secondary);
   color: var(--text-primary);
@@ -170,7 +170,7 @@ body {
 
 /* Removed language selector as it's no longer needed */
 
-/* 菜单项样式 */
+/* Menu item styles */
 .menu-link {
   padding: 8px 16px;
   background: var(--bg-secondary);
@@ -184,7 +184,7 @@ body {
   display: inline-block;
 }
 
-/* 连接状态样式 */
+/* Connection status styles */
 .connection-status {
   display: flex;
   align-items: center;
@@ -215,7 +215,7 @@ body {
   border-color: var(--border-dark);
 }
 
-/* 为router-view添加顶部边距，避免被菜单栏遮挡 */
+/* Add top margin to router-view to avoid being blocked by menu bar */
 #app > :not(.top-menu-bar) {
   margin-top: 70px;
   min-height: calc(100vh - 70px);

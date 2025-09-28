@@ -1121,7 +1121,7 @@ export default {
 </style>
 
 <style scoped>
-/* 简洁的黑白灰风格CSS变量定义 */
+  /* Clean black, white, and gray style CSS variables definition */
 :root {
   --spacing-xs: 4px;
   --spacing-sm: 8px;

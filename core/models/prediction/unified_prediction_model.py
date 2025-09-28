@@ -366,7 +366,7 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
             self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     def _generate_training_data(self, training_data: Any, sequence_length: int = 10) -> tuple:
-        """生成训练数据"""
+        """生成真实训练数据"""
         try:
             if isinstance(training_data, (list, np.ndarray)):
                 data = np.array(training_data)
@@ -377,8 +377,8 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
             
             # 确保数据足够长
             if len(data) < sequence_length + 1:
-                # 生成模拟数据
-                data = np.sin(np.linspace(0, 4*np.pi, sequence_length + 10)) + np.random.normal(0, 0.1, sequence_length + 10)
+                error_handler.log_warning("训练数据不足，无法生成有效序列", "UnifiedPredictionModel")
+                return np.array([]), np.array([])
             
             sequences = []
             targets = []
@@ -390,16 +390,8 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
             return np.array(sequences), np.array(targets)
             
         except Exception as e:
-            error_handler.handle_error(e, "UnifiedPredictionModel", "Failed to generate training data")
-            # 生成默认训练数据
-            t = np.linspace(0, 4*np.pi, 100)
-            data = np.sin(t) + 0.1 * np.random.normal(size=100)
-            sequences = []
-            targets = []
-            for i in range(len(data) - sequence_length):
-                sequences.append(data[i:i+sequence_length])
-                targets.append(data[i+sequence_length])
-            return np.array(sequences), np.array(targets)
+            error_handler.handle_error(e, "UnifiedPredictionModel", "生成训练数据失败")
+            return np.array([]), np.array([])
     
     def _perform_inference(self, processed_input: Any, **kwargs) -> Any:
         """执行预测推理 - 实现CompositeBaseModel要求的抽象方法"""
@@ -1136,7 +1128,7 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
             return {"error": str(e)}
     
     def _calibrate_confidence(self, data: Any, **kwargs) -> Dict[str, Any]:
-        """置信度校准实现"""
+        """置信度校准实现 - 真实AGI增强版本"""
         try:
             # 基于历史性能校准置信度
             if len(self.prediction_history) < 5:
@@ -1147,26 +1139,87 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
                     "history_size": len(self.prediction_history)
                 }
             
-            # 分析历史预测准确性
+            # 真实的准确性评估
             accuracy_scores = []
-            for history in self.prediction_history[-10:]:
-                if 'result' in history and 'confidence' in history['result']:
-                    # 简单准确性评估（实际实现需要真实值）
-                    accuracy_scores.append(history['result']['confidence'] * 0.9)  # 模拟校准
+            actual_values = kwargs.get('actual_values', [])
             
-            avg_accuracy = np.mean(accuracy_scores) if accuracy_scores else 0.5
-            calibration_factor = avg_accuracy / 0.5 if avg_accuracy > 0 else 1.0
+            for i, history in enumerate(self.prediction_history[-10:]):
+                if 'result' in history and 'forecast' in history['result']:
+                    # 如果有实际值，计算真实准确性
+                    if i < len(actual_values) and actual_values[i] is not None:
+                        forecast = history['result']['forecast']
+                        if forecast and len(forecast) > 0:
+                            # 计算预测误差
+                            if isinstance(forecast[0], (int, float)) and isinstance(actual_values[i], (int, float)):
+                                error = abs(forecast[0] - actual_values[i])
+                                max_val = max(abs(forecast[0]), abs(actual_values[i]), 1e-10)
+                                accuracy = 1.0 - (error / max_val)
+                                accuracy_scores.append(max(0.0, min(1.0, accuracy)))
+                    else:
+                        # 使用预测稳定性作为代理指标
+                        if len(history['result']['forecast']) > 1:
+                            stability = 1.0 - (np.std(history['result']['forecast']) / 
+                                              (np.mean(np.abs(history['result']['forecast'])) + 1e-10))
+                            accuracy_scores.append(max(0.1, stability))
+            
+            # AGI增强校准
+            if accuracy_scores:
+                avg_accuracy = np.mean(accuracy_scores)
+                # 考虑数据质量、模式复杂度等因素
+                data_quality_factor = self._assess_data_quality(data)
+                pattern_complexity_factor = self._assess_pattern_complexity(data)
+                
+                calibrated_confidence = (avg_accuracy * 0.6 + 
+                                       data_quality_factor * 0.2 + 
+                                       pattern_complexity_factor * 0.2)
+            else:
+                calibrated_confidence = 0.5
+            
+            calibration_factor = calibrated_confidence / 0.5 if calibrated_confidence > 0 else 1.0
             
             return {
-                "calibrated_confidence": float(avg_accuracy),
+                "calibrated_confidence": float(calibrated_confidence),
                 "calibration_factor": float(calibration_factor),
-                "method": "historical_calibration",
+                "method": "agi_enhanced_calibration",
                 "samples_used": len(accuracy_scores),
-                "avg_historical_accuracy": float(avg_accuracy)
+                "data_quality_factor": data_quality_factor if 'data_quality_factor' in locals() else 0.5,
+                "pattern_complexity_factor": pattern_complexity_factor if 'pattern_complexity_factor' in locals() else 0.5
             }
         except Exception as e:
             error_handler.handle_error(e, "UnifiedPredictionModel", "置信度校准失败")
             return {"error": str(e)}
+    
+    def _assess_data_quality(self, data: Any) -> float:
+        """评估数据质量"""
+        try:
+            if isinstance(data, (list, np.ndarray)):
+                if len(data) == 0:
+                    return 0.1
+                # 评估数据完整性、噪声水平等
+                completeness = 1.0 - (np.sum(np.isnan(data)) / len(data)) if len(data) > 0 else 0.0
+                noise_level = np.std(data) / (np.mean(np.abs(data)) + 1e-10) if len(data) > 1 else 1.0
+                quality_score = completeness * (1.0 - min(noise_level, 1.0))
+                return max(0.1, quality_score)
+            else:
+                return 0.5  # 非数值数据的默认质量分数
+        except:
+            return 0.5
+    
+    def _assess_pattern_complexity(self, data: Any) -> float:
+        """评估模式复杂度"""
+        try:
+            if isinstance(data, (list, np.ndarray)) and len(data) > 2:
+                # 使用熵或傅里叶分析评估复杂度
+                data_normalized = (data - np.mean(data)) / (np.std(data) + 1e-10)
+                # 简单复杂度估计：变化频率
+                diffs = np.diff(data_normalized)
+                change_frequency = np.sum(np.abs(diffs) > 0.1) / len(diffs) if len(diffs) > 0 else 0.0
+                complexity = min(1.0, change_frequency * 2)
+                return max(0.1, 1.0 - complexity)  # 复杂度越低，置信度越高
+            else:
+                return 0.5
+        except:
+            return 0.5
     
     def _record_prediction(self, prediction_record: Dict[str, Any]) -> None:
         """记录预测历史"""

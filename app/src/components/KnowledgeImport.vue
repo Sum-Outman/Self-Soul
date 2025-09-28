@@ -126,7 +126,7 @@ export default {
       });
       
       selectedFiles.value = [...selectedFiles.value, ...validFiles];
-      event.target.value = ''; // 重置input
+      event.target.value = ''; // Reset input
     };
 
     const removeFile = (index) => {
@@ -197,7 +197,7 @@ export default {
       importStats.value = stats;
       isImporting.value = false;
       
-      // 如果所有文件都处理完成，清空选择
+      // Clear selection if all files are processed
       if (stats.successful + stats.failed === stats.totalFiles) {
         selectedFiles.value = [];
       }

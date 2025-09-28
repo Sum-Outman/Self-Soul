@@ -61,9 +61,9 @@ class TrainingManager:
         # AGI Components Initialization with from_scratch parameter
         self.meta_learning_system = MetaLearningSystem(from_scratch=from_scratch)
         self.knowledge_integrator = KnowledgeIntegrator(from_scratch=from_scratch)
-        self.autonomous_learning_manager = AutonomousLearningManager(self.model_registry, from_scratch=from_scratch)
+        self.autonomous_learning_manager = AutonomousLearningManager(self.model_registry)
         self.self_reflection_module = SelfReflectionModule(from_scratch=from_scratch)
-        self.adaptive_learning_engine = AdaptiveLearningEngine(from_scratch=from_scratch)
+        self.adaptive_learning_engine = AdaptiveLearningEngine()
         self.knowledge_model = None
         self.knowledge_enhancer = None
         self.from_scratch = from_scratch

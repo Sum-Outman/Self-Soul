@@ -14,9 +14,14 @@ import abc
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 
+import sys
+import os
+# Add the root directory to Python path to resolve imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.from_scratch_training import FromScratchTrainer
-from core.error_handling import error_handler
+from ..error_handling import error_handler
 
 
 class EmotionTextDataset(Dataset):
@@ -59,7 +64,7 @@ class EmotionRecognitionNetwork(nn.Module):
     def __init__(self, vocab_size=1000, embedding_dim=128, hidden_dim=256, output_dim=3):
         super(EmotionRecognitionNetwork, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, bidirectional=True)
         self.dropout = nn.Dropout(0.3)
         self.fc1 = nn.Linear(hidden_dim * 2, hidden_dim // 2)
         self.fc2 = nn.Linear(hidden_dim // 2, output_dim)

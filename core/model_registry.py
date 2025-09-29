@@ -511,8 +511,19 @@ class ModelRegistry:
                     error_details['config_has_json_keys'] = any('json' in key.lower() for key in config.keys())
                 error_handler.log_error(f"JSON相关错误检测到: {str(e)}", "ModelRegistry")
             
-            # 记录详细错误信息
-            self._log_error(error_details)
+            # 记录详细错误信息（确保只包含可序列化的基本类型）
+            safe_error_details = {}
+            for key, value in error_details.items():
+                if isinstance(value, (str, int, float, bool, type(None))):
+                    safe_error_details[key] = value
+                else:
+                    # 对于复杂对象，转换为字符串
+                    try:
+                        safe_error_details[key] = str(value)
+                    except:
+                        safe_error_details[key] = "unserializable_value"
+            
+            self._log_error(safe_error_details)
             
             # 输出更详细的错误信息到控制台
             print(f"DEBUG - ModelRegistry加载模型 {model_id} 失败:")
@@ -671,8 +682,8 @@ class ModelRegistry:
             from_scratch: 是否从零开始训练 / Whether training from scratch
         """
         try:
-            # 简化通知逻辑，完全避免递归循环
-            print(f"INFO: AGI system integrating model: {model_id} (from_scratch: {from_scratch})")
+            # 使用error_handler记录信息，避免print可能带来的问题
+            error_handler.log_info(f"AGI system integrating model: {model_id} (from_scratch: {from_scratch})", "ModelRegistry")
             
             # 避免递归调用 - 只进行基本的状态更新
             try:
@@ -686,23 +697,56 @@ class ModelRegistry:
                 self.agi_state['total_interactions'] = interactions + 1
                 self.agi_state['last_self_reflection'] = time.time()
                 
-                # 确保所有值是基本类型
+                # 确保所有值是基本类型 - 修复JSON序列化问题
                 safe_agi_state = {}
                 for key, value in self.agi_state.items():
                     if isinstance(value, (int, float, str, bool)):
                         safe_agi_state[key] = value
+                    elif value is None:
+                        safe_agi_state[key] = None
                     else:
-                        safe_agi_state[key] = str(value)
+                        # 对于其他类型，转换为字符串或基本类型
+                        try:
+                            # 尝试转换为基本类型
+                            if hasattr(value, '__dict__'):
+                                # 对于对象，只保存关键信息
+                                safe_agi_state[key] = f"object_{type(value).__name__}"
+                            else:
+                                safe_agi_state[key] = str(value)
+                        except:
+                            safe_agi_state[key] = "unserializable_value"
                 
                 self.agi_state = safe_agi_state
                         
             except Exception as e:
-                print(f"WARNING: AGI state update failed for {model_id}: {type(e).__name__}")
+                error_handler.log_warning(f"AGI state update failed for {model_id}: {type(e).__name__}", "ModelRegistry")
+                # 如果状态更新失败，重置为安全状态
+                self.agi_state = {
+                    'consciousness_level': 0.1,
+                    'learning_capability': 0.8,
+                    'problem_solving_ability': 0.7,
+                    'creativity_level': 0.6,
+                    'ethical_alignment': 0.9,
+                    'last_self_reflection': time.time(),
+                    'total_interactions': 0,
+                    'knowledge_accumulation': 0.0
+                }
             
-            print(f"INFO: AGI system successfully integrated model: {model_id}")
+            error_handler.log_info(f"AGI system successfully integrated model: {model_id}", "ModelRegistry")
         except Exception as e:
             # 使用最简单的错误处理
-            print(f"WARNING: Error in AGI model load notification for {model_id}: {type(e).__name__}")
+            error_handler.log_warning(f"Error in AGI model load notification for {model_id}: {type(e).__name__}", "ModelRegistry")
+            # 确保AGI状态是安全的
+            self.agi_state = {
+                'consciousness_level': 0.1,
+                'learning_capability': 0.8,
+                'problem_solving_ability': 0.7,
+                'creativity_level': 0.6,
+                'ethical_alignment': 0.9,
+                'last_self_reflection': time.time(),
+                'total_interactions': 0,
+                'knowledge_accumulation': 0.0
+            }
         
     def get_model(self, model_id: str):
         """获取已注册的模型实例

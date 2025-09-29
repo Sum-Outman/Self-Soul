@@ -35,7 +35,7 @@ class PredictionNeuralNetwork(nn.Module):
         self.num_layers = num_layers
         
         # LSTM层用于时间序列预测
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout=0.2)
         
         # 注意力机制
         self.attention = nn.MultiheadAttention(hidden_size, num_heads=8)

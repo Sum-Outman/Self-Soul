@@ -16,10 +16,16 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from typing import Dict, Any, List, Optional, Callable, Tuple
 from datetime import datetime
+import sys
+import os
 
-from ..unified_model_template import UnifiedModelTemplate
+# Add the root directory to Python path to resolve imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
+from core.models.unified_model_template import UnifiedModelTemplate
 from core.data_processor import preprocess_stereo_images
 from core.unified_stream_processor import StreamProcessor
+from core.error_handling import error_handler
 
 
 class SpatialNeuralNetwork(nn.Module):
@@ -49,7 +55,7 @@ class SpatialNeuralNetwork(nn.Module):
         )
         
         # LSTM for temporal/spatial sequence processing
-        self.lstm = nn.LSTM(256 * 16 * 16, hidden_size, num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.LSTM(256 * 16 * 16, hidden_size, num_layers, dropout=0.2)
         
         # Attention mechanism for spatial reasoning
         self.attention = nn.MultiheadAttention(hidden_size, num_heads=8, dropout=0.1)
@@ -87,8 +93,9 @@ class SpatialNeuralNetwork(nn.Module):
         features = features.view(batch_size, -1)  # Flatten
         
         # LSTM processing (treat as sequence of 1)
-        lstm_input = features.unsqueeze(1)  # Add sequence dimension
+        lstm_input = features.unsqueeze(0)  # Add sequence dimension (seq_len=1, batch_size, features)
         lstm_out, (hidden, cell) = self.lstm(lstm_input)
+        lstm_out = lstm_out.permute(1, 0, 2)  # Convert back to (batch_size, seq_len, features)
         
         # Attention mechanism
         attn_out, attn_weights = self.attention(
@@ -271,7 +278,6 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
     def _perform_inference(self, processed_input: Any, **kwargs) -> Any:
         """Execute inference - implement abstract method required by CompositeBaseModel"""
         try:
-            from core.error_handling import error_handler
             error_handler.log_info("Starting spatial inference", "SpatialModel")
             
             # Determine operation type
@@ -339,7 +345,6 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
                 }
                 
         except Exception as e:
-            from core.error_handling import error_handler
             error_handler.handle_error(e, "SpatialModel", "Spatial inference failed")
             return {"error": str(e)}
 

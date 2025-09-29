@@ -17,7 +17,7 @@ import json
 import random
 
 from core.models.unified_model_template import UnifiedModelTemplate
-from core.error_handling import error_handler
+from ..error_handling import error_handler
 from core.realtime_stream_manager import RealTimeStreamManager
 
 

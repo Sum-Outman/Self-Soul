@@ -796,8 +796,9 @@ async def chat_with_model(input_data: dict):
             if not language_model:
                 raise HTTPException(status_code=500, detail="Language model not loaded")
             
-            # Process message with language model
-            response = language_model._generate_response(message, {"neutral": 0.5})
+            # Process message with language model using the correct process method
+            result = language_model.process("process_text", {"text": message, "context": {}})
+            response = result.get("response", "I'm sorry, I couldn't process your message.")
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": message})

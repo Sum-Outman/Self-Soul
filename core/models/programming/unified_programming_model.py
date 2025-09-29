@@ -18,7 +18,7 @@ import numpy as np
 from typing import Dict, Any, Callable, List, Tuple, Optional
 
 from core.models.unified_model_template import UnifiedModelTemplate
-from core.error_handling import AGIErrorHandler as ErrorHandler
+from core.error_handling import error_handler, ErrorHandler
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -51,8 +51,7 @@ class ProgrammingNeuralNetwork(nn.Module):
             d_model=embedding_dim,
             nhead=num_heads,
             dim_feedforward=hidden_dim,
-            dropout=dropout,
-            batch_first=True
+            dropout=dropout
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         
@@ -61,7 +60,6 @@ class ProgrammingNeuralNetwork(nn.Module):
             input_size=embedding_dim,
             hidden_size=hidden_dim,
             num_layers=num_layers,
-            batch_first=True,
             dropout=dropout if num_layers > 1 else 0
         )
         
@@ -69,8 +67,7 @@ class ProgrammingNeuralNetwork(nn.Module):
         self.attention = nn.MultiheadAttention(
             embed_dim=hidden_dim,
             num_heads=num_heads,
-            dropout=dropout,
-            batch_first=True
+            dropout=dropout
         )
         
         # 输出层

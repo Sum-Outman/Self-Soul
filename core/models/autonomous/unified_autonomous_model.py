@@ -18,7 +18,7 @@ from collections import deque
 import random
 
 from core.models.unified_model_template import UnifiedModelTemplate
-from core.error_handling import AGIErrorHandler as ErrorHandler
+from ..error_handling import AGIErrorHandler as ErrorHandler
 
 # Configure logging
 logger = logging.getLogger(__name__)

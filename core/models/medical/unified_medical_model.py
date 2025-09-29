@@ -37,7 +37,7 @@ class AdvancedSymptomAnalysisNetwork(nn.Module):
         self.symptom_embedding = nn.Embedding(input_size, 256)
         
         # Multi-head attention for symptom relationships
-        self.attention = nn.MultiheadAttention(256, num_attention_heads, batch_first=True)
+        self.attention = nn.MultiheadAttention(256, num_attention_heads)
         
         # Feature extraction layers
         self.feature_extractor = nn.Sequential(
@@ -62,7 +62,7 @@ class AdvancedSymptomAnalysisNetwork(nn.Module):
         )
         
         # Temporal symptom analysis (for symptom progression)
-        self.lstm = nn.LSTM(256, 128, batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(256, 128, bidirectional=True)
         
     def forward(self, x, symptom_sequence=None):
         # Embed symptoms
@@ -89,7 +89,7 @@ class AdvancedMedicalDiagnosisNetwork(nn.Module):
         super().__init__()
         
         # Multi-modal symptom encoder with attention
-        self.symptom_attention = nn.MultiheadAttention(256, num_attention_heads, batch_first=True)
+        self.symptom_attention = nn.MultiheadAttention(256, num_attention_heads)
         self.symptom_embedding = nn.Embedding(symptom_size, 256)
         self.symptom_encoder = nn.Sequential(
             nn.Linear(256, hidden_size),
@@ -110,10 +110,10 @@ class AdvancedMedicalDiagnosisNetwork(nn.Module):
         )
         
         # Medical history encoder (temporal patterns)
-        self.history_lstm = nn.LSTM(128, 64, batch_first=True, bidirectional=True)
+        self.history_lstm = nn.LSTM(128, 64, bidirectional=True)
         
         # Multi-modal fusion with cross-attention
-        self.cross_attention = nn.MultiheadAttention(hidden_size, num_attention_heads // 2, batch_first=True)
+        self.cross_attention = nn.MultiheadAttention(hidden_size, num_attention_heads // 2)
         
         # Diagnostic reasoning network
         self.reasoning_network = nn.Sequential(
@@ -182,7 +182,7 @@ class AdvancedHealthAdviceNetwork(nn.Module):
         )
         
         # Multi-head attention for advice personalization
-        self.advice_attention = nn.MultiheadAttention(hidden_size // 2, attention_heads, batch_first=True)
+        self.advice_attention = nn.MultiheadAttention(hidden_size // 2, attention_heads)
         
         # Advice generation network with multiple heads for different advice types
         self.advice_heads = nn.ModuleDict({

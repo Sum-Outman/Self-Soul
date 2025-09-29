@@ -19,6 +19,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
 
 from core.models.unified_model_template import UnifiedModelTemplate
+from core.error_handling import error_handler
 
 
 class SensorNeuralNetwork(nn.Module):
@@ -44,7 +45,6 @@ class SensorNeuralNetwork(nn.Module):
             input_size=hidden_size,
             hidden_size=hidden_size,
             num_layers=num_layers,
-            batch_first=True,
             dropout=0.3 if num_layers > 1 else 0
         )
         
@@ -78,14 +78,14 @@ class SensorNeuralNetwork(nn.Module):
         encoded = encoded.reshape(batch_size, seq_len, self.hidden_size)
         
         # LSTM处理
-        lstm_out, (h_n, c_n) = self.lstm(encoded)
+        encoded_permuted = encoded.permute(1, 0, 2)  # 转换为(seq_len, batch_size, hidden_size)
+        lstm_out, (h_n, c_n) = self.lstm(encoded_permuted)
         
         # 注意力机制
-        lstm_out_permuted = lstm_out.permute(1, 0, 2)  # (seq_len, batch_size, hidden_size)
         attended_out, attention_weights = self.attention(
-            lstm_out_permuted, lstm_out_permuted, lstm_out_permuted
+            lstm_out, lstm_out, lstm_out
         )
-        attended_out = attended_out.permute(1, 0, 2)  # 恢复形状
+        attended_out = attended_out.permute(1, 0, 2)  # 转换为(batch_size, seq_len, hidden_size)
         
         # 取最后一个时间步的输出
         if seq_lengths is not None:

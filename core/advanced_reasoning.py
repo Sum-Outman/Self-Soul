@@ -37,7 +37,7 @@ class AGITextEncoder(nn.Module):
     def __init__(self, vocab_size=50000, embedding_dim=512, hidden_dim=1024, output_dim=384):
         super(AGITextEncoder, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.encoder = nn.LSTM(embedding_dim, hidden_dim, batch_first=True, bidirectional=True)
+        self.encoder = nn.LSTM(embedding_dim, hidden_dim, bidirectional=True)
         self.attention = nn.MultiheadAttention(hidden_dim * 2, num_heads=8)
         self.output_proj = nn.Linear(hidden_dim * 2, output_dim)
         self.layer_norm = nn.LayerNorm(output_dim)

@@ -35,7 +35,7 @@ from core.emotion_awareness import EmotionAnalyzer, generate_emotion_response
 from core.realtime_stream_manager import RealTimeStreamManager
 from core.monitoring_enhanced import EnhancedMonitor
 from core.api_model_connector import APIModelConnector
-from core.error_handling import error_handler, AGIErrorHandler
+from core.error_handling import error_handler, ErrorHandler
 from core.collaboration.model_collaborator import ModelCollaborator
 from core.optimization.model_optimizer import ModelOptimizer
 from core.advanced_reasoning import AdvancedReasoningEngine

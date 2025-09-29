@@ -160,7 +160,12 @@ def main():
     print(f"\nModels tested: {total_models}")
     print(f"Models passed: {passed_models}")
     print(f"Models failed: {total_models - passed_models}")
-    print(f"Success rate: {passed_models/total_models*100:.1f}%")
+    
+    # Fix division by zero error
+    if total_models > 0:
+        print(f"Success rate: {passed_models/total_models*100:.1f}%")
+    else:
+        print("Success rate: 0.0% (no models tested)")
     
     return all_passed
 

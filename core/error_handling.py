@@ -38,10 +38,10 @@ logging.basicConfig(
 
 
 """
-AGIErrorHandler类 - 中文类描述
-AGIErrorHandler Class - English class description
+ErrorHandler类 - 中文类描述
+ErrorHandler Class - English class description
 """
-class AGIErrorHandler:
+class ErrorHandler:
     """Self Soul 统一错误处理类"""
     
     def __init__(self):
@@ -114,4 +114,4 @@ class AGIErrorHandler:
             self.logger.debug(f"Details: {details}")
 
 # 创建全局错误处理器实例
-error_handler = AGIErrorHandler()
+error_handler = ErrorHandler()

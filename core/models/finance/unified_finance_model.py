@@ -872,9 +872,9 @@ class MarketPredictionNetwork(nn.Module):
     
     def __init__(self, input_size=10, hidden_size=256, output_size=3):
         super(MarketPredictionNetwork, self).__init__()
-        self.lstm1 = nn.LSTM(input_size, hidden_size, batch_first=True, bidirectional=True)
+        self.lstm1 = nn.LSTM(input_size, hidden_size, bidirectional=True)
         self.dropout1 = nn.Dropout(0.3)
-        self.lstm2 = nn.LSTM(hidden_size * 2, hidden_size // 2, batch_first=True)
+        self.lstm2 = nn.LSTM(hidden_size * 2, hidden_size // 2)
         self.dropout2 = nn.Dropout(0.2)
         self.fc1 = nn.Linear(hidden_size // 2, hidden_size // 4)
         self.fc2 = nn.Linear(hidden_size // 4, output_size)
@@ -882,10 +882,12 @@ class MarketPredictionNetwork(nn.Module):
         self.batch_norm = nn.BatchNorm1d(hidden_size // 4)
     
     def forward(self, x):
+        # Transpose input for LSTM (batch_first=False is default)
+        x = x.transpose(0, 1)  # (batch, seq, features) -> (seq, batch, features)
         lstm_out1, _ = self.lstm1(x)
         lstm_out1 = self.dropout1(lstm_out1)
         lstm_out2, _ = self.lstm2(lstm_out1)
-        lstm_out2 = self.dropout2(lstm_out2[:, -1, :])
+        lstm_out2 = self.dropout2(lstm_out2[-1, :, :])  # Take last timestep
         fc_out = self.relu(self.fc1(lstm_out2))
         fc_out = self.batch_norm(fc_out)
         output = self.fc2(fc_out)

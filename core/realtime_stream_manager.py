@@ -26,10 +26,33 @@ import time
 from typing import Dict, List, Any, Callable, Optional
 from datetime import datetime
 import logging
+import uvicorn
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+import sys
+import os
+
+# Add project root to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.model_ports_config import REALTIME_STREAM_MANAGER_PORT
 
 # 配置日志 / Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RealTimeStreamManager")
+
+# Create FastAPI app
+app = FastAPI(title="Real-Time Stream Manager", version="1.0")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class RealTimeStreamManager:
@@ -42,7 +65,7 @@ class RealTimeStreamManager:
     4. 性能监控
     """
     
-    def __init__(self, host='localhost', port=8765):
+    def __init__(self, host='0.0.0.0', port=REALTIME_STREAM_MANAGER_PORT):
         """初始化实时数据流管理器 / Initialize real-time data stream manager"""
         self.host = host
         self.port = port
@@ -50,16 +73,99 @@ class RealTimeStreamManager:
         self.data_streams = {}
         self.subscriptions = {}
         self.model_routing_table = {}  # 模型路由表: {model_id: set(stream_ids)}
+        self.health_check_interval = 5
+        self.cleanup_interval = 300  # Cleanup every 5 minutes
+        self.is_running = False
+        self.server = None
+        
+        # Performance metrics
+        self.performance_metrics = {
+            'total_connections': 0,
+            'active_connections': 0,
+            'total_data_transferred': 0,
+            'error_count': 0
+        }
     
     def initialize(self) -> Dict[str, Any]:
         """初始化流管理器资源 / Initialize stream manager resources"""
         try:
-            # 这里可以添加初始化逻辑，如启动服务器等
-            # 目前返回成功状态，实际实现可能需要启动异步任务
+            # 初始化数据结构
+            self.data_streams = {
+                'camera': {'callback': self._mock_camera_data, 'interval': 0.1, 'last_update': time.time()},
+                'sensor': {'callback': self._mock_sensor_data, 'interval': 0.5, 'last_update': time.time()},
+                'model': {'callback': self._mock_model_data, 'interval': 1.0, 'last_update': time.time()},
+                'system': {'callback': self._mock_system_data, 'interval': 2.0, 'last_update': time.time()}
+            }
+            
+            # 初始化订阅
+            self.subscriptions = {
+                'camera': set(),
+                'sensor': set(),
+                'model': set(),
+                'system': set()
+            }
+            
+            # 启动清理任务
+            asyncio.create_task(self._cleanup_task())
+            
+            logger.info("RealTimeStreamManager initialized successfully")
             return {"success": True, "message": "RealTimeStreamManager initialized"}
         except Exception as e:
             logger.error(f"RealTimeStreamManager initialization failed: {str(e)}")
             return {"success": False, "error": str(e)}
+            
+    def _mock_camera_data(self):
+        """模拟相机数据用于测试"""
+        return {
+            "type": "camera",
+            "timestamp": datetime.now().isoformat(),
+            "camera_id": "cam_1",
+            "frame_count": int(time.time() % 1000),
+            "status": "active"
+        }
+        
+    def _mock_sensor_data(self):
+        """模拟传感器数据用于测试"""
+        import random
+        return {
+            "type": "sensor",
+            "timestamp": datetime.now().isoformat(),
+            "temperature": round(20 + random.uniform(-2, 2), 2),
+            "humidity": round(45 + random.uniform(-5, 5), 2),
+            "pressure": round(1013 + random.uniform(-5, 5), 1)
+        }
+        
+    def _mock_model_data(self):
+        """模拟模型数据用于测试"""
+        import random
+        return {
+            "type": "model",
+            "timestamp": datetime.now().isoformat(),
+            "model_id": "main",
+            "status": "running",
+            "load": round(random.uniform(0.1, 0.9), 2)
+        }
+        
+    def _mock_system_data(self):
+        """模拟系统数据用于测试"""
+        import random
+        return {
+            "type": "system",
+            "timestamp": datetime.now().isoformat(),
+            "cpu_usage": round(random.uniform(10, 50), 1),
+            "memory_usage": round(random.uniform(20, 70), 1)
+        }
+        
+    async def _cleanup_task(self):
+        """定期清理断开的连接"""
+        while True:
+            await asyncio.sleep(self.cleanup_interval)
+            for stream_id, clients in list(self.subscriptions.items()):
+                for client in list(clients):
+                    if client.closed:
+                        clients.remove(client)
+                        self.performance_metrics['active_connections'] -= 1
+            logger.info(f"Cleanup completed: {self.performance_metrics['active_connections']} active connections")
     
     async def start_server(self):
         """启动WebSocket服务器 / Start WebSocket server"""
@@ -225,6 +331,101 @@ class RealTimeStreamManager:
             'active_streams': len(self.data_streams),
             'active_subscriptions': sum(len(s) for s in self.subscriptions.values()),
             'registered_models': len(self.model_routing_table),
-            'last_activity': datetime.now().isoformat()
+            'last_activity': datetime.now().isoformat(),
+            **self.performance_metrics
         }
         return metrics
+
+# Create a global instance of the stream manager
+stream_manager = RealTimeStreamManager()
+
+
+@app.websocket("/ws/streams/{stream_id}")
+async def websocket_endpoint(websocket: WebSocket, stream_id: str):
+    """\WebSocket endpoint for real-time data streams"""
+    await websocket.accept()
+    stream_manager.performance_metrics['total_connections'] += 1
+    stream_manager.performance_metrics['active_connections'] += 1
+    
+    try:
+        # Add client to subscription if stream exists
+        if stream_id in stream_manager.subscriptions:
+            stream_manager.subscriptions[stream_id].add(websocket)
+            await websocket.send_text(f"Subscribed to stream: {stream_id}")
+            
+            # Keep connection alive
+            while True:
+                # Wait for pong or timeout
+                try:
+                    await asyncio.wait_for(websocket.receive_text(), timeout=30)
+                except asyncio.TimeoutError:
+                    # Send ping to keep connection alive
+                    await websocket.send_text("ping")
+        else:
+            await websocket.send_text(f"Error: Stream {stream_id} not found")
+    except WebSocketDisconnect:
+        stream_manager.logger.info(f"Client disconnected from stream: {stream_id}")
+    except Exception as e:
+        stream_manager.logger.error(f"Error in WebSocket connection: {str(e)}")
+        stream_manager.performance_metrics['error_count'] += 1
+    finally:
+        # Remove client from all subscriptions
+        for stream, clients in stream_manager.subscriptions.items():
+            if websocket in clients:
+                clients.remove(websocket)
+        stream_manager.performance_metrics['active_connections'] -= 1
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "Real-Time Stream Manager",
+        "version": "1.0",
+        "metrics": stream_manager.get_performance_metrics(),
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/streams")
+async def list_streams():
+    """List all available streams"""
+    return {
+        "streams": list(stream_manager.data_streams.keys()),
+        "total_streams": len(stream_manager.data_streams)
+    }
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """Get detailed performance metrics"""
+    return stream_manager.get_performance_metrics()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize stream manager on startup"""
+    await stream_manager.initialize()
+    # Start the streaming loop in a background task
+    asyncio.create_task(stream_manager._start_streaming_loop())
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    stream_manager.logger.info("Real-Time Stream Manager is shutting down")
+
+
+if __name__ == "__main__":
+    """Main entry point to start the server"""
+    logger.info(f"Starting Real-Time Stream Manager on ws://{stream_manager.host}:{stream_manager.port}")
+    
+    # Start the FastAPI server
+    uvicorn.run(
+        app,
+        host=stream_manager.host,
+        port=stream_manager.port,
+        reload=False,
+        log_level="info"
+    )

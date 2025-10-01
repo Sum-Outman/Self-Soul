@@ -148,21 +148,21 @@
         </div>
         
         <!-- Auto learning progress section -->
-        <el-card v-if="autoLearningStatus !== 'idle'" class="mt-4">
-          <template #header>
-            <div class="card-header">
-              <span>Learning Progress</span>
-              <el-button size="small" type="text" @click="openLearningModal">View Details</el-button>
-            </div>
-          </template>
+        <div v-if="autoLearningStatus !== 'idle'" class="learning-progress-card">
+          <div class="card-header">
+            <span>Learning Progress</span>
+            <button size="small" @click="openLearningModal">View Details</button>
+          </div>
           <div class="learning-progress">
-            <el-progress :percentage="autoLearningProgress" :status="getProgressStatus()"></el-progress>
+            <div class="progress-bar">
+              <div class="progress-fill" :style="{ width: autoLearningProgress + '%' }" :class="getProgressStatus()"></div>
+            </div>
             <div class="progress-info">
               <span class="status-text">{{ getStatusText() }}</span>
               <span class="progress-percentage">{{ autoLearningProgress }}%</span>
             </div>
           </div>
-        </el-card>
+        </div>
       </div>
 
     <!-- Stats Tab -->
@@ -902,115 +902,30 @@ export default {
     let reconnectTimeout = null;
     let isUsingWebSocket = false;
     
-    // Connect to WebSocket for auto learning updates
+    // Connect to WebSocket for auto learning updates - simplified to use polling directly
     const connectWebSocket = (sessionId) => {
       try {
-        // Use wss:// if the page is loaded over HTTPS, otherwise ws://
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}://localhost:8765/ws/auto-learning/${sessionId}`;
+        // Close any existing WebSocket connection if it exists
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
         
-        addLearningLog('System', 'Connecting to WebSocket: ' + wsUrl.replace(/^(wss?:\/\/[^/]+).*/, '$1/...'));
-        
-        webSocketConnection = new WebSocket(wsUrl);
-        
-        // Set up timeout detection
-        const timeoutId = setTimeout(() => {
-          if (webSocketConnection && webSocketConnection.readyState !== WebSocket.OPEN) {
-            addLearningLog('System', 'WebSocket connection timeout');
-            handleWebSocketError(new Error('Connection timeout'));
-          }
-        }, 5000);
-        
-        webSocketConnection.onopen = () => {
-          clearTimeout(timeoutId);
-          connectionAttempts = 0;
-          isUsingWebSocket = true;
-          addLearningLog('System', 'WebSocket connected successfully');
-          showSystemMessage('Real-time updates enabled');
-        };
-        
-        webSocketConnection.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            
-            // Handle different message types
-            switch (data.type) {
-              case 'progress':
-                autoLearningProgress.value = data.progress || 0;
-                
-                // Add real logs if available
-                if (data.logs && data.logs.length > 0) {
-                  data.logs.forEach(log => {
-                    addLearningLog('System', log);
-                  });
-                }
-                
-                // Check if completed
-                if (autoLearningProgress.value >= 100 || data.status === 'completed') {
-                  completeAutoLearning();
-                }
-                break;
-              
-              case 'log':
-                addLearningLog('System', data.message);
-                break;
-              
-              case 'error':
-                addLearningLog('System', `ERROR: ${data.message}`);
-                showSystemMessage(`Learning error: ${data.message}`);
-                break;
-              
-              case 'completed':
-                completeAutoLearning();
-                break;
-              
-              default:
-                addLearningLog('System', 'Unknown WebSocket message type: ' + data.type);
-            }
-          } catch (error) {
-            errorHandler.handleError(error, 'WebSocket message parse error');
-            addLearningLog('System', 'WebSocket message parse error: ' + error.message);
-          }
-        };
-        
-        webSocketConnection.onerror = (error) => {
-          handleWebSocketError(error);
-        };
-        
-        webSocketConnection.onclose = (event) => {
-          if (reconnectTimeout) {
-            clearTimeout(reconnectTimeout);
-            reconnectTimeout = null;
-          }
-          
-          // Normal closure does not need to show error
-          if (event.code === 1000 || event.code === 1001) {
-            addLearningLog('System', 'WebSocket connection closed normally');
-          } else {
-            addLearningLog('System', `WebSocket connection closed unexpectedly (code: ${event.code || 'unknown'}, reason: ${event.reason || ''})`);
-          }
-          
+        if (webSocketConnection) {
+          webSocketConnection.close();
+          webSocketConnection = null;
           isUsingWebSocket = false;
-          
-          // Attempt reconnection if still running
-          if (autoLearningStatus.value === 'running' && connectionAttempts < maxReconnectAttempts) {
-            connectionAttempts++;
-            const delay = Math.pow(2, connectionAttempts) * 1000;
-            addLearningLog('System', `Reconnecting to WebSocket (attempt ${connectionAttempts}/${maxReconnectAttempts}, delay ${delay/1000}s)`);
-            
-            reconnectTimeout = setTimeout(() => {
-              connectWebSocket(sessionId);
-            }, delay);
-          } else if (connectionAttempts >= maxReconnectAttempts && autoLearningStatus.value === 'running') {
-            addLearningLog('System', `Max WebSocket reconnection attempts (${maxReconnectAttempts}) reached`);
-            showSystemMessage('Falling back to polling mode');
-            
-            // If reconnection fails, switch to polling mode
-            startProgressPolling();
-          }
-        };
+        }
+        
+        addLearningLog('System', 'Skipping WebSocket connection, using polling instead for reliable updates');
+        showSystemMessage('Using polling mode for progress updates');
+        
+        // Start polling immediately
+        startProgressPolling();
       } catch (error) {
-        handleWebSocketError(error);
+        errorHandler.handleError(error, 'Auto learning connection error');
+        // Fall back to polling even if there's an error
+        startProgressPolling();
       }
     };
     
@@ -1509,27 +1424,27 @@ export default {
 
 <style scoped>
 :root {
-  --spacing-xs: 6px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --border-radius: 10px;
-  --border-radius-lg: 16px;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.07);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.09);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --transition: all 0.3s ease;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --border-radius: 6px;
+  --border-radius-lg: 8px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --transition: all 0.15s ease;
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-  --text-primary: #18181b;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --border-color: #e2e8f0;
-  --border-light: #f1f5f9;
-  --accent-color: #64748b;
-  --accent-light: #cbd5e1;
+  --bg-secondary: #f7f7f7;
+  --bg-tertiary: #f2f2f2;
+  --text-primary: #111111;
+  --text-secondary: #333333;
+  --text-tertiary: #666666;
+  --border-color: #e5e5e5;
+  --border-light: #eeeeee;
+  --accent-color: #444444;
+  --accent-light: #cccccc;
 }
 
 .knowledge-view {

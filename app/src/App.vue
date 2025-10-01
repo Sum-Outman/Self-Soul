@@ -46,10 +46,10 @@ export default {
     
     // Check server connection status
     const checkServerConnection = () => {
-      api.health.get() // 使用正确的API调用方式
+      api.health.get()
         .then(response => {
           isConnected.value = true;
-          connectionStatus.value = 'Connected to Main API';
+          connectionStatus.value = 'Connected';
           connectionColor.value = '#4caf50'; // Green for connected
           
           // If there's a new server message, show notification
@@ -59,7 +59,7 @@ export default {
         })
         .catch(error => {
           isConnected.value = false;
-          connectionStatus.value = 'Main API Disconnected';
+          connectionStatus.value = 'Disconnected';
           connectionColor.value = '#f44336'; // Red for disconnected
           console.error('Server connection error:', error);
         });
@@ -68,10 +68,10 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        console.log('AGI Brain System components are initializing...')
+        console.log('Self Brain System components are initializing...')
         
         // Directly log initialization completion
-        console.log('AGI Brain System components initialization completed')
+        console.log('Self Brain System components initialization completed')
       } catch (error) {
         console.error('Error during system components initialization:', error)
       }
@@ -100,8 +100,11 @@ export default {
       clearInterval(connectionInterval)
       
       // Remove event listeners
-      window.removeEventListener('error', errorHandler.handleError)
-      window.removeEventListener('unhandledrejection', errorHandler.handlePromiseRejection)
+      window.removeEventListener('error', (error) => errorHandler.handleError(error, 'Global'))
+      window.removeEventListener('unhandledrejection', (event) => {
+        event.preventDefault();
+        errorHandler.handleError(event.reason, 'Unhandled Promise');
+      })
     })
     
     return {
@@ -116,16 +119,17 @@ export default {
 <style scoped>
 /* Clean black-white-gray light style variables */
 :root {
-  --text-primary: #333;
-  --text-secondary: #666;
-  --bg-primary: #f9f9f9;
-  --bg-secondary: #fff;
-  --bg-tertiary: #f5f5f5;
+  --text-primary: #222;
+  --text-secondary: #555;
+  --text-disabled: #888;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --bg-tertiary: #f0f0f0;
   --border-color: #e0e0e0;
   --border-dark: #d0d0d0;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --border-radius-sm: 6px;
-  --transition: all 0.3s ease;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.03);
+  --border-radius-sm: 4px;
+  --transition: all 0.2s ease;
 }
 
 /* Global style reset */
@@ -136,10 +140,11 @@ export default {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
   color: var(--text-primary);
   background-color: var(--bg-primary);
+  font-size: 14px;
 }
 
 /* App container styles */
@@ -147,6 +152,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 70px;
 }
 
 /* Top menu bar styles - clean black-white-gray light theme */
@@ -172,21 +178,22 @@ body {
 }
 
 .system-title {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.3rem;
+  font-weight: 600;
   color: var(--text-primary);
+  letter-spacing: -0.5px;
 }
 
 .menu-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 /* Menu item styles */
 .menu-link {
   padding: 8px 16px;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -195,9 +202,38 @@ body {
   font-size: 14px;
   transition: var(--transition);
   display: inline-block;
+  font-weight: 400;
+}
+
+.menu-link:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-dark);
 }
 
 /* Connection status styles */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Adjust router view for fixed header */
+.router-view {
+  flex: 1;
+  padding: 20px;
+}
 .connection-status {
   display: flex;
   align-items: center;

@@ -457,6 +457,50 @@ async def websocket_test_connection(websocket: WebSocket):
         error_handler.handle_error(e, "WebSocket", "WebSocket connection test error")
         connection_manager.disconnect(websocket)
 
+@app.websocket("/ws/autonomous-learning/status")
+async def websocket_autonomous_learning_status(websocket: WebSocket):
+    """
+    Autonomous learning status WebSocket endpoint
+    
+    Args:
+        websocket: WebSocket connection
+    """
+    await connection_manager.connect(websocket)
+    try:
+        # Send initial connection message
+        await websocket.send_json({
+            "type": "connection_status",
+            "status": "connected",
+            "message": "Connected to autonomous learning status updates"
+        })
+        
+        # Send status updates periodically
+        while True:
+            # Get autonomous learning status
+            learning_status = {
+                "type": "learning_status",
+                "status": autonomous_learning_manager.current_learning_status,
+                "progress": autonomous_learning_manager.learning_progress,
+                "domains": autonomous_learning_manager.learning_domains,
+                "priority": autonomous_learning_manager.learning_priority,
+                "running": autonomous_learning_manager.running,
+                "last_log": autonomous_learning_manager.learning_logs[-1] if autonomous_learning_manager.learning_logs else None,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Send status update
+            await websocket.send_json(learning_status)
+            
+            # Update every 2 seconds
+            import asyncio
+            await asyncio.sleep(2)
+            
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
+    except Exception as e:
+        error_handler.handle_error(e, "WebSocket", "Autonomous learning status WebSocket error")
+        connection_manager.disconnect(websocket)
+
 # Startup event handler
 @app.on_event("startup")
 async def startup_event():
@@ -2970,6 +3014,77 @@ async def get_knowledge_files():
         ]
         return {"status": "success", "files": mock_files}
 
+# Autonomous learning endpoints
+@app.post("/api/knowledge/auto-learning/start")
+async def start_autonomous_learning(domains: list = None, priority: str = "balanced"):
+    """
+    Start autonomous learning cycle
+    
+    Args:
+        domains: List of knowledge domains to focus on
+        priority: Learning priority (balanced, exploration, exploitation)
+        
+    Returns:
+        Status of the operation
+    """
+    try:
+        success = autonomous_learning_manager.start_autonomous_learning_cycle(domains=domains, priority=priority)
+        if success:
+            return {"status": "success", "message": "Autonomous learning started successfully"}
+        else:
+            return {"status": "warning", "message": "Autonomous learning is already running"}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to start autonomous learning")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/knowledge/auto-learning/stop")
+async def stop_autonomous_learning():
+    """
+    Stop autonomous learning cycle
+    
+    Returns:
+        Status of the operation
+    """
+    try:
+        success = autonomous_learning_manager.stop_autonomous_learning_cycle()
+        if success:
+            return {"status": "success", "message": "Autonomous learning stopped successfully"}
+        else:
+            return {"status": "warning", "message": "Autonomous learning was not running"}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to stop autonomous learning")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/knowledge/auto-learning/progress")
+async def get_autonomous_learning_progress():
+    """
+    Get autonomous learning progress
+    
+    Returns:
+        Current learning progress, status and logs
+    """
+    try:
+        progress_data = autonomous_learning_manager.get_learning_progress()
+        return {
+            "status": "success",
+            "progress": progress_data["progress"],
+            "status": progress_data["status"],
+            "logs": progress_data["logs"],
+            "domains": progress_data["domains"],
+            "priority": progress_data["priority"]
+        }
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get autonomous learning progress")
+        # Return mock progress data if actual data retrieval fails
+        return {
+            "status": "success",
+            "progress": 0,
+            "status": "idle",
+            "logs": [],
+            "domains": [],
+            "priority": "balanced"
+        }
+
 # Hardware configuration endpoints
 
 # Get hardware configuration
@@ -3384,14 +3499,96 @@ async def get_system_stats():
             }
         }
 
+# Initialize core components
+def initialize_core_components():
+    """
+    Initialize all core system components
+    """
+    global model_registry, training_manager, emotion_system
+    global autonomous_learning_manager, system_settings_manager, system_monitor
+    global connection_manager, unified_cognitive_architecture
+    global enhanced_meta_cognition, intrinsic_motivation_system, explainable_ai
+    global value_alignment, agi_coordinator, api_model_connector
+    
+    try:
+        error_handler.log_info("Initializing core system components...", "System")
+        
+        # Initialize connection manager
+        connection_manager = ConnectionManager()
+        error_handler.log_info("Connection Manager initialized", "System")
+        
+        # Initialize system settings manager
+        system_settings_manager = SystemSettingsManager()
+        error_handler.log_info("System Settings Manager initialized", "System")
+        
+        # Initialize system monitor
+        system_monitor = SystemMonitor()
+        error_handler.log_info("System Monitor initialized", "System")
+        
+        # Initialize model registry
+        model_registry = ModelRegistry()
+        error_handler.log_info("Model Registry initialized", "System")
+        
+        # Initialize training manager
+        training_manager = TrainingManager(model_registry)
+        error_handler.log_info("Training Manager initialized", "System")
+        
+        # Initialize emotion awareness system
+        emotion_system = AGIEmotionAwarenessSystem()
+        error_handler.log_info("AGI Emotion Awareness System initialized", "System")
+        
+        # Initialize autonomous learning manager
+        autonomous_learning_manager = AutonomousLearningManager(model_registry)
+        error_handler.log_info("Autonomous Learning Manager initialized", "System")
+        
+        # Initialize other advanced components
+        unified_cognitive_architecture = UnifiedCognitiveArchitecture()
+        error_handler.log_info("Unified Cognitive Architecture initialized", "System")
+        
+        enhanced_meta_cognition = EnhancedMetaCognition()
+        error_handler.log_info("Enhanced Meta Cognition initialized", "System")
+        
+        intrinsic_motivation_system = IntrinsicMotivationSystem()
+        error_handler.log_info("Intrinsic Motivation System initialized", "System")
+        
+        explainable_ai = ExplainableAI()
+        error_handler.log_info("Explainable AI initialized", "System")
+        
+        value_alignment = ValueAlignment()
+        error_handler.log_info("Value Alignment initialized", "System")
+        
+        # Initialize API model connector
+        api_model_connector = APIModelConnector()
+        error_handler.log_info("API Model Connector initialized", "System")
+        
+        # Initialize AGI coordinator (central component)
+        # AGICoordinator creates and manages its own instances of components
+        agi_coordinator = AGICoordinator(from_scratch=False)
+        error_handler.log_info("AGI Coordinator initialized", "System")
+        
+        # Load model modes from settings
+        load_model_modes_from_settings()
+        error_handler.log_info("Model modes loaded from settings", "System")
+        
+        return True
+    except Exception as e:
+        error_handler.handle_error(e, "System", "Critical failure during component initialization")
+        return False
+
 # Asynchronous initialization function
 async def async_initialize_components():
     """
     Asynchronously initialize time-consuming system components
     """
     try:
-        # Initialize AGI coordinator and other core components
+        # Start any asynchronous background tasks
         error_handler.log_info("Starting asynchronous initialization of system components", "System")
+        
+        # Start system monitoring
+        if system_monitor:
+            await system_monitor.start_monitoring()
+            error_handler.log_info("System monitoring started", "System")
+        
     except Exception as e:
         error_handler.handle_error(e, "System", "Failed to initialize components asynchronously")
 
@@ -3402,6 +3599,18 @@ if __name__ == "__main__":
     Main entry point for starting the Self Soul AGI system backend server
     """
     error_handler.log_info("Starting Self Soul AGI system backend server...", "System")
+    
+    # Initialize core components synchronously
+    if not initialize_core_components():
+        error_handler.log_error("Failed to initialize core components. Exiting.", "System")
+        sys.exit(1)
+    
+    # Create FastAPI application lifespan event handler
+    @app.on_event("startup")
+    async def on_startup():
+        """\Run on application startup"""
+        await async_initialize_components()
+        error_handler.log_info("AGI System startup complete", "System")
     
     # Start the FastAPI application with uvicorn (Python 3.6.3 compatible)
     # Use traditional event loop approach instead of asyncio.run() which is not available in Python 3.6
@@ -3420,6 +3629,7 @@ if __name__ == "__main__":
     try:
         loop.run_until_complete(server.serve())
     except KeyboardInterrupt:
-        pass
+        error_handler.log_info("Received shutdown signal. Shutting down...", "System")
     finally:
         loop.close()
+        error_handler.log_info("AGI System shutdown complete", "System")

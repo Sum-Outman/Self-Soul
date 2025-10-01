@@ -19,27 +19,23 @@ try {
     Write-Host "No existing processes to stop."
 }
 
-# Install Python dependencies if needed
-Write-Host "Installing/updating Python dependencies..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"python -m pip install -r '$PSScriptRoot\requirements.txt'`""
-
-# Wait a moment to ensure dependencies are installed
-Start-Sleep -Seconds 5
+# Using Anaconda Python which already has all dependencies installed
+$anacondaPython = "C:\ProgramData\Anaconda3\python.exe"
 
 # Start the main API server in a new PowerShell window
 Write-Host "Starting Main API Server on port 8000..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\main.py'`""
+Start-Process powershell -ArgumentList "-NoExit -Command `"& '$anacondaPython' '$PSScriptRoot\core\main.py'`""
 
 # Start the realtime stream manager in a new PowerShell window
 Write-Host "Starting Realtime Stream Manager on port 8765..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\realtime_stream_manager.py'`""
+Start-Process powershell -ArgumentList "-NoExit -Command `"& '$anacondaPython' '$PSScriptRoot\core\realtime_stream_manager.py'`""
 
 # Wait a moment to ensure the stream manager starts properly
 Start-Sleep -Seconds 3
 
 # Start the performance monitoring service in a new PowerShell window
 Write-Host "Starting Performance Monitoring Service on port 8081..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit -Command `"python '$PSScriptRoot\core\system_monitor.py'`""
+Start-Process powershell -ArgumentList "-NoExit -Command `"& '$anacondaPython' '$PSScriptRoot\core\system_monitor.py'`""
 
 # Wait a moment to ensure all services start properly
 Start-Sleep -Seconds 3

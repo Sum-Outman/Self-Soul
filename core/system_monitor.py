@@ -45,6 +45,17 @@ from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 import pickle
 import hashlib
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+import sys
+import asyncio
+
+# Add project root to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.model_ports_config import PERFORMANCE_MONITORING_PORT
 
 # Compatibility imports - ensure existing code continues to work
 try:
@@ -53,6 +64,18 @@ try:
 except ImportError:
     AGI_MODEL_REGISTRY_AVAILABLE = False
     print("Warning: ModelRegistry not available, some AGI features will be limited")
+
+# Create FastAPI app
+app = FastAPI(title="System Performance Monitoring Service", version="1.0")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class SystemMonitor:
@@ -899,7 +922,135 @@ class SystemMonitor:
 EnhancedSystemMonitor = SystemMonitor
 EnhancedMonitor = SystemMonitor
 
-# Example usage
+# Create a global instance of the system monitor
+monitor = SystemMonitor()
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for the monitoring service"""
+    return {
+        "status": "healthy",
+        "service": "System Performance Monitoring Service",
+        "version": "1.0",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/api/metrics/basic")
+async def get_basic_metrics():
+    """Get basic system metrics (CPU, memory, disk, network)"""
+    try:
+        metrics = monitor.collect_metrics()
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "data": metrics,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.get("/api/metrics/enhanced")
+async def get_enhanced_metrics():
+    """Get enhanced system metrics (models, tasks, emotions)"""
+    try:
+        metrics = monitor.get_enhanced_metrics()
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "data": metrics,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.get("/api/metrics/realtime")
+async def get_realtime_metrics():
+    """Get real-time monitoring data (comprehensive view)"""
+    try:
+        data = monitor.get_realtime_monitoring()
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "data": data,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.get("/api/metrics/alerts")
+async def get_alerts():
+    """Get current and historical alerts"""
+    try:
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "active_alerts": monitor.active_alerts,
+            "alert_history": list(monitor.alert_history),
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.get("/api/metrics/logs")
+async def get_logs(limit: int = 50):
+    """Get recent log entries"""
+    try:
+        logs = monitor.get_recent_logs(limit)
+        return JSONResponse(status_code=200, content={
+            "success": True,
+            "logs": logs,
+            "total": len(logs),
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize monitoring service on startup"""
+    monitor.logger.info("System Performance Monitoring Service is starting up")
+    
+    # Start the monitoring loop in a separate thread
+    if not monitor.monitoring_thread.is_alive():
+        monitor.monitoring_thread = threading.Thread(target=monitor._monitoring_loop, daemon=True)
+        monitor.monitoring_thread.start()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    monitor.logger.info("System Performance Monitoring Service is shutting down")
+
+
 if __name__ == "__main__":
-    monitor = SystemMonitor()
-    monitor.start_monitoring()
+    """Main entry point to start the monitoring service"""
+    monitor.logger.info(
+        f"Starting System Performance Monitoring Service on http://0.0.0.0:{PERFORMANCE_MONITORING_PORT}"
+    )
+    
+    # Start the FastAPI server
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=PERFORMANCE_MONITORING_PORT,
+        reload=False,
+        log_level="info"
+    )

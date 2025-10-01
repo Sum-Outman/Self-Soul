@@ -170,7 +170,7 @@ const initializeConversation = async () => {
 const checkBackendConnection = async () => {
   try {
     modelConnectionStatus.value = 'connecting'
-    const response = await api.get('/api/health')
+    const response = await api.health.get()
     if (response.status === 200) {
       modelConnectionStatus.value = 'connected'
       return true
@@ -186,22 +186,16 @@ const checkBackendConnection = async () => {
 
 const loadModelInfo = async () => {
   try {
-    let endpoint = ''
+    let response
     switch (selectedModel.value) {
-      case 'language':
-        endpoint = '/api/models/language/status'
-        break
-      case 'management':
-        endpoint = '/api/models/management/status'
-        break
       case 'from_scratch':
-        endpoint = '/api/models/from_scratch/status'
+        response = await api.models.fromScratchStatus()
         break
       default:
-        endpoint = '/api/models/language/status'
+        // For language and management models, use a generic status check
+        response = await api.models.trainingStatus()
     }
     
-    const response = await api.get(endpoint)
     if (response.data) {
       modelInfo.value = {
         trainingMode: response.data.trainingMode || 'Inactive',

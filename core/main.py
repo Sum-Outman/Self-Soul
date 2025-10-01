@@ -130,7 +130,7 @@ def load_model_modes_from_settings():
         
         for model_id, model_config in models.items():
             # Determine mode based on model source
-            if model_config.get("source") == "api":
+            if model_config.get("source") == "external":
                 _model_modes[model_id] = "external"
             else:
                 _model_modes[model_id] = "local"
@@ -187,7 +187,7 @@ def switch_model_to_external(model_id: str, api_config: dict) -> str:
         
         # Save API configuration to system settings first
         system_settings_manager.update_model_setting(model_id, {
-            "source": "api",
+            "source": "external",
             "api_config": api_config
         })
         
@@ -2023,8 +2023,8 @@ async def add_model(model_data: dict):
             "active": model_data.get("active", True)
         }
         
-        # If it's an API model, add API configuration
-        if model_data.get("source") == "api":
+        # If it's an external model, add API configuration
+        if model_data.get("source") == "external":
             api_config = model_data.get("api_config", {})
             model_config["api_config"] = api_config
         
@@ -2033,7 +2033,7 @@ async def add_model(model_data: dict):
         
         # If active, load the model
         if model_config["active"]:
-            if model_config["source"] == "api":
+            if model_config["source"] == "external":
                 switch_model_to_external(model_id, model_config["api_config"])
             else:
                 try:
@@ -2083,7 +2083,7 @@ async def update_models_config(models_data: list):
             }
             
             # Update API configuration
-            if model_data.get("source") == "api":
+            if model_data.get("source") == "external":
                 updated_config["api_config"] = model_data.get("api_config", {})
             
             # Save updated configuration
@@ -2095,7 +2095,7 @@ async def update_models_config(models_data: list):
             new_source = updated_config["source"]
             
             if updated_config["active"]:
-                if new_source == "api" and current_mode != "external":
+                if new_source == "external" and current_mode != "external":
                     # Switch to external API mode
                     switch_model_to_external(model_id, updated_config["api_config"])
                 elif new_source == "local" and current_mode != "local":
@@ -2138,7 +2138,7 @@ async def update_model_config(model_id: str, model_data: dict):
         # Handle model based on new mode and activation status
         if "active" in model_data:
             if model_data["active"]:
-                if updated_config.get("source") == "api":
+                if updated_config.get("source") == "external":
                     switch_model_to_external(model_id, updated_config.get("api_config", {}))
                 else:
                     model_registry.load_model(model_id)
@@ -2317,7 +2317,7 @@ async def start_model(model_id: str):
         system_settings_manager.update_model_setting(model_id, model_config)
         
         # Load model
-        if model_config.get("source") == "api":
+        if model_config.get("source") == "external":
             switch_model_to_external(model_id, model_config.get("api_config", {}))
         else:
             model_registry.load_model(model_id)
@@ -2383,7 +2383,7 @@ async def restart_model(model_id: str):
         model_registry.unload_model(model_id)
         
         # Reload model
-        if model_config.get("source") == "api":
+        if model_config.get("source") == "external":
             switch_model_to_external(model_id, model_config.get("api_config", {}))
         else:
             model_registry.load_model(model_id)
@@ -2421,7 +2421,7 @@ async def toggle_model_activation(model_id: str, activation_data: dict):
         
         # Load or unload model based on activation status
         if active:
-            if model_config.get("source") == "api":
+            if model_config.get("source") == "external":
                 switch_model_to_external(model_id, model_config.get("api_config", {}))
             else:
                 model_registry.load_model(model_id)
@@ -2517,7 +2517,7 @@ async def start_all_models():
             try:
                 # Start model if it's active
                 if config.get("active", True):
-                    if config.get("source") == "api":
+                    if config.get("source") == "external":
                         switch_model_to_external(model_id, config.get("api_config", {}))
                     else:
                         model_registry.load_model(model_id)
@@ -2580,7 +2580,7 @@ async def restart_all_models():
                 
                 # Then start it again if it's active
                 if config.get("active", True):
-                    if config.get("source") == "api":
+                    if config.get("source") == "external":
                         switch_model_to_external(model_id, config.get("api_config", {}))
                     else:
                         model_registry.load_model(model_id)

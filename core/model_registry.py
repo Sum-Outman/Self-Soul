@@ -885,15 +885,14 @@ class ModelRegistry:
         error_handler.log_info(f"模型加载事件通知: {model_id}", "ModelRegistry")
     
     def switch_model_to_external(self, model_id: str, api_config: Dict[str, Any]) -> Dict[str, Any]:
-        """将模型切换到外部API模式
-        Switch model to external API mode
+        """Switch model to external API mode
         
         Args:
-            model_id: 模型ID
-            api_config: API配置信息，包含api_url、api_key、model_name等
+            model_id: Model ID
+            api_config: API configuration including api_url, api_key, model_name, etc.
             
         Returns:
-            Dict[str, Any]: 切换结果
+            Dict[str, Any]: Switch result
         """
         try:
             # 验证模型存在
@@ -963,14 +962,13 @@ class ModelRegistry:
             return {"status": "error", "message": str(e)}
             
     def switch_model_to_local(self, model_id: str) -> Dict[str, Any]:
-        """将模型切换回本地模式
-        Switch model back to local mode
+        """Switch model back to local mode
         
         Args:
-            model_id: 模型ID
+            model_id: Model ID
             
         Returns:
-            Dict[str, Any]: 切换结果
+            Dict[str, Any]: Switch result
         """
         try:
             # 验证模型存在
@@ -2950,28 +2948,26 @@ ModelRegistry.initialize = lambda self: None
 
 # 全局函数：切换模型到外部API模式
 def switch_model_to_external(model_id: str, api_config: Dict[str, Any]) -> Dict[str, Any]:
-    """将指定模型切换到外部API模式
-    Switch specified model to external API mode
+    """Switch specified model to external API mode
     
     Args:
-        model_id: 模型ID
-        api_config: API配置信息，包含url、api_key、model_name等
+        model_id: Model ID
+        api_config: API configuration including url, api_key, model_name, etc.
         
     Returns:
-        Dict[str, Any]: 切换结果
+        Dict[str, Any]: Switch result
     """
     return model_registry.switch_model_to_external(model_id, api_config)
 
 # 全局函数：切换模型回本地模式
 def switch_model_to_local(model_id: str) -> Dict[str, Any]:
-    """将指定模型切换回本地模式
-    Switch specified model back to local mode
+    """Switch specified model back to local mode
     
     Args:
-        model_id: 模型ID
+        model_id: Model ID
         
     Returns:
-        Dict[str, Any]: 切换结果
+        Dict[str, Any]: Switch result
     """
     return model_registry.switch_model_to_local(model_id)
 

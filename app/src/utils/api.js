@@ -2,12 +2,12 @@
 import axios from 'axios';
 
 // 后端API基础URL
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // 创建axios实例
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 5000, // 减少超时时间以便更快检测连接问题
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,11 +16,11 @@ const apiClient = axios.create({
 // 请求拦截器
 apiClient.interceptors.request.use(
   (config) => {
-    console.log(`Making API request to: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => {
-    console.error('API request error:', error);
+    console.error('[API Request Error]', error);
     return Promise.reject(error);
   }
 );
@@ -28,19 +28,38 @@ apiClient.interceptors.request.use(
 // 响应拦截器
 apiClient.interceptors.response.use(
   (response) => {
+    console.log(`[API Response] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.baseURL}${response.config.url}`);
     return response;
   },
   (error) => {
-    console.error('API response error:', error);
+    console.error('[API Response Error]', error);
+    console.error('[Error Details]', {
+      code: error.code,
+      message: error.message,
+      config: error.config ? `${error.config.method?.toUpperCase()} ${error.config.baseURL}${error.config.url}` : 'No config',
+      response: error.response ? `${error.response.status} ${error.response.statusText}` : 'No response'
+    });
     
     // 处理连接错误
     if (error.code === 'ECONNREFUSED') {
-      console.error('Backend server is not running. Please start the backend server.');
+      console.error('[Backend Connection] Server is not running or unreachable');
       return Promise.reject({
         data: {
           status: 'error',
           message: 'Backend server is not available. Please start the server.',
           error: 'Connection refused'
+        }
+      });
+    }
+    
+    // 处理超时错误
+    if (error.code === 'ECONNABORTED') {
+      console.error('[Backend Connection] Request timed out');
+      return Promise.reject({
+        data: {
+          status: 'error',
+          message: 'Request timed out. Please check your network connection.',
+          error: 'Connection timeout'
         }
       });
     }

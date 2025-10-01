@@ -749,7 +749,259 @@ class DatasetManager:
                 "total_size": 0,
                 "error": str(e)
             }
+    
+    def get_training_dataset_for_model(self, model_id: str, dataset_name: str = None) -> Dict[str, Any]:
+        """
+        根据模型ID获取适合的训练数据集
+        
+        :param model_id: 模型ID
+        :param dataset_name: 可选的数据集名称
+        :return: 数据集信息字典
+        """
+        try:
+            # 获取模型类型
+            from core.system_settings_manager import system_settings_manager
+            model_type = system_settings_manager.get_model_setting(model_id, "type", "local")
+            
+            # 获取数据集存储路径
+            dataset_path = os.path.join(self.base_dir, model_id)
+            
+            # 如果指定了数据集名称，尝试直接加载
+            if dataset_name:
+                dataset_file = os.path.join(dataset_path, f"{dataset_name}.json")
+                if os.path.exists(dataset_file):
+                    with open(dataset_file, 'r', encoding='utf-8') as f:
+                        dataset_content = json.load(f)
+                    return {
+                        "success": True,
+                        "dataset_name": dataset_name,
+                        "content": dataset_content,
+                        "model_id": model_id
+                    }
+                else:
+                    return {"success": False, "message": f"Dataset {dataset_name} not found"}
+            
+            # 检查是否存在适合该模型的数据集
+            if not os.path.exists(dataset_path):
+                return {"success": False, "message": f"No dataset found for model {model_id}"}
+            
+            # 查找最近创建的数据集
+            datasets = []
+            for filename in os.listdir(dataset_path):
+                if filename.endswith('.json'):
+                    file_path = os.path.join(dataset_path, filename)
+                    file_time = os.path.getmtime(file_path)
+                    datasets.append((file_time, filename))
+            
+            if not datasets:
+                return {"success": False, "message": f"No datasets found for model {model_id}"}
+            
+            # 按创建时间排序，选择最新的数据集
+            datasets.sort(reverse=True)
+            latest_dataset = datasets[0][1]
+            
+            # 加载数据集内容
+            with open(os.path.join(dataset_path, latest_dataset), 'r', encoding='utf-8') as f:
+                dataset_content = json.load(f)
+            
+            return {
+                "success": True,
+                "dataset_name": latest_dataset.replace('.json', ''),
+                "content": dataset_content,
+                "model_id": model_id
+            }
+            
+        except Exception as e:
+            error_handler.handle_error(e, "DatasetManager", f"Failed to get training dataset for model {model_id}")
+            return {"success": False, "message": str(e)}
+    
+    def create_basic_dataset(self, model_id: str) -> Dict[str, Any]:
+        """
+        为模型创建基本的训练数据集
+        
+        :param model_id: 模型ID
+        :return: 数据集创建结果
+        """
+        try:
+            # 获取模型类型
+            from core.system_settings_manager import system_settings_manager
+            model_type = system_settings_manager.get_model_setting(model_id, "type", "local")
+            
+            # 根据模型类型生成基本数据集
+            basic_dataset = self._generate_basic_dataset_for_model_type(model_id, model_type)
+            
+            # 确保模型目录存在
+            model_dir = os.path.join(self.base_dir, model_id)
+            os.makedirs(model_dir, exist_ok=True)
+            
+            # 生成数据集名称和文件路径
+            dataset_name = f"basic_dataset_{int(time.time())}"
+            dataset_file = os.path.join(model_dir, f"{dataset_name}.json")
+            
+            # 保存数据集
+            with open(dataset_file, 'w', encoding='utf-8') as f:
+                json.dump(basic_dataset, f, ensure_ascii=False, indent=2)
+            
+            # 创建元数据
+            metadata_file = os.path.join(model_dir, f"{dataset_name}_metadata.json")
+            metadata = {
+                "dataset_id": dataset_name,
+                "model_id": model_id,
+                "model_type": model_type,
+                "creation_time": datetime.now().isoformat(),
+                "size": len(json.dumps(basic_dataset)),
+                "description": "Basic training dataset for model",
+                "source": "generated_basic",
+                "format": self._get_supported_formats()[model_type][0] if model_type in self._get_supported_formats() else "json"
+            }
+            
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+            
+            # 记录日志
+            error_handler.log_info(f"Created basic dataset {dataset_name} for model {model_id}", "DatasetManager")
+            
+            return {
+                "success": True,
+                "dataset_name": dataset_name,
+                "content": basic_dataset,
+                "model_id": model_id,
+                "metadata": metadata
+            }
+            
+        except Exception as e:
+            error_handler.handle_error(e, "DatasetManager", f"Failed to create basic dataset for model {model_id}")
+            return {"success": False, "message": str(e)}
+    
+    def _generate_basic_dataset_for_model_type(self, model_id: str, model_type: str) -> Dict[str, Any]:
+        """
+        根据模型类型生成基本数据集
+        
+        :param model_id: 模型ID
+        :param model_type: 模型类型
+        :return: 生成的数据集内容
+        """
+        import numpy as np
+        
+        # 根据模型类型生成适当的基本数据集
+        if model_type in ["language", "programming", "knowledge", "manager", "emotion"]:
+            # 文本类模型的基本数据集
+            texts = [
+                "This is a sample text for training.",
+                "The quick brown fox jumps over the lazy dog.",
+                "Artificial intelligence is transforming the world.",
+                "Machine learning models can learn from data.",
+                "Training deep neural networks requires a lot of data.",
+                "Natural language processing is a subfield of AI.",
+                "Computer vision enables machines to see.",
+                "Reinforcement learning uses rewards to guide behavior.",
+                "Data preprocessing is an important step in machine learning.",
+                "Model evaluation helps measure performance."
+            ]
+            
+            # 根据模型ID调整数据集内容
+            if model_id.startswith("programming"):
+                texts = [
+                    "def hello_world():",
+                    "    print('Hello, World!')",
+                    "x = 5",
+                    "y = 10",
+                    "result = x + y",
+                    "for i in range(5):",
+                    "    print(i)",
+                    "if x > y:",
+                    "    print('x is greater')",
+                    "else:",
+                    "    print('y is greater')"
+                ]
+            elif model_id.startswith("knowledge"):
+                texts = [
+                    "The capital of France is Paris.",
+                    "Water is composed of hydrogen and oxygen.",
+                    "The human body has 206 bones.",
+                    "The Earth orbits around the Sun.",
+                    "Photosynthesis converts light energy into chemical energy.",
+                    "The speed of light is approximately 299,792,458 meters per second.",
+                    "The periodic table contains 118 elements.",
+                    "Gravity is a fundamental force of nature.",
+                    "DNA carries genetic information.",
+                    "The square of the hypotenuse is equal to the sum of the squares of the other two sides."
+                ]
+            
+            # 生成随机标签
+            labels = np.random.randint(0, 2, size=len(texts)).tolist()
+            
+            return {"texts": texts, "labels": labels}
+            
+        elif model_type in ["vision", "vision_image"]:
+            # 视觉类模型的基本数据集
+            # 创建模拟图像数据 (10个32x32的3通道图像)
+            num_samples = 10
+            image_size = 32
+            
+            images = []
+            for _ in range(num_samples):
+                # 创建随机图像数据
+                image = np.random.randint(0, 256, size=(image_size, image_size, 3)).tolist()
+                images.append(image)
+            
+            # 生成随机标签
+            labels = np.random.randint(0, 10, size=num_samples).tolist()
+            
+            return {"images": images, "labels": labels}
+            
+        elif model_type in ["audio"]:
+            # 音频类模型的基本数据集
+            # 创建模拟音频数据
+            num_samples = 10
+            audio_length = 1000  # 每个音频样本的长度
+            
+            audio = []
+            for _ in range(num_samples):
+                # 创建随机音频数据
+                audio_sample = np.random.rand(audio_length).tolist()
+                audio.append(audio_sample)
+            
+            # 生成随机标签
+            labels = np.random.randint(0, 5, size=num_samples).tolist()
+            
+            return {"audio": audio, "labels": labels}
+            
+        elif model_type in ["sensor", "motion"]:
+            # 传感器和运动控制模型的基本数据集
+            num_samples = 10
+            feature_dim = 6  # 6个传感器特征 (如加速度计的x, y, z轴)
+            
+            features = []
+            targets = []
+            
+            for _ in range(num_samples):
+                # 创建随机特征数据
+                feature = np.random.rand(feature_dim).tolist()
+                # 创建相应的目标数据
+                target = np.random.rand(3).tolist()  # 3个控制输出
+                
+                features.append(feature)
+                targets.append(target)
+            
+            return {"features": features, "targets": targets}
+            
+        else:
+            # 默认通用数据集
+            num_samples = 10
+            feature_dim = 10
+            
+            features = []
+            labels = []
+            
+            for _ in range(num_samples):
+                feature = np.random.rand(feature_dim).tolist()
+                label = np.random.randint(0, 2)
+                
+                features.append(feature)
+                labels.append(label)
+            
+            return {"features": features, "labels": labels}
 
-# 全局数据集管理器实例
 # Global dataset manager instance
 dataset_manager = DatasetManager()

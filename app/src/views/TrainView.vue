@@ -1636,7 +1636,7 @@ export default {
       
       statusPollingInterval.value = setInterval(async () => {
         try {
-          const response = await api.get(`/api/training/status/${jobId}`);
+          const response = await api.training.status(jobId);
           
           const status = response.data;
           
@@ -1850,7 +1850,7 @@ export default {
     const loadTrainingHistory = async () => {
       try {
         // Call FastAPI backend to get training history
-        const response = await api.get('/api/training/history');
+        const response = await api.training.history();
         
         // Strictly check response data structure
         if (response && response.data && Array.isArray(response.data.history)) {

@@ -161,15 +161,21 @@ export default {
 
 .guide-navigation button {
   padding: 8px 15px;
-  background-color: #2196F3;
+  background-color: var(--primary-color);
   color: white;
-  border: none;
-  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
+  transition: var(--transition);
+}
+
+.guide-navigation button:hover {
+  background-color: var(--primary-hover);
 }
 
 .guide-navigation button:disabled {
-  background-color: #90CAF9;
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
   cursor: not-allowed;
 }
 </style>

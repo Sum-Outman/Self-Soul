@@ -217,7 +217,7 @@ export default {
     const initializeChat = async () => {
       try {
         // Fetch initial model status
-        const response = await api.get('/api/models/from_scratch/status')
+        const response = await api.models.fromScratchStatus()
         updateModelStatus(response.data)
         
         // Add welcome message

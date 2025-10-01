@@ -74,19 +74,19 @@ export default {
 }
 
 .progress-success {
-  background: linear-gradient(90deg, #28a745, #1e7e34);
+  background: var(--success-color);
 }
 
 .progress-warning {
-  background: linear-gradient(90deg, #ffc107, #fd7e14);
+  background: var(--warning-color);
 }
 
 .progress-error {
-  background: linear-gradient(90deg, #dc3545, #c82333);
+  background: var(--error-color);
 }
 
 .progress-info {
-  background: linear-gradient(90deg, #17a2b8, #138496);
+  background: var(--primary-color);
 }
 
 .progress-bar-label {

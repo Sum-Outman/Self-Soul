@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Server Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mock Server Connection Test</h1>
+    <p>This test will connect to http://localhost:8000/health to check if the mock server is reachable.</p>
+    <button onclick="testConnection()">Run Test</button>
+    <div id="result" class="result"></div>
+
+    <script>
+        function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing connection...';
+            
+            fetch('http://localhost:8000/health')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                })
+                .then(data => {
+                    resultDiv.innerHTML = `
+                        <p class="success">Connection successful!</p>
+                        <p>Status Code: 200 OK</p>
+                        <p>Response Data:</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultDiv.className = 'result success';
+                    console.log('Connection test passed:', data);
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <p class="error">Connection failed!</p>
+                        <p>Error: ${error.message}</p>
+                    `;
+                    resultDiv.className = 'result error';
+                    console.error('Connection test failed:', error);
+                });
+        }
+        
+        // Run test automatically when page loads
+        window.onload = testConnection;
+    </script>
+</body>
+</html>

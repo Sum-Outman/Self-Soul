@@ -366,12 +366,7 @@ export default {
       if (!searchQuery.value.trim()) return;
 
       try {
-        const response = await api.get('/api/knowledge/search', {
-          params: {
-            query: searchQuery.value,
-            domain: searchDomain.value
-          }
-        });
+          const response = await api.knowledge.search(searchQuery.value, searchDomain.value);
 
         if (response.data.success) {
           searchResults.value = response.data.results;
@@ -419,7 +414,7 @@ export default {
     const loadKnowledgeStats = async () => {
       statsLoading.value = true;
       try {
-        const response = await api.get('/api/knowledge/stats');
+        const response = await api.knowledge.stats();
         if (response.data.success) {
           knowledgeStats.value = response.data;
         }
@@ -597,12 +592,7 @@ export default {
     const loadFiles = async () => {
       filesLoading.value = true;
       try {
-        const response = await api.get('/api/knowledge/files', { 
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
+        const response = await api.knowledge.files();
         
         if (response.data && response.data.success) {
           files.value = response.data.files;
@@ -738,12 +728,7 @@ export default {
         }
 
         // Try to load actual file content from server
-        const response = await api.get(`/api/knowledge/files/${file.id}/preview`, {
-          timeout: 10000,
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        });
+        const response = await api.knowledge.filePreview(file.id);
 
         if (response.data.success) {
           if (isTextFile(file)) {
@@ -910,11 +895,184 @@ export default {
       }
     };
     
+    // WebSocket related variables
+    let webSocketConnection = null;
+    let connectionAttempts = 0;
+    const maxReconnectAttempts = 3;
+    let reconnectTimeout = null;
+    let isUsingWebSocket = false;
+    
+    // Connect to WebSocket for auto learning updates
+    const connectWebSocket = (sessionId) => {
+      try {
+        // Use wss:// if the page is loaded over HTTPS, otherwise ws://
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}://localhost:8765/ws/auto-learning/${sessionId}`;
+        
+        addLearningLog('System', 'Connecting to WebSocket: ' + wsUrl.replace(/^(wss?:\/\/[^/]+).*/, '$1/...'));
+        
+        webSocketConnection = new WebSocket(wsUrl);
+        
+        // Set up timeout detection
+        const timeoutId = setTimeout(() => {
+          if (webSocketConnection && webSocketConnection.readyState !== WebSocket.OPEN) {
+            addLearningLog('System', 'WebSocket connection timeout');
+            handleWebSocketError(new Error('Connection timeout'));
+          }
+        }, 5000);
+        
+        webSocketConnection.onopen = () => {
+          clearTimeout(timeoutId);
+          connectionAttempts = 0;
+          isUsingWebSocket = true;
+          addLearningLog('System', 'WebSocket connected successfully');
+          showSystemMessage('Real-time updates enabled');
+        };
+        
+        webSocketConnection.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            
+            // Handle different message types
+            switch (data.type) {
+              case 'progress':
+                autoLearningProgress.value = data.progress || 0;
+                
+                // Add real logs if available
+                if (data.logs && data.logs.length > 0) {
+                  data.logs.forEach(log => {
+                    addLearningLog('System', log);
+                  });
+                }
+                
+                // Check if completed
+                if (autoLearningProgress.value >= 100 || data.status === 'completed') {
+                  completeAutoLearning();
+                }
+                break;
+              
+              case 'log':
+                addLearningLog('System', data.message);
+                break;
+              
+              case 'error':
+                addLearningLog('System', `ERROR: ${data.message}`);
+                showSystemMessage(`Learning error: ${data.message}`);
+                break;
+              
+              case 'completed':
+                completeAutoLearning();
+                break;
+              
+              default:
+                addLearningLog('System', 'Unknown WebSocket message type: ' + data.type);
+            }
+          } catch (error) {
+            errorHandler.handleError(error, 'WebSocket message parse error');
+            addLearningLog('System', 'WebSocket message parse error: ' + error.message);
+          }
+        };
+        
+        webSocketConnection.onerror = (error) => {
+          handleWebSocketError(error);
+        };
+        
+        webSocketConnection.onclose = (event) => {
+          if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout);
+            reconnectTimeout = null;
+          }
+          
+          // Normal closure does not need to show error
+          if (event.code === 1000 || event.code === 1001) {
+            addLearningLog('System', 'WebSocket connection closed normally');
+          } else {
+            addLearningLog('System', `WebSocket connection closed unexpectedly (code: ${event.code || 'unknown'}, reason: ${event.reason || ''})`);
+          }
+          
+          isUsingWebSocket = false;
+          
+          // Attempt reconnection if still running
+          if (autoLearningStatus.value === 'running' && connectionAttempts < maxReconnectAttempts) {
+            connectionAttempts++;
+            const delay = Math.pow(2, connectionAttempts) * 1000;
+            addLearningLog('System', `Reconnecting to WebSocket (attempt ${connectionAttempts}/${maxReconnectAttempts}, delay ${delay/1000}s)`);
+            
+            reconnectTimeout = setTimeout(() => {
+              connectWebSocket(sessionId);
+            }, delay);
+          } else if (connectionAttempts >= maxReconnectAttempts && autoLearningStatus.value === 'running') {
+            addLearningLog('System', `Max WebSocket reconnection attempts (${maxReconnectAttempts}) reached`);
+            showSystemMessage('Falling back to polling mode');
+            
+            // If reconnection fails, switch to polling mode
+            startProgressPolling();
+          }
+        };
+      } catch (error) {
+        handleWebSocketError(error);
+      }
+    };
+    
+    // Handle WebSocket errors
+    const handleWebSocketError = (error) => {
+      const errorMessage = error.message || 'Unknown error';
+      errorHandler.handleError(error, 'WebSocket connection error');
+      
+      // If not using WebSocket yet, switch to polling
+      if (autoLearningStatus.value === 'running' && !isUsingWebSocket) {
+        addLearningLog('System', `WebSocket connection failed: ${errorMessage}. Using polling instead.`);
+        startProgressPolling();
+      }
+    };
+    
+    // Close WebSocket connection
+    const closeWebSocket = () => {
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+      }
+      
+      if (webSocketConnection) {
+        webSocketConnection.close();
+        webSocketConnection = null;
+        isUsingWebSocket = false;
+      }
+    };
+    
+    // Complete auto learning process
+    const completeAutoLearning = () => {
+      autoLearningProgress.value = 100;
+      autoLearningStatus.value = 'completed';
+      
+      // Add completion log
+      addLearningLog('System', 'Auto learning completed');
+      
+      // Update learning history
+      if (autoLearningHistory.value.length > 0) {
+        const lastItem = autoLearningHistory.value[autoLearningHistory.value.length - 1];
+        lastItem.status = 'completed';
+        lastItem.progress = 100;
+        lastItem.end_time = new Date().toISOString();
+      }
+      
+      // Close WebSocket
+      closeWebSocket();
+      
+      // Refresh files to show any new knowledge
+      setTimeout(() => {
+        loadFiles();
+        showSystemMessage('Knowledge base updated through auto learning');
+      }, 1000);
+    };
+    
     const startAutoLearning = async () => {
       try {
         autoLearningStatus.value = 'running';
         autoLearningProgress.value = 0;
         learningLogs.value = [];
+        isUsingWebSocket = false;
+        connectionAttempts = 0;
         
         // Start auto learning on server
         const response = await api.post('/api/knowledge/auto-learning/start', {
@@ -927,16 +1085,17 @@ export default {
           addLearningLog('System', 'Auto learning started');
           
           // Add learning history
+          const sessionId = response.data.session_id || 'learn_' + Date.now();
           addLearningHistoryItem({
-            id: response.data.session_id || 'learn_' + Date.now(),
+            id: sessionId,
             timestamp: new Date().toISOString(),
             status: 'running',
             domains: filterDomain.value ? [filterDomain.value] : ['general'],
             progress: 0
           });
           
-          // Start polling for progress updates
-          startProgressPolling();
+          // Try to connect via WebSocket first
+          connectWebSocket(sessionId);
         } else {
           throw new Error('Failed to start auto learning');
         }
@@ -951,6 +1110,9 @@ export default {
     const stopAutoLearning = async () => {
       try {
         autoLearningStatus.value = 'paused';
+        
+        // Close WebSocket connection
+        closeWebSocket();
         
         // Try to stop auto learning on server
         try {
@@ -971,7 +1133,7 @@ export default {
       }
     };
     
-    // Progress polling function to get real updates from server
+    // Progress polling function to get real updates from server (fallback when WebSocket fails)
     let progressPollingInterval = null;
     
     const startProgressPolling = () => {
@@ -980,17 +1142,41 @@ export default {
         clearInterval(progressPollingInterval);
       }
       
+      // Don't start polling if WebSocket is already active
+      if (isUsingWebSocket) {
+        return;
+      }
+      
       // Start polling every 2 seconds
+      let pollingInterval = 2000;
+      let consecutiveFailures = 0;
+      const maxFailures = 3;
+      
+      addLearningLog('System', `Starting polling mode (interval: ${pollingInterval/1000}s)`);
+      
       progressPollingInterval = setInterval(async () => {
         try {
-          if (autoLearningStatus.value !== 'running') {
+          if (autoLearningStatus.value !== 'running' || isUsingWebSocket) {
             clearInterval(progressPollingInterval);
             return;
           }
           
-          const response = await api.get('/api/knowledge/auto-learning/progress');
+          const response = await api.knowledge.autoLearning.progress();
+          
+          // Reset failure counter
+          consecutiveFailures = 0;
+          
           if (response.data && response.data.progress !== undefined) {
             autoLearningProgress.value = response.data.progress;
+            
+            // Adaptive polling interval based on progress
+            if (autoLearningProgress.value > 90) {
+              pollingInterval = 1000; // Poll more frequently when nearing completion
+            } else if (autoLearningProgress.value > 50) {
+              pollingInterval = 1500;
+            } else {
+              pollingInterval = 2000;
+            }
             
             // Add real logs if available
             if (response.data.logs && response.data.logs.length > 0) {
@@ -1025,10 +1211,30 @@ export default {
             }
           }
         } catch (error) {
-          errorHandler.handleError(error, 'Auto learning progress update failed');
-          // Continue polling even if there's an error
+          consecutiveFailures++;
+          
+          // Log error but continue trying
+          if (consecutiveFailures <= maxFailures) {
+            addLearningLog('System', `Polling error (attempt ${consecutiveFailures}/${maxFailures}): ${error.message}`);
+            
+            // Increase polling interval on failure
+            pollingInterval = Math.min(10000, pollingInterval * 1.5);
+          } else {
+            // Exceeded maximum failures, show error
+            addLearningLog('System', `Maximum polling failures reached (${maxFailures})`);
+            showSystemMessage('Failed to communicate with server');
+            
+            clearInterval(progressPollingInterval);
+            
+            // If training is still in progress, stop training
+            if (autoLearningStatus.value === 'running') {
+              showSystemMessage('Auto learning stopped due to connection issues');
+              autoLearningEnabled.value = false;
+              autoLearningStatus.value = 'idle';
+            }
+          }
         }
-      }, 2000);
+      }, pollingInterval);
     };
     
     const addLearningLog = (source, message) => {

@@ -3,15 +3,15 @@
     <!-- Top Navigation Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Soul</span>
+        <span class="system-title">Self Brain</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->
         <router-link to="/" class="menu-link">Home</router-link>
         <router-link to="/training" class="menu-link">Training</router-link>
+        <router-link to="/conversation" class="menu-link">Conversation</router-link>
         <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
         <router-link to="/settings" class="menu-link">Settings</router-link>
-        <router-link to="/help" class="menu-link">Help</router-link>
         
         <!-- Server Connection Status -->
         <div class="connection-status" :style="{ color: connectionColor }">
@@ -46,7 +46,7 @@ export default {
     
     // Check server connection status
     const checkServerConnection = () => {
-      api.get('/health') // Use unified API instance and relative path
+      api.health.get() // 使用正确的API调用方式
         .then(response => {
           isConnected.value = true;
           connectionStatus.value = 'Connected to Main API';
@@ -68,20 +68,23 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        errorHandler.logInfo('AGI Brain System components are initializing...')
+        console.log('AGI Brain System components are initializing...')
         
         // Directly log initialization completion
-        errorHandler.logInfo('AGI Brain System components initialization completed')
+        console.log('AGI Brain System components initialization completed')
       } catch (error) {
-        errorHandler.handleError('Error during system components initialization:', error)
+        console.error('Error during system components initialization:', error)
       }
     }
     
     // Life cycle hooks
     onMounted(() => {
       // Register error handler
-      window.addEventListener('error', errorHandler.handleError)
-      window.addEventListener('unhandledrejection', errorHandler.handlePromiseRejection)
+      window.addEventListener('error', (error) => errorHandler.handleError(error, 'Global'))
+      window.addEventListener('unhandledrejection', (event) => {
+        event.preventDefault();
+        errorHandler.handleError(event.reason, 'Unhandled Promise');
+      })
       
       // Periodically check server connection
       connectionInterval = setInterval(() => {
@@ -111,7 +114,19 @@ export default {
 </script>
 
 <style scoped>
-/* Use black, white and gray light theme variables defined in main.css */
+/* Clean black-white-gray light style variables */
+:root {
+  --text-primary: #333;
+  --text-secondary: #666;
+  --bg-primary: #f9f9f9;
+  --bg-secondary: #fff;
+  --bg-tertiary: #f5f5f5;
+  --border-color: #e0e0e0;
+  --border-dark: #d0d0d0;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --border-radius-sm: 6px;
+  --transition: all 0.3s ease;
+}
 
 /* Global style reset */
 * {
@@ -134,7 +149,7 @@ body {
   flex-direction: column;
 }
 
-/* Top menu bar styles - using black, white and gray light theme */
+/* Top menu bar styles - clean black-white-gray light theme */
 .top-menu-bar {
   background: var(--bg-secondary);
   color: var(--text-primary);
@@ -167,8 +182,6 @@ body {
   align-items: center;
   gap: 15px;
 }
-
-/* Removed language selector as it's no longer needed */
 
 /* Menu item styles */
 .menu-link {

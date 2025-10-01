@@ -258,7 +258,8 @@ export default {
           });
           
           // Call backend API to get recommended joint training combinations (GET method)
-          const response = await api.get(`/api/joint-training/recommendations?${params}`);
+          // Currently using apiClient directly since this specific endpoint isn't in the api namespace
+          const response = await apiClient.get(`/api/joint-training/recommendations?${params}`);
         
         if (result.status === 'success') {
           this.recommendedCombinations = result.data.recommendations || result.data;
@@ -345,7 +346,7 @@ export default {
       
       this.pollingInterval = setInterval(async () => {
         try {
-            const response = await api.get(`/api/training/status/${this.jobId}`);
+            const response = await api.training.status(this.jobId);
             
             if (response.data.status === 'success') {
               const status = response.data.data;
@@ -389,7 +390,7 @@ export default {
     async loadTrainingResults() {
       try {
         // Use api instance to get training history
-        const response = await api.get('/api/training/history');
+        const response = await api.training.history();
         
         if (response.data.status === 'success') {
           // Find training results for current job
@@ -493,7 +494,8 @@ export default {
     async loadSavedConfigs() {
       try {
         // Load all system settings, including model configurations
-        const response = await api.get('/api/settings');
+        // Currently using apiClient directly since this specific endpoint isn't in the api namespace
+        const response = await apiClient.get('/api/settings');
         const result = response.data;
         
         if (result.status === 'success' && result.data && result.data.models) {

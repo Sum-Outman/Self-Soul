@@ -175,7 +175,12 @@ export default {
         motion: false,
         humidity: null,
         pressure: null
-      }
+      },
+      // Device control WebSocket connection
+      deviceControlWebSocket: null,
+      deviceControlConnected: false,
+      deviceControlReconnectInterval: null,
+      deviceControlPingInterval: null
     };
   },
   mounted() {
@@ -193,10 +198,19 @@ export default {
     
     // Listen to real-time input events from RealTimeInput component
     this.setupRealTimeInputListeners();
+    
+    // Initialize device control WebSocket connection
+    this.connectDeviceControlWebSocket();
   },
   beforeUnmount() {
     // Remove event listeners when component is unmounted
     window.removeEventListener('voice-input', this.handleVoiceInputEvent);
+    
+    // Clean up device control WebSocket connection
+    this.disconnectDeviceControlWebSocket();
+    
+    // Stop sensor data updates
+    this.stopSensorDataUpdates();
   },
     computed: {
       // Calculate active model count
@@ -243,7 +257,7 @@ export default {
           this.backendStatus = 'connecting';
           
           // Try to connect to real backend
-          const response = await api.get('/health');
+          const response = await api.health.get();
           
           if (response.data.status === 'ok') {
             this.backendConnected = true;
@@ -641,124 +655,289 @@ export default {
       }
     },
 
-    // Multi-camera control methods
-    toggleCamera(cameraId) {
-      const camera = this.cameras.find(cam => cam.id === cameraId);
-      if (camera) {
-        camera.active = !camera.active;
-        if (camera.active) {
-          this.startCameraStream(cameraId);
-          this.addSystemMessage(`${camera.name} started`);
+    // Device control WebSocket management
+    connectDeviceControlWebSocket() {
+      if (this.deviceControlWebSocket && this.deviceControlWebSocket.readyState === WebSocket.OPEN) {
+        return;
+      }
+
+      try {
+        const wsUrl = 'ws://localhost:8766';
+        this.deviceControlWebSocket = new WebSocket(wsUrl);
+        this.deviceControlConnected = false;
+
+        this.deviceControlWebSocket.onopen = () => {
+          console.log('Device control WebSocket connection established');
+          this.deviceControlConnected = true;
+          this.addSystemMessage('Device control system connected');
+
+          // Clear any existing reconnection interval
+          if (this.deviceControlReconnectInterval) {
+            clearInterval(this.deviceControlReconnectInterval);
+            this.deviceControlReconnectInterval = null;
+          }
+
+          // Start ping interval to keep connection alive
+          this.startDeviceControlPing();
+        };
+
+        this.deviceControlWebSocket.onmessage = (event) => {
+          this.handleDeviceControlMessage(event);
+        };
+
+        this.deviceControlWebSocket.onerror = (error) => {
+          console.error('Device control WebSocket error:', error);
+          this.deviceControlConnected = false;
+        };
+
+        this.deviceControlWebSocket.onclose = () => {
+          console.log('Device control WebSocket connection closed');
+          this.deviceControlConnected = false;
+          this.addSystemMessage('Device control system disconnected');
+
+          // Stop ping interval
+          this.stopDeviceControlPing();
+
+          // Set up reconnection attempt
+          this.setupReconnection();
+        };
+      } catch (error) {
+        console.error('Failed to create device control WebSocket connection:', error);
+        this.addSystemMessage('Failed to connect to device control system');
+        this.setupReconnection();
+      }
+    },
+
+    disconnectDeviceControlWebSocket() {
+      // Stop ping interval
+      this.stopDeviceControlPing();
+
+      // Clear reconnection interval
+      if (this.deviceControlReconnectInterval) {
+        clearInterval(this.deviceControlReconnectInterval);
+        this.deviceControlReconnectInterval = null;
+      }
+
+      // Close WebSocket connection
+      if (this.deviceControlWebSocket) {
+        this.deviceControlWebSocket.close();
+        this.deviceControlWebSocket = null;
+      }
+
+      this.deviceControlConnected = false;
+    },
+
+    setupReconnection() {
+      // Try to reconnect every 5 seconds if not already trying
+      if (!this.deviceControlReconnectInterval) {
+        this.deviceControlReconnectInterval = setInterval(() => {
+          console.log('Attempting to reconnect to device control WebSocket...');
+          this.connectDeviceControlWebSocket();
+        }, 5000);
+      }
+    },
+
+    startDeviceControlPing() {
+      // Send ping every 30 seconds to keep connection alive
+      this.deviceControlPingInterval = setInterval(() => {
+        if (this.deviceControlWebSocket && this.deviceControlWebSocket.readyState === WebSocket.OPEN) {
+          this.deviceControlWebSocket.send(JSON.stringify({ type: 'ping' }));
+        }
+      }, 30000);
+    },
+
+    stopDeviceControlPing() {
+      if (this.deviceControlPingInterval) {
+        clearInterval(this.deviceControlPingInterval);
+        this.deviceControlPingInterval = null;
+      }
+    },
+
+    handleDeviceControlMessage(event) {
+      try {
+        const message = JSON.parse(event.data);
+        
+        if (message.type === 'initial_status') {
+          // Update device states from initial status
+          this.updateDeviceStates(message.devices);
+        } else if (message.type === 'command_response') {
+          // Handle command response
+          this.handleCommandResponse(message);
+        } else if (message.type === 'sensor_update') {
+          // Update sensor data
+          this.updateSensorDataFromServer(message.device_id, message.data);
+        } else if (message.type === 'pong') {
+          // Just ignore pong responses
+        }
+      } catch (error) {
+        console.error('Failed to parse device control message:', error);
+      }
+    },
+
+    updateDeviceStates(devicesData) {
+      // Update cameras
+      for (const deviceId in devicesData) {
+        if (devicesData[deviceId].type === 'camera') {
+          const localCamera = this.cameras.find(cam => cam.id === deviceId);
+          if (localCamera) {
+            localCamera.status = devicesData[deviceId].status;
+            localCamera.active = devicesData[deviceId].active;
+            localCamera.stream = devicesData[deviceId].stream_id;
+          }
         } else {
-          this.stopCameraStream(cameraId);
-          this.addSystemMessage(`${camera.name} stopped`);
+          // Update other devices
+          const localDevice = this.externalDevices.find(dev => dev.id === deviceId);
+          if (localDevice) {
+            localDevice.status = devicesData[deviceId].status;
+            localDevice.connected = devicesData[deviceId].connected;
+          }
         }
       }
+    },
+
+    handleCommandResponse(response) {
+      if (response.success) {
+        if (response.message) {
+          this.addSystemMessage(response.message);
+        }
+        // Update device state if status is included in response
+        if (response.status) {
+          if (response.status.type === 'camera') {
+            const localCamera = this.cameras.find(cam => cam.id === response.device_id);
+            if (localCamera) {
+              Object.assign(localCamera, response.status);
+            }
+          } else {
+            const localDevice = this.externalDevices.find(dev => dev.id === response.device_id);
+            if (localDevice) {
+              Object.assign(localDevice, response.status);
+            }
+          }
+        }
+      } else {
+        this.addSystemMessage(`Error: ${response.error || 'Command failed'}`);
+      }
+    },
+
+    updateSensorDataFromServer(deviceId, data) {
+      if (deviceId === 'sensor1') {
+        this.sensorData.temperature = data.value;
+      } else if (deviceId === 'sensor2') {
+        this.sensorData.motion = data.value;
+      }
+    },
+
+    sendDeviceControlCommand(deviceId, action, params = {}) {
+      if (this.deviceControlWebSocket && this.deviceControlWebSocket.readyState === WebSocket.OPEN) {
+        const command = {
+          type: 'device_command',
+          device_id: deviceId,
+          action: action,
+          params: params
+        };
+        this.deviceControlWebSocket.send(JSON.stringify(command));
+        return true;
+      } else {
+        // Fallback to mock behavior if WebSocket is not connected
+        console.warn('Device control WebSocket not connected, using mock behavior');
+        return this.handleDeviceCommandFallback(deviceId, action, params);
+      }
+    },
+
+    // Multi-camera control methods
+    toggleCamera(cameraId) {
+      this.sendDeviceControlCommand(cameraId, 'toggle');
     },
 
     configureCamera(cameraId) {
       const camera = this.cameras.find(cam => cam.id === cameraId);
       if (camera) {
         // Show camera configuration dialog
-        const resolution = prompt(`Configure ${camera.name}:\nEnter resolution (e.g., 1920x1080):`, '1920x1080');
+        const resolution = prompt(`Configure ${camera.name}:\nEnter resolution (e.g., 1920x1080):`, camera.resolution || '1920x1080');
         if (resolution) {
-          camera.config = { resolution };
-          this.addSystemMessage(`${camera.name} configured with ${resolution}`);
+          this.sendDeviceControlCommand(cameraId, 'configure', { resolution: resolution });
         }
       }
     },
 
     // External device control methods
     toggleDevice(deviceId) {
-      const device = this.externalDevices.find(dev => dev.id === deviceId);
-      if (device) {
-        device.connected = !device.connected;
-        if (device.connected) {
-          this.connectDevice(deviceId);
-          this.addSystemMessage(`${device.name} connected`);
-        } else {
-          this.disconnectDevice(deviceId);
-          this.addSystemMessage(`${device.name} disconnected`);
-        }
-      }
+      this.sendDeviceControlCommand(deviceId, 'toggle');
     },
 
     configureDevice(deviceId) {
       const device = this.externalDevices.find(dev => dev.id === deviceId);
       if (device) {
         // Show device configuration dialog
-        const config = prompt(`Configure ${device.name}:\nEnter configuration parameters:`, 'default');
-        if (config) {
-          device.config = { parameters: config };
-          this.addSystemMessage(`${device.name} configured`);
+        const params = prompt(`Configure ${device.name}:\nEnter configuration parameters:`, device.config?.parameters || 'default');
+        if (params) {
+          this.sendDeviceControlCommand(deviceId, 'configure', { parameters: params });
         }
       }
     },
 
-    // Camera stream management
-    async startCameraStream(cameraId) {
+    // Control robotic arm
+    controlRoboticArm(position, power) {
+      this.sendDeviceControlCommand('device1', 'control', { position, power });
+    },
+
+    // Control LED
+    controlLED(brightness, color) {
+      this.sendDeviceControlCommand('device2', 'control', { brightness, color });
+    },
+
+    // Fallback methods for when WebSocket is not available
+    handleDeviceCommandFallback(deviceId, action, params) {
       try {
-        const camera = this.cameras.find(cam => cam.id === cameraId);
-        if (camera) {
-          // Simulate camera stream initialization
-          camera.stream = `stream_${cameraId}_${Date.now()}`;
-          camera.status = 'active';
+        if (action === 'toggle') {
+          const camera = this.cameras.find(cam => cam.id === deviceId);
+          if (camera) {
+            camera.active = !camera.active;
+            if (camera.active) {
+              camera.status = 'active';
+              camera.stream = `stream_${deviceId}_${Date.now()}`;
+              this.addSystemMessage(`${camera.name} started (mock)`);
+            } else {
+              camera.status = 'available';
+              camera.stream = null;
+              this.addSystemMessage(`${camera.name} stopped (mock)`);
+            }
+            return true;
+          }
           
-          // Start sensor data updates for this camera
-          this.startSensorDataUpdates();
-        }
-      } catch (error) {
-        errorHandler.handleError(error, `Failed to start camera stream: ${cameraId}`);
-      }
-    },
-
-    stopCameraStream(cameraId) {
-      const camera = this.cameras.find(cam => cam.id === cameraId);
-      if (camera) {
-        camera.stream = null;
-        camera.status = 'available';
-        
-        // Stop sensor data updates if all cameras are off
-        if (this.cameras.every(cam => !cam.active)) {
-          this.stopSensorDataUpdates();
-        }
-      }
-    },
-
-    // Device connection management
-    async connectDevice(deviceId) {
-      try {
-        const device = this.externalDevices.find(dev => dev.id === deviceId);
-        if (device) {
-          // Simulate device connection
-          device.status = 'connected';
+          const device = this.externalDevices.find(dev => dev.id === deviceId);
+          if (device) {
+            device.connected = !device.connected;
+            device.status = device.connected ? 'connected' : 'available';
+            this.addSystemMessage(`${device.name} ${device.connected ? 'connected' : 'disconnected'} (mock)`);
+            return true;
+          }
+        } else if (action === 'configure') {
+          const camera = this.cameras.find(cam => cam.id === deviceId);
+          if (camera) {
+            camera.config = params;
+            this.addSystemMessage(`${camera.name} configured (mock)`);
+            return true;
+          }
           
-          // Start sensor data collection for sensors
-          if (device.type === 'sensor') {
-            this.startSensorDataUpdates();
+          const device = this.externalDevices.find(dev => dev.id === deviceId);
+          if (device) {
+            device.config = params;
+            this.addSystemMessage(`${device.name} configured (mock)`);
+            return true;
           }
         }
+        return false;
       } catch (error) {
-        errorHandler.handleError(error, `Failed to connect device: ${deviceId}`);
+        console.error('Fallback device control failed:', error);
+        return false;
       }
     },
 
-    disconnectDevice(deviceId) {
-      const device = this.externalDevices.find(dev => dev.id === deviceId);
-      if (device) {
-        device.status = 'available';
-        
-        // Stop sensor data collection if no sensors are connected
-        if (this.externalDevices.every(dev => dev.type !== 'sensor' || !dev.connected)) {
-          this.stopSensorDataUpdates();
-        }
-      }
-    },
-
-    // Sensor data management
+    // Sensor data management - now only for fallback mode
     startSensorDataUpdates() {
-      // Start periodic sensor data updates
-      if (!this.sensorUpdateInterval) {
+      // Only start updates if WebSocket is not connected
+      if (!this.deviceControlConnected && !this.sensorUpdateInterval) {
         this.sensorUpdateInterval = setInterval(() => {
           this.updateSensorData();
         }, 2000); // Update every 2 seconds
@@ -766,7 +945,6 @@ export default {
     },
 
     stopSensorDataUpdates() {
-      // Stop sensor data updates
       if (this.sensorUpdateInterval) {
         clearInterval(this.sensorUpdateInterval);
         this.sensorUpdateInterval = null;
@@ -774,13 +952,15 @@ export default {
     },
 
     updateSensorData() {
-      // Simulate sensor data updates
-      this.sensorData = {
-        temperature: this.generateRandomValue(20, 30, 1),
-        motion: Math.random() > 0.8,
-        humidity: this.generateRandomValue(40, 80, 1),
-        pressure: this.generateRandomValue(980, 1020, 1)
-      };
+      // Simulate sensor data updates only when WebSocket is not connected
+      if (!this.deviceControlConnected) {
+        this.sensorData = {
+          temperature: this.generateRandomValue(20, 30, 1),
+          motion: Math.random() > 0.8,
+          humidity: this.generateRandomValue(40, 80, 1),
+          pressure: this.generateRandomValue(980, 1020, 1)
+        };
+      }
     },
 
     generateRandomValue(min, max, precision = 0) {

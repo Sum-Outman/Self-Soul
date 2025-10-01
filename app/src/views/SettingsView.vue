@@ -1119,7 +1119,7 @@ export default {
     // Load training status for all models
     const loadTrainingStatus = async () => {
       try {
-        const response = await api.get('/api/training/sessions')
+        const response = await api.models.trainingStatus()
         const data = response.data
         // Update models with training status
         models.value.forEach(model => {
@@ -1146,7 +1146,7 @@ export default {
     // Load available datasets for training
     const loadDatasets = async () => {
       try {
-        const response = await api.get('/api/datasets')
+        const response = await api.datasets.get()
         const data = response.data
         availableDatasets.value = data.datasets || []
         if (availableDatasets.value.length > 0) {
@@ -1200,7 +1200,7 @@ export default {
           },
           source: 'local'
         },
-        // 知识模型
+        // Knowledge Model
         {
           id: 'knowledge',
           name: 'Knowledge Model',
@@ -1219,7 +1219,7 @@ export default {
           },
           source: 'local'
         },
-        // 视觉模型
+        // Vision Model
         {
           id: 'vision',
           name: 'Vision Model',
@@ -1233,7 +1233,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 音频模型
+        // Audio Model
         {
           id: 'audio',
           name: 'Audio Model',
@@ -1247,7 +1247,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 自主模型
+        // Autonomous Model
         {
           id: 'autonomous',
           name: 'Autonomous Model',
@@ -1261,7 +1261,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 编程模型
+        // Programming Model
         {
           id: 'programming',
           name: 'Programming Model',
@@ -1275,7 +1275,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 规划模型
+        // Planning Model
         {
           id: 'planning',
           name: 'Planning Model',
@@ -1289,7 +1289,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 情感模型
+        // Emotion Model
         {
           id: 'emotion',
           name: 'Emotion Model',
@@ -1303,7 +1303,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 空间模型
+        // Spatial Model
         {
           id: 'spatial',
           name: 'Spatial Model',
@@ -1317,7 +1317,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 计算机视觉模型
+        // Computer Vision Model
         {
           id: 'computer_vision',
           name: 'Computer Vision Model',
@@ -1331,7 +1331,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 传感器模型
+        // Sensor Model
         {
           id: 'sensor',
           name: 'Sensor Model',
@@ -1345,7 +1345,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 运动模型
+        // Motion Model
         {
           id: 'motion',
           name: 'Motion Model',
@@ -1359,7 +1359,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 预测模型
+        // Prediction Model
         {
           id: 'prediction',
           name: 'Prediction Model',
@@ -1373,7 +1373,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 高级推理模型
+        // Advanced Reasoning Model
         {
           id: 'advanced_reasoning',
           name: 'Advanced Reasoning Model',
@@ -1387,7 +1387,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 数据融合模型
+        // Data Fusion Model
         {
           id: 'data_fusion',
           name: 'Data Fusion Model',
@@ -1401,7 +1401,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 创造性问题解决模型
+        // Creative Problem Solving Model
         {
           id: 'creative_solving',
           name: 'Creative Problem Solving Model',
@@ -1415,7 +1415,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 元认知模型
+        // Meta Cognition Model
         {
           id: 'meta_cognition',
           name: 'Meta Cognition Model',
@@ -1429,7 +1429,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 值对齐模型
+        // Value Alignment Model
         {
           id: 'value_alignment',
           name: 'Value Alignment Model',
@@ -1443,7 +1443,7 @@ export default {
           version: '1.0.0',
           source: 'local'
         },
-        // 外部API模型
+        // External API Model
         {
           id: 'openai',
           name: 'OpenAI API',
@@ -2207,7 +2207,7 @@ export default {
       
       pollInterval = setInterval(async () => {
         try {
-          const response = await api.get(`/api/models/${selectedModelForTraining.value.id}/train/status`)
+          const response = await api.models.trainingStatusById(selectedModelForTraining.value.id)
           const data = response.data
           
           trainingProgress.value = data.progress || 0

@@ -244,7 +244,7 @@ export default {
 
 .emotion-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4a86e8, #42b983, #ff6b6b);
+  background: var(--primary-color);
   border-radius: 10px;
   transition: width 0.5s ease;
 }

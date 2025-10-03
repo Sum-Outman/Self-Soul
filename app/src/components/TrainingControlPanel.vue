@@ -109,10 +109,24 @@
     </div>
 
     <div class="actions">
-      <button @click="startTraining" :disabled="isTraining">
+      <button @click="prepareModelsForTraining" :disabled="isPreparing || isTraining">
+          {{ isPreparing ? 'Preparing Models...' : 'Prepare Models' }}
+        </button>
+        <button @click="startTraining" :disabled="isTraining || !allModelsPrepared">
           {{ isTraining ? 'Training in Progress' : 'Start Training' }}
         </button>
         <button @click="stopTraining" :disabled="!isTraining">Stop Training</button>
+    </div>
+
+    <div class="model-preparation" v-if="isPreparing">
+        <h3>Model Preparation</h3>
+        <div v-for="model in modelPreparationStatus" :key="model.id" class="preparation-item">
+          <div class="model-name">{{ getModelName(model.id) }} - {{ model.status }}</div>
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: `${model.progress}%` }" :class="getStatusClass(model.status)"></div>
+          <span>{{ model.progress }}%</span>
+        </div>
+      </div>
     </div>
 
     <div class="training-progress" v-if="isTraining">
@@ -192,12 +206,29 @@ export default {
       batchSize: 32,
       validationSplit: 0.2,
       isTraining: false,
+      isPreparing: false,
       trainingProgress: [],
       trainingMetrics: [],
       trainingInterval: null,
       jobId: null,
-      pollingInterval: null
+      pollingInterval: null,
+      preparationInterval: null,
+      modelPreparationStatus: []
     };
+  },
+  computed: {
+    allModelsPrepared() {
+      // Check if all selected models are prepared
+      if (!this.modelPreparationStatus || this.modelPreparationStatus.length === 0) {
+        return false;
+      }
+      
+      // Ensure every selected model has preparation status
+      return this.selectedModels.every(modelId => {
+        const status = this.modelPreparationStatus.find(m => m.id === modelId);
+        return status && status.status === 'PREPARED';
+      });
+    }
   },
   methods: {
     // Get model name by ID without i18n dependency
@@ -283,9 +314,118 @@ export default {
         });
       }
     },
+    async prepareModelsForTraining() {
+      try {
+        this.isPreparing = true;
+        this.modelPreparationStatus = this.selectedModels.map(modelId => ({
+          id: modelId,
+          status: 'PREPARING',
+          progress: 0
+        }));
+        
+        // Start preparing each selected model
+        for (const modelId of this.selectedModels) {
+          await this.prepareModel(modelId);
+        }
+        
+        this.isPreparing = false;
+        this.$notify({
+          title: 'Model Preparation Complete',
+          message: 'All selected models are prepared for training',
+          type: 'success'
+        });
+      } catch (error) {
+        console.error('Model preparation failed:', error);
+        this.$notify({
+          title: 'Error',
+          message: error.message || 'Failed to prepare models',
+          type: 'error'
+        });
+        this.isPreparing = false;
+      }
+    },
+    
+    async prepareModel(modelId) {
+      try {
+        // Get model source
+        const source = this.modelSources[modelId] || 'local';
+        
+        // If it's an external model, check connection first
+        if (source === 'external') {
+          const config = this.externalConfigs[modelId];
+          if (!config.endpoint || !config.apiKey) {
+            throw new Error(`Missing configuration for external model ${modelId}`);
+          }
+          
+          // Test connection if not already tested
+          const status = this.connectionStatus[modelId];
+          if (!status || status.status !== 'success') {
+            await this.testConnection(modelId);
+            
+            // Check connection status after testing
+            const newStatus = this.connectionStatus[modelId];
+            if (!newStatus || newStatus.status !== 'success') {
+              throw new Error(`Connection test failed for model ${modelId}`);
+            }
+          }
+        }
+        
+        // Update preparation status
+        this.updatePreparationStatus(modelId, 'PREPARING', 30);
+        
+        // Send request to prepare model for training
+        const response = await api.post('/api/training/prepare', {
+          model_id: modelId,
+          source: source,
+          config: source === 'external' ? this.externalConfigs[modelId] : null
+        });
+        
+        if (response.data.success) {
+          this.updatePreparationStatus(modelId, 'PREPARED', 100);
+        } else {
+          throw new Error(response.data.message || `Failed to prepare model ${modelId}`);
+        }
+      } catch (error) {
+        console.error(`Failed to prepare model ${modelId}:`, error);
+        this.updatePreparationStatus(modelId, 'FAILED', 0);
+        throw error;
+      }
+    },
+    
+    updatePreparationStatus(modelId, status, progress) {
+      const modelIndex = this.modelPreparationStatus.findIndex(m => m.id === modelId);
+      if (modelIndex !== -1) {
+        this.modelPreparationStatus[modelIndex] = {
+          ...this.modelPreparationStatus[modelIndex],
+          status,
+          progress
+        };
+      }
+    },
+    
+    getStatusClass(status) {
+      switch(status) {
+        case 'PREPARED':
+          return 'success';
+        case 'FAILED':
+          return 'error';
+        default:
+          return '';
+      }
+    },
     
     async startTraining() {
       try {
+        // Check if all models are prepared
+        if (!this.allModelsPrepared) {
+          this.$notify({
+            title: 'Error',
+            message: 'All models must be prepared before training',
+            type: 'error'
+          });
+          return;
+        }
+        
         this.isTraining = true;
         
         // Build training configuration
@@ -787,6 +927,18 @@ export default {
   background-color: #f78989;
 }
 
+.model-preparation {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preparation-item {
+  margin: 12px 0;
+}
+
 .training-progress {
   margin-top: 20px;
 }
@@ -811,12 +963,20 @@ export default {
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #67c23a, #85ce61);
+  background: linear-gradient(90deg, #409eff, #66b1ff);
   border-radius: 12px;
   transition: width 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.progress.success {
+  background: linear-gradient(90deg, #67c23a, #85ce61);
+}
+
+.progress.error {
+  background: linear-gradient(90deg, #f56c6c, #f78989);
 }
 
 .progress-bar span {

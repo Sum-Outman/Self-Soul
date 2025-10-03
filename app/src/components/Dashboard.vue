@@ -85,31 +85,22 @@
 </template>
 
 <script>
+import api from '../utils/api.js';
+
 export default {
   name: 'Dashboard',
   data() {
     return {
-      cpuUsage: 45,
-      memoryUsage: 60,
-      gpuUsage: 30,
-      models: [
-        { name: 'Language Model', accuracy: 92, latency: 120, status: 'active' },
-        { name: 'Audio Model', accuracy: 85, latency: 150, status: 'active' },
-        { name: 'Image Model', accuracy: 88, latency: 200, status: 'active' },
-        { name: 'Video Model', accuracy: 78, latency: 250, status: 'warning' },
-        { name: 'Spatial Model', accuracy: 90, latency: 180, status: 'active' },
-        { name: 'Sensor Model', accuracy: 95, latency: 100, status: 'active' },
-        { name: 'Knowledge Model', accuracy: 96, latency: 300, status: 'active' },
-        { name: 'Programming Model', accuracy: 82, latency: 220, status: 'warning' }
-      ],
-      sensors: [
-        { id: 'temp', name: 'Temperature', value: 25.5, unit: '°C', status: 'normal' },
-        { id: 'humidity', name: 'Humidity', value: 45, unit: '%', status: 'normal' },
-        { id: 'pressure', name: 'Pressure', value: 1013, unit: 'hPa', status: 'normal' },
-        { id: 'light', name: 'Light', value: 850, unit: 'lux', status: 'normal' }
-      ],
+      cpuUsage: 0,
+      memoryUsage: 0,
+      gpuUsage: 0,
+      models: [],
+      sensors: [],
       emotionValue: 50,
-      emotionState: 'Neutral'
+      emotionState: 'Neutral',
+      loading: true,
+      error: null,
+      updateInterval: null
     }
   },
   methods: {
@@ -118,50 +109,91 @@ export default {
         active: 'Active',
         warning: 'Warning',
         error: 'Error',
-        normal: 'Normal'
+        normal: 'Normal',
+        idle: 'Idle',
+        training: 'Training',
+        connected: 'Connected',
+        disconnected: 'Disconnected'
       };
       return statusMap[status] || status;
+    },
+    
+    async loadSystemStats() {
+      try {
+        const response = await api.system.stats();
+        const stats = response.data;
+        this.cpuUsage = stats.cpu_usage || 0;
+        this.memoryUsage = stats.memory_usage || 0;
+        this.gpuUsage = stats.gpu_usage || 0;
+      } catch (error) {
+        console.error('Failed to load system stats:', error);
+        // 设置默认值，如果后端不可用
+        this.cpuUsage = 25;
+        this.memoryUsage = 45;
+        this.gpuUsage = 15;
+      }
+    },
+    
+    async loadModels() {
+      try {
+        const response = await api.models.get();
+        this.models = response.data.models || [];
+      } catch (error) {
+        console.error('Failed to load models:', error);
+        // 如果后端不可用，显示空模型列表
+        this.models = [];
+      }
+    },
+    
+    async loadSensors() {
+      try {
+        const response = await api.devices.getSensors();
+        this.sensors = response.data.sensors || [];
+      } catch (error) {
+        console.error('Failed to load sensors:', error);
+        // 如果后端不可用，显示空传感器列表
+        this.sensors = [];
+      }
+    },
+    
+    async loadAllData() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        await Promise.all([
+          this.loadSystemStats(),
+          this.loadModels(),
+          this.loadSensors()
+        ]);
+      } catch (error) {
+        this.error = 'Failed to load dashboard data. Please check if the backend server is running.';
+        console.error('Dashboard data loading error:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    startRealTimeUpdates() {
+      // 每5秒更新一次数据
+      this.updateInterval = setInterval(() => {
+        this.loadAllData();
+      }, 5000);
+    },
+    
+    stopRealTimeUpdates() {
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+        this.updateInterval = null;
+      }
     }
   },
-  mounted() {
-    // Simulate real-time data updates
-    setInterval(() => {
-      this.cpuUsage = Math.min(100, Math.max(10, this.cpuUsage + (Math.random() - 0.5) * 5));
-      this.memoryUsage = Math.min(100, Math.max(20, this.memoryUsage + (Math.random() - 0.5) * 3));
-      this.gpuUsage = Math.min(100, Math.max(15, this.gpuUsage + (Math.random() - 0.5) * 4));
-      
-      // Update sensor data
-      this.sensors.forEach(sensor => {
-        if (sensor.id === 'temp') {
-          sensor.value = (25 + Math.random() * 5).toFixed(1);
-        } else if (sensor.id === 'humidity') {
-          sensor.value = Math.floor(40 + Math.random() * 20);
-        } else if (sensor.id === 'pressure') {
-          sensor.value = Math.floor(1000 + Math.random() * 30);
-        } else if (sensor.id === 'light') {
-          sensor.value = Math.floor(800 + Math.random() * 200);
-        }
-      });
-      
-      // Randomly update model status
-      this.models.forEach(model => {
-        if (Math.random() > 0.9) {
-          model.status = Math.random() > 0.5 ? 'warning' : 'error';
-        } else if (Math.random() > 0.8) {
-          model.status = 'active';
-        }
-      });
-      
-      // Update emotion state
-      this.emotionValue = Math.max(0, Math.min(100, this.emotionValue + (Math.random() - 0.5) * 10));
-      if (this.emotionValue > 70) {
-        this.emotionState = 'Excited';
-      } else if (this.emotionValue > 40) {
-        this.emotionState = 'Neutral';
-      } else {
-        this.emotionState = 'Calm';
-      }
-    }, 2000);
+  async mounted() {
+    await this.loadAllData();
+    this.startRealTimeUpdates();
+  },
+  beforeUnmount() {
+    this.stopRealTimeUpdates();
   }
 }
 </script>

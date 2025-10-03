@@ -3,7 +3,7 @@
     <!-- Top Navigation Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Brain</span>
+        <span class="system-title">Self Soul</span>
       </div>
       <div class="menu-right">
         <!-- Function Buttons -->
@@ -28,7 +28,7 @@
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import errorHandler from '@/utils/errorHandler'
+import { handleError } from '@/utils/errorHandler'
 import api from '@/utils/api.js'
 
 export default {
@@ -77,14 +77,21 @@ export default {
       }
     }
     
+    // Named error handlers for proper removal in onUnmounted
+    const globalErrorHandler = (error) => {
+      handleError(error, 'Global');
+    };
+    
+    const unhandledRejectionHandler = (event) => {
+      event.preventDefault();
+      handleError(event.reason, 'Unhandled Promise');
+    };
+    
     // Life cycle hooks
     onMounted(() => {
-      // Register error handler
-      window.addEventListener('error', (error) => errorHandler.handleError(error, 'Global'))
-      window.addEventListener('unhandledrejection', (event) => {
-        event.preventDefault();
-        errorHandler.handleError(event.reason, 'Unhandled Promise');
-      })
+      // Register error handlers
+      window.addEventListener('error', globalErrorHandler);
+      window.addEventListener('unhandledrejection', unhandledRejectionHandler);
       
       // Periodically check server connection
       connectionInterval = setInterval(() => {
@@ -97,14 +104,13 @@ export default {
     
     onUnmounted(() => {
       // Clear interval
-      clearInterval(connectionInterval)
+      if (connectionInterval) {
+        clearInterval(connectionInterval);
+      }
       
-      // Remove event listeners
-      window.removeEventListener('error', (error) => errorHandler.handleError(error, 'Global'))
-      window.removeEventListener('unhandledrejection', (event) => {
-        event.preventDefault();
-        errorHandler.handleError(event.reason, 'Unhandled Promise');
-      })
+      // Remove event listeners properly
+      window.removeEventListener('error', globalErrorHandler);
+      window.removeEventListener('unhandledrejection', unhandledRejectionHandler);
     })
     
     return {

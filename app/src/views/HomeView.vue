@@ -120,35 +120,9 @@ export default {
       backendStatus: 'disconnected',
       recognition: null,
       videoInput: null,
-      modelPerformanceData: [
-        { id: 'manager', status: 'active', performance: 95 },
-        { id: 'language', status: 'active', performance: 92 },
-        { id: 'audio', status: 'active', performance: 88 },
-        { id: 'vision_image', status: 'active', performance: 90 },
-        { id: 'vision_video', status: 'active', performance: 85 },
-        { id: 'spatial', status: 'active', performance: 82 },
-        { id: 'sensor', status: 'active', performance: 87 },
-        { id: 'computer', status: 'active', performance: 93 },
-        { id: 'motion', status: 'active', performance: 80 },
-        { id: 'knowledge', status: 'active', performance: 89 },
-        { id: 'programming', status: 'active', performance: 91 }
-      ],
-      // models array synchronized with modelPerformanceData
-      models: [
-        { id: 'manager', status: 'active', performance: 95 },
-        { id: 'language', status: 'active', performance: 92 },
-        { id: 'audio', status: 'active', performance: 88 },
-        { id: 'vision_image', status: 'active', performance: 90 },
-        { id: 'vision_video', status: 'active', performance: 85 },
-        { id: 'spatial', status: 'active', performance: 82 },
-        { id: 'sensor', status: 'active', performance: 87 },
-        { id: 'computer', status: 'active', performance: 93 },
-        { id: 'motion', status: 'active', performance: 80 },
-        { id: 'knowledge', status: 'active', performance: 89 },
-        { id: 'programming', status: 'active', performance: 91 }
-      ],
+      modelPerformanceData: [],
+      models: [],
       modelConnectionStatus: 'unknown',
-      // Add missing status
       managementModel: {
         name: 'A Management Model',
         status: 'inactive',
@@ -156,19 +130,11 @@ export default {
       },
       connectedText: '',
       activeModels: 0,
-      // Multi-camera support data
-      cameras: [
-        { id: 'camera1', name: 'Left Camera', status: 'available', active: false, stream: null },
-        { id: 'camera2', name: 'Right Camera', status: 'available', active: false, stream: null },
-        { id: 'camera3', name: 'Depth Camera', status: 'available', active: false, stream: null }
-      ],
-      // External devices and sensors data
-      externalDevices: [
-        { id: 'sensor1', name: 'Temperature Sensor', status: 'available', connected: false, type: 'sensor' },
-        { id: 'sensor2', name: 'Motion Sensor', status: 'available', connected: false, type: 'sensor' },
-        { id: 'device1', name: 'Robotic Arm', status: 'available', connected: false, type: 'actuator' },
-        { id: 'device2', name: 'LED Controller', status: 'available', connected: false, type: 'actuator' }
-      ],
+      // Multi-camera support data - initialize as empty, will be populated from real API
+      // Multi-camera support data - initialize as empty, will be populated from real API
+      cameras: [],
+      // External devices and sensors data - initialize as empty, will be populated from real API
+      externalDevices: [],
       // Sensor data storage
       sensorData: {
         temperature: null,
@@ -181,8 +147,7 @@ export default {
       deviceControlConnected: false,
       deviceControlReconnectInterval: null,
       deviceControlPingInterval: null,
-      webSocketErrorNotified: false,
-      mockDeviceUpdateInterval: null
+      webSocketErrorNotified: false
     };
   },
   mounted() {
@@ -202,7 +167,10 @@ export default {
     this.setupRealTimeInputListeners();
     
     // Initialize device control WebSocket connection
-    this.connectDeviceControlWebSocket();
+    this.initializeDeviceControl();
+    
+    // Load real device data from backend
+    this.loadDeviceData();
   },
   beforeUnmount() {
     // Remove event listeners when component is unmounted
@@ -210,11 +178,8 @@ export default {
     
     // Clean up device control WebSocket connection
     this.disconnectDeviceControlWebSocket();
-    
-    // Stop sensor data updates
-    this.stopSensorDataUpdates();
   },
-    computed: {
+  computed: {
       // Calculate active model count
       activeModelsCount() {
         const count = this.modelPerformanceData.filter(model => model.status === 'active').length;
@@ -240,6 +205,12 @@ export default {
       }
     },
     methods: {
+      // Initialize device control system
+      initializeDeviceControl() {
+        // Start real WebSocket connection
+        this.connectDeviceControlWebSocket();
+      },
+      
       // Add system message
       addSystemMessage(content) {
         const systemMessage = {
@@ -659,56 +630,62 @@ export default {
 
     // Device control WebSocket management
     connectDeviceControlWebSocket() {
-      // Skip WebSocket connection and use mock functionality instead
-      // This prevents "Device control WebSocket error" messages
-      console.log('Using mock device control functionality instead of WebSocket connection');
-      this.deviceControlConnected = false; // Mark as disconnected to trigger mock behavior
-      this.addSystemMessage('Device control system: Using mock functionality');
+      // Clear any existing mock intervals
+      this.disconnectDeviceControlWebSocket();
       
-      // Start mock device updates to simulate real-time data
-      this.startMockDeviceUpdates();
-      
-      // Cancel any pending reconnection attempts
-      if (this.deviceControlReconnectInterval) {
-        clearInterval(this.deviceControlReconnectInterval);
-        this.deviceControlReconnectInterval = null;
+      try {
+        // Create real WebSocket connection
+        const wsUrl = `ws://localhost:8080/ws/device-control`;
+        this.deviceControlWebSocket = new WebSocket(wsUrl);
+        
+        this.deviceControlWebSocket.onopen = () => {
+          console.log('Device control WebSocket connection established');
+          this.deviceControlConnected = true;
+          this.addSystemMessage('Device control system: Connected');
+          
+          // Start ping to keep connection alive
+          this.startDeviceControlPing();
+          
+          // Request initial device status
+          this.requestDeviceStatus();
+          
+          // Cancel any pending reconnection attempts
+          if (this.deviceControlReconnectInterval) {
+            clearInterval(this.deviceControlReconnectInterval);
+            this.deviceControlReconnectInterval = null;
+          }
+        };
+        
+        this.deviceControlWebSocket.onmessage = this.handleDeviceControlMessage.bind(this);
+        
+        this.deviceControlWebSocket.onclose = () => {
+          console.log('Device control WebSocket connection closed');
+          this.deviceControlConnected = false;
+          this.deviceControlWebSocket = null;
+          this.addSystemMessage('Device control system: Disconnected');
+          
+          // Stop ping interval
+          this.stopDeviceControlPing();
+          
+          // Set up reconnection
+          this.setupReconnection();
+        };
+        
+        this.deviceControlWebSocket.onerror = (error) => {
+          console.error('Device control WebSocket error:', error);
+          this.addSystemMessage('Device control system: Connection error');
+        };
+      } catch (error) {
+        console.error('Failed to create WebSocket connection:', error);
+        this.addSystemMessage('Device control system: Failed to connect');
+        this.setupReconnection();
       }
-      
-      // Stop ping interval if running
-      this.stopDeviceControlPing();
     },
     
-    // Start mock device updates to simulate real-time data
-    startMockDeviceUpdates() {
-      if (this.mockDeviceUpdateInterval) {
-        clearInterval(this.mockDeviceUpdateInterval);
-      }
-      
-      // Generate mock sensor updates every 3 seconds
-      this.mockDeviceUpdateInterval = setInterval(() => {
-        this.generateMockSensorData();
-      }, 3000);
-    },
-    
-    // Generate mock sensor data to simulate real-time updates
-    generateMockSensorData() {
-      // Update temperature sensor data
-      if (this.externalDevices.find(d => d.id === 'sensor1')?.connected) {
-        const baseTemp = 25.0;
-        const variation = (Math.random() - 0.5) * 1.0; // Random variation between -0.5 and 0.5
-        this.sensorData.temperature = parseFloat((baseTemp + variation).toFixed(1));
-      }
-      
-      // Randomly trigger motion sensor (5% probability)
-      if (this.externalDevices.find(d => d.id === 'sensor2')?.connected) {
-        const motionDetected = Math.random() < 0.05;
-        if (motionDetected && !this.sensorData.motion) {
-          this.sensorData.motion = true;
-          // Reset motion after a short delay
-          setTimeout(() => {
-            this.sensorData.motion = false;
-          }, 2000);
-        }
+    // Request initial device status from server
+    requestDeviceStatus() {
+      if (this.deviceControlWebSocket && this.deviceControlWebSocket.readyState === WebSocket.OPEN) {
+        this.deviceControlWebSocket.send(JSON.stringify({ type: 'request_status' }));
       }
     },
 
@@ -848,9 +825,9 @@ export default {
         this.deviceControlWebSocket.send(JSON.stringify(command));
         return true;
       } else {
-        // Fallback to mock behavior if WebSocket is not connected
-        console.warn('Device control WebSocket not connected, using mock behavior');
-        return this.handleDeviceCommandFallback(deviceId, action, params);
+        console.warn('Device control WebSocket not connected');
+        this.addSystemMessage('Device control system: Not connected, command not sent');
+        return false;
       }
     },
 
@@ -896,86 +873,50 @@ export default {
       this.sendDeviceControlCommand('device2', 'control', { brightness, color });
     },
 
-    // Fallback methods for when WebSocket is not available
-    handleDeviceCommandFallback(deviceId, action, params) {
+    // Enhanced message handling from WebSocket
+    handleDeviceControlMessage(event) {
       try {
-        if (action === 'toggle') {
-          const camera = this.cameras.find(cam => cam.id === deviceId);
-          if (camera) {
-            camera.active = !camera.active;
-            if (camera.active) {
-              camera.status = 'active';
-              camera.stream = `stream_${deviceId}_${Date.now()}`;
-              this.addSystemMessage(`${camera.name} started (mock)`);
-            } else {
-              camera.status = 'available';
-              camera.stream = null;
-              this.addSystemMessage(`${camera.name} stopped (mock)`);
-            }
-            return true;
-          }
-          
-          const device = this.externalDevices.find(dev => dev.id === deviceId);
-          if (device) {
-            device.connected = !device.connected;
-            device.status = device.connected ? 'connected' : 'available';
-            this.addSystemMessage(`${device.name} ${device.connected ? 'connected' : 'disconnected'} (mock)`);
-            return true;
-          }
-        } else if (action === 'configure') {
-          const camera = this.cameras.find(cam => cam.id === deviceId);
-          if (camera) {
-            camera.config = params;
-            this.addSystemMessage(`${camera.name} configured (mock)`);
-            return true;
-          }
-          
-          const device = this.externalDevices.find(dev => dev.id === deviceId);
-          if (device) {
-            device.config = params;
-            this.addSystemMessage(`${device.name} configured (mock)`);
-            return true;
-          }
+        const message = JSON.parse(event.data);
+        
+        if (message.type === 'initial_status') {
+          // Update device states from initial status
+          this.updateDeviceStates(message.devices);
+          this.addSystemMessage('Device control: Initial status received');
+        } else if (message.type === 'command_response') {
+          // Handle command response
+          this.handleCommandResponse(message);
+        } else if (message.type === 'sensor_update') {
+          // Update sensor data
+          this.updateSensorDataFromServer(message.device_id, message.data);
+        } else if (message.type === 'device_update') {
+          // Update single device status
+          const deviceData = {[message.device_id]: message.data};
+          this.updateDeviceStates(deviceData);
+        } else if (message.type === 'system_message') {
+          // Add system message
+          this.addSystemMessage(message.content);
+        } else if (message.type === 'pong') {
+          // Just acknowledge pong responses
+        } else {
+          console.log('Received unknown WebSocket message type:', message.type);
         }
-        return false;
       } catch (error) {
-        console.error('Fallback device control failed:', error);
-        return false;
+        console.error('Failed to parse device control message:', error);
       }
     },
-
-    // Sensor data management - now only for fallback mode
-    startSensorDataUpdates() {
-      // Only start updates if WebSocket is not connected
-      if (!this.deviceControlConnected && !this.sensorUpdateInterval) {
-        this.sensorUpdateInterval = setInterval(() => {
-          this.updateSensorData();
-        }, 2000); // Update every 2 seconds
+    
+    // Update sensor data from server
+    updateSensorDataFromServer(deviceId, data) {
+      // Update sensor data based on device ID and data received
+      if (deviceId === 'sensor1') {
+        this.sensorData.temperature = data.value;
+      } else if (deviceId === 'sensor2') {
+        this.sensorData.motion = data.value;
+      } else if (deviceId === 'sensor3') {
+        this.sensorData.humidity = data.value;
+      } else if (deviceId === 'sensor4') {
+        this.sensorData.pressure = data.value;
       }
-    },
-
-    stopSensorDataUpdates() {
-      if (this.sensorUpdateInterval) {
-        clearInterval(this.sensorUpdateInterval);
-        this.sensorUpdateInterval = null;
-      }
-    },
-
-    updateSensorData() {
-      // Simulate sensor data updates only when WebSocket is not connected
-      if (!this.deviceControlConnected) {
-        this.sensorData = {
-          temperature: this.generateRandomValue(20, 30, 1),
-          motion: Math.random() > 0.8,
-          humidity: this.generateRandomValue(40, 80, 1),
-          pressure: this.generateRandomValue(980, 1020, 1)
-        };
-      }
-    },
-
-    generateRandomValue(min, max, precision = 0) {
-      const value = Math.random() * (max - min) + min;
-      return precision === 0 ? Math.round(value) : Number(value.toFixed(precision));
     },
 
     // Set up real-time input listeners
@@ -984,22 +925,49 @@ export default {
       // Event listeners are already bound via @ in the template, additional initialization logic can be added here
     },
     
-    async startVoiceInput() {
+    async startVoiceRecognition() {
       this.isVoiceInputActive = !this.isVoiceInputActive;
       if (this.isVoiceInputActive) {
         try {
           // Check if speech recognition is initialized
           if (this.recognition) {
+            // Configure speech recognition
+            this.recognition.continuous = false;
+            this.recognition.interimResults = false;
+            this.recognition.lang = 'en-US';
+            
+            this.recognition.onresult = (event) => {
+              const transcript = event.results[0][0].transcript;
+              if (transcript.trim()) {
+                this.inputText = transcript;
+                this.addSystemMessage(`Voice input received: ${transcript}`);
+                // Auto send message after a short delay
+                setTimeout(() => {
+                  this.sendMessage();
+                }, 500);
+              }
+            };
+            
+            this.recognition.onerror = (event) => {
+              errorHandler.handleError(new Error(event.error), 'Speech recognition error');
+              this.addSystemMessage(`Speech recognition error: ${event.error}`);
+              this.isVoiceInputActive = false;
+            };
+            
+            this.recognition.onend = () => {
+              this.isVoiceInputActive = false;
+            };
+            
             // Start speech recognition
             this.recognition.start();
             errorHandler.logInfo('Starting speech recognition...');
             
             // Add system message for speech recognition start
-            this.addSystemMessage('Speech recognition started');
+            this.addSystemMessage('Speech recognition started - speak now');
           } else {
             // If speech recognition is not available, notify user
             errorHandler.logWarning('Speech recognition feature is not available');
-            this.addSystemMessage('Speech recognition is not available');
+            this.addSystemMessage('Speech recognition is not available in this browser');
             this.isVoiceInputActive = false;
           }
         } catch (error) {
@@ -1013,6 +981,7 @@ export default {
         if (this.recognition && this.recognition.stop) {
           this.recognition.stop();
         }
+        this.addSystemMessage('Speech recognition stopped');
       }
     },
     
@@ -1202,6 +1171,77 @@ export default {
           // Clear file input
           event.target.value = '';
         }
+      }
+    },
+    
+    // Initialize WebSocket and device control systems
+    initializeDeviceControl() {
+      // Connect to device control WebSocket
+      this.connectDeviceControlWebSocket();
+      
+      // Vue 3 compatible - cleanup will be handled by onBeforeUnmount hook
+      // Removed this.$once which is not supported in Vue 3
+    },
+    
+    // Load device data from backend API
+    async loadDeviceData() {
+      try {
+        errorHandler.logInfo('Loading device data from backend...');
+        
+        // Load cameras data
+        const camerasResponse = await api.get('/api/devices/cameras');
+        if (camerasResponse.data.status === 'success') {
+          this.cameras = camerasResponse.data.data || [];
+          errorHandler.logInfo(`Loaded ${this.cameras.length} cameras`);
+        } else {
+          throw new Error('Failed to load cameras data');
+        }
+        
+        // Load external devices data
+        const devicesResponse = await api.get('/api/devices/external');
+        if (devicesResponse.data.status === 'success') {
+          this.externalDevices = devicesResponse.data.data || [];
+          errorHandler.logInfo(`Loaded ${this.externalDevices.length} external devices`);
+        } else {
+          throw new Error('Failed to load external devices data');
+        }
+        
+        this.addSystemMessage(`Device data loaded: ${this.cameras.length} cameras, ${this.externalDevices.length} external devices`);
+        
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to load device data');
+        this.addSystemMessage('Failed to load device data from backend');
+        
+        // Fallback: initialize with empty arrays to avoid UI errors
+        this.cameras = [];
+        this.externalDevices = [];
+      }
+    },
+    
+    // Process user input based on type
+    async processUserInput(inputData, inputType) {
+      try {
+        errorHandler.logInfo(`Processing ${inputType} input`);
+        
+        const payload = {
+          data: inputData,
+          type: inputType,
+          session_id: this.getSessionId(),
+          timestamp: new Date().toISOString()
+        };
+        
+        const response = await api.post('/api/process/input', payload, {
+          timeout: 60000
+        });
+        
+        if (response.data.status === 'success') {
+          return response.data.data;
+        } else {
+          throw new Error(response.data.detail || `Failed to process ${inputType} input`);
+        }
+      } catch (error) {
+        errorHandler.handleError(error, `Failed to process ${inputType} input`);
+        return `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} processing failed due to connection issues`;
       }
     }
   }

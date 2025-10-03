@@ -862,49 +862,28 @@ export default {
         modelsLoading.value = true;
         modelsError.value = null;
         
-        // Always use mock models to ensure all 19 system models are available
-        // This ensures all models defined in model_services_config.json are displayed
-        loadMockModels();
+        // Use real API to fetch available models
+        const response = await api.get('/api/models/available');
         
-        // Display information message
-        showInfo('Models loaded successfully');
+        if (response.data.status === 'success') {
+          availableModels.value = response.data.models || [];
+          showInfo('Models loaded successfully from backend');
+        } else {
+          throw new Error(response.data.message || 'Failed to load models');
+        }
       } catch (error) {
         // Log error
         console.error('Error loading models:', error);
-        showWarning('Failed to load models. Please refresh the page.');
-        loadMockModels();
+        errorHandler.handleError(error, 'Failed to load models');
+        showError('Failed to load models from backend. Please ensure the backend service is running.');
+        
+        // Initialize with empty array instead of mock data
+        availableModels.value = [];
       } finally {
         modelsLoading.value = false;
       }
     };
     
-    // Load mock models when backend is unavailable
-    const loadMockModels = () => {
-      // Mock models representing all 19 system models with names and IDs matching modelDependencies
-      const mockModels = [
-        { id: 'A', name: 'Manager Model', backendId: 'manager' },
-        { id: 'B', name: 'Language Model', backendId: 'language' },
-        { id: 'C', name: 'Knowledge Model', backendId: 'knowledge' },
-        { id: 'D', name: 'Vision Model', backendId: 'vision' },
-        { id: 'E', name: 'Audio Model', backendId: 'audio' },
-        { id: 'F', name: 'Autonomous Model', backendId: 'autonomous' },
-        { id: 'G', name: 'Programming Model', backendId: 'programming' },
-        { id: 'H', name: 'Planning Model', backendId: 'planning' },
-        { id: 'I', name: 'Emotion Model', backendId: 'emotion' },
-        { id: 'J', name: 'Spatial Model', backendId: 'spatial' },
-        { id: 'K', name: 'Computer Vision Model', backendId: 'computer_vision' },
-        { id: 'L', name: 'Sensor Model', backendId: 'sensor' },
-        { id: 'M', name: 'Motion Model', backendId: 'motion' },
-        { id: 'N', name: 'Prediction Model', backendId: 'prediction' },
-        { id: 'O', name: 'Advanced Reasoning Model', backendId: 'advanced_reasoning' },
-        { id: 'P', name: 'Data Fusion Model', backendId: 'data_fusion' },
-        { id: 'Q', name: 'Creative Problem Solving Model', backendId: 'creative_solving' },
-        { id: 'R', name: 'Meta Cognition Model', backendId: 'meta_cognition' },
-        { id: 'S', name: 'Value Alignment Model', backendId: 'value_alignment' }
-      ];
-      
-      availableModels.value = mockModels;
-    }
     
     // Selected models
     const selectedModels = ref(['B', 'C']);
@@ -1279,139 +1258,7 @@ export default {
       }
     };
     
-    // Simulate training process - provide demo data when API is unavailable
-    const simulateTrainingProcess = () => {
-        // Use mock job_id
-        currentJobId.value = 'mock_' + Date.now();
-        
-        // Simulate training parameters
-      const epochs = parameters.value.epochs || 10;
-      const delayPerEpoch = 2000; // 2 seconds per epoch
-      let currentProgress = 0;
-      let currentTrainingEpoch = 0;
-      
-        // Simulate training progress updates
-      const simulationInterval = setInterval(() => {
-        if (currentTrainingEpoch >= epochs || !isTraining.value) {
-          clearInterval(simulationInterval);
-          
-          // Generate mock evaluation results
-          const mockEvaluation = generateMockEvaluationResults();
-          evaluationResults.value = mockEvaluation;
-          
-          // Complete training
-          completeTraining();
-          return;
-        }
-        
-        currentTrainingEpoch++;
-        currentEpoch.value = currentTrainingEpoch;
-        
-          // Simulate loss and accuracy changes
-        const baseAccuracy = 50 + Math.random() * 30; // 50-80% baseline
-        const epochAccuracy = baseAccuracy + (currentTrainingEpoch * 2); // Increase about 2% per epoch
-        currentAccuracy.value = Math.min(epochAccuracy, 98); // Cap at 98%
-        
-        const baseLoss = 1.5 - Math.random() * 0.5; // 1.0-1.5 baseline
-        const epochLoss = baseLoss - (currentTrainingEpoch * 0.1); // Decrease about 0.1 per epoch
-        currentLoss.value = Math.max(epochLoss, 0.05); // Minimum 0.05
-        
-          // Update validation metrics
-        validationLoss.value = currentLoss.value * 1.1; // Validation loss slightly higher
-        validationAccuracy.value = currentAccuracy.value * 0.95; // Validation accuracy slightly lower
-        
-          // Update progress
-        currentProgress = (currentTrainingEpoch / epochs) * 100;
-        trainingProgress.value = Math.floor(currentProgress);
-        
-          // Add training logs
-        addLog(`Epoch ${currentTrainingEpoch}/${epochs} completed - Loss: ${currentLoss.value.toFixed(4)}, Accuracy: ${currentAccuracy.value.toFixed(2)}%, Validation Loss: ${validationLoss.value.toFixed(4)}, Validation Accuracy: ${validationAccuracy.value.toFixed(2)}%`);
-      }, delayPerEpoch);
-      
-      // Ensure simulation timer is cleared when stopping training
-      const stopTrainingOriginal = stopTraining;
-      const stopTrainingWithClear = () => {
-        clearInterval(simulationInterval);
-        stopTrainingOriginal();
-        // Restore original function
-        stopTraining = stopTrainingOriginal;
-      };
-      // Temporarily replace stopTraining function to ensure simulation timer is cleared
-      stopTraining = stopTrainingWithClear;
-    };
     
-    // Generate mock evaluation results
-    const generateMockEvaluationResults = () => {
-      // Generate different evaluation metrics based on selected model types
-      const selectedModelTypes = selectedModels.value.map(m => {
-        const model = availableModels.value.find(model => model.id === m);
-        return model ? model.backendId : m;
-      });
-      
-      // Base accuracy (varies based on model combination)
-      let baseAccuracy = 70 + Math.random() * 25; // 70-95%
-      let precision = 0.75 + Math.random() * 0.2;
-      let recall = 0.7 + Math.random() * 0.25;
-      let f1Score = 2 * (precision * recall) / (precision + recall);
-      
-      // Adjust metrics for different model types
-      if (selectedModelTypes.some(type => type.includes('vision') || type.includes('image'))) {
-        baseAccuracy += 5; // Vision models have slightly higher accuracy
-      }
-      if (selectedModelTypes.some(type => type.includes('language'))) {
-        precision += 0.05; // Language models have slightly higher precision
-      }
-      if (selectedModelTypes.some(type => type.includes('knowledge'))) {
-        recall += 0.05; // Knowledge models have slightly higher recall
-        f1Score = 2 * (precision * recall) / (precision + recall);
-      }
-      
-      // Generate confusion matrix (4x4 example)
-      const labels = ['Class 1', 'Class 2', 'Class 3', 'Class 4'];
-      const confusionMatrix = [];
-      
-      for (let i = 0; i < labels.length; i++) {
-        const row = [];
-        for (let j = 0; j < labels.length; j++) {
-          // Diagonal elements have larger values, off-diagonal smaller
-          if (i === j) {
-            row.push(Math.floor(80 + Math.random() * 20));
-          } else {
-            row.push(Math.floor(0 + Math.random() * 15));
-          }
-        }
-        confusionMatrix.push(row);
-      }
-      
-      // Normalize confusion matrix
-      for (let i = 0; i < confusionMatrix.length; i++) {
-        const rowSum = confusionMatrix[i].reduce((a, b) => a + b, 0);
-        if (rowSum > 0) {
-          for (let j = 0; j < confusionMatrix[i].length; j++) {
-            confusionMatrix[i][j] = Math.round((confusionMatrix[i][j] / rowSum) * 100);
-          }
-        }
-      }
-      
-      return {
-        accuracy: baseAccuracy,
-        loss: 0.1 + Math.random() * 0.3,
-        precision: precision,
-        recall: recall,
-        f1Score: f1Score,
-        labels: labels,
-        confusionMatrix: confusionMatrix,
-        // Add additional evaluation metrics
-        aucRoc: 0.8 + Math.random() * 0.18,
-        trainingTime: new Date() - startTime,
-        modelParams: selectedModels.value.length * 1000000 + Math.random() * 5000000,
-        datasetStats: {
-          samples: 1000 + Math.floor(Math.random() * 9000),
-          features: 100 + Math.floor(Math.random() * 900),
-          classes: labels.length
-        }
-      };
-    };
     
     // Start training
     const startTraining = async () => {
@@ -1463,12 +1310,16 @@ export default {
           // Start WebSocket connection for real-time updates
           startWebSocketConnection(currentJobId.value);
         } catch (apiError) {
-          // If API call fails, use mock data
+          // If API call fails, show error and stop training
           addLog(`Failed to connect to server: ${apiError.message || 'Unknown error'}`);
-          addLog('Using mock training data for demonstration');
+          addLog('Please ensure the backend service is running on localhost:8000');
           
-          // Simulate training process
-          simulateTrainingProcess();
+          // Reset training state
+          isTraining.value = false;
+          currentJobId.value = null;
+          clearInterval(trainingTimer);
+          
+          showError('Failed to start training: Backend service unavailable');
         }
       } catch (error) {
         addLog(`Failed to start training: ${error.message || 'Unknown error'}`);
@@ -1850,7 +1701,7 @@ export default {
     const loadTrainingHistory = async () => {
       try {
         // Call FastAPI backend to get training history
-        const response = await api.training.history();
+        const response = await api.get('/api/training/history');
         
         // Strictly check response data structure
         if (response && response.data && Array.isArray(response.data.history)) {
@@ -1869,58 +1720,17 @@ export default {
           
           showInfo('Training history loaded successfully');
         } else {
-          // When response format is incorrect, show error and use mock data
+          // When response format is incorrect, show error
           console.warn('Training history response format incorrect');
-          showWarning('Failed to load training history: Using mock data for demonstration');
-          loadMockTrainingHistory();
+          showError('Failed to load training history: Invalid response format from backend');
+          trainingHistory.value = [];
         }
       } catch (error) {
         console.error('Failed to load training history:', error);
-        // If API doesn't exist or backend is unavailable, use mock data
-        showWarning('Backend service unavailable. Using mock training history for demonstration.');
-        loadMockTrainingHistory();
+        // If API doesn't exist or backend is unavailable, show error
+        showError('Failed to load training history from backend. Please ensure the backend service is running.');
+        trainingHistory.value = [];
       }
-    };
-    
-    // Load mock training history when backend is unavailable
-    const loadMockTrainingHistory = () => {
-      const mockHistory = [
-        {
-          id: 'mock_1',
-          date: new Date(Date.now() - 86400000 * 1), // 1 day ago
-          models: ['B', 'J'],
-          dataset: 'Language Only Dataset',
-          duration: 1800, // 30 minutes
-          accuracy: 85.5,
-          loss: 0.42,
-          parameters: { epochs: 10, batchSize: 32, learningRate: 0.001 },
-          strategy: 'standard'
-        },
-        {
-          id: 'mock_2',
-          date: new Date(Date.now() - 86400000 * 3), // 3 days ago
-          models: ['A', 'B', 'C', 'D'],
-          dataset: 'Multimodal Dataset v1',
-          duration: 5400, // 90 minutes
-          accuracy: 78.2,
-          loss: 0.58,
-          parameters: { epochs: 15, batchSize: 64, learningRate: 0.0005 },
-          strategy: 'knowledge_assisted'
-        },
-        {
-          id: 'mock_3',
-          date: new Date(Date.now() - 86400000 * 7), // 7 days ago
-          models: ['K'],
-          dataset: 'Code Dataset v2',
-          duration: 3600, // 60 minutes
-          accuracy: 92.1,
-          loss: 0.21,
-          parameters: { epochs: 20, batchSize: 16, learningRate: 0.002 },
-          strategy: 'adaptive'
-        }
-      ];
-      
-      trainingHistory.value = mockHistory;
     };
     
     // Add log (enhanced version, supports different log types and formats)

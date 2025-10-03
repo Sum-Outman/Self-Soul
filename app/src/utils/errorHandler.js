@@ -1,169 +1,103 @@
 /**
- * 统一的错误处理工具
- * 提供生产环境友好的错误处理机制
+ * Minimal error handler utility
+ * Simplified to avoid Vue 2 compatibility issues
  */
 
-import { notify } from '../plugins/notification.js'
+// Environment detection
+const isDevelopment = import.meta.env.MODE === 'development';
 
-class ErrorHandler {
-  constructor() {
-    this.isDevelopment = import.meta.env.MODE === 'development';
-    this.errorLogs = [];
-    this.maxLogs = 1000; // 最大日志数量
-  }
+// Error log management (simplified)
+const errorLogs = [];
+const maxLogs = 1000;
 
-  /**
-   * 处理错误信息
-   * @param {Error|string} error - 错误对象或错误消息
-   * @param {string} context - 错误上下文
-   * @param {Object} options - 额外选项
-   */
-  handleError(error, context = 'Unknown', options = {}) {
-    const errorObj = error instanceof Error ? error : new Error(error);
-    const errorData = {
-      timestamp: new Date().toISOString(),
-      context,
-      message: errorObj.message,
-      stack: errorObj.stack,
-      ...options
-    };
-
-    // 在开发环境下显示console.error
-    if (this.isDevelopment) {
-      console.error(`[${context}]`, errorObj);
-    }
-
-    // 显示错误通知给用户
-    notify.error({
-      title: 'Error',
-      message: `[${context}] ${errorObj.message}`
-    });
-
-    // 添加到错误日志
-    this.addToLogs(errorData);
-
-    // 可以根据需要发送到错误监控服务
-    this.sendToMonitoringService(errorData);
-
-    return errorData;
-  }
-
-  /**
-   * 处理警告信息
-   * @param {string} message - 警告消息
-   * @param {string} context - 警告上下文
-   */
-  handleWarning(message, context = 'Unknown') {
-    const warningData = {
-      timestamp: new Date().toISOString(),
-      context,
-      message,
-      type: 'warning'
-    };
-
-    // 在开发环境下显示console.warn
-    if (this.isDevelopment) {
-      console.warn(`[${context}]`, message);
-    }
-
-    // 显示警告通知给用户
-    notify.warning({
-      title: 'Warning',
-      message: `[${context}] ${message}`
-    });
-
-    // 添加到日志
-    this.addToLogs(warningData);
-
-    return warningData;
-  }
-
-  /**
-   * 记录信息日志
-   * @param {string} message - 信息消息
-   * @param {string} context - 信息上下文
-   */
-  logInfo(message, context = 'Unknown') {
-    const infoData = {
-      timestamp: new Date().toISOString(),
-      context,
-      message,
-      type: 'info'
-    };
-
-    // 在开发环境下显示console.log
-    if (this.isDevelopment) {
-      console.log(`[${context}]`, message);
-    }
-
-    // 添加到日志
-    this.addToLogs(infoData);
-
-    return infoData;
-  }
-
-  /**
-   * 添加到日志
-   * @param {Object} logData - 日志数据
-   */
-  addToLogs(logData) {
-    this.errorLogs.push(logData);
-    
-    // 限制日志数量
-    if (this.errorLogs.length > this.maxLogs) {
-      this.errorLogs = this.errorLogs.slice(-this.maxLogs);
-    }
-  }
-
-  /**
-   * 发送到监控服务（可以扩展实现）
-   * @param {Object} errorData - 错误数据
-   */
-  sendToMonitoringService(errorData) {
-    // 这里可以实现发送到Sentry、LogRocket等错误监控服务
-    // 示例：console.log('Sending to monitoring service:', errorData);
-  }
-
-  /**
-   * 获取错误日志
-   * @returns {Array} 错误日志数组
-   */
-  getErrorLogs() {
-    return [...this.errorLogs];
-  }
-
-  /**
-   * 清空错误日志
-   */
-  clearErrorLogs() {
-    this.errorLogs = [];
-  }
-
-  /**
-   * 创建错误处理函数
-   * @param {string} context - 错误上下文
-   * @returns {Function} 错误处理函数
-   */
-  createErrorHandler(context) {
-    return (error, options = {}) => {
-      return this.handleError(error, context, options);
-    };
-  }
-
-  /**
-   * 创建警告处理函数
-   * @param {string} context - 警告上下文
-   * @returns {Function} 警告处理函数
-   */
-  createWarningHandler(context) {
-    return (message) => {
-      return this.handleWarning(message, context);
-    };
+/**
+ * Add log entry
+ */
+export function addToLogs(logData) {
+  errorLogs.push(logData);
+  if (errorLogs.length > maxLogs) {
+    errorLogs.shift();
   }
 }
 
-// 创建全局实例
-const errorHandler = new ErrorHandler();
+/**
+ * Handle errors with native console
+ */
+export function handleError(error, context = 'Unknown', options = {}) {
+  const errorObj = error instanceof Error ? error : new Error(String(error));
+  
+  // Only use native console for error logging
+  if (isDevelopment) {
+    console.error(`[${context}] Error:`, errorObj.message);
+    if (errorObj.stack) {
+      console.error(errorObj.stack);
+    }
+  }
+  
+  // Add to logs (for internal tracking only)
+  const errorData = {
+    timestamp: new Date().toISOString(),
+    context,
+    message: errorObj.message,
+    stack: errorObj.stack,
+    ...options
+  };
+  addToLogs(errorData);
+  
+  return errorData;
+}
 
-// 导出默认实例
-export default errorHandler;
+/**
+ * Handle warnings with native console
+ */
+export function handleWarning(message, context = 'Unknown') {
+  if (isDevelopment) {
+    console.warn(`[${context}] Warning:`, message);
+  }
+  
+  addToLogs({
+    timestamp: new Date().toISOString(),
+    context,
+    message,
+    type: 'warning'
+  });
+}
+
+/**
+ * Log information with native console
+ */
+export function logInfo(message, context = 'System') {
+  if (isDevelopment) {
+    console.info(`[${context}] Info:`, message);
+  }
+  
+  addToLogs({
+    timestamp: new Date().toISOString(),
+    context,
+    message,
+    type: 'info'
+  });
+}
+
+/**
+ * Get recent error logs
+ */
+export function getErrorLogs(limit = 100) {
+  return errorLogs.slice(-limit);
+}
+
+/**
+ * Clear all error logs
+ */
+export function clearErrorLogs() {
+  errorLogs.length = 0;
+}
+
+// Default export with basic functions
+export default {
+  handleError,
+  handleWarning,
+  logInfo,
+  getErrorLogs,
+  clearErrorLogs
+};

@@ -736,313 +736,8 @@ export default {
       ]
     })
 
-    // Mock data for models
-    const mockModels = [
-      {
-        id: 'manager',
-        name: 'Manager Model',
-        type: 'Manager Model',
-        description: 'System manager model for coordination',
-        status: 'running',
-        isActive: true,
-        isPrimary: false,
-        port: 8001,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local',
-        metrics: {
-          memoryUsage: 128,
-          cpuUsage: 5,
-          responseTime: 15
-        }
-      },
-      {
-        id: 'language',
-        name: 'Language Model',
-        type: 'Language Model',
-        description: 'Natural language processing model',
-        status: 'running',
-        isActive: true,
-        isPrimary: true,
-        port: 8002,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local',
-        metrics: {
-          memoryUsage: 512,
-          cpuUsage: 12,
-          responseTime: 80
-        }
-      },
-      {
-        id: 'knowledge',
-        name: 'Knowledge Model',
-        type: 'Knowledge Model',
-        description: 'Knowledge base and retrieval model',
-        status: 'running',
-        isActive: true,
-        isPrimary: true,
-        port: 8003,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local',
-        metrics: {
-          memoryUsage: 256,
-          cpuUsage: 8,
-          responseTime: 30
-        }
-      },
-      {
-        id: 'vision',
-        name: 'Vision Model',
-        type: 'Vision Model',
-        description: 'Computer vision and image processing model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8004,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'audio',
-        name: 'Audio Model',
-        type: 'Audio Model',
-        description: 'Audio processing and speech recognition model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: true,
-        port: 8005,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'autonomous',
-        name: 'Autonomous Model',
-        type: 'Autonomous Model',
-        description: 'Self-governing and decision-making model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8006,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'programming',
-        name: 'Programming Model',
-        type: 'Programming Model',
-        description: 'Code generation and software development model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: true,
-        port: 8007,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'planning',
-        name: 'Planning Model',
-        type: 'Planning Model',
-        description: 'Strategic planning and execution model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8008,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'emotion',
-        name: 'Emotion Model',
-        type: 'Emotion Model',
-        description: 'Emotional analysis and response model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8009,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'spatial',
-        name: 'Spatial Model',
-        type: 'Spatial Model',
-        description: 'Spatial reasoning and navigation model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8010,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'computer_vision',
-        name: 'Computer Vision Model',
-        type: 'Computer Vision Model',
-        description: 'Advanced computer vision capabilities',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8011,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'sensor',
-        name: 'Sensor Model',
-        type: 'Sensor Model',
-        description: 'Sensor data processing and integration',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8012,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'motion',
-        name: 'Motion Model',
-        type: 'Motion Model',
-        description: 'Motion planning and control model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8013,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'prediction',
-        name: 'Prediction Model',
-        type: 'Prediction Model',
-        description: 'Predictive analytics and forecasting model',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8014,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'advanced_reasoning',
-        name: 'Advanced Reasoning Model',
-        type: 'Advanced Reasoning Model',
-        description: 'Complex logical reasoning capabilities',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8015,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'data_fusion',
-        name: 'Data Fusion Model',
-        type: 'Data Fusion Model',
-        description: 'Multi-source data integration and fusion',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8016,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'creative_solving',
-        name: 'Creative Problem Solving Model',
-        type: 'Creative Problem Solving Model',
-        description: 'Innovative problem-solving approaches',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8017,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'meta_cognition',
-        name: 'Meta Cognition Model',
-        type: 'Meta Cognition Model',
-        description: 'Self-awareness and cognitive monitoring',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8018,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'value_alignment',
-        name: 'Value Alignment Model',
-        type: 'Value Alignment Model',
-        description: 'Ethical decision making and value alignment',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 8019,
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-        source: 'local'
-      },
-      {
-        id: 'openai',
-        name: 'OpenAI API',
-        type: 'OpenAI API',
-        description: 'OpenAI language model integration',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 0,
-        apiKey: '',
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
-      },
-      {
-        id: 'anthropic',
-        name: 'Anthropic API',
-        type: 'Anthropic API',
-        description: 'Anthropic language model integration',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 0,
-        apiKey: '',
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
-      },
-      {
-        id: 'google',
-        name: 'Google AI API',
-        type: 'Google AI API',
-        description: 'Google AI services integration',
-        status: 'stopped',
-        isActive: false,
-        isPrimary: false,
-        port: 0,
-        apiKey: '',
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0'
-      }
-    ]
-
-    // Data
-    const models = ref(mockModels)
+    // Data - will be populated from real API
+    const models = ref([])
     const newModel = ref({
       id: '',
       name: '',
@@ -1075,41 +770,32 @@ export default {
     const loadModels = async () => {
       loading.value = true
       try {
-        // Use the complete list containing all 19 local models to ensure all models are displayed
-        const defaultModels = getDefaultModels()
-        console.log('Loaded default models count:', defaultModels.length)
-        console.log('Default local models count:', defaultModels.filter(m => m.source === 'local').length)
+        // Use real API to load models
+        const response = await api.models.getAll()
+        const apiModels = response.data.data || response.data
         
-        // Display each local model's ID, name and port to confirm all 19 local models are loaded
-        console.log('Loaded local model details:', defaultModels.filter(m => m.source === 'local').map(m => ({ id: m.id, name: m.name, port: m.port })))
-        
-        // Update models.value
-        models.value = defaultModels
-        notify.success('All 19 local models and external API models loaded successfully')
-        
-        // Check model count again after update
-        console.log('Total models after update:', models.value.length)
-        console.log('Local models after update:', models.value.filter(m => m.source === 'local').length)
+        if (apiModels && apiModels.length > 0) {
+          models.value = apiModels
+          console.log('Loaded models from API count:', models.value.length)
+          notify.success('Models loaded successfully from API')
+        } else {
+          // Fallback to default models if API returns empty
+          console.log('API returned empty models list, using default models')
+          models.value = getDefaultModels()
+          notify.info('Using default model configuration')
+        }
         
         // Load training status for each model
         await loadTrainingStatus()
       } catch (error) {
-        console.error('Error loading models:', error)
+        console.error('Error loading models from API:', error)
         errorHandler.handleError(error, 'Load Models')
         
-        // Even if there's an error, ensure we use the complete model list
-        // Use mockModels array directly, which already contains all 19 local models
-        console.log('Using mockModels as fallback model list')
-        console.log('mockModels total models:', mockModels.length)
-        console.log('mockModels local models:', mockModels.filter(m => m.source === 'local').length)
-        
-        // Display each local model's ID, name and port
-        console.log('mockModels local model details:', mockModels.filter(m => m.source === 'local').map(m => ({ id: m.id, name: m.name, port: m.port })))
-        
-        models.value = mockModels
-        notify.warning('Failed to load models. Using complete default model configuration.')
+        // Fallback to default models
+        console.log('Using default models as fallback')
+        models.value = getDefaultModels()
+        notify.warning('Failed to load models from API. Using default configuration.')
       } finally {
-        // Final model count check
         console.log('Final total models:', models.value.length)
         console.log('Final local models:', models.value.filter(m => m.source === 'local').length)
         loading.value = false
@@ -1626,24 +1312,7 @@ export default {
         }
       } catch (error) {
         errorHandler.handleError(error, 'Add Model')
-        // Fallback to local state update
-        const modelToAdd = createDefaultModel(
-          newModel.value.id,
-          newModel.value.name,
-          newModel.value.type
-        )
-        modelToAdd.port = newModel.value.port
-        models.value.push(modelToAdd)
-        hasChanges.value = true
-        notify.success('Model added locally')
-
-        // Reset form
-        newModel.value = {
-          id: '',
-          name: '',
-          type: '',
-          port: 0
-        }
+        notify.error('Failed to add model to backend. Please check backend connectivity.')
       } finally {
         isAddingModel.value = false
       }
@@ -1766,11 +1435,9 @@ export default {
         notify.success('Model started successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Start Model')
-        // Fallback to local state update
-        model.status = 'running'
-        model.lastUpdated = new Date().toISOString()
-        hasChanges.value = true
-        notify.success('Model started locally')
+        // Revert status on error
+        model.status = 'stopped'
+        notify.error(`Failed to start model: ${error.message}`)
       } finally {
         operatingModels.value.delete(modelId)
       }
@@ -1798,11 +1465,9 @@ export default {
         notify.success('Model stopped successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Stop Model')
-        // Fallback to local state update
-        model.status = 'stopped'
-        model.lastUpdated = new Date().toISOString()
-        hasChanges.value = true
-        notify.success('Model stopped locally')
+        // Revert status on error
+        model.status = 'running'
+        notify.error(`Failed to stop model: ${error.message}`)
       } finally {
         operatingModels.value.delete(modelId)
       }
@@ -1830,11 +1495,9 @@ export default {
         notify.success('Model restarted successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Restart Model')
-        // Fallback to local state update
-        model.status = 'running'
-        model.lastUpdated = new Date().toISOString()
-        hasChanges.value = true
-        notify.success('Model restarted locally')
+        // Revert status on error
+        model.status = 'stopped'
+        notify.error(`Failed to restart model: ${error.message}`)
       } finally {
         operatingModels.value.delete(modelId)
       }
@@ -1870,13 +1533,11 @@ export default {
         notify.success('All models started successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Start All Models')
-        // Fallback to local state update
+        // Revert status on error
         modelsToStart.forEach(model => {
-          model.status = 'running'
-          model.lastUpdated = new Date().toISOString()
+          model.status = 'stopped'
         })
-        hasChanges.value = true
-        notify.success('All models started locally')
+        notify.error(`Failed to start all models: ${error.message}`)
       } finally {
         // Remove all models from operating set
         modelsToStart.forEach(model => {
@@ -1915,13 +1576,11 @@ export default {
         notify.success('All models stopped successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Stop All Models')
-        // Fallback to local state update
+        // Revert status on error
         modelsToStop.forEach(model => {
-          model.status = 'stopped'
-          model.lastUpdated = new Date().toISOString()
+          model.status = 'running'
         })
-        hasChanges.value = true
-        notify.success('All models stopped locally')
+        notify.error(`Failed to stop all models: ${error.message}`)
       } finally {
         // Remove all models from operating set
         modelsToStop.forEach(model => {
@@ -1959,13 +1618,11 @@ export default {
         notify.success('All models restarted successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Restart All Models')
-        // Fallback to local state update
+        // Revert status on error
         models.value.forEach(model => {
-          model.status = 'running'
-          model.lastUpdated = new Date().toISOString()
+          model.status = 'stopped'
         })
-        hasChanges.value = true
-        notify.success('All models restarted locally')
+        notify.error(`Failed to restart all models: ${error.message}`)
       } finally {
         // Remove all models from operating set
         models.value.forEach(model => {
@@ -2006,7 +1663,7 @@ export default {
         // Update model status to testing
         model.status = 'testing'
         
-        // Build complete API configuration parameters
+        // Build complete API configuration parameters for real external API testing
         const connectionData = {
           model_id: modelId,
           api_url: model.apiUrl,
@@ -2014,39 +1671,81 @@ export default {
           model_name: model.modelName,
           api_type: model.apiType || 'custom',
           rate_limit: model.rateLimit || 1000,
-          api_headers: model.apiHeaders || {}
+          api_headers: model.apiHeaders || {},
+          test_prompt: 'Hello, please respond with a short test message to verify API connectivity.'
         }
         
-        // 使用正确的API端点进行测试
-        const response = await api.post('/api/models/test-connection', connectionData)
+        // Use real API endpoint for external API connection testing
+        const response = await api.post('/api/external/test-connection', connectionData)
 
-        testResults.value[modelId] = {
-          status: 'success',
-          message: response.data.message || 'Connection successful'
+        if (response.data.success) {
+          testResults.value[modelId] = {
+            status: 'success',
+            message: response.data.message || `Successfully connected to ${model.name}`
+          }
+          
+          // Update model status to connected
+          model.status = 'connected'
+          // Automatically activate successfully connected external API models
+          if (!model.isActive) {
+            model.isActive = true
+            hasChanges.value = true
+          }
+          
+          // Update API key status to valid
+          model.apiKeyStatus = 'valid'
+          model.apiKeyStatusText = 'Valid'
+          
+          notify.success(`Connection to ${model.name} successful`)
+        } else {
+          throw new Error(response.data.message || 'Connection test failed')
         }
-        
-        // 更新模型状态为已连接
-        model.status = 'connected'
-        // 自动激活成功连接的外部API模型
-        if (!model.isActive) {
-          model.isActive = true
-          hasChanges.value = true
-        }
-        notify.success(`Connection to ${model.name} successful`)
       } catch (error) {
+        console.error('External API connection test failed:', error)
         errorHandler.handleError(error, 'Test Connection')
         testResults.value[modelId] = {
           status: 'error',
-          message: error.message || 'Connection failed'
+          message: error.response?.data?.message || error.message || 'Connection to external API failed. Please check your API key, URL, and network connection.'
         }
-        // 更新模型状态为失败
+        // Update model status to failed
         model.status = 'failed'
+        // Update API key status to invalid
+        model.apiKeyStatus = 'invalid'
+        model.apiKeyStatusText = 'Invalid'
+        notify.error(`Connection to ${model.name} failed`)
       } finally {
         testingConnections.value.delete(modelId)
-        // Clear test result after 5 seconds
-        setTimeout(() => {
-          delete testResults.value[modelId]
-        }, 5000)
+        // Use real API mechanism to clear test results after delay
+        try {
+          // Use API to schedule test result cleanup
+          const cleanupResponse = await api.post('/api/external/clear-test-results', {
+            model_id: modelId,
+            delay_ms: 5000
+          })
+          
+          if (cleanupResponse.data.success) {
+            console.log(`Test results cleanup scheduled for model ${modelId}`)
+          } else {
+            // Fallback to local cleanup if API fails
+            setTimeout(() => {
+              delete testResults.value[modelId]
+              const model = models.value.find(m => m.id === modelId)
+              if (model && model.status === 'failed') {
+                model.status = 'stopped'
+              }
+            }, 5000)
+          }
+        } catch (cleanupError) {
+          console.error('Failed to schedule test result cleanup:', cleanupError)
+          // Fallback to local cleanup
+          setTimeout(() => {
+            delete testResults.value[modelId]
+            const model = models.value.find(m => m.id === modelId)
+            if (model && model.status === 'failed') {
+              model.status = 'stopped'
+            }
+          }, 5000)
+        }
       }
     }
 
@@ -2067,9 +1766,7 @@ export default {
         notify.success('Settings saved successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Save Settings')
-        model.lastUpdated = new Date().toISOString()
-        hasChanges.value = true
-        notify.success('Settings saved locally')
+        notify.error('Failed to save settings to backend')
       } finally {
         savingSettings.value.delete(modelId)
       }
@@ -2085,8 +1782,7 @@ export default {
         notify.success('All changes saved successfully')
       } catch (error) {
         errorHandler.handleError(error, 'Save All Changes')
-        hasChanges.value = false
-        notify.success('All changes saved locally')
+        notify.error('Failed to save all changes to backend')
       } finally {
         isSavingAll.value = false
       }
@@ -2156,6 +1852,11 @@ export default {
     const closeTrainModal = () => {
       showTrainModal.value = false
       selectedModelForTraining.value = null
+      // Clear any existing polling interval
+      if (pollInterval) {
+        clearInterval(pollInterval)
+        pollInterval = null
+      }
     }
     
     // Start training a model from scratch
@@ -2166,16 +1867,25 @@ export default {
         trainingStatus.value = 'training'
         trainingMessage.value = 'Starting training process...'
         
-        const response = await api.post(`/api/models/${selectedModelForTraining.value.id}/train`, {
-          datasetId: selectedDataset.value,
-          params: trainingParams.value,
-          fromScratch: true
+        // Use real API to start training
+        const response = await api.post(`/api/models/${selectedModelForTraining.value.id}/train-from-scratch`, {
+          dataset_id: selectedDataset.value,
+          training_params: trainingParams.value,
+          model_config: {
+            model_id: selectedModelForTraining.value.id,
+            model_type: selectedModelForTraining.value.type,
+            from_scratch: true
+          }
         })
         
-        notify.success(`Training started for ${selectedModelForTraining.value.name}`)
-        
-        // Start polling for training status
-        pollTrainingStatus()
+        if (response.data.success) {
+          notify.success(`Training started for ${selectedModelForTraining.value.name}`)
+          
+          // Start polling for training status using real API
+          pollTrainingStatus()
+        } else {
+          throw new Error(response.data.message || 'Failed to start training')
+        }
       } catch (error) {
         console.error('Failed to start training:', error)
         trainingStatus.value = 'error'
@@ -2189,53 +1899,76 @@ export default {
       if (!selectedModelForTraining.value) return
       
       try {
-        await api.post(`/api/models/${selectedModelForTraining.value.id}/train/stop`)
+        // Use real API to stop training
+        const response = await api.post(`/api/models/${selectedModelForTraining.value.id}/train-stop`)
         
-        trainingStatus.value = 'idle'
-        trainingMessage.value = 'Training stopped'
-        notify.info(`Training stopped for ${selectedModelForTraining.value.name}`)
+        if (response.data.success) {
+          trainingStatus.value = 'idle'
+          trainingMessage.value = 'Training stopped'
+          notify.info(`Training stopped for ${selectedModelForTraining.value.name}`)
+        } else {
+          throw new Error(response.data.message || 'Failed to stop training')
+        }
       } catch (error) {
         console.error('Failed to stop training:', error)
         notify.error(`Failed to stop training for ${selectedModelForTraining.value.name}`)
       }
     }
     
-    // Poll training status
-    let pollInterval
-    const pollTrainingStatus = () => {
+    // Poll training status using real API
+    let pollInterval = null
+    const pollTrainingStatus = async () => {
       if (pollInterval) clearInterval(pollInterval)
       
       pollInterval = setInterval(async () => {
+        if (!selectedModelForTraining.value) {
+          clearInterval(pollInterval)
+          return
+        }
+        
         try {
-          const response = await api.models.trainingStatusById(selectedModelForTraining.value.id)
+          // Use real API to get training status
+          const response = await api.get(`/api/models/${selectedModelForTraining.value.id}/training-status`)
           const data = response.data
           
-          trainingProgress.value = data.progress || 0
-          trainingMessage.value = data.message || ''
-          
-          if (data.status === 'completed') {
-            trainingStatus.value = 'completed'
-            clearInterval(pollInterval)
-            notify.success(`Training completed for ${selectedModelForTraining.value.name}`)
-            // Update model training status
-            if (selectedModelForTraining.value) {
-              selectedModelForTraining.value.trainingStatus = {
-                isTraining: false,
-                progress: 100,
-                status: 'completed'
+          if (data.success) {
+            const trainingData = data.data
+            trainingProgress.value = trainingData.progress || 0
+            trainingMessage.value = trainingData.message || trainingData.status || ''
+            trainingStatus.value = trainingData.status || 'training'
+            
+            // Update model training status in the main list
+            const modelIndex = models.value.findIndex(m => m.id === selectedModelForTraining.value.id)
+            if (modelIndex !== -1) {
+              models.value[modelIndex].trainingStatus = {
+                isTraining: trainingData.status === 'training',
+                progress: trainingData.progress || 0,
+                status: trainingData.status || 'idle'
               }
             }
-          } else if (data.status === 'error') {
-            trainingStatus.value = 'error'
-            clearInterval(pollInterval)
-            notify.error(`Training failed for ${selectedModelForTraining.value.name}`)
-          } else if (data.status === 'training') {
-            trainingStatus.value = 'training'
+            
+            // Handle completion or error
+            if (trainingData.status === 'completed') {
+              clearInterval(pollInterval)
+              pollInterval = null
+              notify.success(`Training completed for ${selectedModelForTraining.value.name}`)
+            } else if (trainingData.status === 'error' || trainingData.status === 'failed') {
+              clearInterval(pollInterval)
+              pollInterval = null
+              notify.error(`Training failed for ${selectedModelForTraining.value.name}`)
+            } else if (trainingData.status === 'stopped') {
+              clearInterval(pollInterval)
+              pollInterval = null
+              notify.info(`Training stopped for ${selectedModelForTraining.value.name}`)
+            }
+          } else {
+            throw new Error(data.message || 'Failed to get training status')
           }
         } catch (error) {
           console.error('Failed to get training status:', error)
+          // Continue polling on error, but log it
         }
-      }, 2000)
+      }, 3000) // Poll every 3 seconds
     }
 
     // Lifecycle
@@ -2293,119 +2026,223 @@ export default {
     const testHardwareConnections = async () => {
       isTestingHardware.value = true
       try {
-        // Simulate hardware connection testing
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        // Use real API to test hardware connections with detailed configuration
+        const response = await api.post('/api/system/hardware-test', {
+          ...hardwareConfig.value,
+          test_type: 'comprehensive',
+          include_detailed_results: true
+        })
         
-        // Test camera connections
-        const cameraResults = hardwareConfig.value.cameras.map(camera => ({
-          id: camera.id,
-          name: camera.name,
-          status: 'connected',
-          message: `Camera ${camera.id} connected successfully`
-        }))
+        const testResults = response.data
         
-        // Test sensor connections
-        const sensorResults = hardwareConfig.value.sensors.map(sensor => ({
-          id: sensor.id,
-          type: sensor.type,
-          status: 'connected',
-          message: `${sensor.type} sensor connected successfully`
-        }))
-        
-        // Test actuator connections
-        const actuatorResults = hardwareConfig.value.actuators.map(actuator => ({
-          id: actuator.id,
-          type: actuator.type,
-          status: 'connected',
-          message: `${actuator.type} actuator connected successfully`
-        }))
-        
-        notify.success('Hardware connections tested successfully')
-        console.log('Camera test results:', cameraResults)
-        console.log('Sensor test results:', sensorResults)
-        console.log('Actuator test results:', actuatorResults)
+        if (testResults.success) {
+          const { cameras, sensors, actuators, summary } = testResults.data
+          
+          // Display detailed test results
+          if (cameras && cameras.length > 0) {
+            cameras.forEach(camera => {
+              if (camera.status === 'connected') {
+                notify.success(`Camera ${camera.id} (${camera.name}) connected successfully`)
+              } else {
+                notify.warning(`Camera ${camera.id} (${camera.name}) connection failed: ${camera.message}`)
+              }
+            })
+          }
+          
+          if (sensors && sensors.length > 0) {
+            sensors.forEach(sensor => {
+              if (sensor.status === 'connected') {
+                notify.success(`${sensor.type} sensor ${sensor.id} connected successfully`)
+              } else {
+                notify.warning(`${sensor.type} sensor ${sensor.id} connection failed: ${sensor.message}`)
+              }
+            })
+          }
+          
+          if (actuators && actuators.length > 0) {
+            actuators.forEach(actuator => {
+              if (actuator.status === 'connected') {
+                notify.success(`${actuator.type} actuator ${actuator.id} connected successfully`)
+              } else {
+                notify.warning(`${actuator.type} actuator ${actuator.id} connection failed: ${actuator.message}`)
+              }
+            })
+          }
+          
+          // Display summary statistics
+          if (summary) {
+            const { total_devices, connected_devices, failed_devices } = summary
+            notify.success(`Hardware test completed: ${connected_devices}/${total_devices} devices connected successfully`)
+            
+            if (failed_devices > 0) {
+              notify.warning(`${failed_devices} device(s) failed to connect`)
+            }
+          } else {
+            notify.success('Hardware connections tested successfully')
+          }
+          
+        } else {
+          throw new Error(testResults.message || 'Hardware test failed')
+        }
         
       } catch (error) {
         console.error('Hardware connection test failed:', error)
-        notify.error('Hardware connection test failed')
+        errorHandler.handleError(error, 'Test Hardware Connections')
+        notify.error(`Hardware connection test failed: ${error.message}`)
       } finally {
         isTestingHardware.value = false
+      }
+    }
+
+    // Fallback method for hardware testing - use comprehensive hardware test endpoint
+    const testHardwareConnectionsFallback = async () => {
+      try {
+        // Use the main hardware test endpoint with detailed configuration
+        const response = await api.post('/api/system/hardware-test', {
+          ...hardwareConfig.value,
+          detailed_test: true
+        })
+        
+        const testResults = response.data
+        const { cameras, sensors, actuators } = testResults
+        
+        // Display detailed test results
+        if (cameras && cameras.length > 0) {
+          cameras.forEach(camera => {
+            if (camera.status === 'connected') {
+              notify.success(`Camera ${camera.id} (${camera.name}) connected successfully`)
+            } else {
+              notify.warning(`Camera ${camera.id} (${camera.name}) connection failed: ${camera.message}`)
+            }
+          })
+        }
+        
+        if (sensors && sensors.length > 0) {
+          sensors.forEach(sensor => {
+            if (sensor.status === 'connected') {
+              notify.success(`${sensor.type} sensor ${sensor.id} connected successfully`)
+            } else {
+              notify.warning(`${sensor.type} sensor ${sensor.id} connection failed: ${sensor.message}`)
+            }
+          })
+        }
+        
+        if (actuators && actuators.length > 0) {
+          actuators.forEach(actuator => {
+            if (actuator.status === 'connected') {
+              notify.success(`${actuator.type} actuator ${actuator.id} connected successfully`)
+            } else {
+              notify.warning(`${actuator.type} actuator ${actuator.id} connection failed: ${actuator.message}`)
+            }
+          })
+        }
+        
+        notify.success('Hardware connections tested successfully using fallback method')
+        
+      } catch (fallbackError) {
+        console.error('Hardware connection fallback test failed:', fallbackError)
+        notify.error('All hardware connection tests failed. Please check backend connectivity.')
       }
     }
 
     const saveHardwareConfig = async () => {
       isSavingHardware.value = true
       try {
-        // Save hardware configuration to backend
-        const response = await api.post('/api/system/hardware-config', hardwareConfig.value)
+        // Use real API to save hardware configuration to backend
+        const response = await api.post('/api/system/hardware-config', {
+          ...hardwareConfig.value,
+          config_type: 'hardware',
+          save_timestamp: new Date().toISOString()
+        })
         
-        notify.success('Hardware configuration saved successfully')
-        hasChanges.value = true
-        
-        // Log the saved configuration
-        console.log('Saved hardware configuration:', hardwareConfig.value)
+        if (response.data.success) {
+          notify.success('Hardware configuration saved successfully')
+          hasChanges.value = true
+          
+          // Log the saved configuration
+          console.log('Hardware configuration saved to backend:', hardwareConfig.value)
+        } else {
+          throw new Error(response.data.message || 'Hardware configuration save failed')
+        }
         
       } catch (error) {
         console.error('Failed to save hardware configuration:', error)
-        notify.error('Failed to save hardware configuration')
-        
-        // Fallback to local storage
-        localStorage.setItem('self-soul-hardware-config', JSON.stringify(hardwareConfig.value))
-        notify.info('Hardware configuration saved locally')
+        errorHandler.handleError(error, 'Save Hardware Configuration')
+        notify.error(`Failed to save hardware configuration: ${error.message}`)
       } finally {
         isSavingHardware.value = false
       }
     }
 
-    const resetHardwareConfig = () => {
+    const resetHardwareConfig = async () => {
       if (!confirm('Are you sure you want to reset hardware configuration to defaults?')) {
         return
       }
       
-      hardwareConfig.value = {
-        cameraCount: 1,
-        defaultResolution: '1280x720',
-        defaultInterface: 'usb',
-        defaultBaudRate: '9600',
-        cameras: [
-          {
-            id: 1,
-            name: 'Main Camera',
-            type: 'mono',
-            deviceId: '/dev/video0',
-            fps: 30,
-            baseline: 65,
-            focalLength: 3.6
+      try {
+        // Use real API to reset hardware configuration
+        const response = await api.post('/api/system/hardware-reset', {
+          reset_type: 'hardware_config',
+          reset_timestamp: new Date().toISOString()
+        })
+        
+        if (response.data.success) {
+          // Reset local state to defaults
+          hardwareConfig.value = {
+            cameraCount: 1,
+            defaultResolution: '1280x720',
+            defaultInterface: 'usb',
+            defaultBaudRate: '9600',
+            cameras: [
+              {
+                id: 1,
+                name: 'Main Camera',
+                type: 'mono',
+                deviceId: '/dev/video0',
+                fps: 30,
+                baseline: 65,
+                focalLength: 3.6
+              }
+            ],
+            sensors: [
+              {
+                id: 1,
+                type: 'temperature',
+                port: '/dev/ttyUSB0'
+              },
+              {
+                id: 2,
+                type: 'humidity',
+                port: '/dev/ttyUSB1'
+              }
+            ],
+            actuators: [
+              {
+                id: 1,
+                type: 'motor',
+                port: 'GPIO17'
+              },
+              {
+                id: 2,
+                type: 'servo',
+                port: 'GPIO18'
+              }
+            ]
           }
-        ],
-        sensors: [
-          {
-            id: 1,
-            type: 'temperature',
-            port: '/dev/ttyUSB0'
-          },
-          {
-            id: 2,
-            type: 'humidity',
-            port: '/dev/ttyUSB1'
-          }
-        ],
-        actuators: [
-          {
-            id: 1,
-            type: 'motor',
-            port: 'GPIO17'
-          },
-          {
-            id: 2,
-            type: 'servo',
-            port: 'GPIO18'
-          }
-        ]
+          
+          notify.success('Hardware configuration reset to defaults successfully')
+          hasChanges.value = true
+          
+          // Log the reset operation
+          console.log('Hardware configuration reset via API:', hardwareConfig.value)
+        } else {
+          throw new Error(response.data.message || 'Hardware configuration reset failed')
+        }
+      } catch (error) {
+        console.error('Failed to reset hardware configuration:', error)
+        errorHandler.handleError(error, 'Reset Hardware Configuration')
+        notify.error(`Failed to reset hardware configuration: ${error.message}`)
       }
-      
-      notify.success('Hardware configuration reset to defaults')
-      hasChanges.value = true
     }
 
     return {

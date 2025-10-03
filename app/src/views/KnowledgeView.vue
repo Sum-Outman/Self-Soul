@@ -366,7 +366,7 @@ export default {
       if (!searchQuery.value.trim()) return;
 
       try {
-          const response = await api.knowledge.search(searchQuery.value, searchDomain.value);
+        const response = await api.knowledge.search(searchQuery.value, searchDomain.value);
 
         if (response.data.success) {
           searchResults.value = response.data.results;
@@ -381,34 +381,6 @@ export default {
         searchPerformed.value = true;
         showSystemMessage('Failed to search knowledge. Please ensure the backend service is running.');
       }
-    };
-
-    // Mock search results
-    const getMockSearchResults = (query, domain) => {
-      const mockResults = [
-        {
-          domain: 'computer_science',
-          content: `This is a mock search result related to "${query}" about artificial intelligence concepts.`,
-          source: 'Introduction to AI.pdf'
-        },
-        {
-          domain: 'computer_science',
-          content: `This mock result discusses machine learning fundamentals in the context of "${query}".`,
-          source: 'Machine Learning Basics.docx'
-        },
-        {
-          domain: 'computer_science', 
-          content: `This document covers deep learning techniques related to "${query}".`,
-          source: 'Deep Learning Techniques.pptx'
-        }
-      ];
-      
-      // Filter by domain
-      if (domain) {
-        return mockResults.filter(result => result.domain === domain);
-      }
-      
-      return mockResults;
     };
 
     const loadKnowledgeStats = async () => {
@@ -435,37 +407,6 @@ export default {
         showSystemMessage('Failed to load statistics. Please ensure the backend service is running.');
       }
       statsLoading.value = false;
-    };
-
-    // Mock knowledge statistics data
-    const getMockKnowledgeStats = () => {
-      return {
-        total_domains: 9,
-        total_items: 50,
-        total_size: 15000000,
-        domains: {
-          computer_science: {
-            item_count: 20,
-            last_updated: new Date().toISOString()
-          },
-          mathematics: {
-            item_count: 8,
-            last_updated: new Date().toISOString()
-          },
-          physics: {
-            item_count: 7,
-            last_updated: new Date().toISOString()
-          },
-          chemistry: {
-            item_count: 5,
-            last_updated: new Date().toISOString()
-          },
-          biology: {
-            item_count: 10,
-            last_updated: new Date().toISOString()
-          }
-        }
-      };
     };
 
     const formatFileSize = (bytes) => {
@@ -619,40 +560,6 @@ export default {
       filesLoading.value = false;
     };
     
-    // Mock data for files when API is not available
-    const getMockFiles = () => {
-      return [
-        {
-          id: 'mock_1',
-          name: 'Introduction to AI.pdf',
-          size: 2048000,
-          upload_date: '2023-06-15T10:30:00Z',
-          domain: 'computer_science'
-        },
-        {
-          id: 'mock_2',
-          name: 'Machine Learning Basics.docx',
-          size: 1536000,
-          upload_date: '2023-06-10T14:45:00Z',
-          domain: 'computer_science'
-        },
-        {
-          id: 'mock_3',
-          name: 'Deep Learning Techniques.pptx',
-          size: 3072000,
-          upload_date: '2023-06-05T09:20:00Z',
-          domain: 'computer_science'
-        },
-        {
-          id: 'mock_4',
-          name: 'Data Science Handbook.pdf',
-          size: 4096000,
-          upload_date: '2023-06-01T16:10:00Z',
-          domain: 'computer_science'
-        }
-      ];
-    };
-    
     // Show system message
     const showSystemMessage = (message) => {
       if (typeof window !== 'undefined') {
@@ -667,14 +574,6 @@ export default {
     // File operations with enhanced error handling
     const viewFile = async (file) => {
       try {
-        // Check if file is mock file
-        if (file.id && file.id.startsWith('mock_')) {
-          showSystemMessage(`Viewing mock file: ${file.name}`);
-          // Open preview for mock files
-          openPreview(file);
-          return;
-        }
-        
         // Try to open file from server
         const newTab = window.open(`/api/knowledge/files/${file.id}/view`, '_blank');
         
@@ -686,7 +585,7 @@ export default {
         }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to view file');
-        showSystemMessage(`Failed to view file: ${file.name}`);
+        showSystemMessage(`Failed to view file: ${file.name}. Please ensure the backend service is running.`);
         // Fallback to preview modal
         openPreview(file);
       }
@@ -714,19 +613,6 @@ export default {
       currentFileContent.value = '';
 
       try {
-        // Check if file is mock file
-        if (file.id && file.id.startsWith('mock_')) {
-          // Simulate content for mock files
-        if (isTextFile(file)) {
-          currentFileContent.value = `This is mock content for ${file.name}.\n\nFile Size: ${formatFileSize(file.size)}\nUpload Date: ${formatDate(file.upload_date)}\nDomain: ${file.domain}`;
-        } else if (isImageFile(file)) {
-          // Use placeholder image for mock image files
-          currentFileContent.value = 'https://via.placeholder.com/400x300?text=Mock+Image';
-        }
-          previewLoading.value = false;
-          return;
-        }
-
         // Try to load actual file content from server
         const response = await api.knowledge.filePreview(file.id);
 
@@ -745,9 +631,9 @@ export default {
       } catch (error) {
           errorHandler.handleError(error, 'Failed to load preview');
           previewError.value = true;
-          // For mock files or when API fails, show simulated content
+          // When API fails, show file information
           if (isTextFile(file)) {
-            currentFileContent.value = `Failed to load file content.\n\nFile Info:\nName: ${file.name}\nSize: ${formatFileSize(file.size)}\nUpload Date: ${formatDate(file.upload_date)}`;
+            currentFileContent.value = `Failed to load file content from server.\n\nFile Information:\nName: ${file.name}\nSize: ${formatFileSize(file.size)}\nUpload Date: ${formatDate(file.upload_date)}\nDomain: ${file.domain}\n\nPlease ensure the backend service is running.`;
           }
         }
       previewLoading.value = false;
@@ -775,22 +661,6 @@ export default {
 
     const downloadFile = async (file) => {
       try {
-        // Check if file is mock file
-        if (file.id && file.id.startsWith('mock_')) {
-          showSystemMessage(`Simulating download: ${file.name}`);
-          // Create a dummy blob for simulation
-          const blob = new Blob(['This is a simulated file content.'], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = file.name;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          return;
-        }
-        
         // Try to download from server with timeout
         const controller = new AbortController();
         
@@ -818,22 +688,7 @@ export default {
         showSystemMessage(`Download successful: ${file.name}`);
       } catch (error) {
         errorHandler.handleError(error, 'Download error');
-        // If timeout or other error, try to simulate download
-        if (error.name === 'AbortError' || !error.response) {
-          showSystemMessage(`Simulating download: ${file.name}`);
-          // Create a dummy blob for simulation
-          const blob = new Blob(['This is a simulated file content.'], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = file.name;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        } else {
-          showSystemMessage(`Cannot download file: ${file.name}`);
-        }
+        showSystemMessage(`Cannot download file: ${file.name}. Please ensure the backend service is running.`);
       }
     };
 
@@ -854,16 +709,6 @@ export default {
           return;
         }
         
-        // Check if file is mock file - just remove from local list
-        if (fileToDelete.value.id && fileToDelete.value.id.startsWith('mock_')) {
-          files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
-          filterFiles();
-          showSystemMessage(`Simulating deletion: ${fileToDelete.value.name}`);
-          showDeleteModal.value = false;
-          fileToDelete.value = null;
-          return;
-        }
-        
         // Try to delete from server
         const response = await api.delete(`/api/knowledge/files/${fileToDelete.value.id}`, { timeout: 5000 });
         
@@ -877,10 +722,7 @@ export default {
         }
       } catch (error) {
         errorHandler.handleError(error, 'Delete error');
-        // Even if server fails, remove from local list for better UX
-        files.value = files.value.filter(f => f.id !== fileToDelete.value.id);
-        filterFiles();
-        showSystemMessage(`File removed locally: ${fileToDelete.value.name}`);
+        showSystemMessage(`Failed to delete file: ${fileToDelete.value.name}. Please ensure the backend service is running.`);
       }
       showDeleteModal.value = false;
       fileToDelete.value = null;
@@ -1322,18 +1164,7 @@ export default {
             }
           } catch (error) {
             errorHandler.handleError(error, 'Upload error');
-            // Simulate successful upload for demo purposes
-            showSystemMessage(`Simulating upload success: ${file.name}`);
-            // Add mock file to list
-            const mockFile = {
-              id: 'mock_' + Date.now(),
-              name: file.name,
-              size: file.size,
-              upload_date: new Date().toISOString(),
-              domain: selectedDomain.value
-            };
-            files.value.push(mockFile);
-            filterFiles();
+            showSystemMessage(`Failed to upload file: ${file.name}. Please ensure the backend service is running.`);
           }
           
           clearInterval(progressInterval);

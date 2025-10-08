@@ -25,6 +25,10 @@ from ..unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import StreamProcessor
 from core.external_api_service import ExternalAPIService
 from core.agi_tools import AGITools
+from core.error_handling import error_handler as ErrorHandler
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Forward declarations for reasoning engine classes
 def AGICognitiveReasoningEngine(*args, **kwargs):
@@ -113,63 +117,61 @@ class UnifiedKnowledgeModel(UnifiedModelTemplate):
     
     def _initialize_model_specific_components(self):
         """Initialize model-specific components (required abstract method)"""
-        # Initialize domain weights
-        self._init_domain_weights()
+        # Initialize AGI knowledge components using unified AGITools
+        self._initialize_agi_knowledge_components()
         
-        # Initialize knowledge graph
-        self._init_knowledge_graph()
-        
-        # Initialize semantic index
-        self._init_semantic_index()
-        
-        # Initialize meta-knowledge base
-        self._init_meta_knowledge_base()
-        
-        # Load knowledge base if not starting from scratch
-        from_scratch = self.config.get("from_scratch", False) if self.config else False
-        if not from_scratch:
-            self.load_knowledge_base()
-        else:
-            self.logger.info("Starting AGI knowledge model from scratch, building autonomous learning foundation")
-            self._initialize_from_scratch_knowledge_base()
-        
-        # Prepare AGI training data for neural networks
-        self._prepare_agi_training_data()
-        
-        # Initialize cognitive reasoning engine
-        self._initialize_cognitive_reasoning_engine()
-        
-        self.logger.info("AGI knowledge-specific components initialized")
-
-    def _initialize_agi_model_specific_components(self, config: Dict[str, Any]):
-        """Initialize AGI knowledge-specific components"""
-        # Initialize domain weights
-        self._init_domain_weights()
-        
-        # Initialize knowledge graph
-        self._init_knowledge_graph()
-        
-        # Initialize semantic index
-        self._init_semantic_index()
-        
-        # Initialize meta-knowledge base
-        self._init_meta_knowledge_base()
-        
-        # Load knowledge base if not starting from scratch
-        from_scratch = config.get("from_scratch", False) if config else False
-        if not from_scratch:
-            self.load_knowledge_base()
-        else:
-            self.logger.info("Starting AGI knowledge model from scratch, building autonomous learning foundation")
-            self._initialize_from_scratch_knowledge_base()
-        
-        # Prepare AGI training data for neural networks
-        self._prepare_agi_training_data()
-        
-        # Initialize cognitive reasoning engine
-        self._initialize_cognitive_reasoning_engine()
-        
-        self.logger.info("AGI knowledge-specific components initialized")
+    def _initialize_agi_knowledge_components(self):
+        """Initialize AGI knowledge components using unified AGITools"""
+        try:
+            logger.info("开始初始化AGI知识组件")
+            
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "knowledge_reasoning", "meta_learning", "self_reflection", 
+                "cognitive_engine", "problem_solver", "creative_generator"
+            ])
+            
+            # 分配组件到实例变量
+            self.agi_knowledge_reasoning = agi_components.get("knowledge_reasoning")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
+            
+            # Initialize domain weights
+            self._init_domain_weights()
+            
+            # Initialize knowledge graph
+            self._init_knowledge_graph()
+            
+            # Initialize semantic index
+            self._init_semantic_index()
+            
+            # Initialize meta-knowledge base
+            self._init_meta_knowledge_base()
+            
+            # Load knowledge base if not starting from scratch
+            from_scratch = self.config.get("from_scratch", False) if self.config else False
+            if not from_scratch:
+                self.load_knowledge_base()
+            else:
+                self.logger.info("Starting AGI knowledge model from scratch, building autonomous learning foundation")
+                self._initialize_from_scratch_knowledge_base()
+            
+            # Prepare AGI training data for neural networks
+            self._prepare_agi_training_data()
+            
+            # Initialize cognitive reasoning engine
+            self._initialize_cognitive_reasoning_engine()
+            
+            logger.info("AGI知识组件初始化完成")
+            
+        except Exception as e:
+            error_msg = f"初始化AGI知识组件失败: {str(e)}"
+            logger.error(error_msg)
+            ErrorHandler.log_error("agi_knowledge_components_init", error_msg, str(e))
+            raise
     
     def _init_meta_knowledge_base(self):
         """Initialize meta-knowledge base for AGI reasoning"""

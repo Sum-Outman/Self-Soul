@@ -20,6 +20,9 @@ Audio Processing Model Package Initialization File
 Export audio processing model class for use by other modules
 """
 
+# Export audio model class
+from .unified_audio_model import UnifiedAudioModel
+
 # Import the actual audio model implementation
 from .unified_audio_model import UnifiedAudioModel as AudioProcessingModel
 

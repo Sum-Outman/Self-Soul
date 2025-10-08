@@ -12,7 +12,7 @@ from datetime import datetime
 # Add project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.from_scratch_training import from_scratch_training
+from core.from_scratch_training import from_scratch_training_manager
 from core.model_registry import get_model_registry
 
 
@@ -26,8 +26,8 @@ def main():
     
     try:
         # Initialize training manager if not already initialized
-        if not from_scratch_training.initialized:
-            init_result = from_scratch_training.initialize()
+        if not from_scratch_training_manager.initialized:
+            init_result = from_scratch_training_manager.initialize()
             if not init_result["success"]:
                 print(f"Error initializing training manager: {init_result.get('error', 'Unknown error')}")
                 return 1
@@ -51,7 +51,7 @@ def main():
         # Start training all models
         print("Starting from-scratch training for all models...")
         start_time = time.time()
-        result = from_scratch_training.initialize_all_models_from_scratch()
+        result = from_scratch_training_manager.initialize_all_models_from_scratch()
         
         if result["success"]:
             print(f"\n{result['message']}")

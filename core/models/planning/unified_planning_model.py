@@ -1545,23 +1545,26 @@ class UnifiedPlanningModel(UnifiedModelTemplate):
         Initialize AGI planning components - Implement advanced general intelligence planning capabilities
         """
         try:
-            # AGI规划推理引擎
-            self.agi_planning_reasoning = self._create_agi_planning_reasoning_engine()
+            from core.agi_tools import AGITools
+            agi_components = AGITools.initialize_agi_components(
+                model_type="planning",
+                component_types=[
+                    "reasoning_engine",
+                    "meta_learning_system", 
+                    "self_reflection_module",
+                    "cognitive_engine",
+                    "problem_solver",
+                    "creative_generator"
+                ]
+            )
             
-            # AGI元学习系统用于规划策略
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
-            
-            # AGI自我反思模块用于规划效果评估
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI认知引擎用于规划决策
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI规划问题解决器
-            self.agi_problem_solver = self._create_agi_planning_problem_solver()
-            
-            # AGI创意规划生成器
-            self.agi_creative_generator = self._create_agi_creative_generator()
+            # 将组件分配给实例变量
+            self.agi_planning_reasoning = agi_components.get("reasoning_engine", {})
+            self.agi_meta_learning = agi_components.get("meta_learning_system", {})
+            self.agi_self_reflection = agi_components.get("self_reflection_module", {})
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine", {})
+            self.agi_problem_solver = agi_components.get("problem_solver", {})
+            self.agi_creative_generator = agi_components.get("creative_generator", {})
             
             error_handler.log_info("AGI规划组件初始化完成", "UnifiedPlanningModel")
             

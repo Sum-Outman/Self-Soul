@@ -22,6 +22,7 @@ from core.models.unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import StreamProcessor
 from core.agi_core import AGICore
 from core.meta_learning_system import MetaLearningSystem
+from core.agi_tools import AGITools
 
 
 class AdvancedSymptomAnalysisNetwork(nn.Module):
@@ -393,26 +394,23 @@ class UnifiedMedicalModel(UnifiedModelTemplate):
             self.medical_training_data = self._create_synthetic_training_data()
 
     def _initialize_agi_medical_components(self):
-        """Initialize AGI medical components for true from-scratch training"""
-        # AGI Medical Reasoning Engine
+        """Initialize AGI medical components using unified AGITools"""
+        # Use unified AGITools for AGI component initialization
+        self.agi_tools = AGITools(
+            model_type="medical",
+            model_id=self._get_model_id(),
+            config=self.config
+        )
+        
+        # Initialize medical-specific AGI components using unified tools
         self.agi_medical_reasoning = self._create_agi_medical_reasoning_engine()
-        
-        # AGI Meta-Learning System for Medical Diagnosis
-        self.agi_meta_learning = self._create_agi_meta_learning_system()
-        
-        # AGI Self-Reflection Module for Medical Performance
+        self.agi_meta_learning = self.agi_tools.agi_systems.get('meta_learning')
         self.agi_self_reflection = self._create_agi_self_reflection_module()
-        
-        # AGI Cognitive Engine for Medical Understanding
-        self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-        
-        # AGI Medical Problem Solver
+        self.agi_cognitive_engine = self.agi_tools.agi_systems.get('cognitive_arch')
         self.agi_problem_solver = self._create_agi_medical_problem_solver()
-        
-        # AGI Creative Medical Generator
         self.agi_creative_generator = self._create_agi_creative_generator()
         
-        self.logger.info("AGI medical components initialized for true from-scratch training")
+        self.logger.info("AGI medical components initialized using unified AGITools for true from-scratch training")
 
     def _create_agi_medical_reasoning_engine(self):
         """Create AGI medical reasoning engine with advanced diagnostic capabilities"""

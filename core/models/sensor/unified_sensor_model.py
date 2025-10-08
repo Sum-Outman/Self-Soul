@@ -335,10 +335,17 @@ class UnifiedSensorModel(UnifiedModelTemplate):
         self.cache_ttl = timedelta(minutes=5)
 
     def _initialize_agi_sensor_components(self) -> None:
-        """初始化AGI传感器组件"""
+        """初始化AGI传感器组件 - 使用统一的AGITools"""
         try:
             # Use unified AGI tools to initialize all components
-            agi_components = AGITools.initialize_agi_components()
+            agi_components = AGITools.initialize_agi_components([
+                "reasoning_engine",
+                "meta_learning_system", 
+                "self_reflection_module",
+                "cognitive_engine",
+                "problem_solver",
+                "creative_generator"
+            ])
             
             # Assign components
             self.agi_sensor_reasoning = agi_components["reasoning_engine"]
@@ -351,259 +358,14 @@ class UnifiedSensorModel(UnifiedModelTemplate):
             logging.info("AGI sensor components initialized successfully using unified tools")
         except Exception as e:
             logging.error(f"Failed to initialize AGI sensor components: {e}")
-            self._initialize_basic_agi_components()
-
-    def _create_agi_sensor_reasoning_engine(self) -> Dict[str, Any]:
-        """创建AGI传感器推理引擎"""
-        return {
-            'multi_sensor_fusion': self._create_multi_sensor_fusion_engine(),
-            'temporal_reasoning': self._create_temporal_reasoning_engine(),
-            'spatial_reasoning': self._create_spatial_reasoning_engine(),
-            'causal_inference': self._create_causal_inference_engine(),
-            'predictive_analytics': self._create_predictive_analytics_engine()
-        }
-
-    def _create_agi_meta_learning_system(self) -> Dict[str, Any]:
-        """创建AGI元学习系统"""
-        return {
-            'pattern_learning': self._create_pattern_learning_mechanism(),
-            'experience_compression': self._create_experience_compression(),
-            'cross_domain_transfer': self._create_cross_domain_transfer()
-        }
-
-    def _create_agi_self_reflection_module(self) -> Dict[str, Any]:
-        """创建AGI自我反思模块"""
-        return {
-            'performance_analysis': self._create_performance_analysis(),
-            'error_diagnosis': self._create_error_diagnosis(),
-            'improvement_planning': self._create_improvement_planning()
-        }
-
-    def _create_agi_cognitive_engine(self) -> Dict[str, Any]:
-        """创建AGI认知引擎"""
-        return {
-            'attention_mechanism': self._create_attention_mechanism(),
-            'working_memory': self._create_working_memory(),
-            'long_term_memory': self._create_long_term_memory(),
-            'executive_control': self._create_executive_control(),
-            'metacognition': self._create_metacognition()
-        }
-
-    def _create_agi_sensor_problem_solver(self) -> Dict[str, Any]:
-        """创建AGI传感器问题解决器"""
-        return {
-            'problem_decomposition': self._create_problem_decomposition(),
-            'solution_synthesis': self._create_solution_synthesis(),
-            'optimization_techniques': self._create_optimization_techniques(),
-            'adaptation_strategies': self._create_adaptation_strategies()
-        }
-
-    def _create_agi_creative_generator(self) -> Dict[str, Any]:
-        """创建AGI创意生成器"""
-        return {
-            'novel_strategy_generation': self._create_novel_strategy_generation(),
-            'alternative_scenario_exploration': self._create_alternative_scenario_exploration(),
-            'emergent_behavior_utilization': self._create_emergent_behavior_utilization(),
-            'cross_domain_insight_transfer': self._create_cross_domain_insight_transfer()
-        }
-
-    # AGI传感器推理引擎组件
-    def _create_multi_sensor_fusion_engine(self) -> Dict[str, Any]:
-        """创建多传感器融合引擎"""
-        return {
-            'type': 'multi_sensor_fusion',
-            'capabilities': ['data_fusion', 'uncertainty_handling', 'confidence_calibration'],
-            'algorithms': ['kalman_filter', 'particle_filter', 'bayesian_fusion']
-        }
-
-    def _create_temporal_reasoning_engine(self) -> Dict[str, Any]:
-        """创建时序推理引擎"""
-        return {
-            'type': 'temporal_reasoning',
-            'capabilities': ['time_series_analysis', 'trend_prediction', 'anomaly_detection'],
-            'algorithms': ['lstm', 'gru', 'temporal_convolution']
-        }
-
-    def _create_spatial_reasoning_engine(self) -> Dict[str, Any]:
-        """创建空间推理引擎"""
-        return {
-            'type': 'spatial_reasoning',
-            'capabilities': ['spatial_correlation', 'geographic_analysis', 'topological_inference'],
-            'algorithms': ['spatial_clustering', 'geostatistics', 'graph_neural_networks']
-        }
-
-    def _create_causal_inference_engine(self) -> Dict[str, Any]:
-        """创建因果推理引擎"""
-        return {
-            'type': 'causal_inference',
-            'capabilities': ['causal_discovery', 'counterfactual_reasoning', 'intervention_analysis'],
-            'algorithms': ['causal_forest', 'structural_equation_modeling', 'do_calculus']
-        }
-
-    def _create_predictive_analytics_engine(self) -> Dict[str, Any]:
-        """创建预测分析引擎"""
-        return {
-            'type': 'predictive_analytics',
-            'capabilities': ['forecasting', 'risk_assessment', 'scenario_modeling'],
-            'algorithms': ['prophet', 'arima', 'monte_carlo_simulation']
-        }
-
-    # AGI元学习系统组件
-    def _create_pattern_learning_mechanism(self) -> Dict[str, Any]:
-        """创建模式学习机制"""
-        return {
-            'type': 'pattern_learning',
-            'capabilities': ['pattern_recognition', 'feature_extraction', 'representation_learning'],
-            'algorithms': ['autoencoders', 'contrastive_learning', 'self_supervised_learning']
-        }
-
-    def _create_experience_compression(self) -> Dict[str, Any]:
-        """创建经验压缩机制"""
-        return {
-            'type': 'experience_compression',
-            'capabilities': ['memory_consolidation', 'knowledge_distillation', 'experience_replay'],
-            'algorithms': ['experience_replay', 'prioritized_replay', 'hindsight_experience_replay']
-        }
-
-    def _create_cross_domain_transfer(self) -> Dict[str, Any]:
-        """创建跨领域迁移学习"""
-        return {
-            'type': 'cross_domain_transfer',
-            'capabilities': ['transfer_learning', 'domain_adaptation', 'multi_task_learning'],
-            'algorithms': ['domain_adversarial_training', 'multi_task_learning', 'meta_learning']
-        }
-
-    # AGI自我反思模块组件
-    def _create_performance_analysis(self) -> Dict[str, Any]:
-        """创建性能分析组件"""
-        return {
-            'type': 'performance_analysis',
-            'capabilities': ['metric_tracking', 'performance_evaluation', 'bottleneck_identification'],
-            'algorithms': ['performance_metrics', 'statistical_analysis', 'diagnostic_tools']
-        }
-
-    def _create_error_diagnosis(self) -> Dict[str, Any]:
-        """创建错误诊断组件"""
-        return {
-            'type': 'error_diagnosis',
-            'capabilities': ['error_classification', 'root_cause_analysis', 'failure_prediction'],
-            'algorithms': ['error_analysis', 'fault_detection', 'anomaly_detection']
-        }
-
-    def _create_improvement_planning(self) -> Dict[str, Any]:
-        """创建改进规划组件"""
-        return {
-            'type': 'improvement_planning',
-            'capabilities': ['optimization_planning', 'strategy_selection', 'resource_allocation'],
-            'algorithms': ['reinforcement_learning', 'optimization_algorithms', 'planning_algorithms']
-        }
-
-    # AGI认知引擎组件
-    def _create_attention_mechanism(self) -> Dict[str, Any]:
-        """创建注意力机制"""
-        return {
-            'type': 'attention_mechanism',
-            'capabilities': ['selective_attention', 'context_weighting', 'importance_scoring'],
-            'algorithms': ['attention_networks', 'self_attention', 'multi_head_attention']
-        }
-
-    def _create_working_memory(self) -> Dict[str, Any]:
-        """创建工作记忆"""
-        return {
-            'type': 'working_memory',
-            'capabilities': ['short_term_storage', 'information_manipulation', 'cognitive_control'],
-            'algorithms': ['memory_networks', 'neural_turing_machines', 'differentiable_neural_computers']
-        }
-
-    def _create_long_term_memory(self) -> Dict[str, Any]:
-        """创建长期记忆"""
-        return {
-            'type': 'long_term_memory',
-            'capabilities': ['knowledge_retention', 'experience_storage', 'semantic_organization'],
-            'algorithms': ['memory_augmented_networks', 'external_memory', 'knowledge_graphs']
-        }
-
-    def _create_executive_control(self) -> Dict[str, Any]:
-        """创建执行控制"""
-        return {
-            'type': 'executive_control',
-            'capabilities': ['goal_management', 'task_coordination', 'decision_making'],
-            'algorithms': ['hierarchical_reinforcement_learning', 'executive_control_networks', 'policy_gradients']
-        }
-
-    def _create_metacognition(self) -> Dict[str, Any]:
-        """创建元认知"""
-        return {
-            'type': 'metacognition',
-            'capabilities': ['self_monitoring', 'strategy_selection', 'learning_adaptation'],
-            'algorithms': ['meta_learning', 'self_reflective_networks', 'adaptive_learning_algorithms']
-        }
-
-    # AGI传感器问题解决器组件
-    def _create_problem_decomposition(self) -> Dict[str, Any]:
-        """创建问题分解组件"""
-        return {
-            'type': 'problem_decomposition',
-            'capabilities': ['problem_analysis', 'subproblem_identification', 'dependency_mapping'],
-            'algorithms': ['hierarchical_decomposition', 'constraint_satisfaction', 'graph_analysis']
-        }
-
-    def _create_solution_synthesis(self) -> Dict[str, Any]:
-        """创建解决方案合成组件"""
-        return {
-            'type': 'solution_synthesis',
-            'capabilities': ['solution_generation', 'alternative_evaluation', 'integration_planning'],
-            'algorithms': ['combinatorial_optimization', 'multi_objective_optimization', 'ensemble_methods']
-        }
-
-    def _create_optimization_techniques(self) -> Dict[str, Any]:
-        """创建优化技术组件"""
-        return {
-            'type': 'optimization_techniques',
-            'capabilities': ['parameter_optimization', 'resource_allocation', 'performance_tuning'],
-            'algorithms': ['gradient_descent', 'evolutionary_algorithms', 'bayesian_optimization']
-        }
-
-    def _create_adaptation_strategies(self) -> Dict[str, Any]:
-        """创建适应策略组件"""
-        return {
-            'type': 'adaptation_strategies',
-            'capabilities': ['environment_adaptation', 'strategy_adjustment', 'robustness_enhancement'],
-            'algorithms': ['adaptive_control', 'reinforcement_learning', 'online_learning']
-        }
-
-    # AGI创意生成器组件
-    def _create_novel_strategy_generation(self) -> Dict[str, Any]:
-        """创建新颖策略生成组件"""
-        return {
-            'type': 'novel_strategy_generation',
-            'capabilities': ['creative_exploration', 'strategy_innovation', 'out_of_box_thinking'],
-            'algorithms': ['generative_adversarial_networks', 'variational_autoencoders', 'creative_ai_algorithms']
-        }
-
-    def _create_alternative_scenario_exploration(self) -> Dict[str, Any]:
-        """创建替代场景探索组件"""
-        return {
-            'type': 'alternative_scenario_exploration',
-            'capabilities': ['scenario_generation', 'what_if_analysis', 'counterfactual_exploration'],
-            'algorithms': ['monte_carlo_simulation', 'scenario_planning', 'counterfactual_reasoning']
-        }
-
-    def _create_emergent_behavior_utilization(self) -> Dict[str, Any]:
-        """创建涌现行为利用组件"""
-        return {
-            'type': 'emergent_behavior_utilization',
-            'capabilities': ['emergence_detection', 'complex_system_analysis', 'self_organization_utilization'],
-            'algorithms': ['complex_systems_analysis', 'emergence_detection_algorithms', 'self_organizing_maps']
-        }
-
-    def _create_cross_domain_insight_transfer(self) -> Dict[str, Any]:
-        """创建跨领域洞察转移组件"""
-        return {
-            'type': 'cross_domain_insight_transfer',
-            'capabilities': ['analogical_reasoning', 'knowledge_transfer', 'insight_generalization'],
-            'algorithms': ['analogical_reasoning_algorithms', 'cross_domain_learning', 'meta_transfer_learning']
-        }
+            # 使用AGITools的基本初始化作为回退
+            basic_components = AGITools.initialize_basic_agi_components()
+            self.agi_sensor_reasoning = basic_components.get("reasoning_engine", {})
+            self.agi_meta_learning = basic_components.get("meta_learning_system", {})
+            self.agi_self_reflection = basic_components.get("self_reflection_module", {})
+            self.agi_cognitive_engine = basic_components.get("cognitive_engine", {})
+            self.agi_problem_solver = basic_components.get("problem_solver", {})
+            self.agi_creative_generator = basic_components.get("creative_generator", {})
 
     def _load_default_calibration(self):
         """加载默认校准参数"""

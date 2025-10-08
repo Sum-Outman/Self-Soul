@@ -8,23 +8,24 @@ from __future__ import unicode_literals
 import sys
 import types
 
+# Python 2 and 3 compatibility
 PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
+PY3 = not PY2
 
-if PY3:
+if PY2:
+    text_type = unicode  # type: ignore
+    binary_type = str
+    string_types = (str, unicode)  # type: ignore
+    integer_types = (int, long)  # type: ignore
+    class_types = (type, types.ClassType)
+    text_to_binary = lambda s, enc: s
+else:
     text_type = str
     binary_type = bytes
     string_types = (str,)
     integer_types = (int,)
     class_types = (type,)
     text_to_binary = lambda s, enc: s.encode(enc)
-else:
-    text_type = unicode
-    binary_type = str
-    string_types = (str, unicode)
-    integer_types = (int, long)
-    class_types = (type, types.ClassType)
-    text_to_binary = lambda s, enc: s
 
 # 创建moves模块
 class MovedModule(object):

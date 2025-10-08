@@ -344,8 +344,7 @@ class UnifiedModelTemplate(CompositeBaseModel, abc.ABC):
         try:
             # Initialize AGI self-learning system
             self.agi_self_learning = AGISelfLearningSystem(
-                model_type=self.model_type,
-                config=config
+                from_scratch=False
             )
             
             # Initialize AGI emotion awareness system

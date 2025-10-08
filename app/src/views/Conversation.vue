@@ -239,9 +239,10 @@ onMounted(() => {
 .conversation-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 70px);
   background: var(--bg-primary);
   color: var(--text-primary);
+  margin-top: 70px;
 }
 
 .conversation-header {

@@ -53,24 +53,35 @@ class InternalModelProxy:
             bool: True if model loaded successfully, False otherwise
         """
         try:
+            # 使用绝对导入以解决Pylance的静态分析问题
+            # Use absolute imports to fix Pylance static analysis issues
+            import sys
+            import os
+            
+            # 添加项目根目录到Python路径
+            # Add project root directory to Python path
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if project_root not in sys.path:
+                sys.path.insert(0, project_root)
+            
             if self.model_id.startswith('language'):
-                from ..models.language.model import LanguageModel
-                self.internal_model = LanguageModel(self.model_config)
+                from core.models.language import UnifiedLanguageModel  # type: ignore
+                self.internal_model = UnifiedLanguageModel(self.model_config)
             elif self.model_id.startswith('audio'):
-                from ..models.audio.model import AudioModel
-                self.internal_model = AudioModel(self.model_config)
+                from core.models.audio import UnifiedAudioModel  # type: ignore
+                self.internal_model = UnifiedAudioModel(self.model_config)
             elif self.model_id.startswith('image') or self.model_id.startswith('vision'):
-                from ..models.vision.merged_model import VisionModel
-                self.internal_model = VisionModel(self.model_config)
+                from core.models.vision import UnifiedVisionModel  # type: ignore
+                self.internal_model = UnifiedVisionModel(self.model_config)
             elif self.model_id.startswith('video'):
-                from ..models.video.model import VideoModel
-                self.internal_model = VideoModel(self.model_config)
+                from core.models.video import UnifiedVideoModel  # type: ignore
+                self.internal_model = UnifiedVideoModel(self.model_config)
             elif self.model_id.startswith('knowledge'):
-                from ..models.knowledge.model import KnowledgeModel
-                self.internal_model = KnowledgeModel(self.model_config)
+                from core.models.knowledge import UnifiedKnowledgeModel  # type: ignore
+                self.internal_model = UnifiedKnowledgeModel(self.model_config)
             else:
                 # Default to composite base model for unknown types
-                from ..models.base.composite_base_model import CompositeBaseModel
+                from core.models.base import CompositeBaseModel  # type: ignore
                 self.internal_model = CompositeBaseModel(self.model_config)
             
             # Initialize the model

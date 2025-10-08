@@ -440,7 +440,7 @@ class ExperienceBasedLearner:
                     'type': 'avoidance',
                     'target': mode,
                     'priority': frequency,
-                    'suggestion': f'避免{fmode}类型的错误',
+                    'suggestion': f'避免{mode}类型的错误',
                     'confidence': min(frequency * 1.5, 1.0)
                 })
         

@@ -360,11 +360,13 @@
 
 <style scoped>
 .train-view {
+  max-width: 1200px;
+  margin: 70px auto 0;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #333;
-  background-color: #f9f9f9;
-  min-height: 100vh;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  min-height: calc(100vh - 70px);
 }
 
 .status-messages {
@@ -1964,14 +1966,7 @@ return {
   --disabled-bg: #eeeeee;
 }
 
-.train-view {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: var(--font-family);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-}
+
 
 .status-messages {
   position: fixed;

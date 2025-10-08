@@ -207,24 +207,35 @@ class UnifiedOptimizationModel(UnifiedModelTemplate):
         """初始化AGI优化组件
         Initialize AGI optimization components
         
-        创建6个核心AGI组件，用于实现优化模型的通用人工智能能力
-        Create 6 core AGI components for implementing general artificial intelligence capabilities in optimization model
+        使用统一的AGI工具创建6个核心AGI组件，用于实现优化模型的通用人工智能能力
+        Use unified AGI tools to create 6 core AGI components for implementing general artificial intelligence capabilities in optimization model
         """
         try:
-            # AGI优化推理引擎
-            self.agi_optimization_reasoning = self._create_agi_optimization_reasoning_engine()
-            # AGI元学习系统用于优化策略
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
-            # AGI自我反思模块用于优化效果评估
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            # AGI认知引擎用于优化决策
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            # AGI优化问题解决器
-            self.agi_problem_solver = self._create_agi_optimization_problem_solver()
-            # AGI创意优化生成器
-            self.agi_creative_generator = self._create_agi_creative_generator()
+            # 导入统一的AGI工具
+            from core.agi_tools import AGITools
             
-            error_handler.log_info("AGI优化组件初始化完成", "UnifiedOptimizationModel")
+            # 使用统一的AGI工具初始化所有组件
+            agi_components = AGITools.initialize_agi_components(
+                model_type="optimization",
+                component_types=[
+                    "reasoning_engine",
+                    "meta_learning_system", 
+                    "self_reflection_module",
+                    "cognitive_engine",
+                    "problem_solver",
+                    "creative_generator"
+                ]
+            )
+            
+            # 将组件分配给实例变量
+            self.agi_optimization_reasoning = agi_components["reasoning_engine"]
+            self.agi_meta_learning = agi_components["meta_learning_system"]
+            self.agi_self_reflection = agi_components["self_reflection_module"]
+            self.agi_cognitive_engine = agi_components["cognitive_engine"]
+            self.agi_problem_solver = agi_components["problem_solver"]
+            self.agi_creative_generator = agi_components["creative_generator"]
+            
+            error_handler.log_info("AGI优化组件初始化完成（使用统一工具）", "UnifiedOptimizationModel")
             
         except Exception as e:
             error_handler.handle_error(e, "UnifiedOptimizationModel", "AGI组件初始化失败")

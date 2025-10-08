@@ -2,7 +2,7 @@
 External Device Interface - Communication with External Devices
 
 Provides functionality for communication with external devices, sensors, and actuators
-using various protocols like serial, TCP/IP, UDP, and more.
+using various protocols like serial, TCP/IP, UDP, camera interfaces, and more.
 """
 
 import serial
@@ -18,6 +18,8 @@ import os
 import asyncio
 import subprocess
 import platform
+import cv2
+import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +43,7 @@ class ExternalDeviceInterface:
         }
         
         # Supported protocols
-        self.supported_protocols = ["serial", "tcp", "udp", "websocket"]
+        self.supported_protocols = ["serial", "tcp", "udp", "websocket", "camera"]
         
     def initialize(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
         """Initialize the external device interface with configuration"""
@@ -78,6 +80,8 @@ class ExternalDeviceInterface:
                 elif protocol == "websocket":
                     # WebSocket implementation would be more complex and might need additional libraries
                     return {"success": False, "error": "WebSocket protocol is not fully implemented yet"}
+                elif protocol == "camera":
+                    connection = self._connect_camera(device_id, connection_params)
                 
                 if not connection:
                     return {"success": False, "error": f"Failed to create connection for device {device_id}"}
@@ -118,7 +122,13 @@ class ExternalDeviceInterface:
                 elif device["protocol"] == "tcp":
                     connection.close()
                 elif device["protocol"] == "udp":
-                    connection.close()
+                    # For UDP, connection is a tuple (socket, address)
+                    if isinstance(connection, tuple) and len(connection) > 0:
+                        connection[0].close()
+                    else:
+                        connection.close()
+                elif device["protocol"] == "camera":
+                    connection.release()
                 
                 # Stop any active threads for this device
                 if device_id in self.device_threads:
@@ -222,10 +232,21 @@ class ExternalDeviceInterface:
                         pass
                     # Reset to blocking mode
                     udp_socket.setblocking(True)
+                elif protocol == "camera":
+                    # For cameras, we capture a frame
+                    ret, frame = connection.read()
+                    if ret:
+                        # Convert frame to bytes for consistency with other protocols
+                        _, buffer = cv2.imencode('.jpg', frame)
+                        received_data = buffer.tobytes()
                 
                 # Process received data
                 if received_data:
-                    processed_data = self._process_received_data(received_data, data_type)
+                    if data_type == "image" and protocol == "camera":
+                        # For camera devices, return the raw frame data for image processing
+                        processed_data = received_data
+                    else:
+                        processed_data = self._process_received_data(received_data, data_type)
                     device["last_data_received"] = datetime.now().isoformat()
                     
                     logger.debug(f"Received {len(received_data)} bytes from device {device_id}")
@@ -300,23 +321,102 @@ class ExternalDeviceInterface:
             logger.error(f"Failed to stop data listener for device {device_id}: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    def get_device_info(self, device_id: str) -> Optional[Dict[str, Any]]:
-        """Get information about a connected device"""
+    def get_camera_properties(self, device_id: str) -> Dict[str, Any]:
+        """Get properties of a connected camera device"""
+        try:
+            with self.lock:
+                if device_id not in self.devices:
+                    return {"success": False, "error": f"Device {device_id} not found"}
+                
+                device = self.devices[device_id]
+                if device["protocol"] != "camera":
+                    return {"success": False, "error": f"Device {device_id} is not a camera"}
+                
+                connection = device["connection"]
+                
+                # Get various camera properties
+                properties = {
+                    "width": int(connection.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                    "height": int(connection.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                    "fps": connection.get(cv2.CAP_PROP_FPS),
+                    "brightness": connection.get(cv2.CAP_PROP_BRIGHTNESS),
+                    "contrast": connection.get(cv2.CAP_PROP_CONTRAST),
+                    "saturation": connection.get(cv2.CAP_PROP_SATURATION),
+                    "hue": connection.get(cv2.CAP_PROP_HUE),
+                    "gain": connection.get(cv2.CAP_PROP_GAIN),
+                    "exposure": connection.get(cv2.CAP_PROP_EXPOSURE)
+                }
+                
+                logger.debug(f"Retrieved camera properties for {device_id}")
+                return {
+                    "success": True,
+                    "device_id": device_id,
+                    "properties": properties
+                }
+        except Exception as e:
+            logger.error(f"Failed to get camera properties for {device_id}: {str(e)}")
+            return {"success": False, "error": str(e)}
+            
+    def set_camera_property(self, device_id: str, property_name: str, value: float) -> Dict[str, Any]:
+        """Set a specific property of a connected camera device"""
+        try:
+            with self.lock:
+                if device_id not in self.devices:
+                    return {"success": False, "error": f"Device {device_id} not found"}
+                
+                device = self.devices[device_id]
+                if device["protocol"] != "camera":
+                    return {"success": False, "error": f"Device {device_id} is not a camera"}
+                
+                connection = device["connection"]
+                
+                # Map property name to OpenCV property identifier
+                property_mapping = {
+                    "width": cv2.CAP_PROP_FRAME_WIDTH,
+                    "height": cv2.CAP_PROP_FRAME_HEIGHT,
+                    "fps": cv2.CAP_PROP_FPS,
+                    "brightness": cv2.CAP_PROP_BRIGHTNESS,
+                    "contrast": cv2.CAP_PROP_CONTRAST,
+                    "saturation": cv2.CAP_PROP_SATURATION,
+                    "hue": cv2.CAP_PROP_HUE,
+                    "gain": cv2.CAP_PROP_GAIN,
+                    "exposure": cv2.CAP_PROP_EXPOSURE
+                }
+                
+                if property_name not in property_mapping:
+                    return {"success": False, "error": f"Unknown property: {property_name}"}
+                
+                # Set the property
+                result = connection.set(property_mapping[property_name], value)
+                
+                if result:
+                    logger.debug(f"Set camera {device_id} property {property_name} to {value}")
+                    return {
+                        "success": True,
+                        "device_id": device_id,
+                        "property_name": property_name,
+                        "value": value
+                    }
+                else:
+                    logger.warning(f"Failed to set camera {device_id} property {property_name} to {value}")
+                    return {
+                        "success": False,
+                        "error": f"Failed to set property {property_name} to {value}"
+                    }
+        except Exception as e:
+            logger.error(f"Error setting camera property {property_name} for {device_id}: {str(e)}")
+            return {"success": False, "error": str(e)}
+            
+    def get_device_info(self, device_id: str) -> Dict[str, Any]:
+        """Get detailed information about a specific device"""
         with self.lock:
             if device_id not in self.devices:
-                logger.error(f"Device {device_id} not found")
-                return None
+                return {"success": False, "error": f"Device {device_id} not found"}
             
-            device = self.devices[device_id]
-            return {
-                "id": device["id"],
-                "protocol": device["protocol"],
-                "params": device["params"],
-                "is_connected": device["is_connected"],
-                "connected_at": device["connected_at"],
-                "last_data_received": device["last_data_received"],
-                "has_listener": device_id in self.device_threads
-            }
+            device = self.devices[device_id].copy()
+            # Remove connection object from the returned info for security
+            device.pop("connection", None)
+            return {"success": True, "device_info": device}
     
     def get_all_devices_info(self) -> Dict[str, Dict[str, Any]]:
         """Get information about all connected devices"""
@@ -396,6 +496,46 @@ class ExternalDeviceInterface:
                 pass
             return None
     
+    def _connect_camera(self, device_id: str, params: Dict[str, Any]) -> Optional[cv2.VideoCapture]:
+        """Connect to a camera device using OpenCV"""
+        try:
+            # Required parameter: camera index or video path
+            camera_index = params.get("camera_index", 0)  # Default to camera 0
+            
+            # Try to open the camera
+            cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW if platform.system() == 'Windows' else cv2.CAP_V4L2)
+            
+            # Check if camera opened successfully
+            if not cap.isOpened():
+                logger.error(f"Failed to open camera with index {camera_index} for device {device_id}")
+                return None
+            
+            # Set camera parameters if provided
+            if "resolution" in params:
+                width, height = params["resolution"]
+                cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            
+            if "fps" in params:
+                cap.set(cv2.CAP_PROP_FPS, params["fps"])
+            
+            if "brightness" in params:
+                cap.set(cv2.CAP_PROP_BRIGHTNESS, params["brightness"])
+            
+            if "contrast" in params:
+                cap.set(cv2.CAP_PROP_CONTRAST, params["contrast"])
+            
+            # Get actual camera properties
+            actual_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+            actual_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            actual_fps = cap.get(cv2.CAP_PROP_FPS)
+            
+            logger.info(f"Camera {device_id} connected successfully (index: {camera_index}, resolution: {actual_width}x{actual_height}, fps: {actual_fps})")
+            return cap
+        except Exception as e:
+            logger.error(f"Camera connection error for device {device_id}: {str(e)}")
+            return None
+            
     def _connect_udp(self, device_id: str, params: Dict[str, Any]) -> Optional[Tuple[socket.socket, Tuple[str, int]]]:
         """Connect to a device using UDP"""
         try:
@@ -482,6 +622,47 @@ class ExternalDeviceInterface:
             # Fallback: return as hex string
             return data.hex()
     
+    def scan_cameras(self) -> List[Dict[str, Any]]:
+        """Scan for available camera devices"""
+        available_cameras = []
+        
+        try:
+            # Try to open camera indices up to a reasonable limit (e.g., 10)
+            max_cameras_to_check = 10
+            
+            for i in range(max_cameras_to_check):
+                try:
+                    # Try to open the camera
+                    cap = cv2.VideoCapture(i, cv2.CAP_DSHOW if platform.system() == 'Windows' else cv2.CAP_V4L2)
+                    
+                    if cap.isOpened():
+                        # Get camera properties
+                        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                        fps = cap.get(cv2.CAP_PROP_FPS)
+                        
+                        # Add camera info to the list
+                        camera_info = {
+                            "camera_index": i,
+                            "name": f"Camera {i}",
+                            "default_resolution": f"{width}x{height}",
+                            "fps": fps,
+                            "system": platform.system()
+                        }
+                        available_cameras.append(camera_info)
+                        
+                        # Release the camera to avoid resource leaks
+                        cap.release()
+                except Exception as e:
+                    # Skip if camera cannot be opened
+                    continue
+            
+            logger.info(f"Found {len(available_cameras)} available cameras")
+        except Exception as e:
+            logger.error(f"Camera scan failed: {str(e)}")
+        
+        return available_cameras
+        
     def scan_serial_ports(self) -> List[Dict[str, Any]]:
         """Scan for available serial ports"""
         available_ports = []
@@ -556,6 +737,54 @@ class ExternalDeviceInterface:
         logger.info(f"Found {len(unique_ports)} available serial ports")
         return unique_ports
     
+    def capture_camera_frame(self, device_id: str, format: str = "numpy") -> Dict[str, Any]:
+        """Capture a frame from a connected camera device"""
+        try:
+            with self.lock:
+                if device_id not in self.devices:
+                    return {"success": False, "error": f"Device {device_id} not found"}
+                
+                device = self.devices[device_id]
+                if device["protocol"] != "camera":
+                    return {"success": False, "error": f"Device {device_id} is not a camera"}
+                
+                connection = device["connection"]
+                
+                # Capture frame-by-frame
+                ret, frame = connection.read()
+                
+                if not ret:
+                    logger.error(f"Failed to capture frame from camera {device_id}")
+                    return {"success": False, "error": "Failed to capture frame"}
+                
+                device["last_data_received"] = datetime.now().isoformat()
+                
+                # Process the frame based on the requested format
+                processed_frame = frame
+                if format == "base64":
+                    # Convert to JPEG and then to base64
+                    _, buffer = cv2.imencode('.jpg', frame)
+                    processed_frame = buffer.tobytes().hex()
+                elif format == "bytes":
+                    # Convert to bytes
+                    _, buffer = cv2.imencode('.jpg', frame)
+                    processed_frame = buffer.tobytes()
+                elif format == "rgb":
+                    # Convert BGR to RGB
+                    processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                logger.debug(f"Captured frame from camera {device_id}, format: {format}")
+                return {
+                    "success": True,
+                    "device_id": device_id,
+                    "frame": processed_frame,
+                    "format": format,
+                    "dimensions": (frame.shape[1], frame.shape[0])  # (width, height)
+                }
+        except Exception as e:
+            logger.error(f"Failed to capture frame from camera {device_id}: {str(e)}")
+            return {"success": False, "error": str(e)}
+            
     def ping_device(self, device_id: str) -> Dict[str, Any]:
         """Ping a device to check connectivity"""
         try:

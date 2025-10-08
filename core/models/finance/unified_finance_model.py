@@ -22,6 +22,10 @@ from pathlib import Path
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.from_scratch_training import FromScratchTrainer
 from core.external_api_service import ExternalAPIService
+from core.agi_tools import AGITools
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class FromScratchFinanceTrainer(FromScratchTrainer):
@@ -1016,24 +1020,47 @@ class UnifiedFinanceModel(UnifiedModelTemplate):
         self._initialize_agi_finance_components()
 
     def _initialize_agi_finance_components(self):
-        """Initialize AGI-level financial intelligence components"""
+        """Initialize AGI-level financial intelligence components using unified AGITools"""
         try:
-            # AGI Financial Reasoning Engine
-            self.agi_financial_reasoning = self._create_agi_financial_reasoning_engine()
-            # AGI Meta-Learning System for Financial Markets
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
-            # AGI Self-Reflection Module for Financial Performance
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            # AGI Cognitive Engine for Financial Understanding
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            # AGI Financial Problem Solver
-            self.agi_problem_solver = self._create_agi_financial_problem_solver()
-            # AGI Creative Financial Generator
-            self.agi_creative_generator = self._create_agi_creative_generator()
+            logger.info("开始初始化AGI金融组件")
             
-            logging.info("AGI financial components initialized successfully")
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "financial_reasoning", "meta_learning", "self_reflection", 
+                "cognitive_engine", "problem_solver", "creative_generator"
+            ])
+            
+            # 分配组件到实例变量
+            self.agi_financial_reasoning = agi_components.get("financial_reasoning")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
+            
+            # 如果AGITools没有提供特定组件，使用原有的创建方法作为后备
+            if not self.agi_financial_reasoning:
+                self.agi_financial_reasoning = self._create_agi_financial_reasoning_engine()
+            if not self.agi_meta_learning:
+                self.agi_meta_learning = self._create_agi_meta_learning_system()
+            if not self.agi_self_reflection:
+                self.agi_self_reflection = self._create_agi_self_reflection_module()
+            if not self.agi_cognitive_engine:
+                self.agi_cognitive_engine = self._create_agi_cognitive_engine()
+            if not self.agi_problem_solver:
+                self.agi_problem_solver = self._create_agi_financial_problem_solver()
+            if not self.agi_creative_generator:
+                self.agi_creative_generator = self._create_agi_creative_generator()
+            
+            logger.info("AGI金融组件初始化成功")
+            
         except Exception as e:
-            logging.error(f"Failed to initialize AGI financial components: {e}")
+            error_msg = f"初始化AGI金融组件失败: {str(e)}"
+            logger.error(error_msg)
+            # 使用统一的错误处理
+            from core.error_handling import ErrorHandler
+            ErrorHandler.log_error("agi_finance_components_init", error_msg, str(e))
+            raise
 
     def _create_agi_financial_reasoning_engine(self):
         """Create AGI Financial Reasoning Engine for advanced market analysis"""

@@ -18,6 +18,9 @@ Language Model Package Initialization File
 Export language model class for use by other modules
 """
 
+# Export language model class
+from .unified_language_model import UnifiedLanguageModel
+
 # Import the actual language model implementation
 from .unified_language_model import UnifiedLanguageModel as LanguageModel
 # Create an alias for AdvancedLanguageModel if needed

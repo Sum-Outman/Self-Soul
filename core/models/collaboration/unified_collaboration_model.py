@@ -18,6 +18,10 @@ from sklearn.preprocessing import StandardScaler
 
 from ..unified_model_template import UnifiedModelTemplate
 from core.realtime_stream_manager import RealTimeStreamManager
+from core.agi_tools import AGITools
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class CollaborationNeuralNetwork(nn.Module):
@@ -1613,30 +1617,32 @@ class UnifiedCollaborationModel(UnifiedModelTemplate):
         }
 
     def _initialize_agi_collaboration_components(self) -> None:
-        """Initialize AGI-level collaboration components"""
+        """Initialize AGI-level collaboration components using unified AGITools"""
         try:
-            # AGI协作推理引擎
-            self.agi_collaboration_reasoning = self._create_agi_collaboration_reasoning_engine()
+            logger.info("开始初始化AGI协作组件")
             
-            # AGI元学习系统用于协作策略
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "collaboration_reasoning", "meta_learning", "self_reflection", 
+                "cognitive_engine", "problem_solver", "creative_generator"
+            ])
             
-            # AGI自我反思模块用于协作效果评估
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
+            # 分配组件到实例变量
+            self.agi_collaboration_reasoning = agi_components.get("collaboration_reasoning")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
             
-            # AGI认知引擎用于协作决策
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
+            # 初始化协作特定的AGI组件
+            self._initialize_collaboration_specific_agi_components()
             
-            # AGI协作问题解决器
-            self.agi_problem_solver = self._create_agi_collaboration_problem_solver()
-            
-            # AGI创意协作生成器
-            self.agi_creative_generator = self._create_agi_creative_generator()
-            
-            self.logger.info("AGI collaboration components initialized successfully")
+            logger.info("AGI协作组件初始化成功")
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize AGI collaboration components: {e}")
+            error_msg = f"初始化AGI协作组件失败: {str(e)}"
+            logger.error(error_msg)
             raise
 
     def _create_agi_collaboration_reasoning_engine(self) -> Dict[str, Any]:

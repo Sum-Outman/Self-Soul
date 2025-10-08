@@ -199,7 +199,7 @@ class UnifiedComputerModel(UnifiedModelTemplate):
 
     def _create_stream_processor(self):
         """Create computer control specific stream processor"""
-        self.stream_processor = RealtimeStreamManager(
+        self.stream_processor = RealTimeStreamManager(
             stream_type="computer_operations",
             buffer_size=100,
             processing_interval=0.1

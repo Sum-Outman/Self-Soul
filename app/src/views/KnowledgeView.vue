@@ -1281,9 +1281,9 @@ export default {
 .knowledge-view {
   padding: var(--spacing-lg);
   max-width: 1200px;
-  margin: 0 auto;
-  min-height: calc(100vh - 120px);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 70px auto 0;
+  min-height: calc(100vh - 70px);
+  font-family: var(--font-family);
   background: var(--bg-primary);
 }
 

@@ -211,7 +211,7 @@ export default {
   padding: 20px;
   background: #ffffff;
       min-height: 100vh;
-    },
+    }
     
     .no-data {
       padding: 40px;

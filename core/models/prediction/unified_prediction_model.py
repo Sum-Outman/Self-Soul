@@ -21,6 +21,7 @@ import os
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.error_handling import error_handler
 from core.realtime_stream_manager import RealTimeStreamManager
+from core.agi_tools import AGITools
 
 
 # 预测神经网络定义
@@ -197,19 +198,99 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
         self._initialize_agi_prediction_components()
     
     def _initialize_agi_prediction_components(self) -> None:
-        """初始化AGI预测组件"""
-        # AGI预测推理引擎
-        self.agi_prediction_reasoning = self._create_agi_prediction_reasoning_engine()
-        # AGI元学习系统用于预测策略
-        self.agi_meta_learning = self._create_agi_meta_learning_system()
-        # AGI自我反思模块用于预测效果评估
-        self.agi_self_reflection = self._create_agi_self_reflection_module()
-        # AGI认知引擎用于预测决策
-        self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-        # AGI预测问题解决器
-        self.agi_problem_solver = self._create_agi_prediction_problem_solver()
-        # AGI创意预测生成器
-        self.agi_creative_generator = self._create_agi_creative_generator()
+        """使用统一的AGITools初始化AGI预测组件"""
+        # 使用统一的AGITools初始化AGI组件
+        agi_components = AGITools.initialize_agi_components([
+            "reasoning_engine", "meta_learning_system", "self_reflection_module",
+            "cognitive_engine", "problem_solver", "creative_generator"
+        ])
+        
+        # 分配AGI组件
+        self.agi_prediction_reasoning = agi_components.get("reasoning_engine", {})
+        self.agi_meta_learning = agi_components.get("meta_learning_system", {})
+        self.agi_self_reflection = agi_components.get("self_reflection_module", {})
+        self.agi_cognitive_engine = agi_components.get("cognitive_engine", {})
+        self.agi_problem_solver = agi_components.get("problem_solver", {})
+        self.agi_creative_generator = agi_components.get("creative_generator", {})
+        
+        # 为预测模型定制化配置
+        self._customize_agi_components_for_prediction()
+    
+    def _customize_agi_components_for_prediction(self) -> None:
+        """为预测模型定制化AGI组件"""
+        # 为推理引擎添加预测特定能力
+        if self.agi_prediction_reasoning:
+            self.agi_prediction_reasoning.update({
+                'temporal_horizon': self.model_config['default_horizon'],
+                'prediction_specific_capabilities': [
+                    'multi-step temporal reasoning',
+                    'causal inference for predictions',
+                    'uncertainty quantification',
+                    'probabilistic reasoning',
+                    'temporal pattern recognition',
+                    'counterfactual analysis'
+                ]
+            })
+        
+        # 为元学习系统添加预测策略
+        if self.agi_meta_learning:
+            self.agi_meta_learning.update({
+                'prediction_strategies': [
+                    'prediction strategy transfer',
+                    'pattern generalization',
+                    'experience compression',
+                    'knowledge distillation',
+                    'adaptive learning rates'
+                ]
+            })
+        
+        # 为自我反思模块添加预测评估
+        if self.agi_self_reflection:
+            self.agi_self_reflection.update({
+                'prediction_evaluation_metrics': [
+                    'prediction accuracy analysis',
+                    'strategy effectiveness evaluation',
+                    'error diagnosis and correction',
+                    'confidence calibration feedback',
+                    'goal alignment assessment'
+                ]
+            })
+        
+        # 为认知引擎添加预测处理组件
+        if self.agi_cognitive_engine:
+            self.agi_cognitive_engine.update({
+                'prediction_components': [
+                    'attention mechanism for temporal patterns',
+                    'working memory for prediction sequences',
+                    'long-term memory for historical patterns',
+                    'executive control for prediction strategies',
+                    'metacognition for prediction monitoring'
+                ]
+            })
+        
+        # 为问题解决器添加预测技术
+        if self.agi_problem_solver:
+            self.agi_problem_solver.update({
+                'prediction_techniques': [
+                    'temporal decomposition',
+                    'multi-scale analysis',
+                    'ensemble methods integration',
+                    'uncertainty propagation',
+                    'scenario planning'
+                ]
+            })
+        
+        # 为创意生成器添加预测创新
+        if self.agi_creative_generator:
+            self.agi_creative_generator.update({
+                'prediction_innovation_capabilities': [
+                    'novel forecasting approaches',
+                    'alternative prediction scenarios',
+                    'constraint relaxation for innovation',
+                    'associative thinking for patterns',
+                    'analogical reasoning across domains'
+                ]
+            })
     
     def _create_agi_prediction_reasoning_engine(self) -> Dict[str, Any]:
         """创建AGI预测推理引擎"""

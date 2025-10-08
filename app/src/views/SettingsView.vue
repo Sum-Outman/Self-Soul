@@ -28,6 +28,23 @@
           <p class="stat-value">{{ apiModelsCount }}</p>
         </div>
       </div>
+      <!-- API Service Status -->
+      <div class="api-service-status-section">
+        <div class="api-service-card">
+          <h3>Global API Service Status</h3>
+          <div class="api-status-info" v-if="globalApiStatus">
+            <p><strong>Status:</strong> <span :class="globalApiStatus.available ? 'status-online' : 'status-offline'">
+              {{ globalApiStatus.available ? 'Available' : 'Unavailable' }}
+            </span></p>
+            <p v-if="globalApiStatus.services"><strong>Active Services:</strong> {{ globalApiStatus.services.join(', ') }}</p>
+            <p v-if="globalApiStatus.timestamp"><strong>Last Check:</strong> {{ formatDateTime(globalApiStatus.timestamp) }}</p>
+          </div>
+          <button class="refresh-btn" @click="getApiServiceStatus" :disabled="checkingGlobalStatus">
+            {{ checkingGlobalStatus ? 'Checking...' : 'Check Status' }}
+          </button>
+        </div>
+      </div>
+      
       <!-- Model Configuration Type Indicator -->
       <div class="model-configuration-type">
         <span class="config-type-badge" :class="model && model.externalConfig ? 'external' : 'local'">
@@ -196,6 +213,13 @@
                     {{ isTestingConnection(model.id) ? 'Testing...' : 'Test Connection' }}
                   </button>
                   <button 
+                    class="test-btn" 
+                    @click="getModelApiStatus(model.id)"
+                    :disabled="model.status === 'running'"
+                  >
+                    Check API Status
+                  </button>
+                  <button 
                     class="save-btn"
                     @click="saveModelConfig(model.id)"
                     :disabled="isSavingSettings(model.id)"
@@ -209,6 +233,14 @@
                   </div>
                   <div v-else class="error-message">
                     {{ testResults[model.id].message }}
+                  </div>
+                </div>
+                <!-- API Status Display -->
+                <div v-if="model.apiStatus" class="test-results">
+                  <div class="info-message">
+                    <p><strong>API Status:</strong> {{ model.apiStatus.connected ? 'Connected' : 'Disconnected' }}</p>
+                    <p v-if="model.apiStatus.version"><strong>API Version:</strong> {{ model.apiStatus.version }}</p>
+                    <p v-if="model.apiStatus.latency"><strong>Latency:</strong> {{ model.apiStatus.latency }}ms</p>
                   </div>
                 </div>
               </div>
@@ -803,6 +835,8 @@ export default {
     const showApiSettings = ref({})
     const showApiKeys = ref({})
     const testResults = ref({})
+    const globalApiStatus = ref(null)
+    const checkingGlobalStatus = ref(false)
     
     // Train from scratch related states
     const showTrainModal = ref(false)
@@ -977,6 +1011,77 @@ export default {
       }
     }
     
+    // Get specific model API configuration
+    const getModelApiConfig = async (modelId) => {
+      try {
+        const response = await api.modelConfigs.getApiConfig(modelId)
+        const model = models.value.find(m => m.id === modelId)
+        if (model) {
+          model.apiConfig = response.data
+          notify.success('API configuration loaded successfully')
+        }
+        return response.data
+      } catch (error) {
+        console.error('Failed to get model API configuration:', error)
+        notify.error('Failed to get API configuration')
+        return null
+      }
+    }
+    
+    // Get specific model API status
+    const getModelApiStatus = async (modelId) => {
+      try {
+        const model = models.value.find(m => m.id === modelId)
+        if (!model) {
+          notify.error('Model not found')
+          return null
+        }
+        
+        // Add loading state
+        const loadingMessageId = notify.info('Checking API status...')
+        
+        const response = await api.modelConfigs.getApiStatus(modelId)
+        
+        // Update model API status
+        model.apiStatus = response.data
+        
+        // Show success notification
+        notify.remove(loadingMessageId)
+        notify.success('API status checked successfully')
+        
+        return response.data
+      } catch (error) {
+        console.error('Failed to get model API status:', error)
+        notify.error('Failed to get API status')
+        return null
+      }
+    }
+    
+    // Get global API service status
+    const getApiServiceStatus = async () => {
+      try {
+        checkingGlobalStatus.value = true
+        
+        const response = await api.externalApi.getServiceStatus()
+        
+        // Update global API service status
+        globalApiStatus.value = {
+          ...response.data,
+          timestamp: new Date().toISOString()
+        }
+        
+        notify.success('Global API service status checked successfully')
+        
+        return response.data
+      } catch (error) {
+        console.error('Failed to get API service status:', error)
+        notify.error('Failed to get API service status')
+        return null
+      } finally {
+        checkingGlobalStatus.value = false
+      }
+    }
+    
     // Handle source change for existing models
     const onSourceChange = async (modelId, newSource) => {
       const model = models.value.find(m => m.id === modelId)
@@ -1067,7 +1172,8 @@ export default {
           sourceProvider: model.sourceProvider
         }
         
-        const response = await api.modelConfigs.testConnection(modelId, testData)
+        // Use the generic test connection endpoint that doesn't require a model ID
+        const response = await api.externalApi.testGenericConnection(testData)
         
         testResults.value[modelId] = {
           success: true,
@@ -2096,6 +2202,17 @@ export default {
       const date = new Date(dateString)
       return date.toLocaleString()
     }
+    
+    const formatDateTime = (timestamp) => {
+      const date = new Date(timestamp)
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
 
     const isOperating = (modelId) => {
       return operatingModels.value.has(modelId)
@@ -2585,10 +2702,14 @@ export default {
       getApiKeyStatus,
       getApiKeyStatusText,
       formatDate,
+      formatDateTime,
       isOperating,
       isTestingConnection,
-      isSavingSettings,
-      testNotificationSystem,
+        isSavingSettings,
+        testNotificationSystem,
+        getModelApiConfig,
+        getModelApiStatus,
+        getApiServiceStatus,
       
       // Train from scratch methods
       openTrainModal,
@@ -2610,6 +2731,15 @@ export default {
 </script>
 
 <style scoped>
+/* Settings Container */
+.settings-container {
+  padding: var(--spacing-lg);
+  margin-top: 70px;
+  min-height: calc(100vh - 70px);
+  font-family: var(--font-family);
+  background: var(--bg-primary);
+}
+
 /* Main Content Container */
 .settings-content {
   max-width: 1200px;
@@ -3715,5 +3845,69 @@ export default {
   .btn {
     width: 100%;
   }
+}
+
+/* Test results */
+.success-message {
+  background-color: #f0f9f0;
+  border: 1px solid #d4edda;
+  color: #155724;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-md);
+}
+
+.error-message {
+  background-color: #fef0f0;
+  border: 1px solid #f8d7da;
+  color: #721c24;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-md);
+}
+
+.info-message {
+  background-color: #f8f9fa;
+  border: 1px solid #d4dae0;
+  color: #2c3e50;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-md);
+}
+
+/* API Service Status */
+.api-service-status-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.api-service-card {
+  background: white;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.api-service-card h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.api-status-info {
+  margin-bottom: var(--spacing-md);
+}
+
+.api-status-info p {
+  margin: 5px 0;
+}
+
+.status-online {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.status-offline {
+  color: #dc3545;
+  font-weight: 500;
 }
 </style>

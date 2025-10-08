@@ -248,7 +248,7 @@ class ModelRegistry:
         self.agi_core = AGICore()  # AGI核心系统
         self._agi_coordinator = None  # AGI协调器（延迟初始化）
         self.cognitive_architecture = UnifiedCognitiveArchitecture()  # 统一认知架构
-        self.self_learning_system = AGISelfLearningSystem()  # 自我学习系统
+        self.self_learning_system = AGISelfLearningSystem(from_scratch=False)  # 自我学习系统
         self.context_memory = ContextMemoryManager()  # 上下文记忆管理器
         self.intrinsic_motivation = IntrinsicMotivationSystem()  # 内在动机系统
         self.creative_solver = CreativeProblemSolver()  # 创造性问题解决器

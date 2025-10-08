@@ -1,11 +1,65 @@
 <template>
   <div class="help-container">
+    <!-- Search Bar -->
+        <div class="search-container">
+          <input
+            ref="searchInput"
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search help content..."
+            class="search-input"
+          />
+          
+          <!-- Search Results -->
+          <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+            <h3>Search Results ({{ searchResults.length }})</h3>
+            <ul>
+              <li v-for="result in searchResults" :key="result.id">
+                <a href="#{{ result.id }}" @click="scrollToSection(result.id)">{{ result.title }}</a>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- No Results Message -->
+          <div v-else-if="showSearchResults" class="no-results">
+            <p>No results found for "{{ searchQuery }}"</p>
+          </div>
+        </div>
+        
+        <!-- Section Controls -->
+        <div class="section-controls">
+          <button @click="expandAll()" class="control-btn">Expand All</button>
+          <button @click="collapseAll()" class="control-btn">Collapse All</button>
+        </div>
 
-    <!-- Main Content -->
-    <main class="help-main">
+    <!-- Help Layout -->
+    <div class="help-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="help-sidebar">
+        <nav class="help-nav">
+          <h3>Contents</h3>
+          <ul>
+            <li><a href="#system-overview" @click="scrollToSection('system-overview')">System Overview</a></li>
+            <li><a href="#ports-config" @click="scrollToSection('ports-config')">Service Ports Configuration</a></li>
+            <li><a href="#getting-started" @click="scrollToSection('getting-started')">Getting Started</a></li>
+            <li><a href="#core-models" @click="scrollToSection('core-models')">Core Cognitive Models</a></li>
+            <li><a href="#training-methodology" @click="scrollToSection('training-methodology')">Training Methodology</a></li>
+            <li><a href="#advanced-capabilities" @click="scrollToSection('advanced-capabilities')">Advanced Capabilities</a></li>
+            <li><a href="#troubleshooting" @click="scrollToSection('troubleshooting')">Troubleshooting & Support</a></li>
+            <li><a href="#system-requirements" @click="scrollToSection('system-requirements')">System Requirements</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="help-main">
       <!-- System Introduction -->
-      <section class="help-section">
-        <h2>System Overview</h2>
+      <section id="system-overview" class="help-section">
+        <div class="section-header" @click="toggleSection('systemOverview')">
+          <h2>System Overview</h2>
+          <span class="toggle-icon">{{ sectionExpanded.systemOverview ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.systemOverview" class="section-content">
         <p>Self Brain is a revolutionary human-like AGI system designed for autonomous learning, self-optimization, and multimodal intelligence. The system features a sophisticated architecture that integrates multiple cognitive capabilities including language processing, visual recognition, audio analysis, and sensor data interpretation.</p>
         
         <div class="feature-list">
@@ -14,11 +68,16 @@
             <p>{{ feature.description }}</p>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- Service Ports Configuration -->
-      <section class="help-section">
-        <h2>Service Ports Configuration</h2>
+      <section id="ports-config" class="help-section">
+        <div class="section-header" @click="toggleSection('portsConfig')">
+          <h2>Service Ports Configuration</h2>
+          <span class="toggle-icon">{{ sectionExpanded.portsConfig ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.portsConfig" class="section-content">
         <p>The system uses a multi-port architecture to separate different services and model endpoints. Here are the primary service ports:</p>
         
         <div class="ports-table">
@@ -54,11 +113,16 @@
             </tbody>
           </table>
         </div>
+        </div>
       </section>
 
       <!-- Quick Start -->
-      <section class="help-section">
-        <h2>Getting Started</h2>
+      <section id="getting-started" class="help-section">
+        <div class="section-header" @click="toggleSection('gettingStarted')">
+          <h2>Getting Started</h2>
+          <span class="toggle-icon">{{ sectionExpanded.gettingStarted ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.gettingStarted" class="section-content">
         <div class="step-list">
           <div class="step">
             <span class="step-number">1</span>
@@ -89,11 +153,16 @@
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- Core Models -->
-      <section class="help-section">
-        <h2>Core Cognitive Models</h2>
+      <section id="core-models" class="help-section">
+        <div class="section-header" @click="toggleSection('coreModels')">
+          <h2>Core Cognitive Models</h2>
+          <span class="toggle-icon">{{ sectionExpanded.coreModels ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.coreModels" class="section-content">
         <p>The system comprises 19 specialized models that work in concert to provide comprehensive AGI capabilities. Each model is assigned a dedicated port within the range 8001-8019:</p>
         <div class="model-grid">
           <div class="model-card">
@@ -173,11 +242,16 @@
             <p>Ensures system behaviors align with defined ethical guidelines and values</p>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- Training Guide -->
-      <section class="help-section">
-        <h2>Training Methodology</h2>
+      <section id="training-methodology" class="help-section">
+        <div class="section-header" @click="toggleSection('trainingMethodology')">
+          <h2>Training Methodology</h2>
+          <span class="toggle-icon">{{ sectionExpanded.trainingMethodology ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.trainingMethodology" class="section-content">
         <p>The Self Brain system employs advanced training techniques to continuously improve its capabilities and adapt to new scenarios.</p>
         
         <div class="training-info">
@@ -201,11 +275,16 @@
             <li>Use the built-in performance analytics to identify areas for improvement</li>
           </ul>
         </div>
+        </div>
       </section>
 
       <!-- Advanced Features -->
-      <section class="help-section">
-        <h2>Advanced Capabilities</h2>
+      <section id="advanced-capabilities" class="help-section">
+        <div class="section-header" @click="toggleSection('advancedCapabilities')">
+          <h2>Advanced Capabilities</h2>
+          <span class="toggle-icon">{{ sectionExpanded.advancedCapabilities ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.advancedCapabilities" class="section-content">
         <p>Self Brain incorporates cutting-edge AI technologies to deliver sophisticated cognitive abilities:</p>
         
         <div class="feature-grid">
@@ -234,11 +313,16 @@
             <p>Transparent decision-making processes with clear explanations of reasoning paths</p>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- Troubleshooting -->
-      <section class="help-section">
-        <h2>Troubleshooting & Support</h2>
+      <section id="troubleshooting" class="help-section">
+        <div class="section-header" @click="toggleSection('troubleshooting')">
+          <h2>Troubleshooting & Support</h2>
+          <span class="toggle-icon">{{ sectionExpanded.troubleshooting ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.troubleshooting" class="section-content">
         <div class="faq-list">
           <div class="faq-item">
             <h3>System Initialization Issues</h3>
@@ -257,11 +341,16 @@
             <p>Monitor system memory usage, optimize data processing pipelines, and consider implementing caching strategies.</p>
           </div>
         </div>
+        </div>
       </section>
 
       <!-- System Requirements -->
-      <section class="help-section">
-        <h2>System Requirements</h2>
+      <section id="system-requirements" class="help-section">
+        <div class="section-header" @click="toggleSection('systemRequirements')">
+          <h2>System Requirements</h2>
+          <span class="toggle-icon">{{ sectionExpanded.systemRequirements ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.systemRequirements" class="section-content">
         <div class="requirements-list">
           <div class="requirement-item">
             <h3>Hardware</h3>
@@ -284,8 +373,10 @@
             Proper file system permissions for reading/writing data files and configurations</p>
           </div>
         </div>
+        </div>
       </section>
     </main>
+  </div>
 
     <!-- Footer -->
     <footer class="help-footer">
@@ -339,11 +430,122 @@ export default {
           title: 'Transfer Learning',
           description: 'Application of knowledge from one domain to accelerate learning in related areas'
         }
-      ]
+      ],
+      // Search functionality
+      searchQuery: '',
+      // Section expansion states
+      sectionExpanded: {
+        systemOverview: true,
+        portsConfig: true,
+        gettingStarted: true,
+        coreModels: true,
+        trainingMethodology: true,
+        advancedCapabilities: true,
+        troubleshooting: true,
+        systemRequirements: true
+      },
+      // Matched search results
+      searchResults: [],
+      // Show search results instead of normal content
+      showSearchResults: false
+    }
+  },
+  computed: {
+    // Filter sections based on search query
+    filteredSections() {
+      if (!this.searchQuery) {
+        this.showSearchResults = false;
+        return null;
+      }
+      
+      const query = this.searchQuery.toLowerCase();
+      const results = [];
+      const sections = document.querySelectorAll('.help-section');
+      
+      sections.forEach((section) => {
+        const sectionId = section.id;
+        const sectionTitle = section.querySelector('h2').textContent.toLowerCase();
+        const sectionContent = section.textContent.toLowerCase();
+        
+        if (sectionTitle.includes(query) || sectionContent.includes(query)) {
+          results.push({
+            id: sectionId,
+            title: section.querySelector('h2').textContent
+          });
+        }
+      });
+      
+      this.searchResults = results;
+      this.showSearchResults = results.length > 0;
+      return results;
+    }
+  },
+  watch: {
+    searchQuery(newQuery) {
+      // Reset section expansion when search query changes
+      if (!newQuery) {
+        this.showSearchResults = false;
+      }
     }
   },
   mounted() {
-    document.title = 'Self Brain AGI System Help'
+    document.title = 'Self Brain AGI System Help';
+    // Add event listener for keyboard shortcuts
+    document.addEventListener('keydown', this.handleKeyDown);
+  },
+  beforeUnmount() {
+    // Remove event listener
+    document.removeEventListener('keydown', this.handleKeyDown);
+  },
+  methods: {
+    // Toggle section expansion
+    toggleSection(sectionName) {
+      this.sectionExpanded[sectionName] = !this.sectionExpanded[sectionName];
+    },
+    
+    // Scroll to specific section
+    scrollToSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        // First ensure the section is expanded
+        const sectionKey = sectionId.replace(/-/g, '').replace(/^./, str => str.charAt(0).toLowerCase() + str.slice(1));
+        if (this.sectionExpanded.hasOwnProperty(sectionKey)) {
+          this.sectionExpanded[sectionKey] = true;
+        }
+        
+        // Then scroll to it
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Reset search results if any
+        if (this.showSearchResults) {
+          this.searchQuery = '';
+          this.showSearchResults = false;
+        }
+      }
+    },
+    
+    // Handle keyboard shortcuts
+    handleKeyDown(event) {
+      // Ctrl/Cmd + F to focus on search
+      if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
+        event.preventDefault();
+        this.$refs.searchInput.focus();
+      }
+    },
+    
+    // Method to expand all sections
+    expandAll() {
+      Object.keys(this.sectionExpanded).forEach(key => {
+        this.sectionExpanded[key] = true;
+      });
+    },
+    
+    // Method to collapse all sections
+    collapseAll() {
+      Object.keys(this.sectionExpanded).forEach(key => {
+        this.sectionExpanded[key] = false;
+      });
+    }
   }
 }
 </script>
@@ -364,7 +566,7 @@ export default {
 
 /* Container Styles */
 .help-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
@@ -372,6 +574,174 @@ export default {
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
+}
+
+/* Search Container Styles */
+.search-container {
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+  background-color: var(--bg-primary);
+  padding: 1rem 0;
+}
+
+/* Section Controls */
+.section-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.control-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--border-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-results {
+  margin-top: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.search-results h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.search-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-results li {
+  margin-bottom: 0.5rem;
+}
+
+.search-results li:last-child {
+  margin-bottom: 0;
+}
+
+.search-results a {
+  color: var(--accent-color);
+  text-decoration: none;
+  padding: 0.5rem;
+  display: block;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.search-results a:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.no-results {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+
+/* Help Layout Styles */
+.help-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Sidebar Navigation Styles */
+.help-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 6rem;
+  height: calc(100vh - 6rem);
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.help-nav {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.help-nav h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.help-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.help-nav li:last-child {
+  margin-bottom: 0;
+}
+
+.help-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.5rem;
+  display: block;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.help-nav a:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Main Content Styles */
+.help-main {
+  flex: 1;
 }
 
 /* Header Styles */
@@ -500,6 +870,42 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
+}
+
+/* Section Header and Content Styles */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.section-header:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--accent-color);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+  width: 20px;
+  text-align: center;
+}
+
+.section-content {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .model-card {

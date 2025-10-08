@@ -4,12 +4,16 @@ AGI Core Capabilities Mixin for AGI Models
 This mixin provides core AGI capabilities including reasoning, decision-making,
 knowledge integration, and advanced cognitive functions. It is designed to be
 mixed into model classes to enable AGI-level intelligence.
+
+Refactored to use unified AGITools for eliminating code duplication.
 """
 
 import logging
 from typing import Dict, Any, List, Optional, Callable
 from datetime import datetime
 import json
+
+from core.agi_tools import AGITools
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +24,7 @@ class AGICoreCapabilitiesMixin:
     """
     
     def __init__(self, *args, **kwargs):
-        """Initialize AGI core capabilities."""
+        """Initialize AGI core capabilities using unified AGITools."""
         super().__init__(*args, **kwargs)
         self._reasoning_engine = None
         self._decision_maker = None
@@ -29,45 +33,90 @@ class AGICoreCapabilitiesMixin:
         self._learning_mechanisms = {}
         self._reasoning_history = []
         
-        # Initialize core AGI components
+        # Initialize unified AGI tools
+        self.agi_tools = AGITools(
+            model_type="base",
+            model_id="agi_core_mixin",
+            config=kwargs.get('config', {})
+        )
+        
+        # Initialize core AGI components using unified tools
         self._initialize_agi_components()
     
     def _initialize_agi_components(self):
-        """Initialize core AGI components and capabilities."""
-        logger.info("Initializing AGI core components...")
+        """Initialize core AGI components and capabilities using unified AGITools."""
+        logger.info("Initializing AGI core components with unified tools...")
         
-        # Initialize reasoning engine
-        self._reasoning_engine = {
-            'type': 'advanced_reasoning',
-            'capabilities': ['deductive', 'inductive', 'abductive', 'counterfactual'],
-            'confidence_threshold': 0.8,
-            'max_reasoning_depth': 10
-        }
+        # Use unified AGITools to initialize reasoning engine
+        self._reasoning_engine = self.agi_tools.create_reasoning_engine(
+            capabilities=[
+                "deductive", "inductive", "abductive", "counterfactual",
+                "logical_reasoning", "causal_inference", "analogical_reasoning"
+            ],
+            reasoning_depth=10,
+            max_complexity=100
+        )
         
-        # Initialize decision maker
-        self._decision_maker = {
-            'type': 'utility_based',
-            'decision_criteria': ['utility', 'ethics', 'safety', 'efficiency'],
-            'risk_tolerance': 0.3
-        }
+        # Use unified AGITools to initialize decision maker
+        self._decision_maker = self.agi_tools.create_decision_maker(
+            decision_criteria=['utility', 'ethics', 'safety', 'efficiency'],
+            risk_tolerance=0.3,
+            decision_strategies=['utility_based', 'rule_based', 'multi_criteria']
+        )
         
-        # Initialize cognitive functions
+        # Use unified AGITools to initialize cognitive functions
+        cognitive_components = self.agi_tools.create_cognitive_engine(
+            attention_mechanisms=[
+                "self_attention", "cross_attention", "hierarchical_attention"
+            ],
+            memory_systems=[
+                "working_memory", "long_term_memory", "episodic_memory"
+            ],
+            integration_level="deep"
+        )
+        
+        # Map unified components to existing cognitive functions
         self._cognitive_functions = {
             'problem_solving': self._default_problem_solving,
             'pattern_recognition': self._default_pattern_recognition,
             'conceptual_abstraction': self._default_conceptual_abstraction,
-            'meta_cognition': self._default_meta_cognition
+            'meta_cognition': self._default_meta_cognition,
+            'attention_mechanism': cognitive_components.get("attention_mechanisms", []),
+            'memory_systems': cognitive_components.get("memory_systems", [])
         }
         
-        # Initialize learning mechanisms
+        # Use unified AGITools to initialize learning mechanisms
+        learning_components = self.agi_tools.create_meta_learning_system(
+            learning_strategies=[
+                "reinforcement_learning", "unsupervised_learning", 
+                "transfer_learning", "meta_learning",
+                "multi_task_learning", "continual_learning"
+            ],
+            adaptation_speed=0.8,
+            generalization_capability=0.9
+        )
+        
+        # Map unified learning components to existing learning mechanisms
         self._learning_mechanisms = {
             'reinforcement_learning': self._default_reinforcement_learning,
             'unsupervised_learning': self._default_unsupervised_learning,
             'transfer_learning': self._default_transfer_learning,
-            'meta_learning': self._default_meta_learning
+            'meta_learning': self._default_meta_learning,
+            'learning_strategies': learning_components.get("learning_strategies", []),
+            'adaptation_capabilities': learning_components.get("adaptation_capabilities", {})
         }
         
-        logger.info("AGI core components initialized successfully")
+        # Initialize self-reflection using unified tools
+        self._self_reflection_module = self.agi_tools.create_self_reflection_module(
+            performance_metrics=[
+                "reasoning_accuracy", "decision_quality", "learning_efficiency",
+                "problem_solving_success_rate", "knowledge_integration_quality"
+            ],
+            reflection_frequency=0.1,
+            improvement_threshold=0.7
+        )
+        
+        logger.info("AGI core components initialized successfully with unified tools")
     
     def reason_about_problem(self, problem_statement: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """

@@ -193,6 +193,36 @@ const api = {
     disconnectSensor: (sensorId) => apiClient.post(`/api/devices/sensors/${sensorId}/disconnect`)
   },
 
+  // 摄像头API（支持多摄像头和流控制）
+  cameras: {
+    // 获取摄像头列表
+    getList: () => apiClient.get('/api/devices/cameras'),
+    
+    // 连接摄像头
+    connect: (cameraId) => apiClient.post(`/api/devices/cameras/${cameraId}/connect`),
+    
+    // 断开摄像头连接
+    disconnect: (cameraId) => apiClient.post(`/api/devices/cameras/${cameraId}/disconnect`),
+    
+    // 开始摄像头流
+    startStream: (cameraId) => apiClient.post(`/api/cameras/${cameraId}/stream/start`),
+    
+    // 停止摄像头流
+    stopStream: (cameraId) => apiClient.post(`/api/cameras/${cameraId}/stream/stop`),
+    
+    // 获取摄像头流状态
+    getStreamStatus: (cameraId) => apiClient.get(`/api/cameras/${cameraId}/stream/status`),
+    
+    // 获取硬件配置
+    getHardwareConfig: () => apiClient.get('/api/hardware/config'),
+    
+    // 更新硬件配置
+    updateHardwareConfig: (configData) => apiClient.post('/api/hardware/config', configData),
+    
+    // 测试硬件连接
+    testConnections: () => apiClient.post('/api/hardware/test-connections')
+  },
+
   // 外接API模型配置
   externalApi: {
     getConfigs: () => apiClient.get('/api/external-api/configs'),
@@ -200,7 +230,13 @@ const api = {
     updateConfig: (configId, configData) => apiClient.put(`/api/external-api/configs/${configId}`, configData),
     deleteConfig: (configId) => apiClient.delete(`/api/external-api/configs/${configId}`),
     testConnection: (configId) => apiClient.post(`/api/external-api/configs/${configId}/test`),
-    setActive: (configId) => apiClient.post(`/api/external-api/configs/${configId}/activate`)
+    setActive: (configId) => apiClient.post(`/api/external-api/configs/${configId}/activate`),
+    
+    // 测试通用API连接（不依赖配置ID）
+    testGenericConnection: (configData) => apiClient.post('/api/external-api/test-connection', configData),
+    
+    // 获取API服务状态
+    getServiceStatus: () => apiClient.get('/api/external-api/service-status')
   },
 
   // 模型配置API（支持每个模型独立选择本地或外部API）
@@ -218,7 +254,16 @@ const api = {
     updateApiConfig: (modelId, configData) => apiClient.post(`/api/models/${modelId}/api-config`, configData),
     
     // 测试API连接
-    testConnection: (modelId) => apiClient.post(`/api/models/${modelId}/test-connection`)
+    testConnection: (modelId) => apiClient.post(`/api/models/${modelId}/test-connection`),
+    
+    // 设置模型API配置（支持详细配置）
+    setApiConfig: (modelId, configData) => apiClient.post(`/api/models/${modelId}/api/config`, configData),
+    
+    // 获取模型API配置
+    getApiConfig: (modelId) => apiClient.get(`/api/models/${modelId}/api/config`),
+    
+    // 获取模型API连接状态
+    getApiStatus: (modelId) => apiClient.get(`/api/models/${modelId}/api/status`)
   },
 
   // 串口通信API

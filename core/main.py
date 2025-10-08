@@ -29,6 +29,7 @@ import uvicorn
 import threading
 import argparse
 from datetime import datetime
+import numpy as np
 import uuid
 
 # Add the root directory to sys.path for absolute imports
@@ -2299,6 +2300,145 @@ async def api_switch_to_local(model_id: str):
         error_handler.handle_error(e, "API", f"Failed to switch model {model_id} to local mode")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Test generic API connection
+@app.post("/api/external-api/test-connection")
+async def api_test_generic_connection(connection_data: dict):
+    """
+    Test generic API connection
+    
+    Args:
+        connection_data: Connection test data
+            - api_url: API URL
+            - api_key: API key
+            - model_name: Model name
+            - api_type: API type
+            - provider: API provider
+    
+    Returns:
+        Connection test result
+    """
+    try:
+        from core.external_api_service import ExternalAPIService
+        external_service = ExternalAPIService()
+        result = external_service.test_connection(connection_data)
+        return result
+    except Exception as e:
+        error_handler.handle_error(e, "API", "External API connection test failed")
+        return {"status": "error", "message": str(e)}
+
+# Set model API configuration
+@app.post("/api/models/{model_id}/api-config")
+async def api_set_model_api_config(model_id: str, api_config: dict):
+    """
+    Set model API configuration
+    
+    Args:
+        model_id: Model ID
+        api_config: API configuration
+    
+    Returns:
+        Configuration set result
+    """
+    try:
+        # Get existing model configuration
+        model_config = system_settings_manager.get_model_setting(model_id)
+        if not model_config:
+            raise HTTPException(status_code=404, detail=f"Model {model_id} does not exist")
+        
+        # Update API configuration
+        model_config["api_config"] = api_config
+        model_config["source"] = "external"
+        
+        # Save updated configuration
+        system_settings_manager.update_model_setting(model_id, model_config)
+        
+        # Test the connection with the new configuration
+        test_result = test_external_api_connection({
+            "model_id": model_id,
+            "api_url": api_config.get("api_url", ""),
+            "api_key": api_config.get("api_key", ""),
+            "model_name": api_config.get("model_name", ""),
+            "api_type": api_config.get("api_type", "custom")
+        })
+        
+        if test_result["status"] == "success":
+            # Switch to external mode if test is successful
+            switch_model_to_external(model_id, api_config)
+            return {"status": "success", "message": "API configuration set and tested successfully"}
+        else:
+            return {"status": "warning", "message": "API configuration saved but connection test failed", "test_result": test_result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to set API configuration for model {model_id}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get model API configuration
+@app.get("/api/models/{model_id}/api-config")
+async def api_get_model_api_config(model_id: str):
+    """
+    Get model API configuration
+    
+    Args:
+        model_id: Model ID
+    
+    Returns:
+        Model API configuration
+    """
+    try:
+        # Get model configuration
+        model_config = system_settings_manager.get_model_setting(model_id)
+        if not model_config:
+            raise HTTPException(status_code=404, detail=f"Model {model_id} does not exist")
+        
+        # Return API configuration if available
+        api_config = model_config.get("api_config", {})
+        return {"status": "success", "data": api_config}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to get API configuration for model {model_id}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get API service status
+@app.get("/api/external-api/service-status")
+async def api_get_api_service_status():
+    """
+    Get API service status
+    
+    Returns:
+        API service status information
+    """
+    try:
+        from core.external_api_service import ExternalAPIService
+        external_service = ExternalAPIService()
+        status = external_service.get_service_status()
+        return {"status": "success", "data": status}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get API service status")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get model API status
+@app.get("/api/models/{model_id}/api-status")
+async def api_get_model_api_status(model_id: str):
+    """
+    Get model API status
+    
+    Args:
+        model_id: Model ID
+    
+    Returns:
+        Model API status information
+    """
+    try:
+        from core.external_api_service import ExternalAPIService
+        external_service = ExternalAPIService()
+        status = external_service.get_model_api_status(model_id)
+        return {"status": "success", "data": status}
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to get API status for model {model_id}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Get model running mode
 @app.get("/api/models/{model_id}/mode")
 async def api_get_model_mode(model_id: str):
@@ -3325,11 +3465,121 @@ async def test_hardware_connections():
         error_handler.handle_error(e, "API", "Failed to test hardware connections")
         raise HTTPException(status_code=500, detail="Failed to test hardware connections")
 
+# Import CameraManager
+from core.hardware.camera_manager import camera_manager
+
+# Camera stream control endpoints
+@app.post("/api/cameras/{camera_id}/stream/start")
+async def start_camera_stream(camera_id: str):
+    """
+    Start streaming from a specific camera
+    
+    Args:
+        camera_id: Camera ID
+        
+    Returns:
+        Operation status
+    """
+    try:
+        # Check if camera exists in hardware config
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        cameras = hardware_config.get("cameras", [])
+        
+        camera = next((cam for cam in cameras if cam.get("id") == camera_id), None)
+        if not camera:
+            raise HTTPException(status_code=404, detail=f"Camera {camera_id} not found")
+        
+        # Get camera index from hardware config
+        camera_index = int(camera.get("port", "/dev/video0").split("/")[-1].replace("video", ""))
+        resolution_str = camera.get("resolution", "1280x720")
+        width, height = map(int, resolution_str.split("x"))
+        fps = float(camera.get("frame_rate", 30))
+        
+        # Connect to camera if not already connected
+        camera_info = camera_manager.get_camera_info(camera_id)
+        if not camera_info:
+            connect_result = camera_manager.connect_camera(
+                camera_id, 
+                camera_index, 
+                (width, height), 
+                fps
+            )
+            if not connect_result["success"]:
+                raise HTTPException(status_code=500, detail=connect_result["error"])
+        
+        # Start streaming
+        stream_result = camera_manager.start_stream(camera_id)
+        if not stream_result["success"]:
+            raise HTTPException(status_code=500, detail=stream_result["error"])
+        
+        return {"status": "success", "message": f"Camera stream started for {camera_id}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to start camera stream: {camera_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to start camera stream: {str(e)}")
+
+@app.post("/api/cameras/{camera_id}/stream/stop")
+async def stop_camera_stream(camera_id: str):
+    """
+    Stop streaming from a specific camera
+    
+    Args:
+        camera_id: Camera ID
+        
+    Returns:
+        Operation status
+    """
+    try:
+        # Stop streaming
+        stream_result = camera_manager.stop_stream(camera_id)
+        if not stream_result["success"]:
+            raise HTTPException(status_code=400, detail=stream_result["error"])
+        
+        return {"status": "success", "message": f"Camera stream stopped for {camera_id}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to stop camera stream: {camera_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to stop camera stream: {str(e)}")
+
+@app.get("/api/cameras/{camera_id}/stream/status")
+async def get_camera_stream_status(camera_id: str):
+    """
+    Get the streaming status of a specific camera
+    
+    Args:
+        camera_id: Camera ID
+        
+    Returns:
+        Camera streaming status
+    """
+    try:
+        # Get camera info
+        camera_info = camera_manager.get_camera_info(camera_id)
+        if not camera_info:
+            raise HTTPException(status_code=404, detail=f"Camera {camera_id} not found")
+        
+        return {
+            "status": "success",
+            "camera_id": camera_id,
+            "is_streaming": camera_info["is_streaming"],
+            "resolution": camera_info["resolution"],
+            "fps": camera_info["fps"],
+            "connected_at": camera_info["connected_at"]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to get camera stream status: {camera_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to get camera stream status: {str(e)}")
+
 # Get camera feed
 @app.websocket("/ws/camera-feed/{camera_id}")
 async def websocket_camera_feed(websocket: WebSocket, camera_id: str):
     """
-    Real-time camera feed WebSocket endpoint
+    Real-time camera feed WebSocket endpoint that streams actual camera frames
     
     Args:
         websocket: WebSocket connection
@@ -3346,37 +3596,91 @@ async def websocket_camera_feed(websocket: WebSocket, camera_id: str):
         if not camera:
             await websocket.send_json({
                 "type": "error",
-                "message": f"Camera {camera_id} not found"
+                "message": f"Camera {camera_id} not found in configuration"
             })
             return
         
+        # Check if camera is streaming
+        camera_info = camera_manager.get_camera_info(camera_id)
+        if not camera_info:
+            await websocket.send_json({
+                "type": "error",
+                "message": f"Camera {camera_id} is not connected"
+            })
+            return
+        
+        if not camera_info["is_streaming"]:
+            # Try to start streaming if not already streaming
+            stream_result = camera_manager.start_stream(camera_id)
+            if not stream_result["success"]:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": f"Failed to start camera stream: {stream_result.get('error', 'Unknown error')}"
+                })
+                return
+        
         await websocket.send_json({
             "type": "connected",
-            "message": f"Camera feed connection established for {camera.get('name', camera_id)}"
+            "message": f"Camera feed connection established for {camera.get('name', camera_id)}",
+            "camera_info": camera_info
         })
         
-        # Simulate camera feed (in real implementation, this would stream actual camera data)
+        # Stream actual camera frames
         frame_count = 0
+        last_frame = None
         while True:
-            # Simulate frame data
-            frame_data = {
-                "camera_id": camera_id,
-                "frame_number": frame_count,
-                "timestamp": datetime.now().isoformat(),
-                "resolution": camera.get("resolution", "1280x720"),
-                "data_type": "simulated"  # In real implementation, this would be actual frame data
-            }
-            
-            await websocket.send_json({
-                "type": "camera_frame",
-                "data": frame_data
-            })
-            
-            frame_count += 1
-            await asyncio.sleep(0.033)  # ~30 FPS
-            
+            try:
+                # Get the last frame from the camera manager
+                frame = camera_manager.get_last_frame(camera_id)
+                
+                # Check if we have a new frame
+                if frame is not None and (last_frame is None or not np.array_equal(frame, last_frame)):
+                    # Convert frame to base64 for transmission
+                    success, buffer = cv2.imencode('.jpg', frame)
+                    if success:
+                        # Convert to bytes and then to base64
+                        jpg_bytes = buffer.tobytes()
+                        # For efficiency, we'll send frame metadata first and then binary data
+                        frame_metadata = {
+                            "type": "camera_frame_metadata",
+                            "camera_id": camera_id,
+                            "frame_number": frame_count,
+                            "timestamp": datetime.now().isoformat(),
+                            "resolution": f"{frame.shape[1]}x{frame.shape[0]}",
+                            "data_type": "real",
+                            "data_length": len(jpg_bytes)
+                        }
+                        
+                        await websocket.send_json(frame_metadata)
+                        
+                        # Send the actual binary frame data
+                        try:
+                            await websocket.send_bytes(jpg_bytes)
+                        except TypeError:
+                            # If send_bytes is not supported, fall back to base64 encoding
+                            import base64
+                            base64_frame = base64.b64encode(jpg_bytes).decode('utf-8')
+                            await websocket.send_json({
+                                "type": "camera_frame_base64",
+                                "data": base64_frame,
+                                "frame_number": frame_count,
+                                "timestamp": datetime.now().isoformat()
+                            })
+                        
+                        frame_count += 1
+                        last_frame = frame
+                    else:
+                        logger.warning(f"Failed to encode frame from camera {camera_id}")
+                
+                # Sleep for a short time to control frame rate
+                await asyncio.sleep(0.033)  # ~30 FPS
+            except Exception as frame_error:
+                logger.error(f"Error processing camera frame: {str(frame_error)}")
+                # Continue streaming even if there's an error processing a single frame
+                await asyncio.sleep(0.033)
     except WebSocketDisconnect:
         connection_manager.disconnect(websocket)
+        logger.info(f"Camera feed WebSocket disconnected: {camera_id}")
     except Exception as e:
         error_handler.handle_error(e, "WebSocket", f"Camera feed WebSocket error: {camera_id}")
         connection_manager.disconnect(websocket)

@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <!-- Top Navigation Bar -->
+    <!-- Top Menu Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <span class="system-title">Self Soul</span>
+        <div class="system-title">Self Brain System</div>
       </div>
       <div class="menu-right">
-        <!-- Function Buttons -->
-        <router-link to="/" class="menu-link">Home</router-link>
-        <router-link to="/training" class="menu-link">Training</router-link>
-        <router-link to="/conversation" class="menu-link">Conversation</router-link>
-        <router-link to="/knowledge" class="menu-link">Knowledge</router-link>
-        <router-link to="/settings" class="menu-link">Settings</router-link>
+        <router-link to="/" class="menu-link" active-class="router-link-active">Home</router-link>
+        <router-link to="/conversation" class="menu-link" active-class="router-link-active">Conversation</router-link>
+        <router-link to="/training" class="menu-link" active-class="router-link-active">Training</router-link>
+        <router-link to="/knowledge" class="menu-link" active-class="router-link-active">Knowledge</router-link>
+        <router-link to="/settings" class="menu-link" active-class="router-link-active">Settings</router-link>
+        <router-link to="/help" class="menu-link" active-class="router-link-active">Help</router-link>
         
         <!-- Server Connection Status -->
         <div class="connection-status" :style="{ color: connectionColor }">
@@ -21,7 +21,10 @@
       </div>
     </nav>
 
-    <router-view/>
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
@@ -40,6 +43,7 @@ export default {
     const connectionStatus = ref('Connecting...');
     const connectionColor = ref('#999999'); // Gray
     let connectionInterval = null;
+    const lastConnectionCheck = ref(null);
     
     // WebSocket connection will be initialized on demand when needed
     // to avoid unnecessary connections
@@ -68,10 +72,10 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        console.log('Self Soul System components are initializing...')
+        console.log('Self Brain System components are initializing...')
         
         // Directly log initialization completion
-        console.log('Self Soul System components initialization completed')
+        console.log('Self Brain System components initialization completed')
       } catch (error) {
         console.error('Error during system components initialization:', error)
       }
@@ -158,7 +162,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 70px;
 }
 
 /* Top menu bar styles - clean black-white-gray light theme */

@@ -17,16 +17,25 @@ import App from './App.vue'
 import router from './router'
 import './assets/main.css'
 import './assets/notificationStyles.css'
+import { createPinia } from 'pinia'
 
 // Import professional notification plugin
 import notificationPlugin from './plugins/notification.js'
 
 // 确保DOM完全加载后再挂载应用
 document.addEventListener('DOMContentLoaded', () => {
+    // Create app instance
+    const pinia = createPinia()
     const app = createApp(App)
+    
+    // Register plugins
     app.use(router)
     app.use(notificationPlugin) // Add professional notification plugin
-  
+    app.use(pinia)
+    
+    // Global properties
+    app.config.globalProperties.$isEnglish = true
+    
     // 确保挂载点存在
     const appContainer = document.getElementById('app');
     if (appContainer) {

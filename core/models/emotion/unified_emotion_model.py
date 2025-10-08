@@ -1189,18 +1189,8 @@ class UnifiedEmotionModel(UnifiedModelTemplate):
             'agi_integration': {'status': 'initialized', 'accuracy': 0.0}
         }
         
-        # Initialize AGI emotion reasoning engine
-        self.agi_emotion_reasoning_engine = self._create_agi_emotion_reasoning_engine()
-        # Initialize AGI meta learning system for emotion patterns
-        self.agi_meta_learning = self._create_agi_meta_learning_system()
-        # Initialize AGI self-reflection module for emotion understanding
-        self.agi_self_reflection = self._create_agi_self_reflection_module()
-        # Initialize AGI cognitive engine for emotion processing
-        self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-        # Initialize AGI emotion problem solver
-        self.agi_problem_solver = self._create_agi_emotion_problem_solver()
-        # Initialize AGI creative generator for emotion expression
-        self.agi_creative_generator = self._create_agi_creative_generator()
+        # Initialize AGI components using unified tools
+        self._initialize_agi_emotion_components()
     
     def _process_operation(self, operation: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process emotion-specific operations"""

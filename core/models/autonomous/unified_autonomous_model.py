@@ -13,12 +13,14 @@ from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
 import numpy as np
+import logging
 from datetime import datetime
 from collections import deque
 import random
 
 from core.models.unified_model_template import UnifiedModelTemplate
-from ..error_handling import AGIErrorHandler as ErrorHandler
+from core.error_handling import ErrorHandler
+from core.agi_tools import AGITools
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -141,17 +143,40 @@ class UnifiedAutonomousModel(UnifiedModelTemplate):
         return "autonomous"
 
     def _initialize_model_specific_components(self, config: Dict[str, Any]):
-        """Initialize model-specific components"""
-        # Initialize autonomous decision engine
-        self.decision_engine = self._create_decision_engine(config)
-        
-        # Initialize learning system
-        self.learning_system = self._create_learning_system(config)
-        
-        # Initialize optimizer
-        self.optimizer = self._create_optimizer(config)
-        
-        logger.info("Autonomous model specific components initialized")
+        """Initialize model-specific components using unified AGITools"""
+        try:
+            logger.info("开始初始化AGI自主组件")
+            
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "autonomous_decision", "self_learning", "performance_optimization",
+                "goal_management", "meta_learning", "self_reflection"
+            ])
+            
+            # 分配组件到实例变量
+            self.agi_autonomous_decision = agi_components.get("autonomous_decision")
+            self.agi_self_learning = agi_components.get("self_learning")
+            self.agi_performance_optimization = agi_components.get("performance_optimization")
+            self.agi_goal_management = agi_components.get("goal_management")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            
+            # 初始化自主决策引擎
+            self.decision_engine = self._create_decision_engine(config)
+            
+            # 初始化学习系统
+            self.learning_system = self._create_learning_system(config)
+            
+            # 初始化优化器
+            self.optimizer = self._create_optimizer(config)
+            
+            logger.info("AGI自主模型特定组件初始化成功")
+            
+        except Exception as e:
+            error_msg = f"初始化AGI自主组件失败: {str(e)}"
+            logger.error(error_msg)
+            ErrorHandler.log_error("agi_autonomous_components_init", error_msg, str(e))
+            raise
 
     def _process_operation(self, operation: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process specific operations"""

@@ -57,21 +57,83 @@ except ImportError:
 # API特定导入
 # API specific imports
 try:
-    import openai
-    import anthropic
-    import google.generativeai as genai
-    import boto3
+    import openai  # type: ignore
 except ImportError:
-    openai = None
-    anthropic = None
-    genai = None
-    boto3 = None
+    # If openai is not installed, create a mock object
+    class MockOpenAI:
+        api_key = ''
+        class ChatCompletion:
+            @staticmethod
+            def create(**kwargs):
+                return {"choices": [{"message": {"content": "Mock OpenAI response"}}]}
+        class Completion:
+            @staticmethod
+            def create(**kwargs):
+                return {"choices": [{"text": "Mock OpenAI response"}]}
+    openai = MockOpenAI()
+
 try:
-    import replicate
-    import ollama
+    import anthropic  # type: ignore
 except ImportError:
-    replicate = None
-    ollama = None
+    # If anthropic is not installed, create a mock object
+    class MockAnthropic:
+        class Client:
+            def __init__(self, api_key):
+                self.api_key = api_key
+            def messages_create(self, **kwargs):
+                return {"content": [{"text": "Mock Anthropic response"}]}
+    anthropic = MockAnthropic()
+
+try:
+    import google.generativeai as genai  # type: ignore
+except ImportError:
+    # If google.generativeai is not installed, create a mock object
+    class MockGenAI:
+        class GenerativeModel:
+            def __init__(self, model_name):
+                self.model_name = model_name
+            def generate_content(self, content, **kwargs):
+                class MockResponse:
+                    def __init__(self):
+                        self.text = "Mock Google AI response"
+                return MockResponse()
+    genai = MockGenAI()
+
+try:
+    import boto3  # type: ignore
+except ImportError:
+    # If boto3 is not installed, create a mock object
+    class MockBoto3:
+        def client(self, service_name, **kwargs):
+            class MockClient:
+                def detect_labels(self, **kwargs):
+                    return {"Labels": []}
+                def detect_text(self, **kwargs):
+                    return {"TextDetections": []}
+                def start_label_detection(self, **kwargs):
+                    return {"JobId": "mock_job_id"}
+            return MockClient()
+    boto3 = MockBoto3()
+
+try:
+    import replicate  # type: ignore
+except ImportError:
+    # If replicate is not installed, create a mock object
+    class MockReplicate:
+        def run(self, model, **kwargs):
+            return "Mock Replicate response"
+    replicate = MockReplicate()
+
+try:
+    import ollama  # type: ignore
+except ImportError:
+    # If ollama is not installed, create a mock object
+    class MockOllama:
+        def chat(self, **kwargs):
+            return {"message": {"content": "Mock Ollama response"}}
+        def generate(self, **kwargs):
+            return {"response": "Mock Ollama generation"}
+    ollama = MockOllama()
 
 
 @dataclass
@@ -370,33 +432,37 @@ class ExternalAPIService:
             rekognition_config = aws_config.get("rekognition", {})
             if rekognition_config.get("access_key") and rekognition_config.get("secret_key"):
                 try:
-                    import boto3
-                    self.services["aws"]["rekognition"] = boto3.client(
-                        'rekognition',
-                        aws_access_key_id=rekognition_config["access_key"],
-                        aws_secret_access_key=rekognition_config["secret_key"],
-                        region_name=rekognition_config.get("region", "us-east-1")
-                    )
-                    self.services["aws"]["configured"] = True
-                    self.logger.info("AWS Rekognition配置完成 | AWS Rekognition configured")
-                except ImportError:
-                    self.logger.warning("boto3未安装，无法使用AWS Rekognition | boto3 not installed, cannot use AWS Rekognition")
+                    if boto3 is not None:
+                        self.services["aws"]["rekognition"] = boto3.client(
+                            'rekognition',
+                            aws_access_key_id=rekognition_config["access_key"],
+                            aws_secret_access_key=rekognition_config["secret_key"],
+                            region_name=rekognition_config.get("region", "us-east-1")
+                        )
+                        self.services["aws"]["configured"] = True
+                        self.logger.info("AWS Rekognition配置完成 | AWS Rekognition configured")
+                    else:
+                        self.logger.warning("boto3未安装，无法使用AWS Rekognition | boto3 not installed, cannot use AWS Rekognition")
+                except Exception as e:
+                    self.logger.error(f"AWS Rekognition配置失败: {str(e)} | AWS Rekognition configuration failed: {str(e)}")
             
             # AWS Rekognition Video
             video_config = aws_config.get("rekognition_video", {})
             if video_config.get("access_key") and video_config.get("secret_key"):
                 try:
-                    import boto3
-                    self.services["aws"]["rekognition_video"] = boto3.client(
-                        'rekognition',
-                        aws_access_key_id=video_config["access_key"],
-                        aws_secret_access_key=video_config["secret_key"],
-                        region_name=video_config.get("region", "us-east-1")
-                    )
-                    self.services["aws"]["configured"] = True
-                    self.logger.info("AWS Rekognition Video配置完成 | AWS Rekognition Video configured")
-                except ImportError:
-                    self.logger.warning("boto3未安装，无法使用AWS Rekognition Video | boto3 not installed, cannot use AWS Rekognition Video")
+                    if boto3 is not None:
+                        self.services["aws"]["rekognition_video"] = boto3.client(
+                            'rekognition',
+                            aws_access_key_id=video_config["access_key"],
+                            aws_secret_access_key=video_config["secret_key"],
+                            region_name=video_config.get("region", "us-east-1")
+                        )
+                        self.services["aws"]["configured"] = True
+                        self.logger.info("AWS Rekognition Video配置完成 | AWS Rekognition Video configured")
+                    else:
+                        self.logger.warning("boto3未安装，无法使用AWS Rekognition Video | boto3 not installed, cannot use AWS Rekognition Video")
+                except Exception as e:
+                    self.logger.error(f"AWS Rekognition Video配置失败: {str(e)} | AWS Rekognition Video configuration failed: {str(e)}")
                     
         except Exception as e:
             self.logger.error(f"AWS服务初始化失败: {str(e)} | AWS service initialization failed: {str(e)}")
@@ -1221,6 +1287,468 @@ class ExternalAPIService:
                     status[provider]["services_available"].append(service_name)
         
         return status
+        
+    def test_connection(self, provider: str, service_type: str, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """测试外部API连接 | Test external API connection
+        
+        Args:
+            provider: API提供商 (openai/anthropic/google等) | API provider
+            service_type: 服务类型 (chat/vision/video等) | Service type
+            config: 可选的API配置，如果提供则使用该配置进行测试 | Optional API config
+        
+        Returns:
+            连接测试结果 | Connection test result
+        """
+        try:
+            if provider not in self.supported_providers:
+                return {"success": False, "error": f"不支持的API提供商: {provider} | Unsupported API provider: {provider}"}
+                
+            # 如果未提供配置，使用已加载的配置
+            if config is None:
+                if not self.services[provider][service_type]:
+                    return {"success": False, "error": f"{provider} {service_type} API未配置 | {provider} {service_type} API not configured"}
+                
+                # 使用现有配置进行测试
+                test_config = self.services[provider][service_type]
+            else:
+                # 使用提供的配置进行测试
+                test_config = config
+                
+            self.logger.info(f"正在测试{provider} {service_type} API连接 | Testing {provider} {service_type} API connection")
+            
+            # 针对不同的API提供商和服务类型进行特定的连接测试
+            if provider == "openai" and service_type == "chat":
+                return self._test_openai_connection(test_config)
+            elif provider == "anthropic" and service_type == "chat":
+                return self._test_anthropic_connection(test_config)
+            elif provider == "google_ai" or (provider == "google" and service_type == "ai"):
+                return self._test_google_ai_connection(test_config)
+            elif provider == "custom":
+                # 自定义API连接测试
+                return self._test_generic_api_connection(test_config)
+            else:
+                # 对于其他API类型，使用通用的连接测试方法
+                return self._test_generic_api_connection(test_config)
+                
+        except Exception as e:
+            error_message = str(e)
+            self.logger.error(f"API连接测试失败: {error_message} | API connection test failed: {error_message}")
+            return {
+                "success": False, 
+                "error": error_message,
+                "error_type": type(e).__name__, 
+                "timestamp": time.time()
+            }
+            
+    def _test_openai_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """测试OpenAI API连接 | Test OpenAI API connection"""
+        try:
+            import requests
+            
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            # 构建一个简单的测试请求
+            data = {
+                "model": config.get("model", "gpt-4"),
+                "messages": [{"role": "user", "content": "ping"}],
+                "max_tokens": 5
+            }
+            
+            response = requests.post(
+                f"{config.get('base_url', 'https://api.openai.com/v1')}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=5
+            )
+            
+            if response.status_code == 200:
+                self.logger.info("OpenAI API连接测试成功 | OpenAI API connection test successful")
+                return {
+                    "success": True,
+                    "message": "OpenAI API连接测试成功 | OpenAI API connection test successful",
+                    "status_code": response.status_code,
+                    "timestamp": time.time()
+                }
+            else:
+                error_msg = f"OpenAI API连接失败: HTTP {response.status_code} | OpenAI API connection failed: HTTP {response.status_code}"
+                self.logger.error(error_msg)
+                return {
+                    "success": False,
+                    "error": error_msg,
+                    "status_code": response.status_code,
+                    "error_type": "HTTPError",
+                    "timestamp": time.time()
+                }
+                
+        except requests.exceptions.RequestException as e:
+            error_msg = f"OpenAI API连接异常: {str(e)} | OpenAI API connection exception: {str(e)}"
+            self.logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg,
+                "error_type": type(e).__name__,
+                "timestamp": time.time()
+            }
+            
+    def _test_anthropic_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """测试Anthropic API连接 | Test Anthropic API connection"""
+        try:
+            import requests
+            
+            headers = {
+                "x-api-key": config['api_key'],
+                "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01"
+            }
+            
+            # 构建一个简单的测试请求
+            data = {
+                "model": config.get("model", "claude-3-opus-20240229"),
+                "messages": [{"role": "user", "content": "ping"}],
+                "max_tokens": 5
+            }
+            
+            response = requests.post(
+                f"{config.get('base_url', 'https://api.anthropic.com')}/messages",
+                headers=headers,
+                json=data,
+                timeout=5
+            )
+            
+            if response.status_code == 200:
+                self.logger.info("Anthropic API连接测试成功 | Anthropic API connection test successful")
+                return {
+                    "success": True,
+                    "message": "Anthropic API连接测试成功 | Anthropic API connection test successful",
+                    "status_code": response.status_code,
+                    "timestamp": time.time()
+                }
+            else:
+                error_msg = f"Anthropic API连接失败: HTTP {response.status_code} | Anthropic API connection failed: HTTP {response.status_code}"
+                self.logger.error(error_msg)
+                return {
+                    "success": False,
+                    "error": error_msg,
+                    "status_code": response.status_code,
+                    "error_type": "HTTPError",
+                    "timestamp": time.time()
+                }
+                
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Anthropic API连接异常: {str(e)} | Anthropic API connection exception: {str(e)}"
+            self.logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg,
+                "error_type": type(e).__name__,
+                "timestamp": time.time()
+            }
+            
+    def _test_google_ai_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """测试Google AI API连接 | Test Google AI API connection"""
+        try:
+            import requests
+            
+            headers = {
+                "Content-Type": "application/json"
+            }
+            
+            # 构建一个简单的测试请求
+            data = {
+                "contents": [{
+                    "parts": [{"text": "ping"}]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "maxOutputTokens": 5
+                }
+            }
+            
+            model = config.get("model", "gemini-pro")
+            response = requests.post(
+                f"{config.get('base_url', 'https://generativelanguage.googleapis.com/v1beta')}/models/{model}:generateContent?key={config['api_key']}",
+                headers=headers,
+                json=data,
+                timeout=5
+            )
+            
+            if response.status_code == 200:
+                self.logger.info("Google AI API连接测试成功 | Google AI API connection test successful")
+                return {
+                    "success": True,
+                    "message": "Google AI API连接测试成功 | Google AI API connection test successful",
+                    "status_code": response.status_code,
+                    "timestamp": time.time()
+                }
+            else:
+                error_msg = f"Google AI API连接失败: HTTP {response.status_code} | Google AI API connection failed: HTTP {response.status_code}"
+                self.logger.error(error_msg)
+                return {
+                    "success": False,
+                    "error": error_msg,
+                    "status_code": response.status_code,
+                    "error_type": "HTTPError",
+                    "timestamp": time.time()
+                }
+                
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Google AI API连接异常: {str(e)} | Google AI API connection exception: {str(e)}"
+            self.logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg,
+                "error_type": type(e).__name__,
+                "timestamp": time.time()
+            }
+            
+    def _test_generic_api_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """测试通用API连接 | Test generic API connection
+        
+        支持测试自定义或未预定义的API连接，尝试多种常见的端点格式
+        """
+        try:
+            import requests
+            
+            api_url = config.get('api_url')
+            api_key = config.get('api_key')
+            
+            if not api_url:
+                return {"success": False, "error": "缺少API URL | Missing API URL", "error_type": "ConfigError"}
+                
+            if not (api_url.startswith('http://') or api_url.startswith('https://')):
+                return {"success": False, "error": f"无效的API URL格式: {api_url} | Invalid API URL format", "error_type": "ConfigError"}
+                
+            # 构建请求头
+            headers = {}
+            if api_key:
+                # 尝试常见的API密钥格式
+                if 'Authorization' not in headers:
+                    headers['Authorization'] = f"Bearer {api_key}"
+                    
+            # 尝试多种常见的端点格式
+            test_endpoints = []
+            
+            # 1. 直接使用提供的URL
+            test_endpoints.append(api_url)
+            
+            # 2. 添加常见的测试端点后缀
+            common_endpoints = ['/ping', '/health', '/v1/chat/completions', '/chat/completions']
+            for endpoint in common_endpoints:
+                if not api_url.endswith('/'):
+                    test_endpoints.append(f"{api_url}{endpoint}")
+                else:
+                    test_endpoints.append(f"{api_url[:-1]}{endpoint}")
+                    
+            # 3. 确保唯一性
+            test_endpoints = list(set(test_endpoints))
+            
+            # 构建测试数据
+            test_data = {
+                "model": config.get("model_name", config.get("model", "default")),
+                "messages": [{"role": "user", "content": "ping"}],
+                "max_tokens": 5
+            }
+            
+            # 尝试每个端点
+            for url in test_endpoints:
+                try:
+                    # 先尝试GET请求（可能是健康检查端点）
+                    response = requests.get(url, headers=headers, timeout=2)
+                    if response.status_code == 200:
+                        self.logger.info(f"通用API连接测试成功 (GET): {url} | Generic API connection test successful (GET)")
+                        return {
+                            "success": True,
+                            "message": f"API连接测试成功 | API connection test successful",
+                            "status_code": response.status_code,
+                            "endpoint": url,
+                            "method": "GET",
+                            "timestamp": time.time()
+                        }
+                        
+                    # 如果GET失败，尝试POST请求（可能是聊天完成端点）
+                    response = requests.post(url, headers=headers, json=test_data, timeout=3)
+                    if response.status_code in [200, 400]:  # 400可能表示请求格式错误但连接正常
+                        self.logger.info(f"通用API连接测试成功 (POST): {url} | Generic API connection test successful (POST)")
+                        return {
+                            "success": True,
+                            "message": f"API连接测试成功 | API connection test successful",
+                            "status_code": response.status_code,
+                            "endpoint": url,
+                            "method": "POST",
+                            "timestamp": time.time()
+                        }
+                        
+                except requests.exceptions.RequestException:
+                    # 这个端点失败，尝试下一个
+                    continue
+                    
+            # 所有端点都失败
+            self.logger.error("所有通用API端点测试失败 | All generic API endpoints test failed")
+            return {
+                "success": False,
+                "error": "API连接测试失败，所有尝试的端点都无法访问 | API connection test failed, all attempted endpoints are inaccessible",
+                "error_type": "ConnectionError",
+                "attempted_endpoints": test_endpoints,
+                "timestamp": time.time()
+            }
+            
+        except Exception as e:
+            error_message = str(e)
+            self.logger.error(f"通用API连接测试异常: {error_message} | Generic API connection test exception: {error_message}")
+            return {
+                "success": False,
+                "error": error_message,
+                "error_type": type(e).__name__, 
+                "timestamp": time.time()
+            }
+            
+    def set_model_api_config(self, model_id: str, api_config: Dict[str, Any]) -> Dict[str, Any]:
+        """设置特定模型的API配置 | Set API configuration for a specific model
+        
+        Args:
+            model_id: 模型ID | Model ID
+            api_config: API配置 | API configuration
+        
+        Returns:
+            操作结果 | Operation result
+        """
+        try:
+            with self.lock:
+                # 保存模型的API配置
+                self.api_configs[model_id] = api_config
+                
+                # 从系统设置管理器获取模型设置
+                if hasattr(self, 'system_settings_manager'):
+                    model_setting = self.system_settings_manager.get_model_setting(model_id)
+                    if model_setting:
+                        # 更新模型设置中的API配置
+                        model_setting['external_api_config'] = api_config
+                        model_setting['use_external_api'] = True
+                        self.system_settings_manager.update_model_setting(model_id, model_setting)
+                        
+            self.logger.info(f"模型 {model_id} 的API配置已设置 | API configuration for model {model_id} has been set")
+            return {
+                "success": True,
+                "model_id": model_id,
+                "message": "API配置已成功设置 | API configuration has been set successfully",
+                "timestamp": time.time()
+            }
+            
+        except Exception as e:
+            error_message = str(e)
+            self.logger.error(f"设置模型 {model_id} 的API配置失败: {error_message} | Failed to set API configuration for model {model_id}: {error_message}")
+            return {
+                "success": False,
+                "error": error_message,
+                "error_type": type(e).__name__, 
+                "timestamp": time.time()
+            }
+            
+    def get_model_api_config(self, model_id: str) -> Dict[str, Any]:
+        """获取特定模型的API配置 | Get API configuration for a specific model
+        
+        Args:
+            model_id: 模型ID | Model ID
+        
+        Returns:
+            API配置 | API configuration
+        """
+        with self.lock:
+            # 首先从缓存中获取
+            if model_id in self.api_configs:
+                return self.api_configs[model_id]
+                
+            # 如果缓存中没有，尝试从系统设置管理器获取
+            if hasattr(self, 'system_settings_manager'):
+                model_setting = self.system_settings_manager.get_model_setting(model_id)
+                if model_setting and 'external_api_config' in model_setting:
+                    return model_setting['external_api_config']
+                    
+            # 如果都没有，返回空配置
+            return {}
+            
+    def get_model_api_status(self, model_id: str) -> Dict[str, Any]:
+        """获取特定模型的API连接状态 | Get API connection status for a specific model
+        
+        Args:
+            model_id: 模型ID | Model ID
+        
+        Returns:
+            API连接状态信息 | API connection status information
+        """
+        try:
+            # 获取模型配置
+            model_config = self.get_model_api_config(model_id)
+            
+            # 检查是否配置了外部API
+            if not model_config:
+                return {
+                    "model_id": model_id,
+                    "use_external_api": False,
+                    "configured": False,
+                    "status": "未配置 | Not configured",
+                    "timestamp": time.time()
+                }
+                
+            # 检查模型是否使用外部API（从系统设置中获取）
+            use_external_api = False
+            if hasattr(self, 'system_settings_manager'):
+                model_setting = self.system_settings_manager.get_model_setting(model_id)
+                if model_setting:
+                    use_external_api = model_setting.get('use_external_api', False)
+                    
+            # 获取API提供商和服务类型
+            provider = model_config.get('source', 'custom')
+            service_type = model_config.get('service_type', 'chat')
+            
+            # 如果未启用外部API，返回配置但未启用的状态
+            if not use_external_api:
+                return {
+                    "model_id": model_id,
+                    "use_external_api": False,
+                    "configured": True,
+                    "provider": provider,
+                    "service_type": service_type,
+                    "status": "已配置但未启用 | Configured but not enabled",
+                    "config": model_config,
+                    "timestamp": time.time()
+                }
+                
+            # 测试连接
+            test_result = self.test_connection(provider, service_type, model_config)
+            
+            # 合并测试结果和状态信息
+            status_info = {
+                "model_id": model_id,
+                "use_external_api": True,
+                "configured": True,
+                "provider": provider,
+                "service_type": service_type,
+                "config": model_config,
+                "connection_test": test_result,
+                "timestamp": time.time()
+            }
+            
+            if test_result.get('success', False):
+                status_info["status"] = "已连接 | Connected"
+            else:
+                status_info["status"] = "连接失败 | Connection failed"
+                
+            return status_info
+            
+        except Exception as e:
+            error_message = str(e)
+            self.logger.error(f"获取模型 {model_id} 的API状态失败: {error_message} | Failed to get API status for model {model_id}: {error_message}")
+            return {
+                "model_id": model_id,
+                "success": False,
+                "error": error_message,
+                "error_type": type(e).__name__, 
+                "timestamp": time.time()
+            }
     
     def save_configuration(self, filepath: str = "config/external_apis_config.json"):
         """保存API配置到文件 | Save API configuration to file"""

@@ -11,7 +11,7 @@
       <div class="device-category">
         <h4>Cameras</h4>
         <div class="device-grid">
-          <div class="device-card" v-for="camera in cameras" :key="camera.id">
+          <div class="device-card" v-for="camera in cameras" :key="camera.id" :data-camera-id="camera.id">
             <div class="device-header">
               <span class="device-name">{{ camera.name }}</span>
               <span class="device-status" :class="camera.status"></span>
@@ -275,7 +275,7 @@ export default {
       models: [],
       modelConnectionStatus: 'unknown',
       managementModel: {
-        name: 'A Management Model',
+        name: 'Management Model',
         status: 'inactive',
         lastActive: null
       },
@@ -1621,7 +1621,7 @@ export default {
         errorHandler.logInfo('Loading device data from backend...');
         
         // Load cameras data with enhanced properties
-        const camerasResponse = await api.get('/api/devices/cameras');
+        const camerasResponse = await api.cameras.getList();
         if (camerasResponse.data.status === 'success') {
           this.cameras = camerasResponse.data.data.map(camera => ({
             ...camera,
@@ -1727,8 +1727,241 @@ export default {
     toggleCameraStream(cameraId) {
       const camera = this.cameras.find(c => c.id === cameraId);
       if (camera) {
-        // Implement camera stream toggle logic
-        errorHandler.logInfo(`${camera.name} stream toggled`);
+        const isStreaming = camera.isStreaming || false;
+        
+        if (isStreaming) {
+          // Stop streaming
+          this.stopCameraStream(cameraId);
+          camera.isStreaming = false;
+          this.addSystemMessage(`Stopped stream for camera: ${camera.name}`);
+        } else {
+          // Start streaming
+          this.startCameraStream(cameraId);
+          camera.isStreaming = true;
+          this.addSystemMessage(`Started stream for camera: ${camera.name}`);
+        }
+        
+        errorHandler.logInfo(`${camera.name} stream toggled, new state: ${camera.isStreaming ? 'streaming' : 'stopped'}`);
+      }
+    },
+    
+    // Start camera stream
+    async startCameraStream(cameraId) {
+      try {
+        const response = await api.cameras.startStream(cameraId);
+        
+        if (response.data.success) {
+          // Create WebSocket URL for camera feed
+          const camera = this.cameras.find(c => c.id === cameraId);
+          if (camera) {
+            // Store the WebSocket URL
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = window.location.host;
+            camera.streamUrl = `${wsProtocol}//${wsHost}/ws/camera-feed/${cameraId}`;
+            
+            // Create a video element for preview
+            this.createCameraPreview(cameraId, camera.streamUrl);
+          }
+        } else {
+          throw new Error(response.data.detail || 'Failed to start camera stream');
+        }
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to start camera stream');
+        this.addSystemMessage(`Failed to start camera stream: ${error.message || error}`);
+        
+        // Reset streaming state
+        const camera = this.cameras.find(c => c.id === cameraId);
+        if (camera) {
+          camera.isStreaming = false;
+        }
+      }
+    },
+    
+    // Stop camera stream
+    async stopCameraStream(cameraId) {
+      try {
+        const response = await api.cameras.stopStream(cameraId);
+        
+        if (!response.data.success) {
+          throw new Error(response.data.detail || 'Failed to stop camera stream');
+        }
+        
+        // Clean up preview
+        this.removeCameraPreview(cameraId);
+        
+        // Clear stream URL
+        const camera = this.cameras.find(c => c.id === cameraId);
+        if (camera) {
+          camera.streamUrl = null;
+        }
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to stop camera stream');
+        this.addSystemMessage(`Failed to stop camera stream: ${error.message || error}`);
+      }
+    },
+    
+    // Create camera preview element
+    createCameraPreview(cameraId, streamUrl) {
+      errorHandler.logInfo(`Creating preview for camera ${cameraId} with URL: ${streamUrl}`);
+      
+      // Find or create a container for the preview
+      let previewContainer = document.getElementById(`camera-preview-${cameraId}`);
+      if (!previewContainer) {
+        // Find the camera card
+        const cameraCard = document.querySelector(`[data-camera-id="${cameraId}"]`);
+        if (cameraCard) {
+          // Create preview container
+          previewContainer = document.createElement('div');
+          previewContainer.id = `camera-preview-${cameraId}`;
+          previewContainer.className = 'camera-preview-container';
+          
+          // Create video element
+          const videoElement = document.createElement('video');
+          videoElement.id = `camera-video-${cameraId}`;
+          videoElement.className = 'camera-video';
+          videoElement.autoplay = true;
+          videoElement.playsInline = true;
+          
+          // Add loading indicator
+          const loadingIndicator = document.createElement('div');
+          loadingIndicator.className = 'loading-indicator';
+          loadingIndicator.textContent = 'Loading stream...';
+          
+          // Add elements to container
+          previewContainer.appendChild(loadingIndicator);
+          previewContainer.appendChild(videoElement);
+          
+          // Insert after device info but before controls
+          const deviceInfo = cameraCard.querySelector('.device-info');
+          if (deviceInfo) {
+            deviceInfo.after(previewContainer);
+          } else {
+            cameraCard.appendChild(previewContainer);
+          }
+          
+          // Set up WebSocket connection for video stream
+          this.setupCameraWebSocket(cameraId, streamUrl, videoElement, loadingIndicator);
+        }
+      }
+    },
+    
+    // Set up WebSocket connection for camera stream
+    setupCameraWebSocket(cameraId, streamUrl, videoElement, loadingIndicator) {
+      try {
+        // Create WebSocket
+        const ws = new WebSocket(streamUrl);
+        
+        // Store WebSocket reference
+        const camera = this.cameras.find(c => c.id === cameraId);
+        if (camera) {
+          camera.websocket = ws;
+        }
+        
+        // Handle WebSocket events
+        ws.onopen = () => {
+          errorHandler.logInfo(`WebSocket connection established for camera ${cameraId}`);
+          if (loadingIndicator) {
+            loadingIndicator.textContent = 'Streaming...';
+          }
+        };
+        
+        ws.onmessage = (event) => {
+          // Process received frame data
+          if (event.data instanceof Blob) {
+            const blobUrl = URL.createObjectURL(event.data);
+            if (videoElement.src !== blobUrl) {
+              videoElement.src = blobUrl;
+            }
+          } else if (typeof event.data === 'string') {
+            try {
+              const message = JSON.parse(event.data);
+              if (message.type === 'frame' && message.data) {
+                // For base64 encoded frames
+                const blob = this.base64ToBlob(message.data, 'image/jpeg');
+                const blobUrl = URL.createObjectURL(blob);
+                if (videoElement.src !== blobUrl) {
+                  videoElement.src = blobUrl;
+                }
+              }
+            } catch (e) {
+              console.error('Failed to parse WebSocket message:', e);
+            }
+          }
+          
+          // Hide loading indicator once we receive the first frame
+          if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.style.display = 'none';
+          }
+        };
+        
+        ws.onerror = (error) => {
+          errorHandler.handleError(error, `Camera ${cameraId} WebSocket error`);
+          this.addSystemMessage(`Camera ${cameraId} stream error`);
+          if (loadingIndicator) {
+            loadingIndicator.textContent = 'Stream error';
+            loadingIndicator.className = 'loading-indicator error';
+          }
+        };
+        
+        ws.onclose = () => {
+          errorHandler.logInfo(`WebSocket connection closed for camera ${cameraId}`);
+          if (camera) {
+            camera.websocket = null;
+          }
+          if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.textContent = 'Stream closed';
+          }
+        };
+        
+      } catch (error) {
+        errorHandler.handleError(error, `Failed to setup WebSocket for camera ${cameraId}`);
+        this.addSystemMessage(`Failed to connect to camera ${cameraId} stream`);
+        if (loadingIndicator) {
+          loadingIndicator.textContent = 'Connection failed';
+          loadingIndicator.className = 'loading-indicator error';
+        }
+      }
+    },
+    
+    // Helper function to convert base64 to Blob
+    base64ToBlob(base64Data, contentType) {
+      contentType = contentType || '';
+      const sliceSize = 1024;
+      const byteCharacters = atob(base64Data);
+      const byteArrays = [];
+      
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+      
+      return new Blob(byteArrays, {type: contentType});
+    },
+    
+    // Remove camera preview element
+    removeCameraPreview(cameraId) {
+      errorHandler.logInfo(`Removing preview for camera ${cameraId}`);
+      
+      // Close WebSocket if exists
+      const camera = this.cameras.find(c => c.id === cameraId);
+      if (camera && camera.websocket) {
+        try {
+          camera.websocket.close();
+        } catch (error) {
+          console.warn('Failed to close WebSocket:', error);
+        }
+        camera.websocket = null;
+      }
+      
+      // Remove preview container
+      const previewContainer = document.getElementById(`camera-preview-${cameraId}`);
+      if (previewContainer && previewContainer.parentNode) {
+        previewContainer.parentNode.removeChild(previewContainer);
       }
     },
     
@@ -2752,9 +2985,44 @@ export default {
 }
 
 .device-status.error {
-  background-color: #f44336; /* Red */
-  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.3);
-}
+      background-color: #f44336; /* Red */
+      box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.3);
+    }
+    
+    /* Camera Preview Styles */
+    .camera-preview-container {
+      position: relative;
+      margin: var(--spacing-md) 0;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      background-color: var(--bg-secondary);
+    }
+    
+    .camera-video {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      object-fit: cover;
+    }
+    
+    .loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 10;
+    }
+    
+    .loading-indicator.error {
+      background-color: rgba(244, 67, 54, 0.7);
+    }
 
 .device-controls {
   display: flex;

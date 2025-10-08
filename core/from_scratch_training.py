@@ -34,6 +34,42 @@ from core.dataset_manager import dataset_manager
 from core.api_model_connector import api_model_connector
 
 
+class FromScratchTrainer:
+    """从零开始训练的基类，提供通用的训练功能"""
+    
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self.config = {}
+        self.initialized = False
+        self.model = None
+        self.optimizer = None
+        self.criterion = None
+    
+    def initialize(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """初始化训练器"""
+        try:
+            self.config = config or {}
+            self.initialized = True
+            return {"success": True, "message": f"FromScratchTrainer for {self.model_name} initialized"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def train(self, dataset, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """训练模型的通用方法"""
+        # 这是一个基类方法，子类应该重写它
+        return {"success": False, "error": "Train method not implemented"}
+    
+    def save_checkpoint(self, checkpoint_path: str, epoch: int, loss: float):
+        """保存检查点"""
+        # 基类方法，子类可以重写
+        pass
+    
+    def load_checkpoint(self, checkpoint_path: str):
+        """加载检查点"""
+        # 基类方法，子类可以重写
+        pass
+
+
 class FromScratchTrainingManager:
     """AGI-Compliant From Scratch Training Manager for AGI model training coordination"""
     
@@ -867,6 +903,66 @@ class FromScratchTrainingManager:
         except Exception as e:
             error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to stop training for model: {model_id}")
             return {"success": False, "message": str(e)}
+
+    def initialize_all_models_from_scratch(self) -> Dict[str, Any]:
+        """Initialize training for all registered models from scratch"""
+        try:
+            # Get all registered models
+            registered_models = self.model_registry.get_all_registered_models()
+            
+            if not registered_models:
+                return {"success": False, "message": "No models registered in the system"}
+            
+            results = {
+                "succeeded": [],
+                "failed": []
+            }
+            
+            # Start training for each model
+            for model_id in registered_models:
+                try:
+                    # Start training for this model
+                    training_result = self.start_training(model_id)
+                    
+                    if training_result["success"]:
+                        results["succeeded"].append({
+                            "model_id": model_id,
+                            "task_id": training_result["task_id"],
+                            "start_time": training_result["start_time"]
+                        })
+                        error_handler.log_info(f"Started training for model: {model_id}", "FromScratchTrainingManager")
+                    else:
+                        results["failed"].append({
+                            "model_id": model_id,
+                            "message": training_result["message"]
+                        })
+                        error_handler.log_warning(f"Failed to start training for model {model_id}: {training_result['message']}", "FromScratchTrainingManager")
+                        
+                except Exception as e:
+                    error_msg = f"Error starting training for model {model_id}: {str(e)}"
+                    results["failed"].append({
+                        "model_id": model_id,
+                        "message": error_msg
+                    })
+                    error_handler.handle_error(e, "FromScratchTrainingManager", error_msg)
+            
+            # Return overall result
+            if results["succeeded"]:
+                return {
+                    "success": True,
+                    "message": f"Successfully started training for {len(results['succeeded'])} models, failed for {len(results['failed'])} models",
+                    "details": results
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"Failed to start training for all {len(results['failed'])} models",
+                    "details": results
+                }
+                
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", "Failed to initialize all models from scratch")
+            return {"success": False, "message": f"Failed to initialize all models: {str(e)}"}
             
     # Default dataset generation methods
     def _generate_default_language_data(self) -> List[Dict[str, Any]]:

@@ -16,12 +16,14 @@ from torch.utils.data import Dataset, DataLoader
 
 import sys
 import os
+import logging
 # Add the root directory to Python path to resolve imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.from_scratch_training import FromScratchTrainer
-from ..error_handling import error_handler
+from core.error_handling import error_handler
+from core.agi_tools import AGITools
 
 
 class EmotionTextDataset(Dataset):
@@ -1162,7 +1164,7 @@ class UnifiedEmotionModel(UnifiedModelTemplate):
             error_handler.handle_error(e, self._get_model_id(), "Emotion-specific component initialization failed")
     
     def _initialize_agi_components(self, config: Dict[str, Any]):
-        """Initialize AGI collaboration components for emotion processing"""
+        """Initialize AGI collaboration components for emotion processing using unified tools"""
         # Initialize AGI emotion reasoning and expression components
         self.agi_emotion_reasoning = {
             'enabled': config.get('agi_reasoning', False),
@@ -1174,7 +1176,7 @@ class UnifiedEmotionModel(UnifiedModelTemplate):
             'expression_style': config.get('expression_style', 'natural')
         }
         
-        # Initialize AGI components for emotion model
+        # Initialize AGI components using unified tools
         self._initialize_agi_emotion_components()
     
     def _initialize_emotion_models(self, config: Dict[str, Any]):
@@ -1743,22 +1745,16 @@ class UnifiedEmotionModel(UnifiedModelTemplate):
             return "Barely"
     
     def _initialize_agi_emotion_components(self):
-        """Initialize AGI emotion components with enhanced capabilities"""
+        """Initialize AGI emotion components with enhanced capabilities using unified tools"""
         try:
-            # Initialize AGI emotion reasoning engine for advanced emotion understanding
-            self.agi_emotion_reasoning_engine = self._create_agi_emotion_reasoning_engine()
-            # Initialize AGI meta learning system for emotion pattern recognition
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
-            # Initialize AGI self-reflection module for emotion understanding
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            # Initialize AGI cognitive engine for emotion processing
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            # Initialize AGI emotion problem solver
-            self.agi_problem_solver = self._create_agi_emotion_problem_solver()
-            # Initialize AGI creative generator for emotion expression
-            self.agi_creative_generator = self._create_agi_creative_generator()
+            # Use unified AGI tools to initialize all AGI components
+            self.agi_components = AGITools.initialize_agi_components(
+                model_type="emotion",
+                config=self.config,
+                model_id=self._get_model_id()
+            )
             
-            error_handler.log_info("AGI emotion components initialized successfully", self._get_model_id())
+            error_handler.log_info("AGI emotion components initialized successfully using unified tools", self._get_model_id())
             
         except Exception as e:
             error_handler.handle_error(e, self._get_model_id(), "AGI emotion components initialization failed")

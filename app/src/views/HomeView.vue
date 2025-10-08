@@ -5,35 +5,186 @@
     
     <!-- Multi-camera and Device Status Section -->
     <div class="device-status-section">
-      <h3>Multi-camera & Device Status</h3>
-      <div class="device-grid">
-        <div class="device-card" v-for="camera in cameras" :key="camera.id">
-          <div class="device-header">
-            <span class="device-name">{{ camera.name }}</span>
-            <span class="device-status" :class="camera.status"></span>
-          </div>
-          <div class="device-controls">
-            <button @click="toggleCamera(camera.id)" class="device-btn">
-              {{ camera.active ? 'Stop' : 'Start' }}
-            </button>
-            <button @click="configureCamera(camera.id)" class="device-btn">
-              Settings
-            </button>
+      <h3>Multi-camera & Device Management</h3>
+      
+      <!-- Regular Cameras -->
+      <div class="device-category">
+        <h4>Cameras</h4>
+        <div class="device-grid">
+          <div class="device-card" v-for="camera in cameras" :key="camera.id">
+            <div class="device-header">
+              <span class="device-name">{{ camera.name }}</span>
+              <span class="device-status" :class="camera.status"></span>
+            </div>
+            <div class="device-info">
+              <span class="device-type">{{ camera.type || 'Standard' }}</span>
+              <span class="device-resolution">{{ camera.resolution || 'Unknown' }}</span>
+            </div>
+            <div class="device-controls">
+              <button @click="toggleCamera(camera.id)" class="device-btn">
+                {{ camera.active ? 'Stop' : 'Start' }}
+              </button>
+              <button @click="configureCamera(camera.id)" class="device-btn">
+                Settings
+              </button>
+              <button v-if="camera.calibrated" @click="toggleCameraStream(camera.id)" class="device-btn">
+                Stream
+              </button>
+            </div>
           </div>
         </div>
-        
-        <div class="device-card" v-for="device in externalDevices" :key="device.id">
-          <div class="device-header">
-            <span class="device-name">{{ device.name }}</span>
-            <span class="device-status" :class="device.status"></span>
+      </div>
+      
+      <!-- Stereo Vision Pairs -->
+      <div class="device-category" v-if="stereoVisionPairs.length > 0">
+        <h4>Stereo Vision Pairs</h4>
+        <div class="device-grid">
+          <div class="device-card stereo-pair" v-for="pair in stereoVisionPairs" :key="pair.id">
+            <div class="device-header">
+              <span class="device-name">{{ pair.name }}</span>
+              <span class="device-status" :class="pair.status"></span>
+            </div>
+            <div class="device-info">
+              <span class="stereo-cameras">{{ pair.leftCameraName }} & {{ pair.rightCameraName }}</span>
+              <span class="calibration-status" :class="pair.calibrated ? 'calibrated' : 'uncalibrated'">
+                {{ pair.calibrated ? 'Calibrated' : 'Not Calibrated' }}
+              </span>
+            </div>
+            <div class="device-controls">
+              <button @click="toggleStereoVision(pair.id)" class="device-btn">
+                {{ pair.active ? 'Disable' : 'Enable' }}
+              </button>
+              <button @click="calibrateStereoPair(pair.id)" class="device-btn">
+                Calibrate
+              </button>
+              <button @click="view3DModel(pair.id)" class="device-btn">
+                3D View
+              </button>
+            </div>
           </div>
-          <div class="device-controls">
-            <button @click="toggleDevice(device.id)" class="device-btn">
-              {{ device.connected ? 'Disconnect' : 'Connect' }}
-            </button>
-            <button @click="configureDevice(device.id)" class="device-btn">
-              Config
-            </button>
+        </div>
+      </div>
+      
+      <!-- External Devices -->
+      <div class="device-category">
+        <h4>External Devices</h4>
+        <div class="device-grid">
+          <div class="device-card" v-for="device in externalDevices" :key="device.id">
+            <div class="device-header">
+              <span class="device-name">{{ device.name }}</span>
+              <span class="device-status" :class="device.status"></span>
+            </div>
+            <div class="device-info">
+              <span class="device-type">{{ device.type || 'Unknown' }}</span>
+              <span class="device-protocol">{{ device.protocol || 'Unknown' }}</span>
+            </div>
+            <div class="device-controls">
+              <button @click="toggleDevice(device.id)" class="device-btn">
+                {{ device.connected ? 'Disconnect' : 'Connect' }}
+              </button>
+              <button @click="configureDevice(device.id)" class="device-btn">
+                Config
+              </button>
+              <button v-if="device.type === 'robotic_arm'" @click="controlRoboticArm(device.id)" class="device-btn">
+                Control Arm
+              </button>
+              <button v-if="device.type === 'led_controller'" @click="controlLED(device.id)" class="device-btn">
+                Control LED
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sensor Data Display -->
+      <div class="device-category" v-if="Object.keys(sensorData).length > 0">
+        <h4>Sensor Data</h4>
+        <div class="sensor-grid">
+          <div v-for="(sensors, deviceId) in sensorData" :key="deviceId">
+            <div class="sensor-device-header">
+              <h5>Device ID: {{ deviceId }}</h5>
+            </div>
+            <div class="sensor-data">
+              <div class="sensor-item" v-for="(value, sensorType) in sensors" :key="sensorType">
+                <span class="sensor-label">{{ formatSensorType(sensorType) }}:</span>
+                <span class="sensor-value">{{ value }}</span>
+                <span class="sensor-timestamp">{{ getSensorTimestamp(sensorType, deviceId) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Serial Communication -->
+      <div class="device-category">
+        <h4>Serial Communication</h4>
+        <div class="serial-communication">
+          <!-- Serial Port Connection -->
+          <div class="serial-connection">
+            <div class="connection-controls">
+              <select v-model="selectedSerialPort" @change="handlePortChange">
+                <option value="">Select Port</option>
+                <option v-for="port in availableSerialPorts" :key="port.port" :value="port.port">
+                  {{ port.port }} - {{ port.name }}
+                </option>
+              </select>
+              <select v-model="serialBaudRate">
+                <option value="9600">9600</option>
+                <option value="19200">19200</option>
+                <option value="38400">38400</option>
+                <option value="57600">57600</option>
+                <option value="115200">115200</option>
+              </select>
+              <button @click="refreshSerialPorts" class="device-btn">
+                Refresh Ports
+              </button>
+              <button @click="connectSerialPort" :disabled="!selectedSerialPort || serialConnected" class="device-btn">
+                Connect
+              </button>
+              <button @click="disconnectSerialPort" :disabled="!serialConnected" class="device-btn">
+                Disconnect
+              </button>
+              <span class="connection-status" :class="serialConnected ? 'connected' : 'disconnected'">{{ serialConnected ? 'Connected' : 'Disconnected' }}</span>
+            </div>
+          </div>
+
+          <!-- Data Send/Receive -->
+          <div class="serial-data-section">
+            <!-- Send Data -->
+            <div class="serial-send">
+              <h5>Send Data</h5>
+              <textarea v-model="serialSendData" placeholder="Enter data to send..."></textarea>
+              <div class="send-controls">
+                <label>
+                  <input type="checkbox" v-model="sendAsHex"> Send as HEX
+                </label>
+                <label>
+                  <input type="checkbox" v-model="appendCR"> Append CR
+                </label>
+                <label>
+                  <input type="checkbox" v-model="appendLF"> Append LF
+                </label>
+                <button @click="sendSerialData" :disabled="!serialConnected" class="device-btn">
+                  Send
+                </button>
+              </div>
+            </div>
+
+            <!-- Receive Data -->
+            <div class="serial-receive">
+              <h5>Received Data</h5>
+              <div class="receive-controls">
+                <button @click="clearReceivedData" class="device-btn">
+                  Clear
+                </button>
+                <label>
+                  <input type="checkbox" v-model="autoScroll"> Auto-scroll
+                </label>
+              </div>
+              <div ref="serialReceiveArea" class="receive-data-area">
+                <pre>{{ serialReceivedData }}</pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -130,24 +281,72 @@ export default {
       },
       connectedText: '',
       activeModels: 0,
-      // Multi-camera support data - initialize as empty, will be populated from real API
-      // Multi-camera support data - initialize as empty, will be populated from real API
+      // Enhanced multi-camera support data for stereo vision
       cameras: [],
-      // External devices and sensors data - initialize as empty, will be populated from real API
+      // External devices with enhanced communication protocols
       externalDevices: [],
-      // Sensor data storage
+      // Enhanced sensor data storage
       sensorData: {
+        // Environmental sensors
         temperature: null,
-        motion: false,
         humidity: null,
-        pressure: null
+        pressure: null,
+        light: null,
+        sound: null,
+        airQuality: null,
+        // Motion and position sensors
+        motion: false,
+        acceleration: {x: null, y: null, z: null},
+        gyroscope: {x: null, y: null, z: null},
+        magnetometer: {x: null, y: null, z: null},
+        // Distance and proximity sensors
+        distance: null,
+        proximity: null,
+        // Force and touch sensors
+        pressure: null,
+        force: null,
+        touch: [],
+        // Vision and imaging sensors
+        depthMap: null,
+        pointCloud: null,
+        // Health and biometric sensors
+        heartRate: null,
+        bloodPressure: null,
+        // Custom sensor data
+        custom: {}
       },
-      // Device control WebSocket connection
+      // Device control WebSocket connection with enhanced protocols
       deviceControlWebSocket: null,
       deviceControlConnected: false,
       deviceControlReconnectInterval: null,
       deviceControlPingInterval: null,
-      webSocketErrorNotified: false
+      webSocketErrorNotified: false,
+      // Stereo vision calibration data
+      stereoCalibrationData: {
+        baseline: null,
+        focalLength: null,
+        principalPoint: {x: null, y: null},
+        rotationMatrix: [],
+        translationVector: []
+      },
+      // Serial Communication Data
+      availableSerialPorts: [],
+      selectedSerialPort: '',
+      serialBaudRate: '9600',
+      serialConnected: false,
+      serialSendData: '',
+      serialReceivedData: '',
+      sendAsHex: false,
+      appendCR: false,
+      appendLF: false,
+      autoScroll: true,
+      serialListenerInterval: null,
+      // Active stereo vision pairs
+      stereoVisionPairs: [],
+      // Device communication protocols
+      communicationProtocols: ['WebSocket', 'MQTT', 'HTTP', 'Serial', 'Bluetooth', 'Custom'],
+      // Connection status for each device
+      deviceConnectionStatus: {}
     };
   },
   mounted() {
@@ -171,6 +370,9 @@ export default {
     
     // Load real device data from backend
     this.loadDeviceData();
+    
+    // Initialize serial communication
+    this.refreshSerialPorts();
   },
   beforeUnmount() {
     // Remove event listeners when component is unmounted
@@ -178,6 +380,9 @@ export default {
     
     // Clean up device control WebSocket connection
     this.disconnectDeviceControlWebSocket();
+    
+    // Clean up serial communication
+    this.disconnectSerialPort();
   },
   computed: {
       // Calculate active model count
@@ -277,9 +482,9 @@ export default {
 
       // Initialize system
       initializeSystem() {
-        errorHandler.logInfo('Self Soul System initializing...');
+        errorHandler.logInfo('Self Brain System initializing...');
         // Show welcome message
-        this.addSystemMessage('Welcome to the Self Soul System!');
+        this.addSystemMessage('Welcome to the Self Brain System!');
         
         // Always try to connect to real backend, never use mock data automatically
         this.connectToBackend();
@@ -368,10 +573,22 @@ export default {
       
       try {
         // Send message to management model API
+        // Prepare conversation history in proper format
+        const conversationHistory = this.messages
+          .filter(msg => msg.type === 'user' || msg.type === 'bot')
+          .map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }));
+        
         const response = await api.post('/api/models/8001/chat', {
           message: messageText,
           session_id: this.getSessionId(),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          conversation_history: conversationHistory,
+          lang: 'en',
+          user_id: 'default_user',
+          model_id: 'manager'
         });
         
         // Remove loading status message
@@ -381,11 +598,12 @@ export default {
         const botMessage = {
           id: Date.now() + 1,
           type: 'bot',
-          content: response.data.response || 'I don\'t have a response yet. Please try again.',
+          content: response.data.data?.response || response.data.response || 'I don\'t have a response yet. Please try again.',
           time: new Date().toLocaleTimeString(),
-          modelId: response.data.model_id || '8001',
-          modelName: response.data.model_name || 'Management Model',
-          confidence: response.data.confidence || 0.97
+          modelId: response.data.data?.model_id || response.data.model_id || '8001',
+          modelName: 'Management Model',
+          confidence: response.data.data?.confidence || response.data.confidence || 0.97,
+          processingTime: response.data.data?.processing_time || 0
         };
         
         this.messages.push(botMessage);
@@ -396,6 +614,7 @@ export default {
         this.managementModel.status = 'active';
         
       } catch (error) {
+        console.error('Error sending message to management model:', error);
         errorHandler.handleError(error, 'Failed to send message to management model');
         
         // Remove loading status message
@@ -831,34 +1050,138 @@ export default {
       }
     },
 
-    // Multi-camera control methods
+    // Enhanced multi-camera control methods with stereo vision support
     toggleCamera(cameraId) {
+      // For stereo cameras, toggle both cameras in the pair
+      const camera = this.cameras.find(cam => cam.id === cameraId);
+      if (camera && camera.isStereo && camera.stereoPairId) {
+        const stereoPair = this.stereoVisionPairs.find(pair => pair.id === camera.stereoPairId);
+        if (stereoPair) {
+          // Toggle both cameras in the pair simultaneously
+          this.sendDeviceControlCommand(stereoPair.leftCameraId, 'toggle');
+          this.sendDeviceControlCommand(stereoPair.rightCameraId, 'toggle');
+          
+          // Update stereo pair status
+          stereoPair.isActive = !stereoPair.isActive;
+          this.addSystemMessage(`Toggled stereo pair: ${stereoPair.name}`);
+          return;
+        }
+      }
+      
+      // For non-stereo cameras, toggle individually
       this.sendDeviceControlCommand(cameraId, 'toggle');
     },
 
+    // Enhanced camera configuration with more parameters
     configureCamera(cameraId) {
       const camera = this.cameras.find(cam => cam.id === cameraId);
       if (camera) {
-        // Show camera configuration dialog
-        const resolution = prompt(`Configure ${camera.name}:\nEnter resolution (e.g., 1920x1080):`, camera.resolution || '1920x1080');
-        if (resolution) {
-          this.sendDeviceControlCommand(cameraId, 'configure', { resolution: resolution });
+        // For stereo cameras, offer stereo-specific configuration
+        if (camera.isStereo) {
+          const configOptions = `1. Resolution: ${camera.resolution}\n` +
+                              `2. FPS: ${camera.fps}\n` +
+                              `3. Exposure: ${camera.exposure}\n` +
+                              `4. Stereo Calibration`;
+          
+          const choice = prompt(`Configure ${camera.name}:\n${configOptions}\nEnter option number (1-4):`, '1');
+          
+          switch(choice) {
+            case '1':
+              const resolution = prompt(`Enter resolution (e.g., 1920x1080):`, camera.resolution);
+              if (resolution) {
+                this.sendDeviceControlCommand(cameraId, 'configure', { resolution });
+              }
+              break;
+            case '2':
+              const fps = prompt(`Enter FPS (frames per second):`, camera.fps);
+              if (fps && !isNaN(fps)) {
+                this.sendDeviceControlCommand(cameraId, 'configure', { fps: parseInt(fps) });
+              }
+              break;
+            case '3':
+              const exposure = prompt(`Enter exposure (auto or value):`, camera.exposure);
+              if (exposure) {
+                this.sendDeviceControlCommand(cameraId, 'configure', { exposure });
+              }
+              break;
+            case '4':
+              this.calibrateStereoPair(camera.stereoPairId);
+              break;
+          }
+        } else {
+          // Standard camera configuration
+          const resolution = prompt(`Configure ${camera.name}:\nEnter resolution (e.g., 1920x1080):`, camera.resolution);
+          if (resolution) {
+            this.sendDeviceControlCommand(cameraId, 'configure', { resolution });
+          }
         }
       }
     },
 
-    // External device control methods
+    // Enhanced external device control with protocol-specific options
     toggleDevice(deviceId) {
-      this.sendDeviceControlCommand(deviceId, 'toggle');
+      const device = this.externalDevices.find(dev => dev.id === deviceId);
+      if (device) {
+        if (device.status === 'connected') {
+          // If connected, disconnect with protocol-specific handling
+          this.sendDeviceControlCommand(deviceId, 'disconnect', { protocol: device.protocol });
+        } else {
+          // If disconnected, connect with protocol-specific parameters
+          const connectParams = {
+            protocol: device.protocol
+          };
+          
+          // Add protocol-specific parameters
+          if (device.protocol === 'Serial') {
+            connectParams.port = device.port || prompt(`Enter serial port (e.g., COM3):`);
+            connectParams.baudRate = device.baudRate || parseInt(prompt(`Enter baud rate (e.g., 9600):`));
+          } else if (device.protocol === 'MQTT' || device.protocol === 'HTTP' || device.protocol === 'Custom') {
+            connectParams.address = device.address || prompt(`Enter ${device.protocol} address:`);
+          }
+          
+          this.sendDeviceControlCommand(deviceId, 'connect', connectParams);
+        }
+      }
     },
 
+    // Enhanced device configuration with protocol-specific settings
     configureDevice(deviceId) {
       const device = this.externalDevices.find(dev => dev.id === deviceId);
       if (device) {
-        // Show device configuration dialog
-        const params = prompt(`Configure ${device.name}:\nEnter configuration parameters:`, device.config?.parameters || 'default');
-        if (params) {
-          this.sendDeviceControlCommand(deviceId, 'configure', { parameters: params });
+        // Create protocol-specific configuration UI
+        let configParams = {};
+        
+        switch(device.protocol) {
+          case 'Serial':
+            const port = prompt(`Serial Port:`, device.port || 'COM3');
+            const baudRate = prompt(`Baud Rate:`, device.baudRate || '9600');
+            if (port && baudRate) {
+              configParams = { port, baudRate: parseInt(baudRate) };
+            }
+            break;
+          case 'MQTT':
+            const address = prompt(`MQTT Broker Address:`, device.address || 'mqtt://localhost:1883');
+            const topic = prompt(`MQTT Topic:`, device.topic || 'devices/' + deviceId);
+            if (address && topic) {
+              configParams = { address, topic };
+            }
+            break;
+          case 'HTTP':
+            const httpUrl = prompt(`HTTP Endpoint URL:`, device.address || 'http://localhost:3000/devices/' + deviceId);
+            const method = prompt(`HTTP Method (GET/POST):`, device.httpMethod || 'POST');
+            if (httpUrl && method) {
+              configParams = { address: httpUrl, method };
+            }
+            break;
+          default:
+            const params = prompt(`Configure ${device.name}:\nEnter configuration parameters:`, device.config?.parameters || 'default');
+            if (params) {
+              configParams = { parameters: params };
+            }
+        }
+        
+        if (Object.keys(configParams).length > 0) {
+          this.sendDeviceControlCommand(deviceId, 'configure', configParams);
         }
       }
     },
@@ -905,17 +1228,126 @@ export default {
       }
     },
     
-    // Update sensor data from server
+    // Enhanced sensor data update with support for multiple sensor types
     updateSensorDataFromServer(deviceId, data) {
       // Update sensor data based on device ID and data received
-      if (deviceId === 'sensor1') {
-        this.sensorData.temperature = data.value;
-      } else if (deviceId === 'sensor2') {
-        this.sensorData.motion = data.value;
-      } else if (deviceId === 'sensor3') {
-        this.sensorData.humidity = data.value;
-      } else if (deviceId === 'sensor4') {
-        this.sensorData.pressure = data.value;
+      try {
+        if (!deviceId || !data) return;
+        
+        // Group sensors by type for easier management
+        const sensorTypeMap = {
+          'temperature': ['sensor_temp', 'temp_sensor', 'temperature'],
+          'humidity': ['sensor_humidity', 'hum_sensor', 'humidity'],
+          'pressure': ['sensor_pressure', 'pres_sensor', 'pressure'],
+          'light': ['sensor_light', 'light_sensor', 'light'],
+          'sound': ['sensor_sound', 'audio_sensor', 'sound'],
+          'motion': ['sensor_motion', 'movement_sensor', 'motion'],
+          'accelerometer': ['sensor_accel', 'accelerometer', 'accel'],
+          'gyroscope': ['sensor_gyro', 'gyroscope', 'gyro'],
+          'magnetometer': ['sensor_mag', 'magnetometer', 'mag'],
+          'distance': ['sensor_distance', 'range_sensor', 'distance'],
+          'proximity': ['sensor_proximity', 'prox_sensor', 'proximity'],
+          'depth': ['sensor_depth', 'depth_camera', 'depth'],
+          'custom': ['custom_sensor']
+        };
+        
+        // Find matching sensor type
+        for (const [sensorType, ids] of Object.entries(sensorTypeMap)) {
+          if (ids.some(id => deviceId.includes(id))) {
+            switch(sensorType) {
+              case 'temperature':
+              case 'humidity':
+              case 'pressure':
+              case 'light':
+              case 'sound':
+              case 'distance':
+              case 'proximity':
+                this.sensorData[sensorType] = data.value;
+                break;
+              case 'motion':
+                this.sensorData.motion = data.value;
+                break;
+              case 'accelerometer':
+              case 'gyroscope':
+              case 'magnetometer':
+                // Handle 3-axis sensors
+                this.sensorData[sensorType] = {
+                  x: data.x || 0,
+                  y: data.y || 0,
+                  z: data.z || 0
+                };
+                break;
+              case 'depth':
+                // Handle depth maps for stereo vision
+                if (data.depthMap) {
+                  this.sensorData.depthMap = data.depthMap;
+                }
+                if (data.pointCloud) {
+                  this.sensorData.pointCloud = data.pointCloud;
+                }
+                break;
+              case 'custom':
+                // Handle custom sensor data
+                this.sensorData.custom[deviceId] = data;
+                break;
+            }
+            break;
+          }
+        }
+        
+        // Log sensor data update
+        errorHandler.logDebug(`Updated sensor data from ${deviceId}`, data);
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to update sensor data');
+      }
+    },
+    
+    // Stereo vision specific methods
+    calibrateStereoPair(pairId) {
+      const stereoPair = this.stereoVisionPairs.find(pair => pair.id === pairId);
+      if (stereoPair) {
+        this.addSystemMessage(`Starting calibration for stereo pair: ${stereoPair.name}`);
+        this.sendDeviceControlCommand(pairId, 'calibrate_stereo', {
+          leftCameraId: stereoPair.leftCameraId,
+          rightCameraId: stereoPair.rightCameraId
+        });
+      }
+    },
+    
+    // Enable/disable stereo vision processing
+    toggleStereoVision(pairId) {
+      const stereoPair = this.stereoVisionPairs.find(pair => pair.id === pairId);
+      if (stereoPair) {
+        const isEnabled = !stereoPair.isActive;
+        this.sendDeviceControlCommand(pairId, isEnabled ? 'enable_stereo' : 'disable_stereo');
+        stereoPair.isActive = isEnabled;
+        this.addSystemMessage(`${isEnabled ? 'Enabled' : 'Disabled'} stereo vision for pair: ${stereoPair.name}`);
+      }
+    },
+    
+    // Get 3D position from stereo vision
+    get3DPosition(leftPixel, rightPixel) {
+      // Simple implementation - in a real system this would use proper stereo triangulation
+      // based on calibration data
+      try {
+        if (!this.stereoCalibrationData.baseline || !this.stereoCalibrationData.focalLength) {
+          throw new Error('Stereo vision not calibrated');
+        }
+        
+        const disparity = Math.abs(leftPixel.x - rightPixel.x);
+        if (disparity === 0) return null;
+        
+        // Calculate depth using triangulation formula
+        const depth = (this.stereoCalibrationData.baseline * this.stereoCalibrationData.focalLength) / disparity;
+        
+        // Calculate 3D coordinates
+        const x = (leftPixel.x - this.stereoCalibrationData.principalPoint.x) * depth / this.stereoCalibrationData.focalLength;
+        const y = (leftPixel.y - this.stereoCalibrationData.principalPoint.y) * depth / this.stereoCalibrationData.focalLength;
+        
+        return { x, y, z: depth };
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to calculate 3D position');
+        return null;
       }
     },
 
@@ -1183,38 +1615,73 @@ export default {
       // Removed this.$once which is not supported in Vue 3
     },
     
-    // Load device data from backend API
+    // Enhanced device data loading with stereo vision pairs and calibration
     async loadDeviceData() {
       try {
         errorHandler.logInfo('Loading device data from backend...');
         
-        // Load cameras data
+        // Load cameras data with enhanced properties
         const camerasResponse = await api.get('/api/devices/cameras');
         if (camerasResponse.data.status === 'success') {
-          this.cameras = camerasResponse.data.data || [];
+          this.cameras = camerasResponse.data.data.map(camera => ({
+            ...camera,
+            resolution: camera.resolution || '1280x720',
+            fps: camera.fps || 30,
+            exposure: camera.exposure || 'auto',
+            gain: camera.gain || 0,
+            isStereo: camera.isStereo || false,
+            stereoRole: camera.stereoRole || null, // 'left', 'right', or null
+            stereoPairId: camera.stereoPairId || null
+          })) || [];
           errorHandler.logInfo(`Loaded ${this.cameras.length} cameras`);
         } else {
           throw new Error('Failed to load cameras data');
         }
         
-        // Load external devices data
+        // Load external devices data with enhanced protocol support
         const devicesResponse = await api.get('/api/devices/external');
         if (devicesResponse.data.status === 'success') {
-          this.externalDevices = devicesResponse.data.data || [];
+          this.externalDevices = devicesResponse.data.data.map(device => ({
+            ...device,
+            protocol: device.protocol || 'WebSocket',
+            baudRate: device.baudRate || null,
+            port: device.port || null,
+            address: device.address || null,
+            timeout: device.timeout || 5000,
+            maxRetries: device.maxRetries || 3,
+            lastCommandTime: null,
+            lastResponseTime: null
+          })) || [];
           errorHandler.logInfo(`Loaded ${this.externalDevices.length} external devices`);
         } else {
           throw new Error('Failed to load external devices data');
         }
         
-        this.addSystemMessage(`Device data loaded: ${this.cameras.length} cameras, ${this.externalDevices.length} external devices`);
+        // Load stereo vision pairs
+        const stereoPairsResponse = await api.get('/api/devices/stereo-pairs');
+        if (stereoPairsResponse.data.status === 'success') {
+          this.stereoVisionPairs = stereoPairsResponse.data.data || [];
+          errorHandler.logInfo(`Loaded ${this.stereoVisionPairs.length} stereo vision pairs`);
+        }
+        
+        // Load stereo calibration data
+        const calibrationResponse = await api.get('/api/devices/stereo-calibration');
+        if (calibrationResponse.data.status === 'success') {
+          this.stereoCalibrationData = calibrationResponse.data.data || {};
+          errorHandler.logInfo('Loaded stereo vision calibration data');
+        }
+        
+        this.addSystemMessage(`Device data loaded: ${this.cameras.length} cameras, ${this.externalDevices.length} external devices, ${this.stereoVisionPairs.length} stereo pairs`);
         
       } catch (error) {
         errorHandler.handleError(error, 'Failed to load device data');
-        this.addSystemMessage('Failed to load device data from backend');
+        this.addSystemMessage('Failed to load device data from backend. Please ensure the backend service is running.');
         
-        // Fallback: initialize with empty arrays to avoid UI errors
+        // Initialize with empty arrays instead of demo data
         this.cameras = [];
         this.externalDevices = [];
+        this.stereoVisionPairs = [];
+        this.stereoCalibrationData = {};
       }
     },
     
@@ -1242,6 +1709,173 @@ export default {
       } catch (error) {
         errorHandler.handleError(error, `Failed to process ${inputType} input`);
         return `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} processing failed due to connection issues`;
+      }
+    },
+    
+    // Format sensor type for display
+    formatSensorType(sensorType) {
+      return sensorType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    },
+    
+    // Get sensor data timestamp (mock implementation)
+    getSensorTimestamp(sensorType, deviceId) {
+      const now = new Date();
+      return now.toLocaleTimeString();
+    },
+    
+    // Toggle camera stream
+    toggleCameraStream(cameraId) {
+      const camera = this.cameras.find(c => c.id === cameraId);
+      if (camera) {
+        // Implement camera stream toggle logic
+        errorHandler.logInfo(`${camera.name} stream toggled`);
+      }
+    },
+    
+    // View 3D model from stereo pair
+    view3DModel(pairId) {
+      const pair = this.stereoVisionPairs.find(p => p.id === pairId);
+      if (pair && pair.calibrated) {
+        // Implement 3D view logic
+        errorHandler.logInfo(`Viewing 3D model for ${pair.name}`);
+        this.addSystemMessage(`Displaying 3D model from stereo pair: ${pair.name}`);
+      }
+    },
+
+    // Serial Communication Methods
+    async refreshSerialPorts() {
+      try {
+        this.addSystemMessage('Refreshing serial ports...');
+        const response = await api.serial.getPorts();
+        this.availableSerialPorts = response.data.ports || [];
+        this.addSystemMessage(`Found ${this.availableSerialPorts.length} serial ports`);
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to refresh serial ports');
+        this.addSystemMessage('Failed to refresh serial ports. Please ensure the backend service is running.');
+        this.availableSerialPorts = [];
+      }
+    },
+
+    handlePortChange() {
+      this.addSystemMessage(`Selected port: ${this.selectedSerialPort}`);
+    },
+
+    async connectSerialPort() {
+      if (!this.selectedSerialPort) {
+        this.addSystemMessage('Please select a serial port first');
+        return;
+      }
+
+      try {
+        this.addSystemMessage(`Connecting to ${this.selectedSerialPort} at ${this.serialBaudRate} baud...`);
+        const response = await api.serial.connect({
+          port: this.selectedSerialPort,
+          baud_rate: parseInt(this.serialBaudRate)
+        });
+
+        if (response.data.success) {
+          this.serialConnected = true;
+          this.addSystemMessage(`Successfully connected to ${this.selectedSerialPort}`);
+          this.startSerialListener();
+        } else {
+          throw new Error(response.data.message || 'Failed to connect');
+        }
+      } catch (error) {
+        errorHandler.handleError(error, `Failed to connect to ${this.selectedSerialPort}`);
+        this.addSystemMessage(`Failed to connect to ${this.selectedSerialPort}: ${error.message}`);
+        this.serialConnected = false;
+      }
+    },
+
+    async disconnectSerialPort() {
+      try {
+        this.stopSerialListener();
+        await api.serial.disconnect();
+        this.serialConnected = false;
+        this.addSystemMessage(`Disconnected from ${this.selectedSerialPort}`);
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to disconnect serial port');
+        this.addSystemMessage('Failed to disconnect serial port');
+        // Force disconnect state
+        this.serialConnected = false;
+        this.stopSerialListener();
+      }
+    },
+
+    async sendSerialData() {
+      if (!this.serialConnected || !this.serialSendData.trim()) {
+        return;
+      }
+
+      try {
+        let dataToSend = this.serialSendData;
+        
+        // Apply formatting options
+        if (this.appendCR) {
+          dataToSend += '\r';
+        }
+        if (this.appendLF) {
+          dataToSend += '\n';
+        }
+
+        const response = await api.serial.send(dataToSend);
+        
+        if (response.data.success) {
+          this.addSystemMessage(`Sent data to ${this.selectedSerialPort}`);
+          // Clear send data after successful send
+          this.serialSendData = '';
+        } else {
+          throw new Error(response.data.message || 'Failed to send data');
+        }
+      } catch (error) {
+        errorHandler.handleError(error, 'Failed to send serial data');
+        this.addSystemMessage('Failed to send data');
+      }
+    },
+
+    clearReceivedData() {
+      this.serialReceivedData = '';
+      this.addSystemMessage('Cleared received data');
+    },
+
+    startSerialListener() {
+      // Stop any existing listener
+      this.stopSerialListener();
+      
+      // Start new listener
+      this.serialListenerInterval = setInterval(async () => {
+        await this.readSerialData();
+      }, 500); // Check for new data every 500ms
+    },
+
+    stopSerialListener() {
+      if (this.serialListenerInterval) {
+        clearInterval(this.serialListenerInterval);
+        this.serialListenerInterval = null;
+      }
+    },
+
+    async readSerialData() {
+      try {
+        const response = await api.serial.read();
+        
+        if (response.data.success && response.data.data) {
+          this.serialReceivedData += response.data.data;
+          this.scrollToBottom();
+        }
+      } catch (error) {
+        // Only log errors if we're still supposed to be connected
+        if (this.serialConnected) {
+          // In a real app, we might want to handle reconnection here
+          // For now, just silently handle it
+        }
+      }
+    },
+
+    scrollToBottom() {
+      if (this.autoScroll && this.$refs.serialReceiveArea) {
+        const area = this.$refs.serialReceiveArea;
+        area.scrollTop = area.scrollHeight;
       }
     }
   }
@@ -1351,7 +1985,7 @@ export default {
 </style>
 
 <style scoped>
-  /* Clean black, white, and gray style CSS variables definition */
+/* Clean black, white, and gray style CSS variables definition */
 :root {
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -1377,7 +2011,7 @@ export default {
 
 .home-view {
   padding: var(--spacing-lg);
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -1435,129 +2069,226 @@ export default {
 
 .header-buttons {
   display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
 }
 
-.header-button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+/* Device Status Section Styles */
+.device-status-section {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: var(--transition);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-.header-button:hover {
-  background: var(--bg-tertiary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.model-status {
-    position: relative;
-  }
-
-  .management-model-status {
-    margin-top: 20px;
-  }
-
-  .model-card.main {
-    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-    border-color: var(--border-dark);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .model-card.main:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .model-status-indicator.connected {
-    background-color: var(--text-primary);
-    animation: pulse 2s infinite;
-  }
-
-  .model-status-indicator.connecting {
-    background-color: var(--text-secondary);
-    animation: pulse 1s infinite;
-  }
-
-  .model-status-indicator.disconnected {
-    background-color: var(--text-tertiary);
-  }
-
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(100, 100, 100, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(100, 100, 100, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(100, 100, 100, 0);
-    }
-  }
-
-  .model-card {
-    margin-bottom: var(--spacing-lg);
-  }
-
-.model-status h2 {
+.device-status-section h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
   color: var(--text-primary);
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: var(--spacing-md);
 }
 
-.status-grid {
+.device-category {
+  margin-bottom: var(--spacing-xl);
+}
+
+.device-category:last-child {
+  margin-bottom: 0;
+}
+
+.device-category h4 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--spacing-sm);
+}
+
+.device-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-md);
 }
 
-.model-card {
+.device-card {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: var(--spacing-md);
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
 }
 
-.model-card:hover {
+.device-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--border-dark);
   transform: translateY(-2px);
 }
 
-.model-name {
-  font-weight: 600;
+.device-card.stereo-pair {
+  border-left: 4px solid var(--text-primary);
+}
+
+.device-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: var(--spacing-sm);
+}
+
+.device-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.device-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--text-tertiary);
+  transition: var(--transition);
+}
+
+.device-status.active,
+.device-status.connected {
+  background-color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(34, 34, 34, 0.1);
+}
+
+.device-status.available {
+  background-color: var(--text-secondary);
+}
+
+.device-status.error {
+  background-color: var(--text-secondary);
+}
+
+.device-info {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.4;
+}
+
+.device-type,
+.device-resolution,
+.device-protocol,
+.stereo-cameras {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.calibration-status {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+}
+
+.calibration-status.calibrated {
+  background-color: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
-.model-status-indicator {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin-bottom: var(--spacing-sm);
+.calibration-status.uncalibrated {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
 }
 
-.model-status-indicator.active {
-  background-color: var(--text-primary);
+.device-controls {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
 }
 
-.model-status-indicator.inactive {
-  background-color: var(--text-tertiary);
+.device-btn {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 11px;
+  transition: var(--transition);
+  white-space: nowrap;
 }
 
-.model-status-indicator.error {
-  background-color: var(--text-secondary);
+.device-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.device-btn:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Sensor Data Display */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.sensor-device-header {
+  margin-bottom: var(--spacing-md);
+}
+
+.sensor-device-header h5 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sensor-data {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+.sensor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+}
+
+.sensor-item:last-child {
+  border-bottom: none;
+}
+
+.sensor-label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sensor-value {
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-left: var(--spacing-md);
+}
+
+.sensor-timestamp {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .model-performance {
@@ -2061,6 +2792,112 @@ export default {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   background: var(--bg-primary);
+}
+
+/* Serial Communication Section Styles */
+.serial-communication-section {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-primary);
+}
+
+.serial-communication-section h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.serial-connection-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.serial-connection-controls > * {
+  flex: 1;
+  min-width: 150px;
+}
+
+.serial-data-section {
+  margin-top: var(--spacing-md);
+}
+
+.serial-data-section h5 {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.serial-send-controls {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.serial-send-controls input[type="text"] {
+  flex: 1;
+}
+
+.serial-options {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  font-size: 13px;
+}
+
+.serial-options label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+}
+
+.serial-receive-area {
+  width: 100%;
+  height: 200px;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  font-family: monospace;
+  font-size: 13px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.serial-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.serial-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.serial-status.connected {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.serial-status.disconnected {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .sensor-data-section h4 {

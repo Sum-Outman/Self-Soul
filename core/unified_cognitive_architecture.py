@@ -285,20 +285,68 @@ class NeuralEmbeddingSpace:
     """Neural Embedding Space - Unified representation for all data types with dynamic dimensionality"""
     
     def __init__(self, representation_dim=768, adaptive_dimensions=True):
+        from core.memory_optimization import ModelConfigurationManager, memory_optimizer
+        
+        # 根据内存优化设置调整表示维度
         self.representation_dim = representation_dim
+        if memory_optimizer.lightweight_mode:
+            self.representation_dim = min(representation_dim, 384)
+            
         self.adaptive_dimensions = adaptive_dimensions
         self.tokenizer = AdvancedTokenizer()
         self.text_encoder = self._create_advanced_text_encoder()
         self.criterion = nn.MSELoss()
-        self.optimizer = optim.Adam(self.text_encoder.parameters(), lr=1e-4)
+        
+        # 优化器参数调整
+        optimizer_params = {
+            'lr': 1e-4,
+            'weight_decay': 0.01  # 添加权重衰减以提高泛化能力
+        }
+        
+        if memory_optimizer.lightweight_mode:
+            # 轻量模式下使用更少的参数
+            self.criterion = nn.L1Loss()  # 计算效率更高的损失函数
+            optimizer_params['lr'] = 5e-5  # 更小的学习率
+            
+        # 健壮的优化器初始化
+        try:
+            self.optimizer = optim.Adam(self.text_encoder.parameters(), **optimizer_params)
+        except Exception as e:
+            error_handler.handle_error(e, "NeuralEmbeddingSpace", "Failed to initialize optimizer")
+            # 作为后备方案，可以暂时不初始化优化器
+            self.optimizer = None
         self.training_mode = False
         self.dimensionality_history = []
         self.complexity_threshold = 0.7
         
     def _create_advanced_text_encoder(self):
         """Create advanced transformer-based text encoder with real neural architecture"""
+        from core.memory_optimization import ModelConfigurationManager, memory_optimizer
+        
         class AdvancedTextEncoder(nn.Module):
+            @staticmethod
+            def get_lightweight_params():
+                """返回轻量模式下的参数"""
+                return {
+                    'd_model': 384,
+                    'nhead': 6,
+                    'num_layers': 3,
+                    'dim_feedforward': 1536,
+                    'vocab_size': 15000,
+                    'dropout': 0.05
+                }
+                
             def __init__(self, vocab_size=30000, d_model=768, nhead=12, num_layers=6, dim_feedforward=3072, dropout=0.1):
+                # 根据内存优化设置调整参数
+                if memory_optimizer.lightweight_mode:
+                    lightweight_params = self.get_lightweight_params()
+                    vocab_size = lightweight_params['vocab_size']
+                    d_model = lightweight_params['d_model']
+                    nhead = lightweight_params['nhead']
+                    num_layers = lightweight_params['num_layers']
+                    dim_feedforward = lightweight_params['dim_feedforward']
+                    dropout = lightweight_params['dropout']
+                    
                 super(AdvancedTextEncoder, self).__init__()
                 self.d_model = d_model
                 self.embedding = nn.Embedding(vocab_size, d_model)
@@ -323,8 +371,19 @@ class NeuralEmbeddingSpace:
                 self.sentence_attention = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
                 
                 # Hierarchical processing components
-                self.word_level_encoder = nn.LSTM(d_model, d_model//2, batch_first=True, bidirectional=True)
-                self.sentence_level_encoder = nn.LSTM(d_model, d_model//2, batch_first=True, bidirectional=True)
+                # 在轻量模式下完全跳过LSTM组件以减少内存使用
+                self.use_lstm = not memory_optimizer.lightweight_mode
+                self.word_level_encoder = None
+                self.sentence_level_encoder = None
+                if self.use_lstm:
+                    try:
+                        # 确保d_model至少为2，避免LSTM维度为0
+                        lstm_hidden_size = max(d_model // 2, 1)
+                        self.word_level_encoder = nn.LSTM(d_model, lstm_hidden_size, batch_first=True, bidirectional=True)
+                        self.sentence_level_encoder = nn.LSTM(d_model, lstm_hidden_size, batch_first=True, bidirectional=True)
+                    except Exception as e:
+                        error_handler.handle_error(e, "AdvancedTextEncoder", "Failed to initialize LSTM components")
+                        self.use_lstm = False
                 
                 # Semantic enhancement layers
                 self.semantic_enhancer = nn.Sequential(
@@ -336,9 +395,11 @@ class NeuralEmbeddingSpace:
                 )
                 
                 # Contextual understanding components
+                # 在轻量模式下使用更少的层
+                context_layers = 1 if memory_optimizer.lightweight_mode else 2
                 self.context_encoder = nn.TransformerEncoder(
                     nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout, activation='gelu'),
-                    num_layers=2
+                    num_layers=context_layers
                 )
                 
                 self.dropout = nn.Dropout(dropout)
@@ -372,23 +433,31 @@ class NeuralEmbeddingSpace:
                     transformer_output, transformer_output, transformer_output
                 )
                 
-                # Hierarchical processing: word to sentence level
-                word_lstm_out, _ = self.word_level_encoder(transformer_output)
-                
-                # Sentence-level attention (using mean pooling for sentence representation)
-                sentence_repr = word_lstm_out.mean(dim=1).unsqueeze(1)
-                sentence_attended, sentence_weights = self.sentence_attention(
-                    sentence_repr, sentence_repr, sentence_repr
-                )
-                
-                # Semantic enhancement
-                enhanced_output = self.semantic_enhancer(transformer_output)
-                
-                # Contextual understanding
-                contextual_output = self.context_encoder(enhanced_output)
-                
-                # Combine outputs
-                combined_output = transformer_output + word_attended + contextual_output
+                # 轻量模式下的简化处理
+                if memory_optimizer.lightweight_mode:
+                    # 直接使用注意力输出进行语义增强
+                    enhanced_output = self.semantic_enhancer(word_attended)
+                    contextual_output = self.context_encoder(enhanced_output)
+                    combined_output = transformer_output + word_attended + contextual_output
+                else:
+                    # 完整模式下的层次处理
+                    # Hierarchical processing: word to sentence level
+                    word_lstm_out, _ = self.word_level_encoder(transformer_output)
+                    
+                    # Sentence-level attention (using mean pooling for sentence representation)
+                    sentence_repr = word_lstm_out.mean(dim=1).unsqueeze(1)
+                    sentence_attended, sentence_weights = self.sentence_attention(
+                        sentence_repr, sentence_repr, sentence_repr
+                    )
+                    
+                    # Semantic enhancement
+                    enhanced_output = self.semantic_enhancer(transformer_output)
+                    
+                    # Contextual understanding
+                    contextual_output = self.context_encoder(enhanced_output)
+                    
+                    # Combine outputs
+                    combined_output = transformer_output + word_attended + contextual_output + sentence_attended.mean(dim=1).unsqueeze(1)
                 
                 # Final projection
                 final_output = self.output_projection(combined_output)
@@ -2928,14 +2997,35 @@ class SelfModel:
 class UnifiedCognitiveArchitecture:
     """Unified Cognitive Architecture - Core architecture of AGI system with enhanced integration"""
     
-    def __init__(self):
-        self.unified_representation = NeuralEmbeddingSpace()
+    @staticmethod
+    def get_lightweight_params():
+        """返回轻量模式下的参数"""
+        return {
+            'lightweight': True
+        }
+        
+    def __init__(self, lightweight=False):
+        from core.memory_optimization import memory_optimizer
+        
+        # 检查是否使用轻量模式
+        if lightweight or memory_optimizer.lightweight_mode:
+            # 轻量模式下使用更小的表示维度
+            self.unified_representation = NeuralEmbeddingSpace(representation_dim=384)
+        else:
+            self.unified_representation = NeuralEmbeddingSpace()
+            
         self.symbolic_mapper = SymbolicMapper()
         self.cross_modal_reasoner = CrossModalReasoner()
         self.general_problem_solver = GeneralProblemSolver()
         self.meta_learning_system = MetaLearningSystem()
         self.self_awareness_module = SelfAwarenessModule()
-        self.neuro_symbolic_reasoner = NeuroSymbolicReasoner()
+        
+        # 轻量模式下简化某些组件
+        if lightweight or memory_optimizer.lightweight_mode:
+            # 神经符号推理器默认已经足够高效，不需要额外简化
+            self.neuro_symbolic_reasoner = NeuroSymbolicReasoner()
+        else:
+            self.neuro_symbolic_reasoner = NeuroSymbolicReasoner()
         
         # Enhanced integration components
         self.training_coordinator = TrainingCoordinator()

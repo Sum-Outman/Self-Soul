@@ -31,6 +31,23 @@ import os
 from typing import Dict, List, Any
 import requests
 
+# Try to import openai module
+try:
+    import openai  # type: ignore
+except ImportError:
+    # If openai is not installed, create a mock object
+    class MockOpenAI:
+        api_key = ''
+        class ChatCompletion:
+            @staticmethod
+            def create(**kwargs):
+                return {"choices": [{"message": {"content": "Mock OpenAI response"}}]}
+        class Completion:
+            @staticmethod
+            def create(**kwargs):
+                return {"choices": [{"text": "Mock OpenAI response"}]}
+    openai = MockOpenAI()
+
 
 class APIConfigManager:
     """API配置管理器 / API Configuration Manager"""
@@ -102,7 +119,14 @@ class APIConfigManager:
             
     def test_openai_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """测试OpenAI API连接 / Test OpenAI API connection"""
-        import openai
+        # 使用文件顶部已定义的openai变量
+        # 如果是Mock对象，说明库未安装
+        if isinstance(openai, type) and openai.__name__ == 'MockOpenAI':
+            return {
+                'success': False, 
+                'error': 'OpenAI library not installed. Please install with: pip install openai',
+                'status_code': 500
+            }
         
         openai.api_key = config.get('api_key', '')
         # 支持api_base字段设置自定义API端点

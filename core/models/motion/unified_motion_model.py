@@ -25,6 +25,45 @@ from datetime import datetime
 
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import StreamProcessor
+from core.agi_tools import AGITools
+from core.error_handling import error_handler
+
+# 设置日志
+logger = logging.getLogger(__name__)
+
+# Optional hardware interface libraries - marked with type ignore to prevent Pylance errors
+# These libraries are used for real hardware control and will fall back to simulation if not available
+try:
+    import bluetooth  # type: ignore
+    BLUETOOTH_AVAILABLE = True
+except ImportError:
+    # Bluetooth is optional and will fall back to simulation mode
+    BLUETOOTH_AVAILABLE = False
+    bluetooth = None  # type: ignore
+    
+try:
+    import smbus  # type: ignore
+    SMBUS_AVAILABLE = True
+except ImportError:
+    # SMBus is optional and will fall back to simulation mode
+    SMBUS_AVAILABLE = False
+    smbus = None  # type: ignore
+    
+try:
+    import spidev  # type: ignore
+    SPI_AVAILABLE = True
+except ImportError:
+    # SPIdev is optional and will fall back to simulation mode
+    SPI_AVAILABLE = False
+    spidev = None  # type: ignore
+    
+try:
+    import can  # type: ignore
+    CAN_AVAILABLE = True
+except ImportError:
+    # CAN is optional and will fall back to simulation mode
+    CAN_AVAILABLE = False
+    can = None  # type: ignore
 
 
 # ===== NEURAL NETWORK ARCHITECTURES =====
@@ -316,25 +355,48 @@ class UnifiedMotionModel(UnifiedModelTemplate):
     
     def _initialize_model_specific_components(self, config: Dict[str, Any]):
         """Initialize motion-specific components"""
-        # Initialize hardware connections if provided
-        if config and "hardware_connections" in config:
-            for conn in config["hardware_connections"]:
-                self._connect_hardware(
-                    conn.get("protocol"),
-                    conn.get("port"),
-                    conn.get("params", {})
-                )
-        
-        # Initialize port mapping
-        if config and "port_mapping" in config:
-            for mapping in config["port_mapping"]:
-                self._map_actuator_port(
-                    mapping.get("actuator"),
-                    mapping.get("port"),
-                    mapping.get("protocol")
-                )
-        
-        self.logger.info("Motion-specific components initialized")
+        try:
+            self.logger.info("开始初始化AGI运动组件")
+            
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "motion_reasoning", "meta_learning", "self_reflection", 
+                "cognitive_engine", "problem_solver", "creative_generator"
+            ])
+            
+            # 分配组件到实例变量
+            self.agi_motion_reasoning = agi_components.get("motion_reasoning")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
+            
+            # Initialize hardware connections if provided
+            if config and "hardware_connections" in config:
+                for conn in config["hardware_connections"]:
+                    self._connect_hardware(
+                        conn.get("protocol"),
+                        conn.get("port"),
+                        conn.get("params", {})
+                    )
+            
+            # Initialize port mapping
+            if config and "port_mapping" in config:
+                for mapping in config["port_mapping"]:
+                    self._map_actuator_port(
+                        mapping.get("actuator"),
+                        mapping.get("port"),
+                        mapping.get("protocol")
+                    )
+            
+            self.logger.info("AGI运动组件初始化完成")
+            
+        except Exception as e:
+            error_msg = f"初始化AGI运动组件失败: {str(e)}"
+            logger.error(error_msg)
+            error_handler.handle_error(e, "AGI_Motion", "初始化AGI运动组件失败")
+            raise
     
     def _process_operation(self, operation: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process motion-specific operations"""
@@ -694,11 +756,11 @@ class UnifiedMotionModel(UnifiedModelTemplate):
     def _real_bluetooth_control(self, port: str, actuator: str, value: float, context: Dict) -> Dict[str, Any]:
         """Real Bluetooth control implementation"""
         try:
-            # Import Bluetooth libraries (if available)
-            try:
-                import bluetooth
+            # Bluetooth implementation
+            if BLUETOOTH_AVAILABLE and bluetooth:
                 bluetooth_available = True
-            except ImportError:
+            else:
+                self.logger.warning("Bluetooth library not available. Using simulation mode.")
                 bluetooth_available = False
                 self.logger.warning("Bluetooth library not available, using simulation")
             
@@ -706,24 +768,28 @@ class UnifiedMotionModel(UnifiedModelTemplate):
                 return self._simulate_bluetooth_control(port, actuator, value, context)
             
             # Real Bluetooth implementation
-            device_address = port  # Port should be Bluetooth device address
-            port_number = 1  # Standard RFCOMM port
-            
-            # Connect to Bluetooth device
-            sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-            sock.connect((device_address, port_number))
-            
-            # Send control command
-            command_data = {
-                "actuator": actuator,
-                "value": value,
-                "timestamp": time.time()
-            }
-            command_str = json.dumps(command_data)
-            sock.send(command_str.encode('utf-8'))
-            
-            # Receive response
-            response = sock.recv(1024).decode('utf-8')
+            if BLUETOOTH_AVAILABLE and bluetooth:
+                device_address = port  # Port should be Bluetooth device address
+                port_number = 1  # Standard RFCOMM port
+                
+                # Connect to Bluetooth device
+                sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+                sock.connect((device_address, port_number))
+                
+                # Send control command
+                command_data = {
+                    "actuator": actuator,
+                    "value": value,
+                    "timestamp": time.time()
+                }
+                command_str = json.dumps(command_data)
+                sock.send(command_str.encode('utf-8'))
+                
+                # Receive response
+                response = sock.recv(1024).decode('utf-8')
+            else:
+                self.logger.warning("Bluetooth library not available. Falling back to simulation mode.")
+                return self._simulate_bluetooth_control(port, actuator, value, context)
             sock.close()
             
             # Parse response
@@ -757,9 +823,12 @@ class UnifiedMotionModel(UnifiedModelTemplate):
                 return self._simulate_i2c_control(port, actuator, value, context)
             
             # Real I2C implementation
-            import smbus
-            bus_number = int(port.replace('i2c-', '')) if 'i2c-' in port else 1
-            device_address = context.get("device_address", 0x40)  # Default PCA9685 address
+            if SMBUS_AVAILABLE and smbus:
+                bus_number = int(port.replace('i2c-', '')) if 'i2c-' in port else 1
+                device_address = context.get("device_address", 0x40)  # Default PCA9685 address
+            else:
+                self.logger.warning("SMBus library not available. Falling back to simulation mode.")
+                return self._simulate_i2c_control(port, actuator, value, context)
             
             bus = smbus.SMBus(bus_number)
             
@@ -807,9 +876,12 @@ class UnifiedMotionModel(UnifiedModelTemplate):
                 return self._simulate_spi_control(port, actuator, value, context)
             
             # Real SPI implementation
-            import spidev
-            spi_bus = 0
-            spi_device = 0
+            if SPI_AVAILABLE and spidev:
+                spi_bus = 0
+                spi_device = 0
+            else:
+                self.logger.warning("SPIdev library not available. Falling back to simulation mode.")
+                return self._simulate_spi_control(port, actuator, value, context)
             
             if ':' in port:
                 bus_parts = port.split(':')
@@ -851,8 +923,11 @@ class UnifiedMotionModel(UnifiedModelTemplate):
                 return self._simulate_can_control(port, actuator, value, context)
             
             # Real CAN implementation
-            import can
-            can_interface = port if port else 'can0'
+            if CAN_AVAILABLE and can:
+                can_interface = port if port else 'can0'
+            else:
+                self.logger.warning("CAN library not available. Falling back to simulation mode.")
+                return self._simulate_can_control(port, actuator, value, context)
             can_bitrate = context.get("can_bitrate", 500000)
             
             bus = can.interface.Bus(channel=can_interface, bustype='socketcan', bitrate=can_bitrate)

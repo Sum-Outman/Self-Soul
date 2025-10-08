@@ -375,548 +375,628 @@ class FromScratchTrainingManager:
             # Get model type to determine appropriate data format
             model_type = self.model_registry.get_model_type(model_id)
             
-            # Prepare data based on model type
-            training_data = self._format_training_data_for_model_type(model_type, dataset)
+            # Generate default dataset based on model type
+            default_data = []
             
-            if training_data is None:
-                return {"success": False, "message": f"Unsupported model type for training data preparation: {model_type}"}
+            if model_type == "language":
+                # Create simple language dataset
+                default_data = self._generate_default_language_data()
+            elif model_type == "vision" or model_type == "vision_image":
+                # Create simple vision dataset
+                default_data = self._generate_default_vision_data()
+            elif model_type == "audio":
+                # Create simple audio dataset
+                default_data = self._generate_default_audio_data()
+            elif model_type == "sensor":
+                # Create simple sensor dataset
+                default_data = self._generate_default_sensor_data()
+            elif model_type == "motion":
+                # Create simple motion dataset
+                default_data = self._generate_default_motion_data()
+            elif model_type == "knowledge":
+                # Create simple knowledge dataset
+                default_data = self._generate_default_knowledge_data()
+            else:
+                # Create generic dataset
+                default_data = self._generate_default_generic_data()
             
-            self._log_training_event(model_id, f"Real training data prepared for {model_type} model")
+            # Save the dataset
+            return dataset_manager.save_dataset(dataset_name, default_data)
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to create default dataset for model: {model_id}")
+            return False
+            
+    def _split_dataset(self, dataset, config: Dict[str, Any]) -> Tuple[List, List, List]:
+        """Split dataset into train, validation, and test sets"""
+        # Implement dataset splitting logic
+        total_size = len(dataset)
+        val_size = int(total_size * config.get("validation_split", 0.2))
+        test_size = int(total_size * config.get("test_split", 0.1))
+        train_size = total_size - val_size - test_size
+        
+        # Shuffle dataset if needed
+        if config.get("shuffle_data", True):
+            np.random.shuffle(dataset)
+        
+        train_data = dataset[:train_size]
+        val_data = dataset[train_size:train_size+val_size]
+        test_data = dataset[train_size+val_size:]
+        
+        return train_data, val_data, test_data
+        
+    def _prepare_model_architecture(self, model, model_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Prepare model architecture for training"""
+        try:
+            error_handler.log_info(f"Preparing model architecture for model: {model_id}", "FromScratchTrainingManager")
+            
+            # Initialize model with from_scratch=True
+            if hasattr(model, 'initialize'):
+                init_config = {"from_scratch": True}
+                if hasattr(model, 'config'):
+                    model.config.update(init_config)
+                result = model.initialize(init_config)
+                if not result.get("success", True):
+                    return {"success": False, "message": f"Model initialization failed: {result.get('error', 'Unknown error')}"}
+            
+            # Set up model for training
+            if hasattr(model, 'prepare_for_training'):
+                model.prepare_for_training(config)
+            
+            # Initialize optimizer and loss function if not already set
+            if hasattr(model, 'optimizer') and model.optimizer is None:
+                self._initialize_optimizer(model, config)
+            
+            if hasattr(model, 'criterion') and model.criterion is None:
+                self._initialize_loss_function(model, config)
+            
+            return {"success": True, "model_id": model_id}
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to prepare model architecture for model: {model_id}")
+            return {"success": False, "message": str(e)}
+            
+    def _initialize_optimizer(self, model, config: Dict[str, Any]):
+        """Initialize optimizer for the model"""
+        import torch.optim as optim
+        
+        if hasattr(model, 'parameters'):
+            params = model.parameters()
+            optimizer_name = config.get("optimizer", "adam").lower()
+            learning_rate = config.get("learning_rate", 0.001)
+            
+            if optimizer_name == "adam":
+                model.optimizer = optim.Adam(params, lr=learning_rate)
+            elif optimizer_name == "sgd":
+                momentum = config.get("momentum", 0.9)
+                model.optimizer = optim.SGD(params, lr=learning_rate, momentum=momentum)
+            elif optimizer_name == "rmsprop":
+                model.optimizer = optim.RMSprop(params, lr=learning_rate)
+            elif optimizer_name == "adagrad":
+                model.optimizer = optim.Adagrad(params, lr=learning_rate)
+            else:
+                model.optimizer = optim.Adam(params, lr=learning_rate)  # Default to Adam
+                
+    def _initialize_loss_function(self, model, config: Dict[str, Any]):
+        """Initialize loss function for the model"""
+        import torch.nn as nn
+        
+        loss_function = config.get("loss_function", "auto").lower()
+        
+        if loss_function == "auto":
+            # Auto-select based on model type
+            model_type = self.model_registry.get_model_type(model.model_id if hasattr(model, 'model_id') else model.__class__.__name__)
+            
+            if model_type in ["language", "text", "nlp"]:
+                model.criterion = nn.CrossEntropyLoss()
+            elif model_type in ["vision", "image", "video"]:
+                model.criterion = nn.CrossEntropyLoss()
+            elif model_type in ["sensor", "motion"]:
+                model.criterion = nn.MSELoss()
+            else:
+                model.criterion = nn.MSELoss()  # Default to MSE
+        else:
+            # Manual selection
+            if loss_function == "cross_entropy":
+                model.criterion = nn.CrossEntropyLoss()
+            elif loss_function == "mse":
+                model.criterion = nn.MSELoss()
+            elif loss_function == "mae":
+                model.criterion = nn.L1Loss()
+            elif loss_function == "bce":
+                model.criterion = nn.BCELoss()
+            else:
+                model.criterion = nn.MSELoss()  # Default to MSE
+                
+    def _initialize_training_environment(self, model_id: str, config: Dict[str, Any], dataset_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Initialize training environment"""
+        try:
+            error_handler.log_info(f"Initializing training environment for model: {model_id}", "FromScratchTrainingManager")
+            
+            # Create checkpoint directory
+            checkpoint_dir = os.path.join(self.training_data_dir, model_id, "checkpoints")
+            os.makedirs(checkpoint_dir, exist_ok=True)
+            
+            # Create log directory
+            log_dir = os.path.join(self.training_data_dir, model_id, "logs")
+            os.makedirs(log_dir, exist_ok=True)
+            
+            # Set up early stopping variables
+            early_stopping = config.get("early_stopping", True)
+            patience = config.get("patience", 10)
+            min_delta = config.get("min_delta", 0.001)
             
             return {
                 "success": True,
-                "data": training_data,
-                "dataset_name": dataset_name,
-                "model_type": model_type
+                "checkpoint_dir": checkpoint_dir,
+                "log_dir": log_dir,
+                "early_stopping": early_stopping,
+                "patience": patience,
+                "min_delta": min_delta
             }
-            
         except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Real training data preparation failed: {model_id}")
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to initialize training environment for model: {model_id}")
             return {"success": False, "message": str(e)}
             
-    def _execute_real_training(self, model, training_data: Any, config: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute real training using the model's train method
-        
-        :param model: Model instance
-        :param training_data: Prepared training data
-        :param config: Training configuration
-        :return: Training result
-        """
+    def _training_loop(self, model, model_id: str, config: Dict[str, Any], dataset_info: Dict[str, Any]):
+        """Execute the training loop"""
         try:
-            # Update progress to indicate training in progress
-            model_id = model.model_id
+            # Get dataset splits
+            train_data = dataset_info["train_data"]
+            val_data = dataset_info["val_data"]
             
-            # Execute training using the model's train method
-            training_result = model.train(training_data, config)
+            # Get training parameters
+            epochs = config.get("epochs", 100)
+            batch_size = config.get("batch_size", 32)
+            verbose = config.get("verbose", 1)
+            checkpoint_frequency = config.get("checkpoint_frequency", 10)
             
-            if training_result["success"]:
-                # Extract metrics from training result
-                metrics = {
-                    "train_loss": training_result.get("final_train_loss", 0.1),
-                    "val_loss": training_result.get("final_val_loss", 0.15),
-                    "train_accuracy": training_result.get("final_train_acc", 0.8),
-                    "val_accuracy": training_result.get("final_val_acc", 0.75),
-                    "best_val_loss": training_result.get("best_val_loss", 0.12),
-                    "epochs_completed": training_result.get("epochs", config.get("epochs", 100))
+            # Initialize training variables
+            best_val_loss = float('inf')
+            patience_counter = 0
+            
+            # Create data loaders
+            train_loader = self._create_data_loader(train_data, batch_size, shuffle=config.get("shuffle_data", True))
+            val_loader = self._create_data_loader(val_data, batch_size, shuffle=False)
+            
+            # Training loop
+            for epoch in range(epochs):
+                # Update training progress
+                self._update_training_progress(model_id, epoch / epochs)
+                
+                # Train for one epoch
+                train_loss, train_metrics = self._train_epoch(model, train_loader, config, epoch)
+                
+                # Validate model
+                val_loss, val_metrics = self._validate_epoch(model, val_loader, config, epoch)
+                
+                # Log epoch results
+                self._log_epoch_results(model_id, epoch, train_loss, val_loss, train_metrics, val_metrics)
+                
+                # Save checkpoint if needed
+                if (epoch + 1) % checkpoint_frequency == 0:
+                    self._save_checkpoint(model, model_id, epoch, val_loss)
+                
+                # Early stopping check
+                if config.get("early_stopping", True):
+                    if val_loss < best_val_loss - config.get("min_delta", 0.001):
+                        best_val_loss = val_loss
+                        patience_counter = 0
+                        # Save best model
+                        self._save_checkpoint(model, model_id, epoch, val_loss, is_best=True)
+                    else:
+                        patience_counter += 1
+                        if patience_counter >= config.get("patience", 10):
+                            error_handler.log_info(f"Early stopping triggered for model {model_id} at epoch {epoch}", "FromScratchTrainingManager")
+                            break
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Training loop failed for model: {model_id}")
+            raise
+            
+    def _create_data_loader(self, data, batch_size: int, shuffle: bool = True):
+        """Create data loader for training"""
+        # This is a placeholder - actual implementation depends on the data format
+        # For PyTorch models, we would use DataLoader
+        # For simplicity, we'll just return batches directly
+        def data_generator():
+            indices = list(range(len(data)))
+            if shuffle:
+                np.random.shuffle(indices)
+                
+            for i in range(0, len(data), batch_size):
+                batch_indices = indices[i:i+batch_size]
+                batch_data = [data[idx] for idx in batch_indices]
+                yield batch_data
+        
+        return data_generator()
+        
+    def _train_epoch(self, model, data_loader, config: Dict[str, Any], epoch: int) -> Tuple[float, Dict[str, float]]:
+        """Train model for one epoch"""
+        total_loss = 0.0
+        metrics = {}
+        
+        try:
+            # Use model's train method if available
+            if hasattr(model, 'train_epoch'):
+                result = model.train_epoch(data_loader, config, epoch)
+                total_loss = result.get('loss', 0.0)
+                metrics = result.get('metrics', {})
+            else:
+                # Generic training implementation
+                import torch
+                model.train()  # Set model to training mode
+                
+                for batch_idx, batch in enumerate(data_loader):
+                    # Reset gradients
+                    if hasattr(model, 'optimizer') and model.optimizer is not None:
+                        model.optimizer.zero_grad()
+                    
+                    # Forward pass
+                    outputs = model(batch) if hasattr(model, '__call__') else self._forward_pass(model, batch)
+                    
+                    # Compute loss
+                    loss = self._compute_loss(model, outputs, batch)
+                    
+                    # Backward pass and optimize
+                    if hasattr(loss, 'backward'):
+                        loss.backward()
+                        if hasattr(model, 'optimizer') and model.optimizer is not None:
+                            model.optimizer.step()
+                    
+                    # Update total loss
+                    total_loss += loss.item() if hasattr(loss, 'item') else float(loss)
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to train epoch {epoch}")
+            
+        # Calculate average loss
+        avg_loss = total_loss / len(list(data_loader)) if data_loader else 0.0
+        
+        return avg_loss, metrics
+        
+    def _validate_epoch(self, model, data_loader, config: Dict[str, Any], epoch: int) -> Tuple[float, Dict[str, float]]:
+        """Validate model for one epoch"""
+        total_loss = 0.0
+        metrics = {}
+        
+        try:
+            # Use model's validate method if available
+            if hasattr(model, 'validate_epoch'):
+                result = model.validate_epoch(data_loader, config, epoch)
+                total_loss = result.get('loss', 0.0)
+                metrics = result.get('metrics', {})
+            else:
+                # Generic validation implementation
+                import torch
+                model.eval()  # Set model to evaluation mode
+                
+                with torch.no_grad():
+                    for batch_idx, batch in enumerate(data_loader):
+                        # Forward pass
+                        outputs = model(batch) if hasattr(model, '__call__') else self._forward_pass(model, batch)
+                        
+                        # Compute loss
+                        loss = self._compute_loss(model, outputs, batch)
+                        
+                        # Update total loss
+                        total_loss += loss.item() if hasattr(loss, 'item') else float(loss)
+                        
+            # Switch back to training mode
+            if hasattr(model, 'train'):
+                model.train()
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to validate epoch {epoch}")
+            
+        # Calculate average loss
+        avg_loss = total_loss / len(list(data_loader)) if data_loader else 0.0
+        
+        return avg_loss, metrics
+        
+    def _forward_pass(self, model, batch):
+        """Perform forward pass for models without __call__ method"""
+        if hasattr(model, 'forward'):
+            return model.forward(batch)
+        elif hasattr(model, 'process'):
+            return model.process(batch)
+        else:
+            # Default forward pass - this is just a placeholder
+            error_handler.log_warning("Model has no forward or process method", "FromScratchTrainingManager")
+            return batch
+            
+    def _compute_loss(self, model, outputs, batch):
+        """Compute loss for the model"""
+        if hasattr(model, 'criterion') and model.criterion is not None:
+            # Extract labels from batch
+            labels = self._extract_labels(batch)
+            return model.criterion(outputs, labels)
+        else:
+            # Default loss calculation - this is just a placeholder
+            error_handler.log_warning("Model has no criterion for loss calculation", "FromScratchTrainingManager")
+            import torch
+            return torch.tensor(0.0)
+            
+    def _extract_labels(self, batch):
+        """Extract labels from batch"""
+        # This is a placeholder - actual implementation depends on the data format
+        if isinstance(batch, list) and len(batch) > 0:
+            if isinstance(batch[0], dict) and 'labels' in batch[0]:
+                return [item['labels'] for item in batch]
+        
+        # Default: return batch as labels (not ideal, but works for placeholder)
+        return batch
+        
+    def _log_epoch_results(self, model_id: str, epoch: int, train_loss: float, val_loss: float, 
+                          train_metrics: Dict[str, float], val_metrics: Dict[str, float]):
+        """Log epoch results"""
+        try:
+            # Update task logs
+            with self.lock:
+                if model_id in self.training_tasks:
+                    log_entry = {
+                        "epoch": epoch,
+                        "train_loss": train_loss,
+                        "val_loss": val_loss,
+                        "train_metrics": train_metrics,
+                        "val_metrics": val_metrics,
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    self.training_tasks[model_id]["logs"].append(log_entry)
+                    self.training_tasks[model_id]["metrics"] = {
+                        "last_train_loss": train_loss,
+                        "last_val_loss": val_loss,
+                        "best_val_loss": min(val_loss, self.training_tasks[model_id]["metrics"].get("best_val_loss", float('inf')))
+                    }
+            
+            # Log to error handler
+            error_handler.log_info(
+                f"Model: {model_id}, Epoch: {epoch}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}",
+                "FromScratchTrainingManager"
+            )
+        except Exception as e:
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to log epoch results for model: {model_id}")
+            
+    def _save_checkpoint(self, model, model_id: str, epoch: int, val_loss: float, is_best: bool = False):
+        """Save model checkpoint"""
+        try:
+            # Create checkpoint directory if it doesn't exist
+            checkpoint_dir = os.path.join(self.training_data_dir, model_id, "checkpoints")
+            os.makedirs(checkpoint_dir, exist_ok=True)
+            
+            # Create checkpoint filename
+            if is_best:
+                checkpoint_path = os.path.join(checkpoint_dir, "best_model.pt")
+            else:
+                checkpoint_path = os.path.join(checkpoint_dir, f"model_epoch_{epoch}.pt")
+            
+            # Save model state
+            if hasattr(model, 'save_checkpoint'):
+                model.save_checkpoint(checkpoint_path, epoch, val_loss)
+            else:
+                # Generic checkpoint saving
+                import torch
+                checkpoint = {
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict() if hasattr(model, 'state_dict') else {},
+                    'optimizer_state_dict': model.optimizer.state_dict() if hasattr(model, 'optimizer') and model.optimizer else {},
+                    'loss': val_loss,
+                    'config': getattr(model, 'config', {})
                 }
-                
-                # Update training result with metrics
-                training_result["metrics"] = metrics
-                
-                self._log_training_event(model_id, "Real training execution completed successfully")
-            else:
-                self._log_training_event(model_id, f"Real training execution failed: {training_result.get('error')}")
+                torch.save(checkpoint, checkpoint_path)
             
-            return training_result
-            
+            error_handler.log_info(f"Saved checkpoint for model {model_id} at epoch {epoch}", "FromScratchTrainingManager")
         except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Real training execution failed: {model.model_id}")
-            return {"success": False, "error": str(e)}
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to save checkpoint for model: {model_id}")
             
-    def _format_training_data_for_model_type(self, model_type: str, dataset: Dict[str, Any]) -> Any:
-        """
-        Format training data according to model type requirements
-        
-        :param model_type: Model type
-        :param dataset: Raw dataset
-        :return: Formatted training data
-        """
+    def _finalize_training(self, model, model_id: str):
+        """Finalize training process"""
         try:
-            # Extract dataset content
-            dataset_content = dataset.get("content", {})
-            
-            # Format data based on model type
-            if model_type in ["language", "programming", "knowledge"]:
-                # Text-based models: prepare text data
-                return self._format_text_training_data(dataset_content)
-            elif model_type in ["vision", "spatial"]:
-                # Image/visual models: prepare image data
-                return self._format_visual_training_data(dataset_content)
-            elif model_type in ["audio"]:
-                # Audio models: prepare audio data
-                return self._format_audio_training_data(dataset_content)
-            else:
-                # Default: use text formatting
-                return self._format_text_training_data(dataset_content)
-                
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Data formatting failed for model type: {model_type}")
-            return None
-            
-    def _format_text_training_data(self, dataset_content: Dict[str, Any]) -> tuple:
-        """
-        Format text training data for language models
-        
-        :param dataset_content: Dataset content
-        :return: Formatted (inputs, labels) tuple
-        """
-        try:
-            # Extract text data from dataset
-            texts = dataset_content.get("texts", [])
-            labels = dataset_content.get("labels", [])
-            
-            # If no labels provided, create dummy labels for unsupervised learning
-            if not labels and texts:
-                labels = [0] * len(texts)  # Default label for all texts
-            
-            # Convert to numpy arrays for training
-            import numpy as np
-            inputs = np.array(texts)
-            labels = np.array(labels)
-            
-            return (inputs, labels)
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", "Text data formatting failed")
-            return (np.array([]), np.array([]))
-            
-    def _format_visual_training_data(self, dataset_content: Dict[str, Any]) -> tuple:
-        """
-        Format visual training data for image models
-        
-        :param dataset_content: Dataset content
-        :return: Formatted (images, labels) tuple
-        """
-        try:
-            # Extract image data from dataset
-            images = dataset_content.get("images", [])
-            labels = dataset_content.get("labels", [])
-            
-            # If no labels provided, create dummy labels
-            if not labels and images:
-                labels = [0] * len(images)
-            
-            # Convert to numpy arrays
-            import numpy as np
-            images_array = np.array(images)
-            labels_array = np.array(labels)
-            
-            return (images_array, labels_array)
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", "Visual data formatting failed")
-            return (np.array([]), np.array([]))
-            
-    def _format_audio_training_data(self, dataset_content: Dict[str, Any]) -> tuple:
-        """
-        Format audio training data for audio models
-        
-        :param dataset_content: Dataset content
-        :return: Formatted (audio, labels) tuple
-        """
-        try:
-            # Extract audio data from dataset
-            audio_data = dataset_content.get("audio", [])
-            labels = dataset_content.get("labels", [])
-            
-            # If no labels provided, create dummy labels
-            if not labels and audio_data:
-                labels = [0] * len(audio_data)
-            
-            # Convert to numpy arrays
-            import numpy as np
-            audio_array = np.array(audio_data)
-            labels_array = np.array(labels)
-            
-            return (audio_array, labels_array)
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", "Audio data formatting failed")
-            return (np.array([]), np.array([]))
-            
-    def _finalize_training(self, model_id: str):
-        """
-        Finalize the training process
-        
-        :param model_id: Model ID
-        """
-        try:
-            # Save the final model
-            self._save_final_model(model_id)
-            
             # Update training status
             self._update_training_status(model_id, "completed")
             
-            # Log training completion
-            self._log_training_event(model_id, "From-scratch training completed")
+            # Save final model
+            model_path = os.path.join(self.training_data_dir, model_id, "final_model.pt")
+            os.makedirs(os.path.dirname(model_path), exist_ok=True)
+            
+            if hasattr(model, 'save'):
+                model.save(model_path)
+            else:
+                # Generic model saving
+                import torch
+                torch.save(model, model_path)
             
             # Update system settings
             system_settings_manager.update_model_setting(model_id, {
                 "training_status": "completed",
-                "last_training_time": datetime.now().isoformat(),
-                "is_trained_from_scratch": True
+                "last_trained": datetime.now().isoformat(),
+                "model_path": model_path
             })
             
-            # Notify autonomous learning system for model evaluation
-            # unified_self_learning module is not available, using alternative approach
-            from core.autonomous_learning_manager import autonomous_learning_manager
-            autonomous_learning_manager.evaluate_model(model_id)
-            
-            # Load the trained model
-            self.model_registry.load_model(model_id)
-            
+            error_handler.log_info(f"Training completed for model: {model_id}", "FromScratchTrainingManager")
         except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Training finalization failed: {model_id}")
-            
-    def stop_training(self, model_id: str) -> Dict[str, Any]:
-        """
-        Stop ongoing training
-        
-        :param model_id: Model ID
-        :return: Stop operation result
-        """
-        try:
-            with self.lock:
-                if model_id not in self.training_tasks or self.training_tasks[model_id]["status"] != "training":
-                    return {"success": False, "message": f"No ongoing training for model {model_id}"}
-                
-                # Update training status
-                self.training_tasks[model_id]["status"] = "stopped"
-                self.training_tasks[model_id]["end_time"] = datetime.now().isoformat()
-                
-                # Save current state
-                self._save_checkpoint(model_id, self.training_tasks[model_id]["progress"] // 1, "stopped")
-                
-                # Update system settings
-                system_settings_manager.update_model_setting(model_id, {"training_status": "stopped"})
-                
-                # Log the event
-                error_handler.log_info(f"Stopped from-scratch training: {model_id}", "FromScratchTraining")
-                
-                return {"success": True, "message": "Training stopped successfully"}
-                
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Failed to stop training: {model_id}")
-            return {"success": False, "message": str(e)}
-            
-    def get_training_status(self, model_id: str) -> Dict[str, Any]:
-        """
-        Get training status for a model
-        
-        :param model_id: Model ID
-        :return: Training status information
-        """
-        try:
-            with self.lock:
-                if model_id not in self.training_tasks:
-                    # Check training status in system settings
-                    training_status = system_settings_manager.get_model_setting(model_id, "training_status", "not_started")
-                    return {
-                        "success": True,
-                        "model_id": model_id,
-                        "status": training_status,
-                        "progress": 0,
-                        "metrics": {},
-                        "logs": []
-                    }
-                
-                task_info = self.training_tasks[model_id].copy()
-                return {
-                    "success": True,
-                    "model_id": model_id,
-                    "status": task_info["status"],
-                    "progress": task_info["progress"],
-                    "metrics": task_info["metrics"],
-                    "logs": task_info["logs"],
-                    "start_time": task_info.get("start_time"),
-                    "end_time": task_info.get("end_time"),
-                    "config": task_info["config"]
-                }
-                
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Failed to get training status: {model_id}")
-            return {"success": False, "message": str(e)}
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to finalize training for model: {model_id}")
             
     def _update_training_status(self, model_id: str, status: str, error: str = None):
-        """
-        Update training status
-        
-        :param model_id: Model ID
-        :param status: New status
-        :param error: Error message (if any)
-        """
+        """Update training status"""
         with self.lock:
             if model_id in self.training_tasks:
                 self.training_tasks[model_id]["status"] = status
                 self.training_tasks[model_id]["end_time"] = datetime.now().isoformat()
                 if error:
                     self.training_tasks[model_id]["error"] = error
-                    self._log_training_event(model_id, f"Training failed: {error}")
-        
-    def _update_training_progress(self, model_id: str, progress: int):
-        """
-        Update training progress
-        
-        :param model_id: Model ID
-        :param progress: Progress percentage
-        """
-        with self.lock:
-            if model_id in self.training_tasks:
-                self.training_tasks[model_id]["progress"] = progress
-        
-    def _update_training_metrics(self, model_id: str, metrics: Dict[str, float]):
-        """
-        Update training metrics
-        
-        :param model_id: Model ID
-        :param metrics: New metrics
-        """
-        with self.lock:
-            if model_id in self.training_tasks:
-                self.training_tasks[model_id]["metrics"].update(metrics)
-        
-    def _log_training_event(self, model_id: str, message: str):
-        """
-        Log training event
-        
-        :param model_id: Model ID
-        :param message: Log message
-        """
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "message": message
-        }
-        
-        with self.lock:
-            if model_id in self.training_tasks:
-                self.training_tasks[model_id]["logs"].append(log_entry)
-                
-        # Also log to global log
-        error_handler.log_info(f"[Training] {model_id}: {message}", "FromScratchTraining")
-        
-    def _save_checkpoint(self, model_id: str, epoch: int, checkpoint_type: str):
-        """
-        Save training checkpoint
-        
-        :param model_id: Model ID
-        :param epoch: Current epoch
-        :param checkpoint_type: Checkpoint type
-        """
-        try:
-            checkpoint_dir = os.path.join(self.training_data_dir, model_id, "checkpoints")
-            os.makedirs(checkpoint_dir, exist_ok=True)
-            
-            checkpoint_file = os.path.join(checkpoint_dir, f"checkpoint_{checkpoint_type}_{epoch}.json")
-            
-            # In actual implementation, this should save model weights and training state
-            # This is just an example, saving training information
-            checkpoint_data = {
-                "model_id": model_id,
-                "epoch": epoch,
-                "checkpoint_type": checkpoint_type,
-                "timestamp": datetime.now().isoformat(),
-                "status": self.training_tasks.get(model_id, {}).get("status"),
-                "metrics": self.training_tasks.get(model_id, {}).get("metrics", {})
-            }
-            
-            with open(checkpoint_file, 'w', encoding='utf-8') as f:
-                json.dump(checkpoint_data, f, ensure_ascii=False, indent=2)
-                
-            self._log_training_event(model_id, f"Saved {checkpoint_type} checkpoint at epoch {epoch}")
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Failed to save checkpoint: {model_id}")
-            
-    def _save_final_model(self, model_id: str):
-        """
-        Save final trained model
-        
-        :param model_id: Model ID
-        """
-        try:
-            model_dir = os.path.join(self.training_data_dir, model_id)
-            os.makedirs(model_dir, exist_ok=True)
-            
-            final_model_file = os.path.join(model_dir, "final_model.json")
-            
-            # In actual implementation, this should save complete model weights and configuration
-            # This is just an example, saving model information
-            model_data = {
-                "model_id": model_id,
-                "training_completed": True,
-                "completion_time": datetime.now().isoformat(),
-                "final_metrics": self.training_tasks.get(model_id, {}).get("metrics", {}),
-                "training_config": self.training_tasks.get(model_id, {}).get("config", {})
-            }
-            
-            with open(final_model_file, 'w', encoding='utf-8') as f:
-                json.dump(model_data, f, ensure_ascii=False, indent=2)
-                
-            # Notify model registry to update model information
-            self.model_registry.update_model_info(model_id, {"is_trained_from_scratch": True})
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Failed to save final model: {model_id}")
-            
-    def _get_default_loss_function(self, model_type: str) -> str:
-        """
-        Get default loss function based on model type
-        
-        :param model_type: Model type
-        :return: Loss function name
-        """
-        loss_functions = {
-            "language": "cross_entropy",
-            "knowledge": "mse",
-            "vision": "cross_entropy",
-            "audio": "mse",
-            "programming": "cross_entropy",
-            "planning": "mse",
-            "emotion": "cross_entropy",
-            "spatial": "mse",
-            "prediction": "mse"
-        }
-        
-        return loss_functions.get(model_type.lower(), "mse")
-        
-    def _create_learning_rate_scheduler(self, config: Dict[str, Any]):
-        """
-        Create learning rate scheduler
-        
-        :param config: Training configuration
-        :return: Learning rate scheduler
-        """
-        # In actual implementation, this should create a real learning rate scheduler
-        # This is just an example, returning scheduler type
-        return {
-            "type": config.get("learning_rate_schedule", "cosine"),
-            "initial_lr": config.get("learning_rate", 0.001),
-            "epochs": config.get("epochs", 100)
-        }
-        
-    def cleanup_training_data(self, model_id: str) -> Dict[str, Any]:
-        """
-        Clean up training data
-        
-        :param model_id: Model ID
-        :return: Cleanup result
-        """
-        try:
-            model_dir = os.path.join(self.training_data_dir, model_id)
-            if os.path.exists(model_dir):
-                # In actual implementation, this should delete training data files
-                # Note: Generally not recommended to delete training data unless explicitly requested by user
-                error_handler.log_info(f"Cleaning up model training data: {model_id}", "FromScratchTraining")
-                
-            return {"success": True, "message": "Training data cleaned up"}
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", f"Failed to clean up training data: {model_id}")
-            return {"success": False, "message": str(e)}
-            
-    def list_available_datasets(self, model_type: str = None) -> List[Dict[str, Any]]:
-        """
-        List available training datasets
-        
-        :param model_type: Optional model type filter
-        :return: List of datasets
-        """
-        try:
-            # In actual implementation, this should return real dataset list
-            # This is just an example, returning simulated dataset list
-            datasets = [
-                {"id": "basic_knowledge", "name": "Basic Knowledge Base", "type": "knowledge", "size": "100MB"},
-                {"id": "advanced_language", "name": "Advanced Language Dataset", "type": "language", "size": "500MB"},
-                {"id": "common_vision", "name": "Common Vision Dataset", "type": "vision", "size": "2GB"},
-                {"id": "programming_examples", "name": "Programming Examples Collection", "type": "programming", "size": "200MB"}
-            ]
-            
-            # If model type provided, filter results
-            if model_type:
-                datasets = [ds for ds in datasets if ds["type"] == model_type]
-                
-            return datasets
-            
-        except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", "Failed to list datasets")
-            return []
-
-    def initialize_all_models_from_scratch(self) -> Dict[str, Any]:
-        """
-        Initialize all models for from-scratch training
-        
-        :return: Initialization result
-        """
-        try:
-            # Get all registered model IDs
-            registered_models = self.model_registry.get_all_registered_models()
-            if not registered_models:
-                return {"success": False, "message": "No registered models found"}
-            
-            # Initialize result tracking
-            results = {
-                "total_models": len(registered_models),
-                "succeeded": [],
-                "failed": []
-            }
-            
-            # Set from-scratch training parameters and start training for each model
-            for model_id in registered_models:
-                try:
-                    # Set model to local mode and mark for from-scratch training
-                    system_settings_manager.update_model_setting(model_id, {
-                        "type": "local",
-                        "from_scratch": True,
-                        "use_pretrained": False
-                    })
                     
-                    # Start from-scratch training
-                    training_result = self.start_training(model_id)
-                    if training_result["success"]:
-                        results["succeeded"].append({
-                            "model_id": model_id,
-                            "task_id": training_result["task_id"]
-                        })
-                        self._log_training_event(model_id, "Configured for from-scratch training")
-                    else:
-                        results["failed"].append({
-                            "model_id": model_id,
-                            "message": training_result["message"]
-                        })
-                except Exception as e:
-                    error_handler.handle_error(e, "FromScratchTraining", f"Failed to configure model {model_id} for from-scratch training")
-                    results["failed"].append({
-                        "model_id": model_id,
-                        "message": str(e)
-                    })
-            
-            # Log global results
-            success_count = len(results["succeeded"])
-            fail_count = len(results["failed"])
-            error_handler.log_info(
-                f"From-scratch training initialization completed: {success_count} models succeeded, {fail_count} models failed", 
-                "FromScratchTraining"
-            )
-            
-            return {
-                "success": True,
-                "message": f"Started from-scratch training for {success_count}/{results['total_models']} models",
-                "details": results
-            }
+                # Update system settings
+                system_settings = {
+                    "training_status": status,
+                    "last_updated": datetime.now().isoformat()
+                }
+                if error:
+                    system_settings["error_message"] = error
+                    
+                system_settings_manager.update_model_setting(model_id, system_settings)
+                
+    def _update_training_progress(self, model_id: str, progress: float):
+        """Update training progress"""
+        with self.lock:
+            if model_id in self.training_tasks:
+                self.training_tasks[model_id]["progress"] = min(max(progress, 0.0), 1.0)
+                
+    def get_training_status(self, model_id: str) -> Dict[str, Any]:
+        """Get training status for a model"""
+        with self.lock:
+            if model_id in self.training_tasks:
+                return self.training_tasks[model_id].copy()
+            else:
+                return {"status": "not_started", "model_id": model_id}
+                
+    def stop_training(self, model_id: str) -> Dict[str, Any]:
+        """Stop training for a model"""
+        try:
+            with self.lock:
+                if model_id not in self.training_tasks or self.training_tasks[model_id]["status"] != "training":
+                    return {"success": False, "message": f"Model {model_id} is not currently training"}
+                
+                # Update status
+                self.training_tasks[model_id]["status"] = "stopped"
+                self.training_tasks[model_id]["end_time"] = datetime.now().isoformat()
+                
+                # Update system settings
+                system_settings_manager.update_model_setting(model_id, {
+                    "training_status": "stopped",
+                    "last_updated": datetime.now().isoformat()
+                })
+                
+            error_handler.log_info(f"Training stopped for model: {model_id}", "FromScratchTrainingManager")
+            return {"success": True, "message": "Training stopped successfully"}
         except Exception as e:
-            error_handler.handle_error(e, "FromScratchTraining", "Failed to initialize all models for from-scratch training")
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to stop training for model: {model_id}")
             return {"success": False, "message": str(e)}
+            
+    # Default dataset generation methods
+    def _generate_default_language_data(self) -> List[Dict[str, Any]]:
+        """Generate default language dataset"""
+        # Simple language training data
+        data = [
+            {"text": "Hello world", "label": 0},
+            {"text": "How are you?", "label": 1},
+            {"text": "I am fine, thank you", "label": 2},
+            {"text": "What is your name?", "label": 3},
+            {"text": "My name is AGI Assistant", "label": 4}
+        ]
+        
+        # Expand dataset to 100 samples
+        expanded_data = []
+        for i in range(100):
+            item = data[i % len(data)].copy()
+            item["id"] = i
+            expanded_data.append(item)
+        
+        return expanded_data
+        
+    def _generate_default_vision_data(self) -> List[Dict[str, Any]]:
+        """Generate default vision dataset"""
+        # Simple vision training data (placeholder)
+        data = []
+        for i in range(100):
+            # Create random image data (64x64x3)
+            image = np.random.rand(64, 64, 3).tolist()
+            label = i % 10  # 10 classes
+            data.append({"image": image, "label": label, "id": i})
+        
+        return data
+        
+    def _generate_default_audio_data(self) -> List[Dict[str, Any]]:
+        """Generate default audio dataset"""
+        # Simple audio training data (placeholder)
+        data = []
+        for i in range(100):
+            # Create random audio data (1D array of 1000 samples)
+            audio = np.random.rand(1000).tolist()
+            label = i % 5  # 5 classes
+            data.append({"audio": audio, "label": label, "id": i})
+        
+        return data
+        
+    def _generate_default_sensor_data(self) -> List[Dict[str, Any]]:
+        """Generate default sensor dataset"""
+        # Simple sensor training data
+        data = []
+        for i in range(100):
+            # Generate sensor readings for various sensors
+            sensors = {
+                "temperature": 20.0 + np.random.normal(0, 2),
+                "humidity": 50.0 + np.random.normal(0, 5),
+                "pressure": 1013.0 + np.random.normal(0, 5),
+                "accelerometer": {
+                    "x": np.random.normal(0, 1),
+                    "y": np.random.normal(0, 1),
+                    "z": np.random.normal(0, 1)
+                },
+                "gyroscope": {
+                    "x": np.random.normal(0, 0.5),
+                    "y": np.random.normal(0, 0.5),
+                    "z": np.random.normal(0, 0.5)
+                }
+            }
+            data.append({"sensors": sensors, "timestamp": i, "id": i})
+        
+        return data
+        
+    def _generate_default_motion_data(self) -> List[Dict[str, Any]]:
+        """Generate default motion dataset"""
+        # Simple motion training data
+        data = []
+        for i in range(100):
+            # Generate motion control data
+            motion = {
+                "position": {
+                    "x": np.random.normal(0, 10),
+                    "y": np.random.normal(0, 10),
+                    "z": np.random.normal(0, 10)
+                },
+                "velocity": {
+                    "x": np.random.normal(0, 1),
+                    "y": np.random.normal(0, 1),
+                    "z": np.random.normal(0, 1)
+                },
+                "acceleration": {
+                    "x": np.random.normal(0, 0.1),
+                    "y": np.random.normal(0, 0.1),
+                    "z": np.random.normal(0, 0.1)
+                },
+                "control_signal": np.random.rand(4).tolist()  # 4 control signals
+            }
+            data.append({"motion": motion, "timestamp": i, "id": i})
+        
+        return data
+        
+    def _generate_default_knowledge_data(self) -> List[Dict[str, Any]]:
+        """Generate default knowledge dataset"""
+        # Simple knowledge training data
+        basic_knowledge = [
+            {"concept": "gravity", "definition": "The force that attracts a body toward the center of the earth", "domain": "physics"},
+            {"concept": "photosynthesis", "definition": "The process by which green plants and some other organisms use sunlight to synthesize foods", "domain": "biology"},
+            {"concept": "Pythagorean theorem", "definition": "In a right-angled triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides", "domain": "mathematics"},
+            {"concept": "evolution", "definition": "The process by which different kinds of living organisms are thought to have developed and diversified from earlier forms", "domain": "biology"},
+            {"concept": "relativity", "definition": "The theory that space and time are relative concepts rather than absolute concepts", "domain": "physics"}
+        ]
+        
+        # Expand dataset
+        data = []
+        for i in range(100):
+            item = basic_knowledge[i % len(basic_knowledge)].copy()
+            item["id"] = i
+            data.append(item)
+        
+        return data
+        
+    def _generate_default_generic_data(self) -> List[Dict[str, Any]]:
+        """Generate default generic dataset"""
+        # Simple generic training data
+        data = []
+        for i in range(100):
+            # Generate random input and output
+            input_data = np.random.rand(10).tolist()  # 10 input features
+            output_data = np.random.rand(3).tolist()  # 3 output values
+            data.append({"input": input_data, "output": output_data, "id": i})
+        
+        return data
 
-# Create global instance
-from_scratch_training = FromScratchTrainingManager()
+# Global instance for easy access
+from_scratch_training_manager = FromScratchTrainingManager()

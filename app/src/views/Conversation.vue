@@ -1,24 +1,24 @@
 <template>
   <div class="conversation-container">
     <div class="conversation-header">
-      <h1>Self Soul - 智能对话</h1>
+      <h1>Self Soul - Intelligent Conversation</h1>
       <div class="header-controls">
         <div class="model-status">
           <span class="status-indicator" :class="modelConnectionStatus"></span>
           <span class="status-text">{{ connectionStatusText }}</span>
         </div>
-        <button @click="clearConversation" class="clear-btn">清空对话</button>
+        <button @click="clearConversation" class="clear-btn">Clear Conversation</button>
       </div>
     </div>
     
     <div class="chat-container" ref="chatContainer">
       <div v-if="messages.length === 0" class="empty-chat">
         <div class="welcome-message">
-          <h3>欢迎使用 Self Soul</h3>
-          <p>与主管理模型进行真实对话，支持情感分析和多模态交互</p>
+          <h3>Welcome to Self Soul</h3>
+          <p>Have a real conversation with the main management model, supporting emotional analysis and multimodal interaction</p>
           <div class="connection-info">
-            <p>管理模型端口: 8001</p>
-            <p>当前状态: {{ connectionStatusText }}</p>
+            <p>Management Model Port: 8001</p>
+            <p>Current Status: {{ connectionStatusText }}</p>
           </div>
         </div>
       </div>
@@ -26,25 +26,25 @@
       <div v-for="message in messages" :key="message.id" class="message-wrapper">
         <div :class="['message', message.sender, { 'error': message.isError }]">
           <div class="message-header">
-            <span class="sender-name">{{ message.sender === 'user' ? '您' : 'Self Soul' }}</span>
+            <span class="sender-name">{{ message.sender === 'user' ? 'You' : 'Self Brain' }}</span>
             <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
           </div>
           <div class="message-content">
             <div v-if="message.type === 'text'">{{ message.content }}</div>
             <div v-else-if="message.type === 'image'" class="media-content">
-              <img :src="message.content" alt="图片消息" class="media-preview">
+              <img :src="message.content" alt="Image message" class="media-preview">
             </div>
             <div v-else-if="message.type === 'audio'" class="media-content">
               <audio controls :src="message.content" class="audio-player"></audio>
             </div>
           </div>
           <div v-if="message.emotion && message.sender === 'model'" class="emotion-indicator">
-            <span class="emotion-label">情感: {{ message.emotion }}</span>
-            <span v-if="message.confidence" class="confidence">置信度: {{ (message.confidence * 100).toFixed(1) }}%</span>
+            <span class="emotion-label">Emotion: {{ message.emotion }}</span>
+            <span v-if="message.confidence" class="confidence">Confidence: {{ (message.confidence * 100).toFixed(1) }}%</span>
           </div>
           <div v-if="message.isError" class="error-indicator">
             <span class="error-icon">⚠️</span>
-            <span class="error-text">连接错误</span>
+            <span class="error-text">Connection Error</span>
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
           <span></span>
           <span></span>
         </div>
-        <span class="loading-text">Self Soul 正在思考...</span>
+        <span class="loading-text">Self Brain is thinking...</span>
       </div>
     </div>
     
@@ -65,18 +65,18 @@
           type="text" 
           v-model="newMessage"
           @keyup.enter="sendMessage"
-          placeholder="输入消息... (支持文本、图像URL、音频URL)"
+          placeholder="Type a message... (supports text, image URL, audio URL)"
           :disabled="isLoading"
         >
         <div class="input-buttons">
           <button @click="sendMessage" :disabled="!newMessage.trim() || isLoading" class="send-btn">
-            {{ isLoading ? '发送中...' : '发送' }}
+            {{ isLoading ? 'Sending...' : 'Send' }}
           </button>
         </div>
       </div>
-      <div class="multimodal-hint">
-        <small>提示: 可以输入图像URL或音频URL进行多模态交互</small>
-      </div>
+        <div class="multimodal-hint">
+          <small>Hint: You can enter image URLs or audio URLs for multimodal interaction</small>
+        </div>
       <div v-if="error" class="error-message">
         {{ error }}
       </div>
@@ -101,11 +101,11 @@ const error = ref(null);
 // Computed
 const connectionStatusText = computed(() => {
   const statusMap = {
-    'connected': '已连接',
-    'connecting': '连接中',
-    'disconnected': '未连接'
+    'connected': 'Connected',
+    'connecting': 'Connecting',
+    'disconnected': 'Disconnected'
   };
-  return statusMap[modelConnectionStatus.value] || '未知状态';
+  return statusMap[modelConnectionStatus.value] || 'Unknown Status';
 });
 
 // Methods
@@ -166,13 +166,13 @@ async function sendMessage() {
     
   } catch (err) {
     console.error('Failed to send message:', err);
-    error.value = '无法连接到管理模型。请确保后端服务器正在运行。';
+    error.value = 'Cannot connect to management model. Please ensure the backend server is running.';
     
     // Add error message
     messages.value.push({
       id: Date.now() + 1,
       sender: 'model',
-      content: '抱歉，我目前无法处理您的请求。请确保后端服务器正在运行，然后重试。',
+      content: 'Sorry, I cannot process your request at the moment. Please ensure the backend server is running and try again.',
       type: 'text',
       timestamp: Date.now(),
       isError: true
@@ -203,14 +203,14 @@ function formatTimestamp(timestamp) {
   const now = new Date();
   const diff = now - date;
   
-  if (diff < 60000) { // 1分钟内
-    return '刚刚';
-  } else if (diff < 3600000) { // 1小时内
-    return `${Math.floor(diff / 60000)}分钟前`;
-  } else if (diff < 86400000) { // 1天内
-    return `${Math.floor(diff / 3600000)}小时前`;
+  if (diff < 60000) { // within 1 minute
+    return 'Just now';
+  } else if (diff < 3600000) { // within 1 hour
+    return `${Math.floor(diff / 60000)}m ago`;
+  } else if (diff < 86400000) { // within 1 day
+    return `${Math.floor(diff / 3600000)}h ago`;
   } else {
-    return date.toLocaleTimeString('zh-CN', { 
+    return date.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       month: 'short',
@@ -240,8 +240,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333333;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .conversation-header {
@@ -281,16 +281,16 @@ onMounted(() => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #ff6b6b;
+  background-color: #888888;
   animation: pulse 2s infinite;
 }
 
 .status-indicator.connected {
-  background-color: #51cf66;
+  background-color: #555555;
 }
 
 .status-indicator.connecting {
-  background-color: #ffd43b;
+  background-color: #999999;
 }
 
 .status-text {
@@ -388,8 +388,8 @@ onMounted(() => {
 }
 
 .message.user {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .message.model {
@@ -495,7 +495,7 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #667eea;
+  background-color: var(--text-tertiary);
   animation: typing 1.4s infinite ease-in-out;
 }
 
@@ -532,8 +532,8 @@ onMounted(() => {
 
 .input-area input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--border-dark);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .input-area input:disabled {
@@ -548,7 +548,7 @@ onMounted(() => {
 
 .send-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 12px;
@@ -561,7 +561,7 @@ onMounted(() => {
 
 .send-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .send-btn:disabled {

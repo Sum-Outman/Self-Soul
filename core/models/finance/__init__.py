@@ -3,6 +3,6 @@
 # Contains models for financial analysis and prediction
 # 包含金融分析和预测模型
 
-from .model import FinanceModel
+from .unified_finance_model import FinanceModel
 
 __all__ = ['FinanceModel']

@@ -43,6 +43,7 @@ from fastapi.responses import JSONResponse
 
 # Import core components in a way that avoids circular dependencies
 from core.error_handling import error_handler
+from core.model_ports_config import MAIN_API_PORT
 
 # Import core components with delayed initialization to avoid circular dependencies
 from core.model_registry import ModelRegistry
@@ -84,6 +85,7 @@ class ConnectionManager:
 # Initialize global variables (will be properly initialized in main function)
 model_registry = None
 training_manager = None
+dataset_manager = None
 emotion_system = None
 autonomous_learning_manager = None
 system_settings_manager = None
@@ -101,7 +103,7 @@ api_model_connector = None  # Add missing global variable
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="Self Soul AGI System",
+    title="Self Brain AGI System",
     description="Advanced General Intelligence System with autonomous learning and self-improvement capabilities",
     version="1.0.0",
     docs_url="/docs",
@@ -512,7 +514,7 @@ async def startup_event():
     global unified_cognitive_architecture, enhanced_meta_cognition, intrinsic_motivation_system
     global explainable_ai, value_alignment, agi_coordinator, api_model_connector
     
-    error_handler.log_info("Self Soul system is starting up...", "System")
+    error_handler.log_info("Self Brain system is starting up...", "System")
     
     try:
         # Initialize core components in dependency order
@@ -614,7 +616,7 @@ async def startup_event():
         except Exception as e:
             error_handler.handle_error(e, "System", "Failed to start model services")
         
-        error_handler.log_info("Self Soul system startup completed successfully!", "System")
+        error_handler.log_info("Self Brain system startup completed successfully!", "System")
         
     except Exception as e:
         error_handler.handle_error(e, "System", "System startup failed")
@@ -626,7 +628,7 @@ async def shutdown_event():
     """
     System shutdown event handler
     """
-    error_handler.log_info("Self Soul system is shutting down...", "System")
+    error_handler.log_info("Self Brain system is shutting down...", "System")
 
 # Configure CORS
 app.add_middleware(
@@ -646,7 +648,7 @@ async def health_check():
     Returns:
         System status information
     """
-    return {"status": "ok", "message": "Self Soul system is running normally"}
+    return {"status": "ok", "message": "Self Brain system is running normally"}
 
 # Get all models status
 @app.get("/api/models/status")
@@ -921,19 +923,38 @@ async def chat_with_manager_model(input_data: dict):
         # Get manager model
         manager_model = model_registry.get_model("manager")
         if not manager_model:
-            raise HTTPException(status_code=500, detail="Manager model not loaded")
+            # Try to load the manager model if not loaded
+            try:
+                from core.models.manager.unified_manager_model import create_unified_manager_model
+                manager_model = create_unified_manager_model()
+                model_registry.register_model("manager", manager_model)
+                logger.info("Manager model loaded successfully")
+            except Exception as load_error:
+                logger.error(f"Failed to load manager model: {str(load_error)}")
+                raise HTTPException(status_code=500, detail=f"Manager model not loaded: {str(load_error)}")
         
         # Process message with manager model
         # Using process_input with text modality
+        start_time = time.time()
         response = manager_model.process_input({
             "text": message,
             "type": "text",
             "context": context
         }, modality="text", context=context)
+        processing_time = time.time() - start_time
         
         # Update conversation history
         conversation_history.append({"role": "user", "content": message})
-        conversation_history.append({"role": "assistant", "content": response.get("text", "")})
+        
+        # Extract response text from the manager model's output
+        response_text = ""
+        if response.get("success", False):
+            response_text = response.get("output", "")
+        else:
+            response_text = "I apologize, but I encountered an error while processing your message."
+            logger.error(f"Manager model processing error: {response.get('error', 'Unknown error')}")
+        
+        conversation_history.append({"role": "assistant", "content": response_text})
         
         # Limit conversation history to 50 messages
         if len(conversation_history) > 50:
@@ -943,7 +964,7 @@ async def chat_with_manager_model(input_data: dict):
         return {
             "status": "success",
             "data": {
-                "response": response.get("text", ""),
+                "response": response_text,
                 "conversation_history": conversation_history,
                 "session_id": session_id,
                 "confidence": response.get("confidence", confidence),
@@ -951,13 +972,27 @@ async def chat_with_manager_model(input_data: dict):
                 "model_id": "manager",
                 "port": 8001,
                 "timestamp": datetime.now().isoformat(),
-                "processing_time": response.get("processing_time", 0),
+                "processing_time": processing_time,
                 "context": context
             }
         }
     except Exception as e:
+        logger.error(f"Failed to process manager model chat request: {str(e)}")
         error_handler.handle_error(e, "API", "Failed to process manager model chat request")
-        raise HTTPException(status_code=500, detail="Failed to process manager model chat request")
+        
+        # Return fallback response with error details
+        return {
+            "status": "error",
+            "detail": str(e),
+            "data": {
+                "response": "I apologize, but I encountered an error while processing your message. Please try again later.",
+                "conversation_history": input_data.get("conversation_history", []) + [
+                    {"role": "user", "content": input_data.get("message", "")}
+                ],
+                "session_id": input_data.get("session_id", f"session_{datetime.now().timestamp()}"),
+                "error": str(e)
+            }
+        }
 
 
 
@@ -2936,7 +2971,7 @@ async def health_check():
     """
     Health check endpoint to quickly respond to frontend connection requests
     """
-    return {"status": "healthy", "message": "Self Soul system is running normally"}
+    return {"status": "healthy", "message": "Self Brain system is running normally"}
 
 # Knowledge statistics endpoint - provides statistical data for frontend KnowledgeView.vue
 @app.get("/api/knowledge/stats")
@@ -3068,7 +3103,7 @@ async def get_autonomous_learning_progress():
         return {
             "status": "success",
             "progress": progress_data["progress"],
-            "status": progress_data["status"],
+            "learning_status": progress_data["status"],
             "logs": progress_data["logs"],
             "domains": progress_data["domains"],
             "priority": progress_data["priority"]
@@ -3079,7 +3114,7 @@ async def get_autonomous_learning_progress():
         return {
             "status": "success",
             "progress": 0,
-            "status": "idle",
+            "learning_status": "idle",
             "logs": [],
             "domains": [],
             "priority": "balanced"
@@ -3502,9 +3537,9 @@ async def get_system_stats():
 # Initialize core components
 def initialize_core_components():
     """
-    Initialize all core system components
+    Initialize all core system components using ComponentFactory to ensure singleton instances
     """
-    global model_registry, training_manager, emotion_system
+    global model_registry, training_manager, dataset_manager, emotion_system
     global autonomous_learning_manager, system_settings_manager, system_monitor
     global connection_manager, unified_cognitive_architecture
     global enhanced_meta_cognition, intrinsic_motivation_system, explainable_ai
@@ -3513,57 +3548,67 @@ def initialize_core_components():
     try:
         error_handler.log_info("Initializing core system components...", "System")
         
-        # Initialize connection manager
-        connection_manager = ConnectionManager()
+        # Import ComponentFactory for singleton management
+        from core.memory_optimization import ComponentFactory
+        
+        # Get Connection Manager using ComponentFactory
+        connection_manager = ComponentFactory.get_component('connection_manager', ConnectionManager)
         error_handler.log_info("Connection Manager initialized", "System")
         
-        # Initialize system settings manager
-        system_settings_manager = SystemSettingsManager()
+        # Get System Settings Manager using ComponentFactory
+        system_settings_manager = ComponentFactory.get_component('system_settings_manager', SystemSettingsManager)
         error_handler.log_info("System Settings Manager initialized", "System")
         
-        # Initialize system monitor
-        system_monitor = SystemMonitor()
+        # Get System Monitor using ComponentFactory
+        system_monitor = ComponentFactory.get_component('system_monitor', SystemMonitor)
         error_handler.log_info("System Monitor initialized", "System")
         
-        # Initialize model registry
-        model_registry = ModelRegistry()
+        # Get Model Registry using ComponentFactory
+        model_registry = ComponentFactory.get_component('model_registry', ModelRegistry)
         error_handler.log_info("Model Registry initialized", "System")
         
-        # Initialize training manager
-        training_manager = TrainingManager(model_registry)
+        # Get Dataset Manager using ComponentFactory
+        dataset_manager = ComponentFactory.get_component('dataset_manager', DatasetManager)
+        error_handler.log_info("Dataset Manager initialized", "System")
+        
+        # Get Training Manager using ComponentFactory, passing model_registry as dependency
+        training_manager = ComponentFactory.get_component('training_manager', TrainingManager, model_registry)
         error_handler.log_info("Training Manager initialized", "System")
         
-        # Initialize emotion awareness system
-        emotion_system = AGIEmotionAwarenessSystem()
+        # Get AGI Emotion Awareness System using ComponentFactory
+        emotion_system = ComponentFactory.get_component('emotion_system', AGIEmotionAwarenessSystem)
         error_handler.log_info("AGI Emotion Awareness System initialized", "System")
         
-        # Initialize autonomous learning manager
-        autonomous_learning_manager = AutonomousLearningManager(model_registry)
+        # Get Autonomous Learning Manager using ComponentFactory, passing model_registry as dependency
+        autonomous_learning_manager = ComponentFactory.get_component('autonomous_learning_manager', AutonomousLearningManager, model_registry)
         error_handler.log_info("Autonomous Learning Manager initialized", "System")
         
-        # Initialize other advanced components
-        unified_cognitive_architecture = UnifiedCognitiveArchitecture()
+        # Get Unified Cognitive Architecture using ComponentFactory
+        unified_cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
         error_handler.log_info("Unified Cognitive Architecture initialized", "System")
         
-        enhanced_meta_cognition = EnhancedMetaCognition()
+        # Get Enhanced Meta Cognition using ComponentFactory
+        enhanced_meta_cognition = ComponentFactory.get_component('enhanced_meta_cognition', EnhancedMetaCognition)
         error_handler.log_info("Enhanced Meta Cognition initialized", "System")
         
-        intrinsic_motivation_system = IntrinsicMotivationSystem()
+        # Get Intrinsic Motivation System using ComponentFactory
+        intrinsic_motivation_system = ComponentFactory.get_component('intrinsic_motivation_system', IntrinsicMotivationSystem)
         error_handler.log_info("Intrinsic Motivation System initialized", "System")
         
-        explainable_ai = ExplainableAI()
+        # Get Explainable AI using ComponentFactory
+        explainable_ai = ComponentFactory.get_component('explainable_ai', ExplainableAI)
         error_handler.log_info("Explainable AI initialized", "System")
         
-        value_alignment = ValueAlignment()
+        # Get Value Alignment using ComponentFactory
+        value_alignment = ComponentFactory.get_component('value_alignment', ValueAlignment)
         error_handler.log_info("Value Alignment initialized", "System")
         
-        # Initialize API model connector
-        api_model_connector = APIModelConnector()
+        # Get API Model Connector using ComponentFactory
+        api_model_connector = ComponentFactory.get_component('api_model_connector', APIModelConnector)
         error_handler.log_info("API Model Connector initialized", "System")
         
-        # Initialize AGI coordinator (central component)
-        # AGICoordinator creates and manages its own instances of components
-        agi_coordinator = AGICoordinator(from_scratch=False)
+        # Get AGI Coordinator using ComponentFactory (central component)
+        agi_coordinator = ComponentFactory.get_component('agi_coordinator', AGICoordinator, from_scratch=False)
         error_handler.log_info("AGI Coordinator initialized", "System")
         
         # Load model modes from settings
@@ -3573,6 +3618,9 @@ def initialize_core_components():
         return True
     except Exception as e:
         error_handler.handle_error(e, "System", "Critical failure during component initialization")
+        # Log the error with traceback for debugging
+        import traceback
+        error_handler.log_error(f"Error details: {traceback.format_exc()}", "System")
         return False
 
 # Asynchronous initialization function
@@ -3596,30 +3644,110 @@ async def async_initialize_components():
 # Server startup code
 if __name__ == "__main__":
     """
-    Main entry point for starting the Self Soul AGI system backend server
+    Main entry point for starting the Self Brain AGI system backend server
     """
-    error_handler.log_info("Starting Self Soul AGI system backend server...", "System")
+    # 添加内存优化配置
+    from core.memory_optimization import configure_memory_optimization, MemoryOptimizer
+    
+    # 检测系统资源并配置适当的内存优化策略
+    # 可以根据命令行参数、环境变量或配置文件来设置
+    import argparse
+    parser = argparse.ArgumentParser(description='Self Brain AGI System')
+    parser.add_argument('--lightweight', action='store_true', help='Run in lightweight mode with reduced memory usage')
+    parser.add_argument('--max-memory', type=int, default=75, help='Maximum memory usage percentage threshold')
+    args = parser.parse_args()
+    
+    # 配置内存优化
+    configure_memory_optimization(
+        enable_optimization=True,
+        lightweight_mode=args.lightweight,
+        max_memory_usage=args.max_memory
+    )
+    
+    # Add file logging for better error capture
+    import logging
+    from logging.handlers import RotatingFileHandler
+    import os
+    
+    # Ensure logs directory exists
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    # Configure file logging
+    file_handler = RotatingFileHandler(
+        os.path.join(log_dir, "server_startup.log"),
+        maxBytes=5*1024*1024,  # 5MB
+        backupCount=3
+    )
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Add file handler to root logger
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+    root_logger.setLevel(logging.DEBUG)
+    
+    logger = logging.getLogger("MainServer")
+    logger.info("Starting Self Brain AGI system backend server...")
+    
+    # Add port availability check
+    import socket
+    def check_port_available(port):
+        """Check if a port is available"""
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('0.0.0.0', port))
+        sock.close()
+        return result != 0
+    
+    # Check port availability before starting
+    if not check_port_available(MAIN_API_PORT):
+        logger.error(f"Port {MAIN_API_PORT} is already in use. Cannot start server.")
+        sys.exit(1)
+    else:
+        logger.info(f"Port {MAIN_API_PORT} is available. Proceeding with server startup.")
     
     # Initialize core components synchronously
     if not initialize_core_components():
-        error_handler.log_error("Failed to initialize core components. Exiting.", "System")
+        logger.error("Failed to initialize core components. Exiting.")
         sys.exit(1)
     
     # Create FastAPI application lifespan event handler
     @app.on_event("startup")
     async def on_startup():
-        """\Run on application startup"""
+        """Run on application startup"""
+        logger.info("FastAPI application startup event triggered")
         await async_initialize_components()
-        error_handler.log_info("AGI System startup complete", "System")
+        logger.info("AGI System startup complete")
+    
+    # Add basic health endpoint verification
+    @app.get("/test-health", tags=["System"])
+    async def test_health():
+        return {"status": "ok", "message": "FastAPI application is running"}
     
     # Start the FastAPI application with uvicorn (Python 3.6.3 compatible)
     # Use traditional event loop approach instead of asyncio.run() which is not available in Python 3.6
+    logger.info(f"Creating uvicorn server configuration for host 0.0.0.0 and port {MAIN_API_PORT}")
+    logger.info(f"FastAPI application has {len(app.routes)} routes registered")
+    
+    # Test FastAPI app directly before uvicorn
+    logger.info("Testing FastAPI application directly")
+    for route in app.routes:
+        if hasattr(route, "path"):
+            logger.debug(f"Registered route: {route.path}")
+    
+    # Log health endpoint details
+    health_routes = [route for route in app.routes if hasattr(route, "path") and "/health" in route.path]
+    logger.info(f"Found {len(health_routes)} health-related endpoints")
+    
     config = uvicorn.Config(
         "core.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=MAIN_API_PORT,
         reload=True,
-        log_level="info",
+        log_level="debug",  # Increased log level for debugging
         access_log=True
     )
     server = uvicorn.Server(config)

@@ -92,6 +92,12 @@ apiClient.interceptors.response.use(
 
 // API方法定义
 const api = {
+  // 添加顶层get和post方法，兼容HomeView.vue中的直接调用
+  get: apiClient.get,
+  post: apiClient.post,
+  put: apiClient.put,
+  delete: apiClient.delete,
+  
   // 健康检查
   health: {
     get: () => apiClient.get('/health')
@@ -158,7 +164,7 @@ const api = {
     }),
     deleteFile: (fileId) => apiClient.delete(`/api/knowledge/files/${fileId}`),
     autoLearning: {
-      start: () => apiClient.post('/api/knowledge/auto-learning/start'),
+      start: (params = {}) => apiClient.post('/api/knowledge/auto-learning/start', params),
       stop: () => apiClient.post('/api/knowledge/auto-learning/stop'),
       progress: () => apiClient.get('/api/knowledge/auto-learning/progress')
     }
@@ -195,6 +201,42 @@ const api = {
     deleteConfig: (configId) => apiClient.delete(`/api/external-api/configs/${configId}`),
     testConnection: (configId) => apiClient.post(`/api/external-api/configs/${configId}/test`),
     setActive: (configId) => apiClient.post(`/api/external-api/configs/${configId}/activate`)
+  },
+
+  // 模型配置API（支持每个模型独立选择本地或外部API）
+  modelConfigs: {
+    // 获取所有模型的配置
+    getAll: () => apiClient.get('/api/models/config'),
+    
+    // 获取特定模型的配置
+    getById: (modelId) => apiClient.get(`/api/models/${modelId}/config`),
+    
+    // 更新模型类型（local或api）
+    updateType: (modelId, modelType) => apiClient.post(`/api/models/${modelId}/type`, { type: modelType }),
+    
+    // 更新模型API配置
+    updateApiConfig: (modelId, configData) => apiClient.post(`/api/models/${modelId}/api-config`, configData),
+    
+    // 测试API连接
+    testConnection: (modelId) => apiClient.post(`/api/models/${modelId}/test-connection`)
+  },
+
+  // 串口通信API
+  serial: {
+    // 获取可用串口列表
+    getPorts: () => apiClient.get('/api/serial/ports'),
+    // 连接串口
+    connect: (params) => apiClient.post('/api/serial/connect', params),
+    // 断开串口连接
+    disconnect: () => apiClient.post('/api/serial/disconnect'),
+    // 发送数据
+    send: (data) => apiClient.post('/api/serial/send', { data }),
+    // 获取串口状态
+    status: () => apiClient.get('/api/serial/status'),
+    // 设置串口参数
+    configure: (params) => apiClient.post('/api/serial/configure', params),
+    // 读取串口数据（一次性）
+    read: () => apiClient.get('/api/serial/read')
   }
 };
 

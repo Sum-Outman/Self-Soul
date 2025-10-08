@@ -11,6 +11,18 @@ import types
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
+# 为Python 3环境定义兼容性变量
+try:
+    # 尝试使用Python 2的类型
+    unicode = unicode  # type: ignore
+    long = long  # type: ignore
+    unichr = unichr  # type: ignore
+except NameError:
+    # 在Python 3中定义替代品
+    unicode = str
+    long = int
+    unichr = chr
+
 if PY3:
     text_type = str
     binary_type = bytes

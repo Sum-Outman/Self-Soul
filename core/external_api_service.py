@@ -8,22 +8,98 @@ import logging
 import json
 import os
 import requests
-from typing import Dict, Any, Optional, List
+import threading
+import time
+from typing import Dict, Any, Optional, List, Union
 from datetime import datetime
+from dataclasses import dataclass
 
+# 导入核心模块
+# Import core modules
+try:
+    from core.error_handling import error_handler
+    from core.system_settings_manager import system_settings_manager
+    from core.model_registry import get_model_registry
+except ImportError:
+    # 提供默认的模拟实现，以防核心模块不可用
+    # Provide default mock implementations in case core modules are not available
+    class ErrorHandler:
+        def handle_error(self, error, module, message):
+            logging.error(f"{module} - {message}: {str(error)}")
+        def log_info(self, message, module):
+            logging.info(f"{module} - {message}")
+    error_handler = ErrorHandler()
+    
+    class SystemSettingsManager:
+        def __init__(self):
+            self.settings = {}
+        def get_system_setting(self, key, default=None):
+            return self.settings.get(key, default)
+        def update_system_setting(self, key, value):
+            self.settings[key] = value
+        def get_model_setting(self, model_id, default=None, use_cache=False):
+            return self.settings.get(f"model_{model_id}", default)
+        def update_model_setting(self, model_id, settings):
+            self.settings[f"model_{model_id}"] = settings
+    system_settings_manager = SystemSettingsManager()
+    
+    class ModelRegistry:
+        def __init__(self):
+            self.models = {}
+        def is_model_registered(self, model_id):
+            return model_id in self.models
+        def register_model(self, model_id, settings):
+            self.models[model_id] = settings
+    _model_registry = ModelRegistry()
+    def get_model_registry():
+        return _model_registry
+
+# API特定导入
+# API specific imports
+try:
+    import openai
+    import anthropic
+    import google.generativeai as genai
+    import boto3
+except ImportError:
+    openai = None
+    anthropic = None
+    genai = None
+    boto3 = None
+try:
+    import replicate
+    import ollama
+except ImportError:
+    replicate = None
+    ollama = None
+
+
+@dataclass
+class APIConnectionStatus:
+    """API连接状态数据类
+    Data class for tracking API connection status"""
+    connected: bool = False
+    last_check: Optional[str] = None
+    response_time: Optional[float] = None
+    error_message: Optional[str] = None
+    api_version: Optional[str] = None
+    rate_limit_info: Optional[Dict[str, Any]] = None
 
 class ExternalAPIService:
     """统一外部API服务
     Unified External API Service
     
-    功能：统一管理所有主流AI API的配置、认证和调用
-    Function: Unified management of all mainstream AI APIs configuration, authentication and calls
-    """
+    功能：统一管理所有主流AI API的配置、认证和调用，支持每个模型单独配置外部API
+    Function: Unified management of all mainstream AI APIs configuration, authentication and calls, supporting per-model external API configuration"""
     
     def __init__(self, config: Dict[str, Any] = None):
         """初始化外部API服务 | Initialize external API service"""
         self.logger = logging.getLogger(__name__)
         self.config = config or {}
+        
+        # 支持的API提供商
+        # Supported API providers
+        self.supported_providers = ["openai", "anthropic", "google", "aws", "azure", "huggingface", "cohere", "mistral", "replicate", "ollama"]
         
         # API服务状态 | API service status
         self.services = {
@@ -65,16 +141,135 @@ class ExternalAPIService:
             "mistral": {
                 "chat": None,
                 "configured": False
+            },
+            "replicate": {
+                "inference": None,
+                "configured": False
+            },
+            "ollama": {
+                "inference": None,
+                "configured": False
             }
         }
         
         # API配置缓存 | API configuration cache
         self.api_configs = {}
         
+        # 连接状态跟踪 | Connection status tracking
+        self.connection_status = {}
+        self.api_clients = {}
+        
+        # 线程锁 | Thread lock
+        self.lock = threading.Lock()
+        
+        # 模型注册表实例
+        # Model registry instance
+        self.model_registry = get_model_registry()
+        
+        # 初始化默认配置
+        # Initialize default configurations
+        self._initialize_default_configs()
+        
         # 初始化所有API服务 | Initialize all API services
         self._initialize_all_services()
         
         self.logger.info("统一外部API服务初始化完成 | Unified external API service initialized")
+        
+    def _initialize_default_configs(self):
+        """初始化默认API配置 | Initialize default API configurations"""
+        # 为每个支持的提供商创建默认配置
+        # Create default configuration for each supported provider
+        self.api_configs = {
+            "openai": {
+                "api_key": "",
+                "base_url": "https://api.openai.com/v1",
+                "model": "gpt-4o",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "anthropic": {
+                "api_key": "",
+                "model": "claude-3-opus-20240229",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "google": {
+                "api_key": "",
+                "model": "gemini-pro",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "aws": {
+                "access_key_id": "",
+                "secret_access_key": "",
+                "region": "us-east-1",
+                "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+                "timeout": 60
+            },
+            "azure": {
+                "api_key": "",
+                "endpoint": "",
+                "deployment_id": "",
+                "api_version": "2024-02-15-preview",
+                "timeout": 60
+            },
+            "huggingface": {
+                "api_key": "",
+                "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                "timeout": 120
+            },
+            "cohere": {
+                "api_key": "",
+                "model": "command-r-plus",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "mistral": {
+                "api_key": "",
+                "model": "mistral-large-latest",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "replicate": {
+                "api_key": "",
+                "model": "meta/llama-3-70b-instruct",
+                "timeout": 120
+            },
+            "ollama": {
+                "base_url": "http://localhost:11434",
+                "model": "llama3",
+                "timeout": 60
+            }
+        }
+        
+        # 从系统设置加载已保存的配置
+        # Load saved configurations from system settings
+        self._load_saved_configs()
+        
+    def _load_saved_configs(self):
+        """从系统设置加载已保存的API配置 | Load saved API configurations from system settings"""
+        try:
+            # 尝试从系统设置管理器加载配置
+            # Try to load configuration from system settings manager
+            for provider in self.supported_providers:
+                try:
+                    saved_config = system_settings_manager.get_model_setting(
+                        f"external_api_{provider}", default=None
+                    )
+                    if saved_config:
+                        # 更新API配置
+                        # Update API configuration
+                        self.api_configs[provider].update(saved_config)
+                        self.logger.info(f"已加载{provider}的保存配置 | Loaded saved configuration for {provider}")
+                except Exception as e:
+                    self.logger.warning(f"加载{provider}配置失败: {str(e)} | Failed to load {provider} configuration: {str(e)}")
+        except Exception as e:
+            self.logger.error(f"加载保存的API配置失败: {str(e)} | Failed to load saved API configurations: {str(e)}")
     
     def _initialize_all_services(self):
         """初始化所有API服务 | Initialize all API services"""

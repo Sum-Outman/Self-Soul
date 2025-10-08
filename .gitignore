@@ -136,7 +136,7 @@ cmd
 tmp/
 temp/
 
-# Self Soul specific
+# Self Brain specific
 data/datasets/
 data/knowledge/
 logs/

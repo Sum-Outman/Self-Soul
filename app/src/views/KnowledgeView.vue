@@ -831,13 +831,13 @@ export default {
         isUsingWebSocket = false;
         connectionAttempts = 0;
         
-        // Start auto learning on server
-        const response = await api.post('/api/knowledge/auto-learning/start', {
+        // Start auto learning on server using api.js method
+        const response = await api.knowledge.autoLearning.start({
           domains: filterDomain.value ? [filterDomain.value] : [],
           priority: 'balanced'
         });
         
-        if (response.data.success) {
+        if (response.data.status === 'success' || response.data.status === 'warning') {
           showSystemMessage('Auto learning started successfully');
           addLearningLog('System', 'Auto learning started');
           
@@ -871,11 +871,11 @@ export default {
         // Close WebSocket connection
         closeWebSocket();
         
-        // Try to stop auto learning on server
+        // Try to stop auto learning on server using api.js method
         try {
-          const response = await api.post('/api/knowledge/auto-learning/stop');
+          const response = await api.knowledge.autoLearning.stop();
           
-          if (response.data.success) {
+          if (response.data.status === 'success' || response.data.status === 'warning') {
             showSystemMessage('Auto learning stopped successfully');
             addLearningLog('System', 'Auto learning stopped');
           }
@@ -943,7 +943,7 @@ export default {
             }
             
             // Check if completed
-            if (response.data.progress >= 100 || response.data.status === 'completed') {
+            if (response.data.progress >= 100 || response.data.learning_status === 'completed') {
               autoLearningProgress.value = 100;
               autoLearningStatus.value = 'completed';
               

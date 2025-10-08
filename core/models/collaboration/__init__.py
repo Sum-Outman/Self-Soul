@@ -3,6 +3,6 @@
 # Contains models for inter-model collaboration and coordination
 # 包含模型间协作和协调模型
 
-from .model import CollaborationModel
+from .unified_collaboration_model import UnifiedCollaborationModel as CollaborationModel
 
 __all__ = ['CollaborationModel']

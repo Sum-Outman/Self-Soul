@@ -21,6 +21,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from ..unified_model_template import UnifiedModelTemplate
 from core.realtime_stream_manager import RealTimeStreamManager
+from core.agi_tools import AGITools
 
 
 class CommandPredictionNetwork(nn.Module):
@@ -1172,21 +1173,24 @@ class UnifiedComputerModel(UnifiedModelTemplate):
         ]
 
     def _initialize_agi_computer_components(self) -> None:
-        """Initialize AGI computer components for advanced computer reasoning"""
-        # AGI Computer Reasoning Engine for advanced computer operation understanding
-        self.agi_computer_reasoning = self._create_agi_computer_reasoning_engine()
-        # AGI Meta Learning System for computer operation pattern recognition
-        self.agi_meta_learning = self._create_agi_meta_learning_system()
-        # AGI Self-Reflection Module for computer performance optimization
-        self.agi_self_reflection = self._create_agi_self_reflection_module()
-        # AGI Cognitive Engine for computer operation understanding
-        self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-        # AGI Computer Problem Solver for complex computer challenges
-        self.agi_problem_solver = self._create_agi_computer_problem_solver()
-        # AGI Creative Generator for computer innovation
-        self.agi_creative_generator = self._create_agi_creative_generator()
+        """Initialize AGI computer components using unified tools"""
+        agi_components = AGITools.initialize_agi_components([
+            "reasoning_engine",
+            "meta_learning_system", 
+            "self_reflection_module",
+            "cognitive_engine",
+            "problem_solver",
+            "creative_generator"
+        ])
         
-        self.logger.info("AGI computer components initialized successfully")
+        self.agi_computer_reasoning = agi_components["reasoning_engine"]
+        self.agi_meta_learning = agi_components["meta_learning_system"]
+        self.agi_self_reflection = agi_components["self_reflection_module"]
+        self.agi_cognitive_engine = agi_components["cognitive_engine"]
+        self.agi_problem_solver = agi_components["problem_solver"]
+        self.agi_creative_generator = agi_components["creative_generator"]
+        
+        self.logger.info("AGI computer components initialized using unified tools")
 
     def _create_agi_computer_reasoning_engine(self) -> Dict[str, Any]:
         """Create AGI computer reasoning engine for advanced computer operation understanding"""

@@ -3,6 +3,6 @@
 # Contains models for medical analysis and diagnosis
 # 包含医疗分析和诊断模型
 
-from .model import MedicalModel
+from .unified_medical_model import UnifiedMedicalModel
 
-__all__ = ['MedicalModel']
+__all__ = ['UnifiedMedicalModel']

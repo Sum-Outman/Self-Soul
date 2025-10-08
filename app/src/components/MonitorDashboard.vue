@@ -88,14 +88,22 @@
         <div class="charts-grid">
           <div class="chart-container">
             <h4>CPU & Memory Usage</h4>
-            <div class="chart-placeholder">
-              <p>Chart visualization placeholder</p>
+            <div v-if="cpuUsage || memoryUsage" class="chart-content">
+              <p>CPU: {{ cpuUsage }}%, Memory: {{ memoryUsage }}%</p>
+              <!-- Chart component will be added here once backend provides data -->
+            </div>
+            <div v-else class="no-data">
+              <p>No data available</p>
             </div>
           </div>
           <div class="chart-container">
             <h4>Model Performance</h4>
-            <div class="chart-placeholder">
-              <p>Chart visualization placeholder</p>
+            <div v-if="modelMetrics.length > 0" class="chart-content">
+              <p>Model metrics displayed when available</p>
+              <!-- Chart component will be added here once backend provides data -->
+            </div>
+            <div v-else class="no-data">
+              <p>No model performance data available</p>
             </div>
           </div>
       </div>
@@ -114,22 +122,11 @@ export default {
       systemStatus: 'normal',
       systemUptime: '00:00:00',
       activeModelsCount: 0,
-      totalModelsCount: 11,
-      cpuUsage: 45,
-      memoryUsage: 62,
-      modelMetrics: [
-        { name: 'accuracy', value: '95.2%', trend: 'up', change: '+0.3%' },
-        { name: 'latency', value: '128ms', trend: 'down', change: '-12ms' },
-        { name: 'throughput', value: '256 req/s', trend: 'up', change: '+8' },
-        { name: 'errorRate', value: '1.2%', trend: 'down', change: '-0.4%' }
-      ],
-      dataStream: [
-        { timestamp: '15:23:45', model: 'Language', type: 'processing', details: 'Processing user query' },
-        { timestamp: '15:23:42', model: 'Audio', type: 'success', details: 'Audio processed successfully' },
-        { timestamp: '15:23:40', model: 'Vision', type: 'training', details: 'Training epoch 25 completed' },
-        { timestamp: '15:23:38', model: 'Knowledge', type: 'update', details: 'Knowledge base updated' },
-        { timestamp: '15:23:35', model: 'Manager', type: 'coordination', details: 'Task assigned to Language model' }
-      ]
+      totalModelsCount: 0,
+      cpuUsage: 0,
+      memoryUsage: 0,
+      modelMetrics: [],
+      dataStream: []
     }
   },
   mounted() {
@@ -155,16 +152,24 @@ export default {
     async refreshData() {
       this.isRefreshing = true;
       try {
-        // Try to fetch real data from backend
-        // In production, this should make API calls to get real-time monitoring data
-        // For now, we'll keep minimal structure without simulation
-        console.log('Attempting to fetch real monitoring data from backend...');
-        // Future implementation would have:
-        // const response = await api.get('/api/monitoring/data');
-        // this.updateWithRealData(response.data);
+        // Fetch real data from backend
+        const response = await this.$api.get('/api/monitoring/data');
+        
+        if (response.data.status === 'success') {
+          this.updateWithRealData(response.data.data);
+        } else {
+          throw new Error(response.data.message || 'Failed to fetch monitoring data');
+        }
       } catch (error) {
         console.error('Failed to fetch monitoring data:', error);
         this.$errorHandler.handleError(error, 'MonitorDashboard - refreshData');
+        // Show notification to user
+        if (this.$emit) {
+          this.$emit('show-notification', {
+            message: 'Failed to refresh monitoring data. Please check your connection.',
+            type: 'error'
+          });
+        }
       } finally {
         this.isRefreshing = false;
       }
@@ -204,9 +209,15 @@ export default {
 <style scoped>
 .monitor-dashboard {
   padding: 20px;
-  background: #f5f7fa;
-  min-height: 100vh;
-}
+  background: #ffffff;
+      min-height: 100vh;
+    },
+    
+    .no-data {
+      padding: 40px;
+      text-align: center;
+      color: #7f8c8d;
+    }
 
 .dashboard-header {
   display: flex;

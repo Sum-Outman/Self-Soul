@@ -24,6 +24,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 from ..unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import StreamProcessor
 from core.external_api_service import ExternalAPIService
+from core.agi_tools import AGITools
+
+# Forward declarations for reasoning engine classes
+def AGICognitiveReasoningEngine(*args, **kwargs):
+    pass
+
+def EnhancedCognitiveReasoningEngine(*args, **kwargs):
+    pass
 
 
 class UnifiedKnowledgeModel(UnifiedModelTemplate):
@@ -2425,6 +2433,129 @@ class TemporalReasoningModule:
             "evidence": [],
             "confidence": 0.75
         }
+
+
+# Advanced Cognitive Reasoning Engine Classes
+class AGICognitiveReasoningEngine:
+    """AGI-level cognitive reasoning engine with enhanced capabilities"""
+    
+    def __init__(self, knowledge_base, domain_weights, semantic_encoder, knowledge_reasoner, config=None):
+        self.knowledge_base = knowledge_base
+        self.domain_weights = domain_weights
+        self.semantic_encoder = semantic_encoder
+        self.knowledge_reasoner = knowledge_reasoner
+        self.config = config or {}
+        self.logger = logging.getLogger(__name__)
+        
+        # Enhanced reasoning modules
+        self.deductive_reasoner = DeductiveReasoningModule()
+        self.abductive_reasoner = AbductiveReasoningModule()
+        self.counterfactual_reasoner = CounterfactualReasoningModule()
+        self.temporal_reasoner = TemporalReasoningModule()
+        
+        # AGI-specific enhancements
+        self.meta_reasoning_enabled = self.config.get('meta_reasoning_enabled', True)
+        self.self_reflection_enabled = self.config.get('self_reflection_enabled', True)
+        
+        self.logger.info("AGI cognitive reasoning engine initialized successfully")
+        
+    def reason(self, query, context=None):
+        """Perform advanced cognitive reasoning on query"""
+        try:
+            reasoning_results = {
+                "deductive": self.deductive_reasoner.reason(query, self.knowledge_base, context),
+                "abductive": self.abductive_reasoner.reason(query, self.knowledge_base, context),
+                "counterfactual": self.counterfactual_reasoner.reason(query, self.knowledge_base, context),
+                "temporal": self.temporal_reasoner.reason(query, self.knowledge_base, context)
+            }
+            
+            # Combine results based on domain weights and confidence
+            combined_result = self._combine_reasoning_results(reasoning_results, context)
+            
+            # Apply meta-reasoning if enabled
+            if self.meta_reasoning_enabled:
+                combined_result = self._apply_meta_reasoning(combined_result)
+                
+            # Apply self-reflection if enabled
+            if self.self_reflection_enabled:
+                self._reflect_on_reasoning(combined_result)
+                
+            return combined_result
+            
+        except Exception as e:
+            self.logger.error(f"AGI cognitive reasoning failed: {str(e)}")
+            return {"error": str(e)}
+    
+    def _combine_reasoning_results(self, results, context):
+        """Combine results from different reasoning modules"""
+        combined = {
+            "conclusions": [],
+            "confidence": 0.0,
+            "supporting_evidence": [],
+            "alternative_hypotheses": []
+        }
+        
+        # Enhanced combination logic
+        for module_name, result in results.items():
+            if result.get("success", False):
+                combined["conclusions"].extend(result.get("conclusions", []))
+                combined["supporting_evidence"].extend(result.get("evidence", []))
+                combined["alternative_hypotheses"].extend(result.get("alternatives", []))
+        
+        # Calculate overall confidence
+        if combined["conclusions"]:
+            combined["confidence"] = min(0.95, len(combined["conclusions"]) / 5.0)
+        
+        return combined
+        
+    def _apply_meta_reasoning(self, result):
+        """Apply meta-reasoning to enhance results"""
+        # Simple meta-reasoning implementation
+        if len(result["conclusions"]) > 3:
+            result["meta_analysis"] = "Multiple strong conclusions reached"
+            result["confidence"] = min(result["confidence"] * 1.1, 1.0)
+        elif len(result["conclusions"]) == 0:
+            result["meta_analysis"] = "No strong conclusions found"
+            result["confidence"] = max(result["confidence"] * 0.8, 0.1)
+        
+        return result
+        
+    def _reflect_on_reasoning(self, result):
+        """Reflect on reasoning process for continuous improvement"""
+        # Simple reflection implementation
+        if result.get("confidence", 0) < 0.5:
+            self.logger.debug(f"Low confidence reasoning: {result.get('conclusions', [])}")
+
+
+class EnhancedCognitiveReasoningEngine:
+    """Enhanced cognitive reasoning engine as fallback for AGI version"""
+    
+    def __init__(self, knowledge_base, domain_weights):
+        self.knowledge_base = knowledge_base
+        self.domain_weights = domain_weights
+        self.logger = logging.getLogger(__name__)
+        
+        # Basic reasoning capabilities
+        self.reasoner = CognitiveReasoningEngine(knowledge_base, domain_weights)
+        
+        self.logger.info("Enhanced cognitive reasoning engine initialized")
+        
+    def reason(self, query, context=None):
+        """Perform enhanced cognitive reasoning"""
+        try:
+            # Use the base cognitive reasoning engine
+            result = self.reasoner.reason(query, context)
+            
+            # Add enhanced features
+            if result.get("success", False) or not result.get("error"):
+                result["enhanced"] = True
+                result["confidence"] = min(result.get("confidence", 0.7) * 1.05, 0.85)
+                
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Enhanced cognitive reasoning failed: {str(e)}")
+            return {"error": str(e)}
 
 
 # AGI Neural Network Classes

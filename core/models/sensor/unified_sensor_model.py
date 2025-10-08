@@ -20,6 +20,7 @@ import torch.nn.functional as F
 
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.error_handling import error_handler
+from core.agi_tools import AGITools
 
 
 class SensorNeuralNetwork(nn.Module):
@@ -309,9 +310,17 @@ class UnifiedSensorModel(UnifiedModelTemplate):
     def _create_stream_processor(self) -> Any:
         """创建传感器流处理器"""
         try:
-            from core.realtime.stream_processor import SensorStreamProcessor
+            # 尝试从统一流处理器导入
+            from core.unified_stream_processor import StreamProcessor
+            class SensorStreamProcessor(StreamProcessor):
+                def _initialize_pipeline(self):
+                    self.processing_pipeline = [self._preprocess_sensor_data]
+                def process_frame(self, data):
+                    return self._preprocess_sensor_data(data)
+                def _preprocess_sensor_data(self, data):
+                    return data
             return SensorStreamProcessor(self)
-        except ImportError:
+        except Exception as e:
             # 如果流处理器不可用，返回简化版本
             return self._create_simple_stream_processor()
 
@@ -328,27 +337,21 @@ class UnifiedSensorModel(UnifiedModelTemplate):
     def _initialize_agi_sensor_components(self) -> None:
         """初始化AGI传感器组件"""
         try:
-            # AGI传感器推理引擎
-            self.agi_sensor_reasoning = self._create_agi_sensor_reasoning_engine()
+            # Use unified AGI tools to initialize all components
+            agi_components = AGITools.initialize_agi_components()
             
-            # AGI元学习系统用于传感器模式识别
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
+            # Assign components
+            self.agi_sensor_reasoning = agi_components["reasoning_engine"]
+            self.agi_meta_learning = agi_components["meta_learning_system"]
+            self.agi_self_reflection = agi_components["self_reflection_module"]
+            self.agi_cognitive_engine = agi_components["cognitive_engine"]
+            self.agi_problem_solver = agi_components["problem_solver"]
+            self.agi_creative_generator = agi_components["creative_generator"]
             
-            # AGI自我反思模块用于传感器性能优化
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI认知引擎用于传感器数据理解
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI传感器问题解决器
-            self.agi_problem_solver = self._create_agi_sensor_problem_solver()
-            
-            # AGI传感器创意生成器
-            self.agi_creative_generator = self._create_agi_creative_generator()
-            
-            logging.info("AGI sensor components initialized successfully")
+            logging.info("AGI sensor components initialized successfully using unified tools")
         except Exception as e:
             logging.error(f"Failed to initialize AGI sensor components: {e}")
+            self._initialize_basic_agi_components()
 
     def _create_agi_sensor_reasoning_engine(self) -> Dict[str, Any]:
         """创建AGI传感器推理引擎"""

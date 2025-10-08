@@ -28,20 +28,31 @@ from abc import ABC, abstractmethod
 import math
 from collections import defaultdict
 
-# Advanced optimization imports
-try:
-    import optuna
-    OPTUNA_AVAILABLE = True
-except ImportError:
-    OPTUNA_AVAILABLE = False
-    logging.warning("Optuna not available for hyperparameter optimization")
+# Advanced optimization imports - Optional dependencies
+# These are marked as optional with type ignore comments to prevent Pylance from reporting import errors
+# They are currently not used in the actual implementation but are kept for future extension
+OPTUNA_AVAILABLE = False
+NNI_AVAILABLE = False
 
 try:
-    import nni
+    import optuna  # type: ignore
+    OPTUNA_AVAILABLE = True
+except ImportError:
+    # Optuna is optional and not currently used in the implementation
+    pass
+
+try:
+    import nni  # type: ignore
     NNI_AVAILABLE = True
 except ImportError:
-    NNI_AVAILABLE = False
-    logging.warning("NNI not available for neural architecture search")
+    # NNI is optional and not currently used in the implementation
+    pass
+
+# Log availability if needed in the future
+#if not OPTUNA_AVAILABLE:
+#    logging.warning("Optuna not available for hyperparameter optimization")
+#if not NNI_AVAILABLE:
+#    logging.warning("NNI not available for neural architecture search")
 
 
 class AdvancedAlgorithmEnhancer:

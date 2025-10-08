@@ -16,6 +16,7 @@ from datetime import datetime
 from ..unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import StreamProcessor
 from core.data_processor import preprocess_video
+from core.agi_tools import AGITools
 
 
 class UnifiedVideoModel(UnifiedModelTemplate):
@@ -534,8 +535,8 @@ class UnifiedVideoModel(UnifiedModelTemplate):
                 frames = frame_buffer[-count:] if len(frame_buffer) > count else frame_buffer
         except Exception as e:
             self.logger.warning(f"Could not get real frames from stream: {str(e)}")
-            # Provide placeholder frames with metadata
-            frames = self._create_placeholder_frames(count)
+            # Try to capture real frames from available cameras
+            frames = self._capture_real_frames(count)
         
         return {
             "success": True,
@@ -1203,27 +1204,20 @@ class UnifiedVideoModel(UnifiedModelTemplate):
     # ===== AGI VIDEO COMPONENTS INITIALIZATION =====
     
     def _initialize_agi_video_components(self) -> None:
-        """Initialize AGI components for advanced video intelligence"""
+        """Initialize AGI components for advanced video intelligence using unified AGITools"""
         try:
-            # AGI Video Reasoning Engine for advanced video understanding
-            self.agi_video_reasoning = self._create_agi_video_reasoning_engine()
+            # Use unified AGITools to initialize all AGI components
+            agi_components = AGITools.initialize_agi_components(self)
             
-            # AGI Meta Learning System for video pattern recognition
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
+            # Assign the AGI components to instance variables
+            self.agi_video_reasoning = agi_components['agi_reasoning_engine']
+            self.agi_meta_learning = agi_components['agi_meta_learning_system']
+            self.agi_self_reflection = agi_components['agi_self_reflection_module']
+            self.agi_cognitive_engine = agi_components['agi_cognitive_engine']
+            self.agi_problem_solver = agi_components['agi_problem_solver']
+            self.agi_creative_generator = agi_components['agi_creative_generator']
             
-            # AGI Self-Reflection Module for video performance optimization
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI Cognitive Engine for video understanding
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI Video Problem Solver for complex video challenges
-            self.agi_problem_solver = self._create_agi_video_problem_solver()
-            
-            # AGI Creative Generator for video innovation
-            self.agi_creative_generator = self._create_agi_creative_generator()
-            
-            self.logger.info("AGI video components initialized successfully")
+            self.logger.info("AGI video components initialized successfully using unified AGITools")
             
         except Exception as e:
             self.logger.error(f"AGI video component initialization failed: {str(e)}")
@@ -1503,3 +1497,31 @@ class VideoStreamProcessor(StreamProcessor):
 
 # Export the unified video model
 AdvancedVideoModel = UnifiedVideoModel
+
+
+def preprocess_training_data(training_data, max_resolution, min_fps, max_fps):
+    """
+    Preprocess training data for video model training.
+    
+    Args:
+        training_data: Raw training data (single video or path)
+        max_resolution: Maximum allowed resolution (width, height)
+        min_fps: Minimum allowed frames per second
+        max_fps: Maximum allowed frames per second
+        
+    Returns:
+        Preprocessed training data
+    """
+    try:
+        # Import preprocess_video function if not already imported
+        from core.data_processor import preprocess_video
+        
+        # Use existing preprocess_video function to process the training data
+        processed_data = preprocess_video(training_data, max_resolution, min_fps, max_fps)
+        
+        return processed_data
+        
+    except Exception as e:
+        # Log error and return original data as fallback
+        logging.error(f"Failed to preprocess training data: {str(e)}")
+        return training_data

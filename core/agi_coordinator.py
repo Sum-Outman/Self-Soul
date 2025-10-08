@@ -19,16 +19,16 @@ import numpy as np
 from datetime import datetime
 # 延迟导入以避免循环依赖
 # ModelRegistry 将在 __init__ 方法中延迟导入
-from error_handling import error_handler
-from fusion.multimodal import MultimodalFusion
-from training_manager import TrainingManager
-from self_learning import AGISelfLearningSystem as UnifiedSelfLearningSystem
-from unified_cognitive_architecture import UnifiedCognitiveArchitecture
-from enhanced_meta_cognition import EnhancedMetaCognition
-from models.knowledge import KnowledgeModel
-from intrinsic_motivation_system import IntrinsicMotivationSystem
-from explainable_ai import ExplainableAI
-from value_alignment import ValueAlignment
+from core.error_handling import error_handler
+from core.fusion.multimodal import MultimodalFusion
+from core.training_manager import TrainingManager
+from core.self_learning import AGISelfLearningSystem as UnifiedSelfLearningSystem
+from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture
+from core.enhanced_meta_cognition import EnhancedMetaCognition
+from core.models.knowledge import KnowledgeModel
+from core.intrinsic_motivation_system import IntrinsicMotivationSystem
+from core.explainable_ai import ExplainableAI
+from core.value_alignment import ValueAlignment
 
 
 """
@@ -36,14 +36,15 @@ AGICoordinator类 - AGI系统核心协调器
 AGICoordinator Class - Core AGI System Coordinator
 """
 class AGICoordinator:
-    """Self Soul  AGI中央协调器，管理和协调所有认知组件"""
+    """Self Brain  AGI中央协调器，管理和协调所有认知组件"""
     
     def __init__(self, from_scratch: bool = False):
         # 延迟导入以避免循环依赖
         from core.model_registry import ModelRegistry
         
-        # 初始化统一认知架构
-        self.cognitive_architecture = UnifiedCognitiveArchitecture()
+        # 使用ComponentFactory获取全局共享的UnifiedCognitiveArchitecture实例
+        from core.memory_optimization import ComponentFactory
+        self.cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
         
         # 初始化模型注册表
         self.model_registry = ModelRegistry()

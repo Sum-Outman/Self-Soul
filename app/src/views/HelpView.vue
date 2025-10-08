@@ -6,7 +6,7 @@
       <!-- System Introduction -->
       <section class="help-section">
         <h2>System Overview</h2>
-        <p>Self Soul is a revolutionary human-like AGI system designed for autonomous learning, self-optimization, and multimodal intelligence. The system features a sophisticated architecture that integrates multiple cognitive capabilities including language processing, visual recognition, audio analysis, and sensor data interpretation.</p>
+        <p>Self Brain is a revolutionary human-like AGI system designed for autonomous learning, self-optimization, and multimodal intelligence. The system features a sophisticated architecture that integrates multiple cognitive capabilities including language processing, visual recognition, audio analysis, and sensor data interpretation.</p>
         
         <div class="feature-list">
           <div v-for="feature in features" :key="feature.id" class="feature-item">
@@ -178,7 +178,7 @@
       <!-- Training Guide -->
       <section class="help-section">
         <h2>Training Methodology</h2>
-        <p>The Self Soul system employs advanced training techniques to continuously improve its capabilities and adapt to new scenarios.</p>
+        <p>The Self Brain system employs advanced training techniques to continuously improve its capabilities and adapt to new scenarios.</p>
         
         <div class="training-info">
           <h3>Training Approaches</h3>
@@ -206,7 +206,7 @@
       <!-- Advanced Features -->
       <section class="help-section">
         <h2>Advanced Capabilities</h2>
-        <p>Self Soul incorporates cutting-edge AI technologies to deliver sophisticated cognitive abilities:</p>
+        <p>Self Brain incorporates cutting-edge AI technologies to deliver sophisticated cognitive abilities:</p>
         
         <div class="feature-grid">
           <div class="feature-card">
@@ -289,7 +289,7 @@
 
     <!-- Footer -->
     <footer class="help-footer">
-      <p>Self Soul AGI System v2.0.0 | Apache 2.0 License | Documentation Version 1.2</p>
+      <p>Self Brain AGI System v2.0.0 | Apache 2.0 License | Documentation Version 1.2</p>
     </footer>
   </div>
 </template>
@@ -343,7 +343,7 @@ export default {
     }
   },
   mounted() {
-    document.title = 'Self Soul AGI System Help'
+    document.title = 'Self Brain AGI System Help'
   }
 }
 </script>

@@ -19,6 +19,8 @@ from typing import Dict, Any, Callable, List, Tuple, Optional
 
 from core.models.unified_model_template import UnifiedModelTemplate
 from core.error_handling import error_handler, ErrorHandler
+from core.realtime_stream_manager import RealTimeStreamManager
+from core.agi_tools import AGITools
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -283,23 +285,19 @@ class UnifiedProgrammingModel(UnifiedModelTemplate):
         try:
             logger.info("开始初始化AGI编程组件")
             
-            # AGI编程推理引擎
-            self.agi_programming_reasoning = self._create_agi_programming_reasoning_engine()
+            # 使用统一的AGITools初始化AGI组件
+            agi_components = AGITools.initialize_agi_components([
+                "programming_reasoning", "meta_learning", "self_reflection", 
+                "cognitive_engine", "problem_solver", "creative_generator"
+            ])
             
-            # AGI元学习系统用于编程模式
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
-            
-            # AGI自我反思模块用于代码质量
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI认知引擎用于编程理解
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI编程问题解决器
-            self.agi_problem_solver = self._create_agi_programming_problem_solver()
-            
-            # AGI创意编程生成器
-            self.agi_creative_generator = self._create_agi_creative_generator()
+            # 分配组件到实例变量
+            self.agi_programming_reasoning = agi_components.get("programming_reasoning")
+            self.agi_meta_learning = agi_components.get("meta_learning")
+            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
             
             logger.info("AGI编程组件初始化完成")
             
@@ -309,96 +307,6 @@ class UnifiedProgrammingModel(UnifiedModelTemplate):
             ErrorHandler.log_error("agi_components_init", error_msg, str(e))
             raise
     
-    def _create_agi_programming_reasoning_engine(self) -> Dict[str, Any]:
-        """创建AGI编程推理引擎 | Create AGI programming reasoning engine"""
-        return {
-            "name": "AGI Programming Reasoning Engine",
-            "capabilities": [
-                "代码逻辑推理",
-                "算法复杂度分析", 
-                "编程模式识别",
-                "代码优化建议",
-                "错误预测和预防"
-            ],
-            "reasoning_layers": 3,
-            "knowledge_integration": True,
-            "real_time_analysis": True
-        }
-    
-    def _create_agi_meta_learning_system(self) -> Dict[str, Any]:
-        """创建AGI元学习系统 | Create AGI meta-learning system"""
-        return {
-            "name": "AGI Meta-Learning System for Programming",
-            "capabilities": [
-                "跨语言编程模式迁移",
-                "自适应学习策略",
-                "编程技能元认知",
-                "学习效率优化",
-                "知识迁移和适应"
-            ],
-            "learning_strategies": ["迁移学习", "多任务学习", "元强化学习"],
-            "adaptation_speed": "high"
-        }
-    
-    def _create_agi_self_reflection_module(self) -> Dict[str, Any]:
-        """创建AGI自我反思模块 | Create AGI self-reflection module"""
-        return {
-            "name": "AGI Self-Reflection Module for Code Quality",
-            "capabilities": [
-                "代码质量自我评估",
-                "编程技能差距分析",
-                "学习进度监控",
-                "性能瓶颈识别",
-                "改进策略制定"
-            ],
-            "reflection_frequency": "continuous",
-            "improvement_tracking": True
-        }
-    
-    def _create_agi_cognitive_engine(self) -> Dict[str, Any]:
-        """创建AGI认知引擎 | Create AGI cognitive engine"""
-        return {
-            "name": "AGI Cognitive Engine for Programming Understanding",
-            "capabilities": [
-                "抽象思维和模式识别",
-                "逻辑推理和问题分解",
-                "创造性解决方案生成",
-                "多维度代码理解",
-                "上下文感知编程"
-            ],
-            "cognitive_levels": ["具体", "抽象", "元认知"],
-            "reasoning_depth": "deep"
-        }
-    
-    def _create_agi_programming_problem_solver(self) -> Dict[str, Any]:
-        """创建AGI编程问题解决器 | Create AGI programming problem solver"""
-        return {
-            "name": "AGI Programming Problem Solver",
-            "capabilities": [
-                "复杂编程挑战分解",
-                "多解决方案生成和评估",
-                "约束满足问题解决",
-                "优化算法设计",
-                "系统架构规划"
-            ],
-            "problem_types": ["算法设计", "系统优化", "架构规划", "性能调优"],
-            "solution_quality": "expert_level"
-        }
-    
-    def _create_agi_creative_generator(self) -> Dict[str, Any]:
-        """创建AGI创意编程生成器 | Create AGI creative programming generator"""
-        return {
-            "name": "AGI Creative Programming Generator",
-            "capabilities": [
-                "创新编程范式探索",
-                "新颖算法设计",
-                "创造性代码结构",
-                "艺术编程表达",
-                "跨领域编程融合"
-            ],
-            "creativity_level": "high",
-            "innovation_potential": "breakthrough"
-        }
     
     def _initialize_neural_network(self) -> None:
         """初始化神经网络模型"""

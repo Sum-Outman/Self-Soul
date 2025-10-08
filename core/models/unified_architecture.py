@@ -163,7 +163,19 @@ class PerformanceMonitor:
         """获取系统指标"""
         try:
             import psutil
-            import GPUtil
+            
+            # 尝试导入GPUtil，如果不可用则使用模拟数据
+            try:
+                import GPUtil  # type: ignore
+                GPUtil_available = True
+            except ImportError:
+                GPUtil_available = False
+                # 创建一个模拟的GPUtil对象
+                class MockGPUtil:
+                    @staticmethod
+                    def getGPUs():
+                        return []
+                GPUtil = MockGPUtil()
             
             # CPU usage
             cpu_percent = psutil.cpu_percent(interval=1)

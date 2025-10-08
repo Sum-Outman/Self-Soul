@@ -53,6 +53,7 @@ class DataType(Enum):
     VIDEO = "video"
     SENSOR = "sensor"
     SPATIAL = "spatial"
+    JSON = "json"
 
 
 def preprocess_video(video_data, max_resolution, min_fps, max_fps):
@@ -541,6 +542,36 @@ def preprocess_stereo_images(left_image: Any, right_image: Any, **kwargs) -> Tup
         right_array = np.mean(right_array, axis=2, keepdims=True)
     
     return left_array, right_array
+
+def preprocess_training_data(training_data: Any, max_resolution: Tuple[int, int], min_fps: int, max_fps: int) -> Any:
+    """
+    预处理训练视频数据
+    Preprocess training video data
+    
+    Args:
+        training_data: 视频训练数据
+        max_resolution: 最大分辨率 (width, height)
+        min_fps: 最小帧率
+        max_fps: 最大帧率
+    
+    Returns:
+        处理后的视频数据
+    """
+    # 检查数据是否为列表
+    if isinstance(training_data, list):
+        # 预处理数据集中的每个视频
+        processed_videos = []
+        for video in training_data:
+            processed_video = preprocess_video(
+                video, max_resolution, min_fps, max_fps
+            )
+            processed_videos.append(processed_video)
+        return processed_videos
+    else:
+        # 单个视频预处理
+        return preprocess_video(
+            training_data, max_resolution, min_fps, max_fps
+        )
 
 # 示例用法
 if __name__ == "__main__":

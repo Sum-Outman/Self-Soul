@@ -746,7 +746,7 @@ class BaseModel(ABC):
             # Get GPU usage if available
             gpu_usage = 0.0
             try:
-                import GPUtil
+                import GPUtil  # type: ignore
                 gpus = GPUtil.getGPUs()
                 if gpus:
                     gpu_usage = gpus[0].load * 100  # Percentage

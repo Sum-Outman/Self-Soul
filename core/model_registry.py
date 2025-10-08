@@ -1272,7 +1272,7 @@ class ModelRegistry:
         """
         try:
             # 尝试导入并初始化认知融合引擎
-            from .cognitive_fusion import CognitiveFusionEngine
+            from .cognitive_fusion import CognitiveFusionEngine  # type: ignore
             self.cognitive_fusion_engine = CognitiveFusionEngine(self)
             error_handler.log_info("认知融合引擎初始化成功", "ModelRegistry")
         except ImportError:
@@ -1288,7 +1288,7 @@ class ModelRegistry:
         """
         try:
             # 尝试导入并初始化知识迁移引擎
-            from .knowledge_transfer import KnowledgeTransferEngine
+            from .knowledge_transfer import KnowledgeTransferEngine  # type: ignore
             self.knowledge_transfer_engine = KnowledgeTransferEngine(self)
             error_handler.log_info("知识迁移引擎初始化成功", "ModelRegistry")
         except ImportError:
@@ -1304,7 +1304,7 @@ class ModelRegistry:
         """
         try:
             # 尝试导入并初始化上下文管理器
-            from .context_management import ContextManager
+            from .context_management import ContextManager  # type: ignore
             self.context_manager = ContextManager(self)
             error_handler.log_info("上下文管理器初始化成功", "ModelRegistry")
         except ImportError:
@@ -2549,6 +2549,10 @@ class ModelRegistry:
 # Create global model registry instance (lazy initialization)
 _model_registry_instance = None
 
+# 全局模型注册表实例，供直接导入使用
+# Global model registry instance for direct import
+model_registry = None
+
 def get_model_registry():
     """获取模型注册表实例（懒加载）
     Get model registry instance (lazy loading)
@@ -2630,7 +2634,7 @@ def init_joint_training_coordinator():
     """初始化联合训练协调器
     Initialize joint training coordinator
     """
-    from core.training.joint_training_coordinator import JointTrainingCoordinator
+    from core.training.joint_training_coordinator import JointTrainingCoordinator  # type: ignore
     model_registry.joint_training_coordinator = JointTrainingCoordinator()
     error_handler.log_info("联合训练协调器已初始化", "ModelRegistry")
 
@@ -2692,7 +2696,7 @@ def start_training(model_ids, training_mode='individual', config=None):
         if training_mode == 'joint':
             # 联合训练 | Joint training
             # 首先创建训练任务
-            from core.training.joint_training_coordinator import TrainingTask
+            from core.training.joint_training_coordinator import TrainingTask  # type: ignore
             training_tasks = []
             for model_id in model_ids:
                 training_tasks.append(TrainingTask(
@@ -2945,6 +2949,22 @@ def load_all_models(model_registry=None, configs=None):
 # 这是为了兼容之前的代码
 # Add initialize method to ModelRegistry class for backward compatibility
 ModelRegistry.initialize = lambda self: None
+
+# 初始化全局模型注册表实例
+# Initialize global model registry instance
+try:
+    model_registry = get_model_registry()
+except Exception as e:
+    # 如果初始化失败，创建一个空的占位符
+    # Create an empty placeholder if initialization fails
+    class PlaceholderModelRegistry:
+        def __getattr__(self, name):
+            def placeholder_method(*args, **kwargs):
+                print(f"Warning: model_registry.{name} called but not initialized")
+                return None
+            return placeholder_method
+    model_registry = PlaceholderModelRegistry()
+    print(f"Warning: Failed to initialize model_registry: {e}")
 
 # 全局函数：切换模型到外部API模式
 def switch_model_to_external(model_id: str, api_config: Dict[str, Any]) -> Dict[str, Any]:

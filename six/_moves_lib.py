@@ -40,7 +40,7 @@ PY3 = sys.version_info[0] == 3
 if PY3:
     input = input
 else:
-    input = raw_input
+    input = raw_input  # type: ignore
 
 # Handle range function
 if PY3:
@@ -49,7 +49,7 @@ if PY3:
     xrange = range
 else:
     srange = range
-    xrange = xrange
+    xrange = xrange  # type: ignore
 
 # Handle filter, map, zip functions
 if PY3:
@@ -76,19 +76,19 @@ else:
 if PY3:
     intern = sys.intern
 else:
-    intern = intern
+    intern = intern  # type: ignore
 
 # Handle reload function
 if PY3:
     from importlib import reload as reload_module
 else:
-    reload_module = reload
+    reload_module = reload  # type: ignore
 
 # Handle unichr function
 if PY3:
     unichr = chr
 else:
-    unichr = unichr
+    unichr = unichr  # type: ignore
 
 # Handle bytearray function
 if PY3:

@@ -38,7 +38,7 @@ export default {
     const router = useRouter();
     const isConnected = ref(false);
     const connectionStatus = ref('Connecting...');
-    const connectionColor = ref('#ff9800'); // Orange
+    const connectionColor = ref('#999999'); // Gray
     let connectionInterval = null;
     
     // WebSocket connection will be initialized on demand when needed
@@ -50,7 +50,7 @@ export default {
         .then(response => {
           isConnected.value = true;
           connectionStatus.value = 'Connected';
-          connectionColor.value = '#4caf50'; // Green for connected
+          connectionColor.value = '#555555'; // Dark gray for connected
           
           // If there's a new server message, show notification
           if (response.data && response.data.status) {
@@ -60,7 +60,7 @@ export default {
         .catch(error => {
           isConnected.value = false;
           connectionStatus.value = 'Disconnected';
-          connectionColor.value = '#f44336'; // Red for disconnected
+          connectionColor.value = '#888888'; // Medium gray for disconnected
           console.error('Server connection error:', error);
         });
     };
@@ -68,10 +68,10 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        console.log('Self Brain System components are initializing...')
+        console.log('Self Soul System components are initializing...')
         
         // Directly log initialization completion
-        console.log('Self Brain System components initialization completed')
+        console.log('Self Soul System components initialization completed')
       } catch (error) {
         console.error('Error during system components initialization:', error)
       }
@@ -221,29 +221,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: var(--border-radius-sm);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-/* Adjust router view for fixed header */
-.router-view {
-  flex: 1;
-  padding: 20px;
-}
-.connection-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 8px 12px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -261,13 +238,6 @@ body {
 .status-text {
   font-size: 14px;
   color: var(--text-primary);
-}
-
-.menu-link:hover {
-  background: var(--bg-tertiary);
-  text-decoration: none;
-  color: var(--text-primary);
-  border-color: var(--border-dark);
 }
 
 /* Add top margin to router-view to avoid being blocked by menu bar */

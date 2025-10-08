@@ -31,7 +31,26 @@ from enum import Enum
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+import gettext
+
 from .error_handling import error_handler
+
+# 初始化gettext翻译系统
+# Initialize gettext translation system
+try:
+    # 设置翻译域
+    # Set translation domain
+    gettext.bindtextdomain('joint_training', localedir='locales')
+    gettext.textdomain('joint_training')
+    
+    # 设置默认语言为英语（根据系统要求）
+    # Set default language to English (as per system requirements)
+    _ = gettext.gettext
+except Exception as e:
+    # 如果gettext初始化失败，使用简单的回退函数
+    # If gettext initialization fails, use a simple fallback function
+    def _(text):
+        return text
 
 
 

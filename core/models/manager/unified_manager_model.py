@@ -20,6 +20,7 @@ import threading
 import json
 import os
 import numpy as np
+import random
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -38,12 +39,64 @@ from core.api_model_connector import APIModelConnector
 from core.error_handling import error_handler, ErrorHandler
 from core.collaboration.model_collaborator import ModelCollaborator
 from core.optimization.model_optimizer import ModelOptimizer
-from core.advanced_reasoning import AdvancedReasoningEngine
-from core.meta_learning_system import MetaLearningSystem
-from core.creative_problem_solver import CreativeProblemSolver
-from core.self_reflection_module import SelfReflectionModule
-from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator as KnowledgeIntegrator
+from core.agi_tools import AGITools
 from core.unified_stream_processor import StreamProcessor
+
+
+class CoordinationNeuralNetwork(nn.Module):
+    """Coordination Neural Network for managing model interactions"""
+    
+    def __init__(self, input_size=512, hidden_size=256, output_size=128):
+        super(CoordinationNeuralNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.3)
+        
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc2(x))
+        x = self.dropout(x)
+        x = self.fc3(x)
+        return x
+
+
+class TaskAllocationNetwork(nn.Module):
+    """Task Allocation Neural Network for assigning tasks to models"""
+    
+    def __init__(self, input_size=256, hidden_size=128, output_size=64):
+        super(TaskAllocationNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
+        
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        return x
+
+
+class ModelSelectionNetwork(nn.Module):
+    """Model Selection Neural Network for choosing appropriate models for tasks"""
+    
+    def __init__(self, input_size=384, hidden_size=192, output_size=11):
+        super(ModelSelectionNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.softmax = nn.Softmax(dim=1)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.25)
+        
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        x = self.softmax(x)
+        return x
 
 
 class UnifiedManagerModel(UnifiedModelTemplate):
@@ -113,12 +166,13 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         self.monitoring_thread = None
         self.task_thread = None
         
-        # AGI enhancement modules initialization
-        self.advanced_reasoning = AdvancedReasoningEngine()
-        self.meta_learning = MetaLearningSystem()
-        self.creative_solver = CreativeProblemSolver()
-        self.self_reflection = SelfReflectionModule()
-        self.knowledge_integrator = KnowledgeIntegrator()
+        # AGI enhancement modules initialization using unified AGITools
+        agi_components = AGITools.initialize_agi_components()
+        self.advanced_reasoning = agi_components["advanced_reasoning"]
+        self.meta_learning = agi_components["meta_learning"]
+        self.creative_solver = agi_components["creative_solver"]
+        self.self_reflection = agi_components["self_reflection"]
+        self.knowledge_integrator = agi_components["knowledge_integrator"]
         
         # AGI state tracking
         self.agi_capabilities = {
@@ -1895,6 +1949,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
 
     def _hybrid_collaboration(self, task_description: str, models: List[str], priority: int) -> Dict[str, Any]:
         """Hybrid collaboration mode - Combine parallel and serial execution for complex tasks"""
+        start_time = time.time()
         task_id = f"hybrid_{int(time.time())}_{hash(task_description)}"
         dependencies = self._analyze_dependencies(models)
         parallel_groups = self._group_parallel_models(models, dependencies)

@@ -1598,11 +1598,12 @@ video {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background: #fff;
 }
 
 button {
   padding: 8px 12px;
-  background: #2196F3;
+  background: #666;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1611,12 +1612,12 @@ button {
 }
 
 button:disabled {
-  background: #90CAF9;
+  background: #ccc;
   cursor: not-allowed;
 }
 
 button:hover:not(:disabled) {
-  background: #0b7dda;
+  background: #444;
 }
 
 select {
@@ -1628,9 +1629,11 @@ select {
 
 .transcript {
   padding: 10px;
-  background: #e3f2fd;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
   border-radius: 4px;
   margin-top: 10px;
+  color: #333;
 }
 
 .sensor-readings {
@@ -1683,27 +1686,27 @@ label {
 }
 
 .message.error {
-  background: #fdecea;
-  color: #d32f2f;
-  border-left: 4px solid #d32f2f;
+  background: #f5f5f5;
+  color: #666;
+  border-left: 4px solid #888;
 }
 
 .message.success {
-  background: #edf7ed;
-  color: #2e7d32;
-  border-left: 4px solid #2e7d32;
+  background: #f5f5f5;
+  color: #666;
+  border-left: 4px solid #888;
 }
 
 .message.warning {
-  background: #fff4e5;
-  color: #ed6c02;
-  border-left: 4px solid #ed6c02;
+  background: #f5f5f5;
+  color: #666;
+  border-left: 4px solid #888;
 }
 
 .message.info {
-  background: #e3f2fd;
-  color: #1976d2;
-  border-left: 4px solid #1976d2;
+  background: #f5f5f5;
+  color: #666;
+  border-left: 4px solid #888;
 }
 
 @keyframes slideIn {

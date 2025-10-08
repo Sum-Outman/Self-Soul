@@ -34,17 +34,27 @@ class SystemSettingsManager:
     # 默认设置
     DEFAULT_SETTINGS = {
         "models": {
-            "manager": {"type": "local", "api_url": "", "api_key": ""},
-            "language": {"type": "local", "api_url": "", "api_key": ""},
-            "audio": {"type": "local", "api_url": "", "api_key": ""},
-            "image": {"type": "local", "api_url": "", "api_key": ""},
-            "video": {"type": "local", "api_url": "", "api_key": ""},
-            "spatial": {"type": "local", "api_url": "", "api_key": ""},
-            "sensor": {"type": "local", "api_url": "", "api_key": ""},
-            "computer": {"type": "local", "api_url": "", "api_key": ""},
-            "motion": {"type": "local", "api_url": "", "api_key": ""},
-            "knowledge": {"type": "local", "api_url": "", "api_key": ""},
-            "programming": {"type": "local", "api_url": "", "api_key": ""}
+            "manager": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "language": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "audio": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "image": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "video": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "spatial": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "sensor": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "computer": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "motion": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "knowledge": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "programming": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "vision_image": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "vision_video": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "emotion": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "planning": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "prediction": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "advanced_reasoning": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "data_fusion": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "creative_problem_solving": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "meta_cognition": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""},
+            "value_alignment": {"type": "local", "api_url": "", "api_key": "", "model_name": "", "source": ""}
         },
         "system": {
             "data_retention": 30,
@@ -192,12 +202,39 @@ class SystemSettingsManager:
     def get_all_model_types(self) -> Dict[str, str]:
         """
         Get configuration of all model types
-        :param model_id: Model ID
         :return: {model_id: type}
         """
         result = {}
         for model_id, settings in self.settings.get("models", {}).items():
             result[model_id] = settings.get("type", "local")
+        return result
+        
+    def set_model_type(self, model_id: str, model_type: str) -> bool:
+        """
+        Set model type (local or api)
+        :param model_id: Model ID
+        :param model_type: 'local' or 'api'
+        :return: Whether update was successful
+        """
+        return self.update_model_setting(model_id, {"type": model_type})
+        
+    def set_model_api_config(self, model_id: str, api_url: str, api_key: str, model_name: str = "", source: str = "") -> bool:
+        """
+        Set model API configuration
+        :param model_id: Model ID
+        :param api_url: API URL
+        :param api_key: API Key
+        :param model_name: Model name
+        :param source: Source provider
+        :return: Whether update was successful
+        """
+        settings = {
+            "api_url": api_url,
+            "api_key": api_key,
+            "model_name": model_name,
+            "source": source
+        }
+        return self.update_model_setting(model_id, settings)
         return result
     
     def save_model_config(self, model_id: str, config: Dict[str, Any]) -> bool:

@@ -1433,12 +1433,12 @@ class UnifiedFinanceModel(UnifiedModelTemplate):
     def _create_stream_processor(self) -> Any:
         """Create finance-specific stream processor"""
         try:
-            from core.realtime.finance_stream_processor import FinanceStreamProcessor
-            return FinanceStreamProcessor()
-        except ImportError:
-            # Fallback to basic stream processor
+            # Use basic stream processor since finance-specific version is not available
             from core.unified_stream_processor import UnifiedStreamProcessor
             return UnifiedStreamProcessor()
+        except Exception as e:
+            self.logger.error(f"Failed to create stream processor: {str(e)}")
+            return None
 
     def initialize_model(self, config: Dict[str, Any]) -> bool:
         """Initialize finance model"""

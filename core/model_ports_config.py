@@ -99,25 +99,25 @@ def create_default_config():
     try:
         # 默认模型端口配置 - 使用原始配置中的模型和端口
         default_model_ports = {
-            'manager': 8001,       # 管理模型端口
-            'language': 8002,      # 语言模型端口
-            'audio': 8003,         # 音频处理模型端口
-            'vision_image': 8004,  # 图片视觉处理模型端口
-            'vision_video': 8005,  # 视频流视觉处理模型端口
-            'spatial': 8006,       # 空间感知模型端口
-            'sensor': 8007,        # 传感器感知模型端口
-            'computer': 8008,      # 计算机控制模型端口
-            'motion': 8009,        # 运动控制模型端口
-            'knowledge': 8010,     # 知识库专家模型端口
-            'programming': 8011,   # 编程模型端口
-            'emotion': 8012,       # 情感分析模型端口
-            'finance': 8013,       # 金融模型端口
-            'medical': 8014,       # 医疗模型端口
-            'planning': 8015,      # 规划模型端口
-            'prediction': 8016,    # 预测模型端口
-            'collaboration': 8017, # 协作模型端口
-            'optimization': 8018,  # 优化模型端口
-            'autonomous': 8019     # 自主模型端口
+            'manager': 8001,               # 管理模型端口
+            'language': 8002,              # 语言模型端口
+            'knowledge': 8003,             # 知识库专家模型端口
+            'vision': 8004,                # 视觉模型端口
+            'audio': 8005,                 # 音频处理模型端口
+            'autonomous': 8006,            # 自主模型端口
+            'programming': 8007,           # 编程模型端口
+            'planning': 8008,              # 规划模型端口
+            'emotion': 8009,               # 情感分析模型端口
+            'spatial': 8010,               # 空间感知模型端口
+            'computer_vision': 8011,       # 计算机视觉模型端口
+            'sensor': 8012,                # 传感器模型端口
+            'motion': 8013,                # 运动模型端口
+            'prediction': 8014,            # 预测模型端口
+            'advanced_reasoning': 8015,    # 高级推理模型端口
+            'data_fusion': 8016,           # 数据融合模型端口
+            'creative_problem_solving': 8017, # 创造性问题解决模型端口
+            'meta_cognition': 8018,        # 元认知模型端口
+            'value_alignment': 8019        # 值对齐模型端口
         }
         
         # 默认配置

@@ -133,7 +133,7 @@ export default {
 .step-number {
   width: 30px;
   height: 30px;
-  background-color: #2196F3;
+  background-color: #666;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -161,21 +161,21 @@ export default {
 
 .guide-navigation button {
   padding: 8px 15px;
-  background-color: var(--primary-color);
+  background-color: #666;
   color: white;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  border: 1px solid #ddd;
+  border-radius: 4px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: background-color 0.3s;
 }
 
 .guide-navigation button:hover {
-  background-color: var(--primary-hover);
+  background-color: #444;
 }
 
 .guide-navigation button:disabled {
-  background-color: var(--bg-tertiary);
-  color: var(--text-tertiary);
+  background-color: #ccc;
+  color: #999;
   cursor: not-allowed;
 }
 </style>

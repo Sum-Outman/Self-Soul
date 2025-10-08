@@ -26,6 +26,7 @@ from core.models.unified_model_template import UnifiedModelTemplate
 from core.data_processor import preprocess_stereo_images
 from core.unified_stream_processor import StreamProcessor
 from core.error_handling import error_handler
+from core.agi_tools import AGITools
 
 
 class SpatialNeuralNetwork(nn.Module):
@@ -1052,25 +1053,18 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
     def _initialize_agi_spatial_components(self) -> None:
         """Initialize AGI components for advanced spatial reasoning and cognitive capabilities"""
         try:
-            # AGI spatial reasoning engine for advanced spatial intelligence
-            self.agi_spatial_reasoning = self._create_agi_spatial_reasoning_engine()
+            # Use unified AGI tools to initialize all components
+            agi_components = AGITools.initialize_agi_components()
             
-            # AGI meta-learning system for spatial pattern recognition
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
+            # Assign components
+            self.agi_spatial_reasoning = agi_components["reasoning_engine"]
+            self.agi_meta_learning = agi_components["meta_learning_system"]
+            self.agi_self_reflection = agi_components["self_reflection_module"]
+            self.agi_cognitive_engine = agi_components["cognitive_engine"]
+            self.agi_problem_solver = agi_components["problem_solver"]
+            self.agi_creative_generator = agi_components["creative_generator"]
             
-            # AGI self-reflection module for spatial performance optimization
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI cognitive engine for spatial understanding
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI spatial problem solver for complex spatial challenges
-            self.agi_problem_solver = self._create_agi_spatial_problem_solver()
-            
-            # AGI creative generator for spatial innovation
-            self.agi_creative_generator = self._create_agi_creative_generator()
-            
-            self.logger.info("AGI spatial components initialized successfully")
+            self.logger.info("AGI spatial components initialized successfully using unified tools")
             
         except Exception as e:
             self.logger.error(f"AGI component initialization failed: {str(e)}")

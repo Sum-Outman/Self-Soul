@@ -22,14 +22,11 @@ from core.models.unified_model_template import UnifiedModelTemplate
 from core.external_api_service import ExternalAPIService
 from core.unified_stream_processor import StreamProcessor, UnifiedStreamManager
 from core.data_processor import DataProcessor
-from core.self_learning import AGISelfLearningSystem
-from core.emotion_awareness import AGIEmotionAwarenessSystem, analyze_emotion, generate_emotion_response
-from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture, NeuroSymbolicReasoner
-from core.context_memory import ContextMemoryManager
-from core.meta_learning_system import MetaLearningSystem
+from core.agi_tools import AGITools
 from core.from_scratch_training import FromScratchTrainingManager
 from core.multimodal_processor import MultimodalProcessor
 from core.optimization.model_optimization_integrator import ModelOptimizationIntegrator
+from core.emotion_awareness import analyze_emotion, generate_emotion_response
 
 
 class LanguageNeuralNetwork(nn.Module):
@@ -652,28 +649,118 @@ class UnifiedLanguageModel(UnifiedModelTemplate):
         self.logger.info("Language-specific components initialized with advanced optimization")
     
     def _initialize_agi_language_components(self):
-        """Initialize AGI language-specific components for advanced cognitive capabilities"""
-        self.logger.info("Initializing AGI language components")
+        """Initialize AGI language-specific components using unified AGI tools"""
+        self.logger.info("Initializing AGI language components with unified tools")
+        
+        # Initialize unified AGI tools for language model
+        self.agi_tools = AGITools(
+            model_type="language",
+            model_id=self._get_model_id(),
+            config=self.config
+        )
         
         # AGI Language Reasoning Engine
-        self.agi_language_reasoning = self._create_agi_language_reasoning_engine()
+        self.agi_language_reasoning = self.agi_tools.create_reasoning_engine(
+            capabilities=[
+                "logical_reasoning",
+                "causal_inference", 
+                "counterfactual_thinking",
+                "analogical_reasoning",
+                "deductive_reasoning",
+                "inductive_reasoning",
+                "abductive_reasoning",
+                "symbolic_manipulation"
+            ],
+            reasoning_depth=5,
+            max_complexity=100
+        )
         
         # AGI Meta-Learning System for Language
-        self.agi_meta_learning = self._create_agi_meta_learning_system()
+        self.agi_meta_learning = self.agi_tools.create_meta_learning_system(
+            learning_strategies=[
+                "transfer_learning",
+                "multi_task_learning",
+                "few_shot_learning",
+                "zero_shot_learning",
+                "continual_learning",
+                "curriculum_learning"
+            ],
+            adaptation_speed=0.8,
+            generalization_capability=0.9
+        )
         
         # AGI Self-Reflection Module for Language
-        self.agi_self_reflection = self._create_agi_self_reflection_module()
+        self.agi_self_reflection = self.agi_tools.create_self_reflection_module(
+            performance_metrics=[
+                "accuracy",
+                "coherence",
+                "relevance",
+                "creativity",
+                "efficiency",
+                "adaptability"
+            ],
+            reflection_frequency=0.1,
+            improvement_threshold=0.7
+        )
         
         # AGI Cognitive Engine for Language Understanding
-        self.agi_cognitive_engine = self._create_agi_cognitive_engine()
+        self.agi_cognitive_engine = self.agi_tools.create_cognitive_engine(
+            attention_mechanisms=[
+                "self_attention",
+                "cross_attention", 
+                "hierarchical_attention",
+                "dynamic_attention"
+            ],
+            memory_systems=[
+                "working_memory",
+                "long_term_memory",
+                "episodic_memory",
+                "semantic_memory"
+            ],
+            integration_level="deep"
+        )
         
         # AGI Language Problem Solver
-        self.agi_problem_solver = self._create_agi_language_problem_solver()
+        self.agi_problem_solver = self.agi_tools.create_problem_solver(
+            problem_types=[
+                "text_classification",
+                "sentiment_analysis",
+                "language_generation",
+                "translation",
+                "summarization",
+                "question_answering",
+                "dialogue_systems",
+                "knowledge_extraction"
+            ],
+            solution_strategies=[
+                "pattern_matching",
+                "rule_based",
+                "neural_network",
+                "hybrid_approach",
+                "ensemble_methods"
+            ],
+            adaptation_capability=0.85
+        )
         
         # AGI Creative Language Generator
-        self.agi_creative_generator = self._create_agi_creative_generator()
+        self.agi_creative_generator = self.agi_tools.create_creative_generator(
+            creative_modes=[
+                "narrative_generation",
+                "poetic_creation",
+                "humor_generation",
+                "metaphor_creation",
+                "story_telling",
+                "dialogue_generation"
+            ],
+            creativity_parameters={
+                "novelty_weight": 0.7,
+                "surprise_factor": 0.6,
+                "coherence_threshold": 0.8,
+                "diversity_measure": 0.75
+            }
+        )
         
-        self.logger.info("AGI language components initialized successfully")
+        self.logger.info("AGI language components initialized successfully with unified tools")
     
     def _create_agi_language_reasoning_engine(self):
         """Create AGI language reasoning engine with advanced capabilities"""

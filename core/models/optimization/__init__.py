@@ -3,6 +3,6 @@
 # Contains models for system optimization and performance tuning
 # 包含系统优化和性能调优模型
 
-from .model import OptimizationModel
+from .unified_optimization_model import UnifiedOptimizationModel
 
-__all__ = ['OptimizationModel']
+__all__ = ['UnifiedOptimizationModel']

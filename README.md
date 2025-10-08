@@ -6,11 +6,11 @@
 
 ## Project Overview
 
-Self Soul is a sophisticated Artificial General Intelligence (AGI) platform that integrates 19 specialized AI models into a unified cognitive architecture. This open-source system provides comprehensive multi-modal intelligence capabilities including natural language processing, computer vision, audio analysis, emotional intelligence, autonomous learning, and advanced reasoning.
+Self Soul is a sophisticated Artificial General Intelligence (AGI) platform that integrates 19 specialized AI models into a unified cognitive architecture. This open-source system provides comprehensive multi-modal intelligence capabilities including natural language processing, computer vision, audio analysis, emotional intelligence, autonomous learning, and advanced reasoning. The system is designed to support true training from scratch, multi-camera vision capabilities, external device integration, and seamless switching between local and external API models.
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Stars](https://img.shields.io/github/stars/Sum-Outman/Self-Soul)](https://github.com/Sum-Outman/Self-Soul/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/Sum-Outman/Self-Soul)](https://github.com/Sum-Outman/Self-Soul/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/Sum-Outman/Self-Brain)](https://github.com/Sum-Outman/Self-Brain/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/Sum-Outman/Self-Brain)](https://github.com/Sum-Outman/Self-Brain/issues)
 
 ### Core Features
 
@@ -27,12 +27,12 @@ Self Soul is a sophisticated Artificial General Intelligence (AGI) platform that
 
 ## System Architecture
 
-Self Soul employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment.
+Self Brain employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment.
 
 ### Architecture Diagram
 
 ```
-Self Soul /
+Self Brain /
 ├── core/                     # Core backend system
 │   ├── main.py               # Backend entry point and API endpoints
 │   ├── model_service_manager.py # Model service creation and management
@@ -57,7 +57,7 @@ Self Soul /
 
 ## Core Models
 
-Self Soul includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
+Self Brain includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
 
 ### Foundational Models
 
@@ -98,8 +98,8 @@ Self Soul includes 19 specialized AI models working together to provide comprehe
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Sum-Outman/Self-Soul
-   cd Self-Soul
+   git clone https://github.com/Sum-Outman/Self-Brain
+   cd Self-Brain
    ```
 
 2. **Set up Python virtual environment**
@@ -161,7 +161,7 @@ Self Soul includes 19 specialized AI models working together to provide comprehe
 
 ### Multi-language Support
 
-Self Soul supports 5 languages out of the box:
+Self Brain supports 5 languages out of the box:
 - English
 - Chinese (Simplified)
 - German
@@ -172,15 +172,15 @@ You can switch languages from the settings page or using the language switcher i
 
 ## Port Configuration
 
-Self Soul system uses the following port configuration for running various services and models:
+Self Brain system uses the following port configuration for running various services and models:
 
 ### Main Service Ports
 
 | 主API网关 | Main API Gateway | 8000 | 系统的主要入口点，提供RESTful API接口 |
 |---------|-----------------|------|----------------------------------|
 | 前端应用 | Frontend Application | 5175 | 用户界面，可通过浏览器访问 |
-| 实时数据流管理器 | Realtime Stream Manager | 8765 | 管理实时数据流和模型间通信 |
-| 性能监控服务 | Performance Monitoring | 8081 | 监控系统性能和资源使用情况 |
+| 实时数据流管理器 | Realtime Stream Manager | 8766 | 管理实时数据流和模型间通信 |
+| 性能监控服务 | Performance Monitoring | 8080 | 监控系统性能和资源使用情况 |
 
 ### Model Port Configuration
 
@@ -246,7 +246,7 @@ npm run dev
 
 ## Contributing
 
-We welcome contributions to the Self Soul project. Please follow these steps:
+We welcome contributions to the Self Brain project. Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch
@@ -262,8 +262,8 @@ This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE
 
 ## Acknowledgements
 
-Self Soul is built with contributions from the open-source community and leverages various AI research and technologies.
+Self Brain is built with contributions from the open-source community and leverages various AI research and technologies.
 
 ---
 
-© 2025 Self Soul Team. All rights reserved.
+© 2025 Self Brain Team. All rights reserved.

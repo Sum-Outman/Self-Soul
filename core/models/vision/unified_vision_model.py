@@ -20,6 +20,7 @@ from typing import Dict, Any, List, Optional, Tuple
 
 from ..unified_model_template import UnifiedModelTemplate
 from core.unified_stream_processor import VideoStreamProcessor
+from core.agi_tools import AGITools
 
 
 class UnifiedVisionModel(UnifiedModelTemplate):
@@ -77,210 +78,58 @@ class UnifiedVisionModel(UnifiedModelTemplate):
         self.logger.info("Unified vision model initialized with AGI components")
 
     def _initialize_agi_vision_components(self):
-        """Initialize AGI-specific vision components for true AGI-level functionality"""
+        """Initialize AGI-specific vision components using unified AGI tools"""
         try:
-            # AGI Vision Reasoning Engine
-            self.agi_visual_reasoning = self._create_agi_visual_reasoning_engine()
+            # Use unified AGI tools to initialize all AGI components
+            agi_components = AGITools.initialize_agi_components(
+                model_type="vision",
+                model_id=self.model_id,
+                config=self.config
+            )
             
-            # AGI Meta-Learning System for Vision
-            self.agi_meta_learning = self._create_agi_meta_learning_system()
+            # Assign AGI components from unified initialization
+            self.agi_visual_reasoning = agi_components.get("reasoning_engine")
+            self.agi_meta_learning = agi_components.get("meta_learning_system")
+            self.agi_self_reflection = agi_components.get("self_reflection_module")
+            self.agi_cognitive_engine = agi_components.get("cognitive_engine")
+            self.agi_visual_problem_solver = agi_components.get("problem_solver")
+            self.agi_creative_generator = agi_components.get("creative_generator")
             
-            # AGI Self-Reflection Module for Vision
-            self.agi_self_reflection = self._create_agi_self_reflection_module()
-            
-            # AGI Cognitive Engine for Vision
-            self.agi_cognitive_engine = self._create_agi_cognitive_engine()
-            
-            # AGI Visual Problem Solver
-            self.agi_visual_problem_solver = self._create_agi_visual_problem_solver()
-            
-            # AGI Creative Visual Generator
-            self.agi_creative_generator = self._create_agi_creative_generator()
-            
-            self.logger.info("AGI vision components initialized successfully")
+            self.logger.info("AGI vision components initialized successfully using unified tools")
             
         except Exception as e:
             self.logger.error(f"AGI vision components initialization failed: {e}")
-            # Create minimal AGI components as fallback
+            # Use unified minimal AGI components as fallback
             self._initialize_minimal_agi_components()
 
-    def _create_agi_visual_reasoning_engine(self):
-        """Create AGI visual reasoning engine for advanced image understanding"""
-        class AGIVisualReasoningEngine:
-            def __init__(self):
-                self.reasoning_capabilities = [
-                    "spatial_reasoning", "causal_inference", "counterfactual_thinking",
-                    "analogical_reasoning", "hierarchical_understanding", "temporal_reasoning"
-                ]
-                self.knowledge_base = {}
-                self.reasoning_patterns = {}
-                
-            def analyze_scene(self, image_data, context=None):
-                """Perform deep scene analysis with AGI reasoning"""
-                return {
-                    "spatial_relationships": self._extract_spatial_relationships(image_data),
-                    "causal_connections": self._infer_causal_connections(image_data),
-                    "semantic_understanding": self._extract_semantic_meaning(image_data),
-                    "temporal_dynamics": self._infer_temporal_dynamics(image_data),
-                    "counterfactual_scenarios": self._generate_counterfactuals(image_data)
-                }
-                
-            def _extract_spatial_relationships(self, image_data):
-                """Extract spatial relationships between objects"""
-                return {"relationships": [], "confidence": 0.8}
-                
-            def _infer_causal_connections(self, image_data):
-                """Infer causal connections between visual elements"""
-                return {"causal_links": [], "confidence": 0.7}
-                
-            def _extract_semantic_meaning(self, image_data):
-                """Extract deep semantic meaning from visual content"""
-                return {"semantic_categories": [], "meaning_vectors": []}
-                
-            def _infer_temporal_dynamics(self, image_data):
-                """Infer temporal dynamics and sequences"""
-                return {"temporal_sequences": [], "dynamic_patterns": []}
-                
-            def _generate_counterfactuals(self, image_data):
-                """Generate counterfactual scenarios for reasoning"""
-                return {"alternative_scenarios": [], "plausibility_scores": []}
-        
-        return AGIVisualReasoningEngine()
-
-    def _create_agi_meta_learning_system(self):
-        """Create AGI meta-learning system for vision"""
-        class AGIMetaLearningSystem:
-            def __init__(self):
-                self.learning_strategies = {}
-                self.performance_metrics = {}
-                self.adaptation_rules = {}
-                
-            def adapt_learning_strategy(self, performance_data, context):
-                """Adapt learning strategy based on performance"""
-                return {
-                    "new_strategy": "adaptive_vision_learning",
-                    "adjustments": {"learning_rate": 0.001, "batch_size": 32},
-                    "reasoning": "Performance-based adaptation"
-                }
-                
-            def optimize_architecture(self, model_performance):
-                """Optimize model architecture based on performance"""
-                return {
-                    "architectural_changes": [],
-                    "optimization_recommendations": ["Increase model capacity", "Add attention mechanisms"]
-                }
-        
-        return AGIMetaLearningSystem()
-
-    def _create_agi_self_reflection_module(self):
-        """Create AGI self-reflection module for vision"""
-        class AGISelfReflectionModule:
-            def __init__(self):
-                self.reflection_capabilities = [
-                    "performance_analysis", "error_detection", "improvement_planning",
-                    "knowledge_gap_identification", "strategy_evaluation"
-                ]
-                
-            def reflect_on_performance(self, performance_data):
-                """Reflect on model performance and identify improvements"""
-                return {
-                    "strengths": ["Object recognition", "Feature extraction"],
-                    "weaknesses": ["Complex scene understanding", "Fine-grained details"],
-                    "improvement_plan": ["Increase training diversity", "Add multi-scale processing"]
-                }
-                
-            def identify_knowledge_gaps(self, processing_results):
-                """Identify knowledge gaps in visual understanding"""
-                return {
-                    "gaps_detected": ["Spatial reasoning", "Causal inference"],
-                    "learning_priorities": ["Advanced spatial models", "Causal reasoning frameworks"]
-                }
-        
-        return AGISelfReflectionModule()
-
-    def _create_agi_cognitive_engine(self):
-        """Create AGI cognitive engine for vision"""
-        class AGICognitiveEngine:
-            def __init__(self):
-                self.cognitive_processes = [
-                    "attention_mechanism", "memory_integration", "decision_making",
-                    "problem_solving", "creativity"
-                ]
-                
-            def process_visual_information(self, visual_input, context):
-                """Process visual information with cognitive reasoning"""
-                return {
-                    "attention_map": self._generate_attention_map(visual_input),
-                    "memory_integration": self._integrate_with_memory(visual_input, context),
-                    "decision_output": self._make_cognitive_decisions(visual_input),
-                    "creative_insights": self._generate_creative_insights(visual_input)
-                }
-                
-            def _generate_attention_map(self, visual_input):
-                """Generate cognitive attention map"""
-                return {"attention_weights": [], "salient_regions": []}
-                
-            def _integrate_with_memory(self, visual_input, context):
-                """Integrate visual input with cognitive memory"""
-                return {"memory_associations": [], "contextual_understanding": {}}
-                
-            def _make_cognitive_decisions(self, visual_input):
-                """Make cognitive decisions based on visual input"""
-                return {"decisions": [], "confidence_scores": []}
-                
-            def _generate_creative_insights(self, visual_input):
-                """Generate creative insights from visual input"""
-                return {"insights": [], "novelty_scores": []}
-        
-        return AGICognitiveEngine()
-
-    def _create_agi_visual_problem_solver(self):
-        """Create AGI visual problem solver"""
-        class AGIVisualProblemSolver:
-            def __init__(self):
-                self.problem_solving_strategies = [
-                    "analogical_reasoning", "decomposition", "pattern_recognition",
-                    "hypothesis_generation", "solution_evaluation"
-                ]
-                
-            def solve_visual_problems(self, problem_description, visual_context):
-                """Solve complex visual problems"""
-                return {
-                    "solution_strategy": "multi_step_reasoning",
-                    "intermediate_steps": [],
-                    "final_solution": {},
-                    "confidence": 0.85
-                }
-        
-        return AGIVisualProblemSolver()
-
-    def _create_agi_creative_generator(self):
-        """Create AGI creative visual generator"""
-        class AGICreativeGenerator:
-            def __init__(self):
-                self.creative_modes = ["originality", "style_transfer", "conceptual_blending"]
-                
-            def generate_creative_content(self, inspiration, constraints):
-                """Generate creative visual content"""
-                return {
-                    "creative_output": {},
-                    "novelty_score": 0.9,
-                    "aesthetic_quality": 0.8,
-                    "conceptual_depth": 0.7
-                }
-        
-        return AGICreativeGenerator()
-
     def _initialize_minimal_agi_components(self):
-        """Initialize minimal AGI components as fallback"""
-        self.agi_visual_reasoning = type('MinimalAGI', (), {})()
-        self.agi_meta_learning = type('MinimalMeta', (), {})()
-        self.agi_self_reflection = type('MinimalReflection', (), {})()
-        self.agi_cognitive_engine = type('MinimalCognitive', (), {})()
-        self.agi_visual_problem_solver = type('MinimalSolver', (), {})()
-        self.agi_creative_generator = type('MinimalCreative', (), {})()
-        
-        self.logger.warning("Minimal AGI components initialized as fallback")
+        """Initialize minimal AGI components using unified tools as fallback"""
+        try:
+            # Use unified AGI tools for minimal fallback initialization
+            minimal_components = AGITools.initialize_minimal_agi_components(
+                model_type="vision",
+                model_id=self.model_id
+            )
+            
+            # Assign minimal components
+            self.agi_visual_reasoning = minimal_components.get("reasoning_engine")
+            self.agi_meta_learning = minimal_components.get("meta_learning_system")
+            self.agi_self_reflection = minimal_components.get("self_reflection_module")
+            self.agi_cognitive_engine = minimal_components.get("cognitive_engine")
+            self.agi_visual_problem_solver = minimal_components.get("problem_solver")
+            self.agi_creative_generator = minimal_components.get("creative_generator")
+            
+            self.logger.warning("Minimal AGI components initialized using unified tools as fallback")
+            
+        except Exception as e:
+            self.logger.error(f"Minimal AGI components initialization failed: {e}")
+            # Ultimate fallback: create empty objects
+            self.agi_visual_reasoning = type('MinimalAGI', (), {})()
+            self.agi_meta_learning = type('MinimalMeta', (), {})()
+            self.agi_self_reflection = type('MinimalReflection', (), {})()
+            self.agi_cognitive_engine = type('MinimalCognitive', (), {})()
+            self.agi_visual_problem_solver = type('MinimalSolver', (), {})()
+            self.agi_creative_generator = type('MinimalCreative', (), {})()
 
     def _get_model_id(self) -> str:
         """Return the model identifier"""

@@ -148,7 +148,10 @@ class AGIEmotionAwarenessSystem:
         self.multimodal_processor = MultimodalProcessor()
         self.self_reflection_engine = SelfReflectionEngine()
         self.self_learning_system = AdvancedSelfLearningSystem()
-        self.cognitive_architecture = UnifiedCognitiveArchitecture()
+        
+        # 使用ComponentFactory获取全局共享的UnifiedCognitiveArchitecture实例
+        from core.memory_optimization import ComponentFactory
+        self.cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
         
         # 情感神经网络模型
         # Emotional neural network model

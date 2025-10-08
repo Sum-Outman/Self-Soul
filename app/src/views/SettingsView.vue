@@ -89,6 +89,134 @@
         </form>
       </div>
 
+      <!-- Model Configuration Section -->
+      <div class="model-config-section">
+        <h2>Model Configuration</h2>
+        <div class="model-filters">
+          <div class="filter-group">
+            <label>Filter by Type:</label>
+            <select v-model="modelFilterType">
+              <option value="all">All Models</option>
+              <option value="local">Local Models</option>
+              <option value="external">External API Models</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Filter by Status:</label>
+            <select v-model="modelFilterStatus">
+              <option value="all">All Statuses</option>
+              <option value="running">Running</option>
+              <option value="stopped">Stopped</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="models-grid">
+          <div v-for="model in filteredModels" :key="model.id" class="model-card">
+            <div class="model-header">
+              <h3>{{ model.name }}</h3>
+              <span class="model-type-badge" :class="model.source === 'local' ? 'local' : 'api'">
+                {{ model.source === 'local' ? 'Local' : 'External API' }}
+              </span>
+            </div>
+            <div class="model-info">
+              <p><strong>ID:</strong> {{ model.id }}</p>
+              <p><strong>Type:</strong> {{ model.type }}</p>
+              <p><strong>Status:</strong> <span :class="`status ${model.status}`">{{ model.status }}</span></p>
+              <p v-if="model.port"><strong>Port:</strong> {{ model.port }}</p>
+            </div>
+            
+            <!-- Model Type Selection -->
+            <div class="model-source-selector">
+              <label for="source-{{ model.id }}">Model Source:</label>
+              <select id="source-{{ model.id }}" v-model="model.source" @change="onSourceChange(model.id, model.source)">
+                <option value="local">Local Model</option>
+                <option value="external">External API</option>
+              </select>
+            </div>
+            
+            <!-- API Configuration Form -->
+            <div v-if="model.source === 'external'" class="api-config-section">
+              <h4>API Configuration</h4>
+              <div class="api-config-form">
+                <div class="form-group">
+                  <label :for="`api-url-${model.id}`">API URL</label>
+                  <input
+                    :id="`api-url-${model.id}`"
+                    v-model="model.api_url"
+                    type="url"
+                    placeholder="https://api.example.com/v1/"
+                  />
+                </div>
+                <div class="form-group">
+                  <label :for="`api-key-${model.id}`">API Key</label>
+                  <div class="password-input-wrapper">
+                    <input
+                      :id="`api-key-${model.id}`"
+                      v-model="model.api_key"
+                      :type="showApiKeys[model.id] ? 'text' : 'password'"
+                      placeholder="sk-..."
+                    />
+                    <button 
+                      type="button" 
+                      class="toggle-password-btn" 
+                      @click="toggleApiKeyVisibility(model.id)"
+                    >
+                      {{ showApiKeys[model.id] ? 'Hide' : 'Show' }}
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label :for="`model-name-${model.id}`">Model Name</label>
+                  <input
+                    :id="`model-name-${model.id}`"
+                    v-model="model.model_name"
+                    type="text"
+                    placeholder="e.g., gpt-4, claude-3-opus"
+                  />
+                </div>
+                <div class="form-group">
+                  <label :for="`api-source-${model.id}`">API Provider</label>
+                  <select :id="`api-source-${model.id}`" v-model="model.source_provider">
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="google">Google AI</option>
+                    <option value="aws">AWS</option>
+                    <option value="azure">Azure</option>
+                    <option value="huggingface">Hugging Face</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </div>
+                <div class="api-actions">
+                  <button 
+                    class="test-btn" 
+                    @click="testApiConnection(model.id)"
+                    :disabled="isTestingConnection(model.id)"
+                  >
+                    {{ isTestingConnection(model.id) ? 'Testing...' : 'Test Connection' }}
+                  </button>
+                  <button 
+                    class="save-btn"
+                    @click="saveModelConfig(model.id)"
+                    :disabled="isSavingSettings(model.id)"
+                  >
+                    {{ isSavingSettings(model.id) ? 'Saving...' : 'Save' }}
+                  </button>
+                </div>
+                <div v-if="testResults[model.id]" class="test-results">
+                  <div v-if="testResults[model.id].success" class="success-message">
+                    {{ testResults[model.id].message }}
+                  </div>
+                  <div v-else class="error-message">
+                    {{ testResults[model.id].message }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Hardware Configuration Section -->
       <div class="hardware-config-section">
         <h2>Hardware Configuration</h2>
@@ -322,7 +450,7 @@
             <div class="model-info">
               <h4>{{ model.name }}</h4>
               <div class="model-meta">
-                <select v-model="model.source" class="model-config-type-select" @change="onSourceChange(model.id)">
+                <select v-model="model.source" class="model-config-type-select" @change="onSourceChange(model.id, model.source)">
                   <option value="local">Local</option>
                   <option value="external">External API</option>
                 </select>
@@ -467,12 +595,12 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="api-type-{{ model.id }}">API Type</label>
+                  <label for="api-provider-{{ model.id }}">API Provider</label>
                   <select
-                    :id="'api-type-' + model.id"
-                    v-model="model.apiType"
+                    :id="'api-provider-' + model.id"
+                    v-model="model.sourceProvider"
                   >
-                    <option value="">Custom</option>
+                    <option value="custom">Custom</option>
                     <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic</option>
                     <option value="google">Google AI</option>
@@ -744,6 +872,10 @@ export default {
       type: '',
       port: 0
     })
+    
+    // Model configuration filter states
+    const modelFilterType = ref('all')
+    const modelFilterStatus = ref('all')
 
     // Computed
     const modelTypes = computed(() => MODEL_TYPES)
@@ -754,7 +886,24 @@ export default {
       return models.value.filter(model => model.status === 'running').length
     })
     const apiModelsCount = computed(() => {
-      return models.value.filter(model => model.type.toLowerCase().includes('api')).length
+      return models.value.filter(model => model.type.toLowerCase().includes('api') || model.source === 'external').length
+    })
+    const filteredModels = computed(() => {
+      let filtered = models.value
+      
+      // Filter by type
+      if (modelFilterType.value === 'local') {
+        filtered = filtered.filter(model => model.source === 'local')
+      } else if (modelFilterType.value === 'external') {
+        filtered = filtered.filter(model => model.source === 'external')
+      }
+      
+      // Filter by status
+      if (modelFilterStatus.value !== 'all') {
+        filtered = filtered.filter(model => model.status === modelFilterStatus.value)
+      }
+      
+      return filtered
     })
     const canStartAll = computed(() => {
       return models.value.some(model => model.status !== 'running')
@@ -787,6 +936,9 @@ export default {
         
         // Load training status for each model
         await loadTrainingStatus()
+        
+        // Load model configurations
+        await loadModelConfigs()
       } catch (error) {
         console.error('Error loading models from API:', error)
         errorHandler.handleError(error, 'Load Models')
@@ -799,6 +951,148 @@ export default {
         console.log('Final total models:', models.value.length)
         console.log('Final local models:', models.value.filter(m => m.source === 'local').length)
         loading.value = false
+      }
+    }
+    
+    // Load model configurations
+    const loadModelConfigs = async () => {
+      try {
+        const response = await api.modelConfigs.getAll()
+        const configs = response.data || []
+        
+        // Update models with their configurations
+        models.value.forEach(model => {
+          const config = configs.find(c => c.model_id === model.id)
+          if (config) {
+            model.source = config.source || 'local'
+            model.apiUrl = config.api_url || ''
+            model.apiKey = config.api_key || ''
+            model.modelName = config.model_name || ''
+            model.sourceProvider = config.source_provider || 'custom'
+          }
+        })
+      } catch (error) {
+        console.error('Failed to load model configurations:', error)
+        // Continue with existing model configurations
+      }
+    }
+    
+    // Handle source change for existing models
+    const onSourceChange = async (modelId, newSource) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) return
+      
+      model.source = newSource
+      model.lastUpdated = new Date().toISOString()
+      hasChanges.value = true
+      
+      // If changing to external, ensure it has necessary API fields
+      if (newSource === 'external' && !model.apiUrl) {
+        // Set default values based on provider if available
+        if (model.sourceProvider === 'openai') {
+          model.apiUrl = 'https://api.openai.com/v1/chat/completions'
+          model.modelName = 'gpt-4'
+        } else if (model.sourceProvider === 'anthropic') {
+          model.apiUrl = 'https://api.anthropic.com/v1/messages'
+          model.modelName = 'claude-3-opus-20240229'
+        } else if (model.sourceProvider === 'google') {
+          model.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models'
+          model.modelName = 'gemini-pro'
+        } else if (model.sourceProvider === 'huggingface') {
+          model.apiUrl = 'https://api-inference.huggingface.co/models'
+          model.modelName = 'meta-llama/Llama-2-70b-chat-hf'
+        }
+      }
+      
+      try {
+        // Update model type in backend
+        await api.modelConfigs.updateType(modelId, { source: newSource })
+      } catch (error) {
+        console.error('Failed to update model source:', error)
+        notify.warning('Failed to update model source in backend')
+      }
+    }
+    
+    // Toggle API key visibility
+    const toggleApiKeyVisibility = (modelId) => {
+      showApiKeys.value[modelId] = !showApiKeys.value[modelId]
+    }
+    
+    // Save model configuration
+    const saveModelConfig = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model) {
+        notify.error('Model not found')
+        return
+      }
+      
+      savingSettings.value.add(modelId)
+      try {
+        const configData = {
+          source: model.source,
+          apiUrl: model.apiUrl,
+          apiKey: model.apiKey,
+          modelName: model.modelName,
+          sourceProvider: model.sourceProvider
+        }
+        
+        await api.modelConfigs.updateApiConfig(modelId, configData)
+        
+        model.lastUpdated = new Date().toISOString()
+        hasChanges.value = true
+        notify.success('Model configuration saved successfully')
+      } catch (error) {
+        console.error('Failed to save model configuration:', error)
+        errorHandler.handleError(error, 'Save Model Configuration')
+        notify.error('Failed to save model configuration')
+      } finally {
+        savingSettings.value.delete(modelId)
+      }
+    }
+    
+    // Test API connection
+    const testApiConnection = async (modelId) => {
+      const model = models.value.find(m => m.id === modelId)
+      if (!model || !model.apiUrl || !model.apiKey || !model.modelName) {
+        notify.error('Please complete all API configuration fields first')
+        return
+      }
+      
+      testingConnections.value.add(modelId)
+      try {
+        const testData = {
+          apiUrl: model.apiUrl,
+          apiKey: model.apiKey,
+          modelName: model.modelName,
+          sourceProvider: model.sourceProvider
+        }
+        
+        const response = await api.modelConfigs.testConnection(modelId, testData)
+        
+        testResults.value[modelId] = {
+          success: true,
+          message: 'Connection successful! API is working properly.'
+        }
+        notify.success('API connection test passed')
+        
+        // Auto-activate if not already active
+        if (!model.isActive) {
+          await toggleActivation(modelId)
+        }
+      } catch (error) {
+        console.error('API connection test failed:', error)
+        testResults.value[modelId] = {
+          success: false,
+          message: error.response?.data?.message || error.message || 'Connection failed. Please check your settings.'
+        }
+        notify.error('API connection test failed')
+      } finally {
+        testingConnections.value.delete(modelId)
+        
+        // Clear test results after 5 seconds
+        setTimeout(() => {
+          delete testResults.value[modelId]
+        }, 5000)
       }
     }
     
@@ -848,7 +1142,7 @@ export default {
     // Get complete default model configuration - includes all 19 local models (ports 8001-8019)
     const getDefaultModels = () => {
       const defaultModels = [
-        // 管理模型
+        // Manager Model
         {
           id: 'manager',
           name: 'Manager Model',
@@ -867,7 +1161,7 @@ export default {
           },
           source: 'local'
         },
-        // 语言模型
+        // Language Model
         {
           id: 'language',
           name: 'Language Model',
@@ -1142,7 +1436,7 @@ export default {
           apiKey: '',
           apiUrl: 'https://api.openai.com/v1/chat/completions',
           modelName: 'gpt-4',
-          apiType: 'openai',
+          sourceProvider: 'openai',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1159,7 +1453,7 @@ export default {
           apiKey: '',
           apiUrl: 'https://api.anthropic.com/v1/messages',
           modelName: 'claude-3-opus-20240229',
-          apiType: 'anthropic',
+          sourceProvider: 'anthropic',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1176,7 +1470,7 @@ export default {
           apiKey: '',
           apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
           modelName: 'gemini-pro',
-          apiType: 'google',
+          sourceProvider: 'google',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1193,7 +1487,7 @@ export default {
           apiKey: '',
           apiUrl: 'https://api-inference.huggingface.co/models',
           modelName: 'meta-llama/Llama-2-70b-chat-hf',
-          apiType: 'huggingface',
+          sourceProvider: 'huggingface',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1210,7 +1504,7 @@ export default {
           apiKey: '',
           apiUrl: 'https://api.mistral.ai/v1/chat/completions',
           modelName: 'mistral-large-latest',
-          apiType: 'mistral',
+          sourceProvider: 'mistral',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1227,7 +1521,7 @@ export default {
           apiKey: '',
           apiUrl: '',
           modelName: '',
-          apiType: '',
+          sourceProvider: 'custom',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0'
@@ -1252,24 +1546,6 @@ export default {
     const onModelTypeChange = () => {
       if (newModel.value.type) {
         newModel.value.port = MODEL_PORT_CONFIG[newModel.value.type] || 8000
-      }
-    }
-
-    // Handle source change for existing models
-    const onSourceChange = (modelId) => {
-      const model = models.value.find(m => m.id === modelId)
-      if (!model) return
-      
-      // Update last updated time
-      model.lastUpdated = new Date().toISOString()
-      hasChanges.value = true
-      
-      // If changing to external, ensure it has necessary API fields
-      if (model.source === 'external' && !model.apiType) {
-        model.apiType = 'custom'
-        model.apiUrl = ''
-        model.apiKey = ''
-        model.modelName = ''
       }
     }
 
@@ -1669,14 +1945,14 @@ export default {
           api_url: model.apiUrl,
           api_key: model.apiKey,
           model_name: model.modelName,
-          api_type: model.apiType || 'custom',
+          api_type: model.sourceProvider || 'custom',
           rate_limit: model.rateLimit || 1000,
           api_headers: model.apiHeaders || {},
           test_prompt: 'Hello, please respond with a short test message to verify API connectivity.'
         }
         
         // Use real API endpoint for external API connection testing
-        const response = await api.post('/api/external/test-connection', connectionData)
+        const response = await api.post('/api/models/test-connection', connectionData)
 
         if (response.data.success) {
           testResults.value[modelId] = {
@@ -1799,10 +2075,6 @@ export default {
 
     const toggleApiSettings = (modelId) => {
       showApiSettings.value[modelId] = !showApiSettings.value[modelId]
-    }
-
-    const toggleApiKeyVisibility = (modelId) => {
-      showApiKeys.value[modelId] = !showApiKeys.value[modelId]
     }
 
     const getApiKeyStatus = (model) => {
@@ -1978,16 +2250,20 @@ export default {
         // 调用loadModels方法加载模型，这个方法已经包含了完整的错误处理和默认模型加载逻辑
         await loadModels()
         
-        // 额外日志：确认加载的模型数量
-        console.log('onMounted完成后实际显示的模型数量:', models.value.length)
-        console.log('实际显示的本地模型数量:', models.value.filter(m => m.source === 'local').length)
+        // Load model configurations
+        await loadModelConfigs()
         
-        // 显示通知，告知用户所有模型已成功加载
-        notify.success('All 19 local models and external API models loaded successfully')
+        // Additional logs: Confirm loaded model count
+        console.log('Actual model count displayed after onMounted:', models.value.length)
+        console.log('Actual count of local models displayed:', models.value.filter(m => m.source === 'local').length)
+        console.log('Actual count of external API models displayed:', models.value.filter(m => m.source === 'external').length)
+        
+        // Show notification to inform user that all models and configurations have been successfully loaded
+        notify.success('All local models, external API models and configurations loaded successfully')
       } catch (error) {
         console.error('Error in onMounted:', error)
         console.error('Error stack:', error.stack)
-        notify.error('Failed to load models')
+        notify.error('Failed to load models or configurations')
       } finally {
         console.log('onMounted hook completed')
       }

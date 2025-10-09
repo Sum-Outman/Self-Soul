@@ -1,5 +1,5 @@
 #!/bin/bash
- echo "启动Self Brain AGI系统..."
+ echo "启动Self Soul AGI系统..."
  cd "$(dirname "$0")"
 
  # 启动前端开发服务器（端口5175）

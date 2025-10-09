@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-# Starts all core components of the Self Brain AGI System.
+# Starts all core components of the Self Soul AGI System.
 .DESCRIPTION
 This script starts the main API server, frontend application, realtime stream manager and performance monitoring service simultaneously.
 It creates separate terminal windows for each component for better management.
@@ -41,11 +41,11 @@ Start-Process powershell -ArgumentList "-NoExit -Command `"& '$anacondaPython' '
 Start-Sleep -Seconds 3
 
 # Start the frontend application in a new PowerShell window
-Write-Host "Starting AGI Brain System frontend on port 5175..." -ForegroundColor Green
+Write-Host "Starting AGI Soul System frontend on port 5175..." -ForegroundColor Green
 Start-Process powershell -ArgumentList "-NoExit -Command `"Set-Location -Path '$PSScriptRoot\app'; npm install; npm run dev`""
 
 # Display instructions for the user
-Write-Host "\nAGI Brain System Components Started:" -ForegroundColor Cyan
+Write-Host "\nAGI Soul System Components Started:" -ForegroundColor Cyan
 Write-Host "- Main API Server: http://localhost:8000"
 Write-Host "- Frontend Application: http://localhost:5175"
 Write-Host "\nTo stop all components, simply close the terminal windows." -ForegroundColor Yellow

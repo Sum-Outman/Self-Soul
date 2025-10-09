@@ -2,10 +2,9 @@ import asyncio
 import websockets
 import json
 import os
-import asyncio
 from core.training_manager import TrainingManager
 from core.model_registry import ModelRegistry
-from core.knowledge_integrator import KnowledgeIntegrator
+from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
 
 # 全局组件实例
 training_manager = None
@@ -23,7 +22,7 @@ def initialize_components():
     model_registry = ModelRegistry()
     
     # 初始化知识库集成器
-    knowledge_integrator = KnowledgeIntegrator()
+    knowledge_integrator = AGIKnowledgeIntegrator()
     
     # 初始化训练管理器
     training_manager = TrainingManager(

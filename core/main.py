@@ -31,6 +31,7 @@ import argparse
 from datetime import datetime
 import numpy as np
 import uuid
+import cv2
 
 # Add the root directory to sys.path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -104,7 +105,7 @@ api_model_connector = None  # Add missing global variable
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="Self Brain AGI System",
+    title="Self Soul AGI System",
     description="Advanced General Intelligence System with autonomous learning and self-improvement capabilities",
     version="1.0.0",
     docs_url="/docs",
@@ -515,7 +516,7 @@ async def startup_event():
     global unified_cognitive_architecture, enhanced_meta_cognition, intrinsic_motivation_system
     global explainable_ai, value_alignment, agi_coordinator, api_model_connector
     
-    error_handler.log_info("Self Brain system is starting up...", "System")
+    error_handler.log_info("Self Soul system is starting up...", "System")
     
     try:
         # Initialize core components in dependency order
@@ -617,7 +618,7 @@ async def startup_event():
         except Exception as e:
             error_handler.handle_error(e, "System", "Failed to start model services")
         
-        error_handler.log_info("Self Brain system startup completed successfully!", "System")
+        error_handler.log_info("Self Soul system startup completed successfully!", "System")
         
     except Exception as e:
         error_handler.handle_error(e, "System", "System startup failed")
@@ -629,7 +630,7 @@ async def shutdown_event():
     """
     System shutdown event handler
     """
-    error_handler.log_info("Self Brain system is shutting down...", "System")
+    error_handler.log_info("Self Soul system is shutting down...", "System")
 
 # Configure CORS
 app.add_middleware(
@@ -649,7 +650,7 @@ async def health_check():
     Returns:
         System status information
     """
-    return {"status": "ok", "message": "Self Brain system is running normally"}
+    return {"status": "ok", "message": "Self Soul system is running normally"}
 
 # Get all models status
 @app.get("/api/models/status")
@@ -3111,7 +3112,7 @@ async def health_check():
     """
     Health check endpoint to quickly respond to frontend connection requests
     """
-    return {"status": "healthy", "message": "Self Brain system is running normally"}
+    return {"status": "healthy", "message": "Self Soul system is running normally"}
 
 # Knowledge statistics endpoint - provides statistical data for frontend KnowledgeView.vue
 @app.get("/api/knowledge/stats")

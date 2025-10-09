@@ -1,6 +1,6 @@
 # Conversation Component
 
-The Conversation component is a comprehensive chat interface that allows users to interact with various AI models in the Self Brain system. It provides a unified and user-friendly way to communicate with different models, view model status information, and manage conversations.
+The Conversation component is a comprehensive chat interface that allows users to interact with various AI models in the Self Soul system. It provides a unified and user-friendly way to communicate with different models, view model status information, and manage conversations.
 
 ## Features
 

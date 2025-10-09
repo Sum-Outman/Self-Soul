@@ -1,4 +1,4 @@
-# Self Brain AGI System - Improvement Plan
+# Self Soul AGI System - Improvement Plan
 
 ## 1. System Architecture Evaluation
 

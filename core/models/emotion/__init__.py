@@ -3,6 +3,9 @@
 # Contains models for emotion analysis and awareness
 # 包含情感分析和意识模型
 
-from .unified_emotion_model import EmotionModel
+from .unified_emotion_model import UnifiedEmotionModel
 
-__all__ = ['EmotionModel']
+# Alias for compatibility
+EmotionModel = UnifiedEmotionModel
+
+__all__ = ['UnifiedEmotionModel', 'EmotionModel']

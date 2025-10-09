@@ -27,12 +27,12 @@ Self Soul is a sophisticated Artificial General Intelligence (AGI) platform that
 
 ## System Architecture
 
-Self Brain employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment.
+Self Soul employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment.
 
 ### Architecture Diagram
 
 ```
-Self Brain /
+Self Soul /
 ├── core/                     # Core backend system
 │   ├── main.py               # Backend entry point and API endpoints
 │   ├── model_service_manager.py # Model service creation and management
@@ -57,7 +57,7 @@ Self Brain /
 
 ## Core Models
 
-Self Brain includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
+Self Soul includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
 
 ### Foundational Models
 
@@ -161,7 +161,7 @@ Self Brain includes 19 specialized AI models working together to provide compreh
 
 ### Multi-language Support
 
-Self Brain supports 5 languages out of the box:
+Self Soul supports 5 languages out of the box:
 - English
 - Chinese (Simplified)
 - German
@@ -172,7 +172,7 @@ You can switch languages from the settings page or using the language switcher i
 
 ## Port Configuration
 
-Self Brain system uses the following port configuration for running various services and models:
+Self Soul system uses the following port configuration for running various services and models:
 
 ### Main Service Ports
 
@@ -246,7 +246,7 @@ npm run dev
 
 ## Contributing
 
-We welcome contributions to the Self Brain project. Please follow these steps:
+We welcome contributions to the Self Soul project. Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch
@@ -262,8 +262,8 @@ This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE
 
 ## Acknowledgements
 
-Self Brain is built with contributions from the open-source community and leverages various AI research and technologies.
+Self Soul is built with contributions from the open-source community and leverages various AI research and technologies.
 
 ---
 
-© 2025 Self Brain Team. All rights reserved.
+© 2025 Self Soul Team. All rights reserved.

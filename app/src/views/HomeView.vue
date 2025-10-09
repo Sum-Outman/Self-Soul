@@ -480,11 +480,11 @@ export default {
         }
       },
 
-      // Initialize system
-      initializeSystem() {
-        errorHandler.logInfo('Self Brain System initializing...');
-        // Show welcome message
-        this.addSystemMessage('Welcome to the Self Brain System!');
+        // Initialize system
+        initializeSystem() {
+          errorHandler.logInfo('Self Soul System initializing...');
+          // Show welcome message
+          this.addSystemMessage('Welcome to the Self Soul System!');
         
         // Always try to connect to real backend, never use mock data automatically
         this.connectToBackend();

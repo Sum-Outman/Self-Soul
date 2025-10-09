@@ -80,10 +80,7 @@ class AGITools:
             )
             
             # Initialize AGI emotion awareness system
-            systems['emotion_awareness'] = AGIEmotionAwarenessSystem(
-                model_context=self.model_id,
-                config=self.config
-            )
+            systems['emotion_awareness'] = AGIEmotionAwarenessSystem()
             
             # Initialize unified cognitive architecture
             systems['cognitive_arch'] = UnifiedCognitiveArchitecture()
@@ -140,21 +137,11 @@ class AGITools:
             context_memory = systems.get('context_memory')
             
             if all([cognitive_arch, self_learning, emotion_awareness, neuro_symbolic]):
-                # Cognitive architecture as central coordinator
-                cognitive_arch.set_learning_system(self_learning)
-                cognitive_arch.set_emotion_system(emotion_awareness)
-                cognitive_arch.set_reasoner(neuro_symbolic)
-                cognitive_arch.set_memory_system(context_memory)
+                # Note: UnifiedCognitiveArchitecture doesn't have set_* methods
+                # Systems are designed to work independently through their interfaces
+                # Integration happens through shared context and data flow
                 
-                # Self-learning system connections
-                self_learning.set_cognitive_architecture(cognitive_arch)
-                self_learning.set_emotion_system(emotion_awareness)
-                
-                # Emotion awareness system connections
-                emotion_awareness.set_learning_system(self_learning)
-                emotion_awareness.set_cognitive_architecture(cognitive_arch)
-                
-                self.logger.info("AGI system integration established")
+                self.logger.info("AGI systems initialized - integration through shared interfaces")
                 
         except Exception as e:
             self.logger.error(f"AGI system integration failed: {str(e)}")

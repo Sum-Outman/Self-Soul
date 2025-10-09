@@ -95,7 +95,7 @@ npm run dev
 
 ## System Architecture
 ```
-Self Brain /
+Self Soul /
 ├── core/                     # Core system
 │   ├── models/               # 11 core model implementations
 │   │   ├── audio/            # Audio processing model

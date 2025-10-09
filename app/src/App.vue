@@ -3,7 +3,7 @@
     <!-- Top Menu Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <div class="system-title">Self Brain System</div>
+        <div class="system-title">Self Soul System</div>
       </div>
       <div class="menu-right">
         <router-link to="/" class="menu-link" active-class="router-link-active">Home</router-link>
@@ -72,10 +72,10 @@ export default {
     // Initialize components
     const initializeComponentsSilently = () => {
       try {
-        console.log('Self Brain System components are initializing...')
+        console.log('Self Soul System components are initializing...')
         
         // Directly log initialization completion
-        console.log('Self Brain System components initialization completed')
+        console.log('Self Soul System components initialization completed')
       } catch (error) {
         console.error('Error during system components initialization:', error)
       }

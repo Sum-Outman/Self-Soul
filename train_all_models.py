@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script to train all Self Brain AGI models from scratch
+Script to train all Self Soul AGI models from scratch
 This script will initialize and start training for all registered models
 """
 import os
@@ -19,7 +19,7 @@ from core.model_registry import get_model_registry
 def main():
     """Main function to train all models from scratch"""
     print("=" * 80)
-    print("      Self Brain AGI - All Models From Scratch Training      ")
+    print("      Self Soul AGI - All Models From Scratch Training      ")
     print("=" * 80)
     print(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("\nPreparing to train all models from scratch...\n")

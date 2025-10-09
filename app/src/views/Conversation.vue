@@ -26,7 +26,7 @@
       <div v-for="message in messages" :key="message.id" class="message-wrapper">
         <div :class="['message', message.sender, { 'error': message.isError }]">
           <div class="message-header">
-            <span class="sender-name">{{ message.sender === 'user' ? 'You' : 'Self Brain' }}</span>
+            <span class="sender-name">{{ message.sender === 'user' ? 'You' : 'Self Soul' }}</span>
             <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
           </div>
           <div class="message-content">
@@ -55,7 +55,7 @@
           <span></span>
           <span></span>
         </div>
-        <span class="loading-text">Self Brain is thinking...</span>
+        <span class="loading-text">Self Soul is thinking...</span>
       </div>
     </div>
     

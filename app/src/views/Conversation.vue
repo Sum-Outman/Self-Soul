@@ -240,8 +240,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 70px);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: #f8f9fa;
+  color: #2c3e50;
   margin-top: 70px;
 }
 
@@ -389,8 +389,8 @@ onMounted(() => {
 }
 
 .message.user {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+  background: #007bff;
+  color: white;
 }
 
 .message.model {
@@ -533,8 +533,8 @@ onMounted(() => {
 
 .input-area input:focus {
   outline: none;
-  border-color: var(--border-dark);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .input-area input:disabled {
@@ -549,7 +549,7 @@ onMounted(() => {
 
 .send-btn {
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 12px;
@@ -562,7 +562,7 @@ onMounted(() => {
 
 .send-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
 .send-btn:disabled {

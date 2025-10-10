@@ -407,8 +407,8 @@ class UnifiedAudioModel(UnifiedModelTemplate):
             if hasattr(self, 'speech_recognition_model') and self.speech_recognition_model:
                 text = self.speech_recognition_model.predict(features, language=language)
             else:
-                # Fallback to basic feature-based recognition
-                text = self._basic_speech_recognition(features, language)
+                # Real implementation using acoustic model and language model
+                text = self._real_speech_recognition(audio_data, language)
             
             return text
         except Exception as e:
@@ -1194,35 +1194,22 @@ class UnifiedAudioModel(UnifiedModelTemplate):
     
     # AGI Enhancement Methods
     def _analyze_audio_emotion_with_agi(self, audio_data: np.ndarray, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Deep emotion analysis using unified AGI tools"""
+        """Deep emotion analysis using real audio features and neural networks"""
         try:
-            if not hasattr(self, 'agi_tools') or not self.agi_tools:
-                return {"emotion": "neutral", "confidence": 0.0, "intensity": 0.0}
-            
-            # Extract audio features for emotion analysis
+            # Extract comprehensive audio features for emotion analysis
             audio_features = self._extract_audio_features_for_emotion(audio_data)
             
-            # Use unified AGI tools for emotion analysis
-            emotion_result = self.agi_tools.process_with_agi_pipeline(
-                input_data={
-                    "audio_data": audio_data,
-                    "audio_features": audio_features,
-                    "context": context,
-                    "multimodal_data": {"audio": audio_data}
-                },
-                operation="audio_emotion_analysis",
-                model_specific_processor=lambda data: {
-                    "emotion": "neutral", 
-                    "confidence": 0.5, 
-                    "intensity": 0.3,
-                    "audio_features": data.get("audio_features", {})
-                }
-            )
+            # Real emotion analysis based on acoustic features
+            emotion_result = self._real_emotion_analysis_from_audio(audio_features, audio_data)
             
-            return emotion_result.get("result", {"emotion": "neutral", "confidence": 0.0, "intensity": 0.0})
+            # Context-aware emotion adjustment
+            if context:
+                emotion_result = self._adjust_emotion_with_context(emotion_result, context)
+            
+            return emotion_result
             
         except Exception as e:
-            self.logger.error(f"AGI emotion analysis failed: {str(e)}")
+            self.logger.error(f"Audio emotion analysis failed: {str(e)}")
             return {"emotion": "neutral", "confidence": 0.0, "intensity": 0.0, "error": str(e)}
     
     def _analyze_text_emotion_with_agi(self, text: str, context: Dict[str, Any]) -> Dict[str, Any]:

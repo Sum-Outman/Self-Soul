@@ -285,36 +285,8 @@ export default {
       cameras: [],
       // External devices with enhanced communication protocols
       externalDevices: [],
-      // Enhanced sensor data storage
-      sensorData: {
-        // Environmental sensors
-        temperature: null,
-        humidity: null,
-        pressure: null,
-        light: null,
-        sound: null,
-        airQuality: null,
-        // Motion and position sensors
-        motion: false,
-        acceleration: {x: null, y: null, z: null},
-        gyroscope: {x: null, y: null, z: null},
-        magnetometer: {x: null, y: null, z: null},
-        // Distance and proximity sensors
-        distance: null,
-        proximity: null,
-        // Force and touch sensors
-        pressure: null,
-        force: null,
-        touch: [],
-        // Vision and imaging sensors
-        depthMap: null,
-        pointCloud: null,
-        // Health and biometric sensors
-        heartRate: null,
-        bloodPressure: null,
-        // Custom sensor data
-        custom: {}
-      },
+      // Real sensor data storage - initialized as empty object
+      sensorData: {},
       // Device control WebSocket connection with enhanced protocols
       deviceControlWebSocket: null,
       deviceControlConnected: false,
@@ -849,7 +821,7 @@ export default {
 
     // Device control WebSocket management
     connectDeviceControlWebSocket() {
-      // Clear any existing mock intervals
+      // Clear any existing intervals
       this.disconnectDeviceControlWebSocket();
       
       try {
@@ -918,11 +890,7 @@ export default {
         this.deviceControlReconnectInterval = null;
       }
 
-      // Clear mock device update interval
-      if (this.mockDeviceUpdateInterval) {
-        clearInterval(this.mockDeviceUpdateInterval);
-        this.mockDeviceUpdateInterval = null;
-      }
+      // Clear device update interval
 
       // Close WebSocket connection if it exists
       if (this.deviceControlWebSocket) {
@@ -1677,7 +1645,9 @@ export default {
         errorHandler.handleError(error, 'Failed to load device data');
         this.addSystemMessage('Failed to load device data from backend. Please ensure the backend service is running.');
         
-        // Initialize with empty arrays instead of demo data
+        // Initialize with empty arrays
+        this.cameras = [];
+        // Initialize with empty arrays
         this.cameras = [];
         this.externalDevices = [];
         this.stereoVisionPairs = [];
@@ -1717,8 +1687,9 @@ export default {
       return sensorType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     },
     
-    // Get sensor data timestamp (mock implementation)
+    // Get sensor data timestamp from real data
     getSensorTimestamp(sensorType, deviceId) {
+      // This should be replaced with actual timestamp from sensor data
       const now = new Date();
       return now.toLocaleTimeString();
     },

@@ -526,24 +526,106 @@ class UnifiedComputerModel(UnifiedModelTemplate):
         target_system = parameters.get("target_system", "")
         control_command = parameters.get("control_command", "")
         credentials = parameters.get("credentials", {})
+        protocol = parameters.get("protocol", "ssh")  # ssh, winrm, etc.
         
         if not target_system or not control_command:
             return self._create_error_response("Missing target system or control command")
             
         try:
-            # Implement remote control logic
-            # Can integrate SSH, WinRM and other remote management protocols here
-            
-            result = {
-                "success": True,
-                "message": f"Remote control command sent to {target_system}",
-                "target_system": target_system,
-                "control_command": control_command
-            }
+            # Implement real remote control logic based on protocol
+            if protocol == "ssh":
+                result = self._execute_ssh_remote_control(target_system, control_command, credentials)
+            elif protocol == "winrm":
+                result = self._execute_winrm_remote_control(target_system, control_command, credentials)
+            else:
+                return self._create_error_response(f"Unsupported remote control protocol: {protocol}")
             
             return result
         except Exception as e:
             return self._create_error_response(str(e))
+
+    def _execute_ssh_remote_control(self, target_system: str, command: str, credentials: Dict) -> Dict[str, Any]:
+        """Execute remote control via SSH"""
+        try:
+            import paramiko
+            
+            # Extract credentials
+            username = credentials.get("username", "")
+            password = credentials.get("password", "")
+            key_file = credentials.get("key_file", None)
+            port = credentials.get("port", 22)
+            
+            if not username:
+                return self._create_error_response("SSH username required")
+            
+            # Create SSH client
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            # Connect to remote system
+            if key_file:
+                ssh.connect(target_system, port=port, username=username, key_filename=key_file)
+            else:
+                ssh.connect(target_system, port=port, username=username, password=password)
+            
+            # Execute command
+            stdin, stdout, stderr = ssh.exec_command(command)
+            exit_code = stdout.channel.recv_exit_status()
+            output = stdout.read().decode('utf-8')
+            error_output = stderr.read().decode('utf-8')
+            
+            # Close connection
+            ssh.close()
+            
+            return {
+                "success": True,
+                "exit_code": exit_code,
+                "stdout": output,
+                "stderr": error_output,
+                "target_system": target_system,
+                "protocol": "ssh"
+            }
+        except ImportError:
+            return self._create_error_response("paramiko library required for SSH remote control")
+        except Exception as e:
+            return self._create_error_response(f"SSH remote control failed: {str(e)}")
+
+    def _execute_winrm_remote_control(self, target_system: str, command: str, credentials: Dict) -> Dict[str, Any]:
+        """Execute remote control via WinRM"""
+        try:
+            import winrm
+            
+            # Extract credentials
+            username = credentials.get("username", "")
+            password = credentials.get("password", "")
+            transport = credentials.get("transport", "ntlm")
+            port = credentials.get("port", 5985)
+            
+            if not username or not password:
+                return self._create_error_response("WinRM username and password required")
+            
+            # Create WinRM session
+            session = winrm.Session(
+                target_system,
+                auth=(username, password),
+                transport=transport
+            )
+            
+            # Execute command
+            result = session.run_cmd(command)
+            
+            return {
+                "success": True,
+                "exit_code": result.status_code,
+                "stdout": result.std_out.decode('utf-8'),
+                "stderr": result.std_err.decode('utf-8'),
+                "target_system": target_system,
+                "protocol": "winrm"
+            }
+        except ImportError:
+            return self._create_error_response("winrm library required for WinRM remote control")
+        except Exception as e:
+            return self._create_error_response(f"WinRM remote control failed: {str(e)}")
 
     def _execute_single_operation(self, operation: Dict) -> Dict[str, Any]:
         """Execute single operation"""

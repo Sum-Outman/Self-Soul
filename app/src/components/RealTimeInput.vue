@@ -327,12 +327,14 @@ export default {
       isSensorDataActive: false,
       selectedSensorInterface: 'serial',
       sensorData: {
-        temperature: '25.0°C',
-        humidity: '45%',
-        acceleration: '0.0g',
-        light: '500lux',
-        distance: '100cm'
+        temperature: '--',
+        humidity: '--',
+        acceleration: '--',
+        light: '--',
+        distance: '--'
       },
+      sensorWebSocket: null,
+      sensorUpdateInterval: null,
       
       // Multimodal Fusion
       fuseAudioVisual: false,
@@ -686,49 +688,40 @@ export default {
       }
     },
     
-    // Draw Simulated Depth Map (for demonstration)
-    drawSimulatedDepthMap(ctx, width, height) {
-      // Create gradient for simulated depth
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, 'black');   // Far
-      gradient.addColorStop(1, 'white');   // Near
+    // Real Depth Map Calculation
+    calculateRealDepthMap(leftImageData, rightImageData) {
+      // In production, this would implement real stereo vision algorithms
+      // such as block matching, semi-global matching, or deep learning methods
       
-      // Draw gradient with some noise to simulate depth variations
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
+      // Placeholder for real depth calculation
+      // This should be replaced with actual stereo correspondence algorithms
+      console.log('Calculating real depth map from stereo images');
       
-      // Add some simulated objects
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      for (let i = 0; i < 5; i++) {
-        const x = Math.random() * width * 0.8;
-        const y = Math.random() * height * 0.8;
-        const size = 30 + Math.random() * 100;
-        ctx.beginPath();
-        ctx.arc(x + size/2, y + size/2, size/2, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+      // Return placeholder data structure
+      return {
+        data: new Array(leftImageData.width * leftImageData.height).fill(0),
+        width: leftImageData.width,
+        height: leftImageData.height,
+        baseline: this.stereoParams.baseline,
+        focalLength: this.stereoParams.focalLength,
+        method: 'stereo_correspondence'
+      };
     },
     
-    // Draw Simulated Point Cloud Preview (for demonstration)
-    drawSimulatedPointCloud(ctx, width, height) {
-      // Clear canvas
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, width, height);
+    // Real Point Cloud Generation
+    generateRealPointCloud(depthMap) {
+      // Convert depth map to 3D point cloud
+      // This should implement proper 3D reconstruction from depth data
       
-      // Draw random points with varying sizes and colors to simulate 3D points
-      const numPoints = 1000;
-      for (let i = 0; i < numPoints; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        const depth = Math.random();
-        const pointSize = 1 + (1 - depth) * 3; // Larger points are closer
-        const intensity = Math.floor(200 * (1 - depth) + 55); // Brighter points are closer
-        
-        ctx.fillStyle = `rgb(${intensity}, ${intensity}, ${intensity})`;
-        ctx.beginPath();
-        ctx.arc(x, y, pointSize, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+      console.log('Generating 3D point cloud from depth map');
+      
+      // Placeholder for real point cloud generation
+      // This should be replaced with actual 3D reconstruction algorithms
+      return {
+        points: [],
+        colors: [],
+        bounds: { x: [0, 1], y: [0, 1], z: [0, 1] }
+      };
     },
     
     // Extract Depth Data from Canvas

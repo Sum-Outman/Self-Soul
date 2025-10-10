@@ -622,8 +622,7 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
             
         except Exception as e:
             self.logger.error(f"Object detection failed: {str(e)}")
-            return [{"id": "obj1", "position": [1.5, 0.8, 0.5], "size": [0.3, 0.2, 0.4], 
-                    "type": "box", "confidence": 0.7}]
+            return []
     
     def _calculate_volume(self, obj: Dict, depth_map: np.ndarray) -> float:
         """Calculate object volume"""

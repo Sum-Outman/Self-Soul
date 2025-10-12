@@ -59,6 +59,9 @@ class UnifiedModelTemplate(CompositeBaseModel, abc.ABC):
         self.supported_operations = self._get_supported_operations()
         self.model_type = self._get_model_type()  # vision, audio, language, etc.
         
+        # Ensure config attribute is available for compatibility
+        self.config = self.model_config if hasattr(self, 'model_config') else (config or {})
+        
         # AGI compliance flags
         self.agi_compliant = True
         self.from_scratch_training_enabled = True

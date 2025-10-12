@@ -88,8 +88,8 @@ class UnifiedKnowledgeModel(UnifiedModelTemplate):
         # Initialize AGI neural networks
         self._initialize_agi_neural_networks()
         
-        # Initialize AGI knowledge-specific components
-        self._initialize_agi_model_specific_components(config)
+        # Initialize model-specific components (required by template)
+        self._initialize_model_specific_components()
         
         self.logger.info("AGI Knowledge Model initialized successfully")
     
@@ -125,16 +125,18 @@ class UnifiedKnowledgeModel(UnifiedModelTemplate):
         try:
             logger.info("开始初始化AGI知识组件")
             
-            # 使用统一的AGITools初始化AGI组件
-            agi_components = AGITools.initialize_agi_components([
-                "knowledge_reasoning", "meta_learning", "self_reflection", 
-                "cognitive_engine", "problem_solver", "creative_generator"
-            ])
+            # 创建AGITools实例并初始化AGI组件
+            agi_tools = AGITools(
+                model_type=self._get_model_type(),
+                model_id=self._get_model_id(),
+                config=self.config
+            )
+            agi_components = agi_tools.initialize_agi_components(self.config)
             
             # 分配组件到实例变量
-            self.agi_knowledge_reasoning = agi_components.get("knowledge_reasoning")
-            self.agi_meta_learning = agi_components.get("meta_learning")
-            self.agi_self_reflection = agi_components.get("self_reflection")
+            self.agi_knowledge_reasoning = agi_components.get("reasoning_engine")
+            self.agi_meta_learning = agi_components.get("meta_learning_system")
+            self.agi_self_reflection = agi_components.get("self_reflection_module")
             self.agi_cognitive_engine = agi_components.get("cognitive_engine")
             self.agi_problem_solver = agi_components.get("problem_solver")
             self.agi_creative_generator = agi_components.get("creative_generator")

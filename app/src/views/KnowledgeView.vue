@@ -87,6 +87,12 @@
               <span class="slider round"></span>
             </label>
           </div>
+          <button v-if="autoLearningEnabled" class="stop-learning-btn" @click="stopAutoLearning">
+            Stop Learning
+          </button>
+          <button v-else class="start-learning-btn" @click="startAutoLearning">
+            Start Learning
+          </button>
         </div>
       </div>
 

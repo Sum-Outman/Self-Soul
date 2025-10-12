@@ -59,6 +59,26 @@
               <input type="number" v-model.number="stereoParams.focalLength" min="1" max="100" step="0.1" />
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Minimum Disparity</label>
+              <input type="number" v-model.number="stereoParams.minDisparity" min="0" max="100" />
+            </div>
+            <div class="form-group">
+              <label>Number of Disparities</label>
+              <input type="number" v-model.number="stereoParams.numDisparities" min="16" max="256" step="16" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Block Size (odd)</label>
+              <input type="number" v-model.number="stereoParams.blockSize" min="3" max="31" step="2" />
+            </div>
+            <div class="form-group">
+              <label>Stereo Pair ID</label>
+              <input type="text" v-model="selectedStereoPairId" placeholder="Enter stereo pair ID" />
+            </div>
+          </div>
         </div>
         
         <!-- Multi-camera Selection -->
@@ -281,6 +301,7 @@ export default {
         left: '',
         right: ''
       },
+      selectedStereoPairId: null,
       stereoStreams: {
         left: null,
         right: null
@@ -289,6 +310,9 @@ export default {
       stereoParams: {
         baseline: 65, // Distance between cameras in mm
         focalLength: 3.6, // Focal length in mm
+        minDisparity: 0, // Minimum disparity for stereo matcher
+        numDisparities: 16, // Number of disparities for stereo matcher (must be divisible by 16)
+        blockSize: 9, // Block size for stereo matcher (must be odd)
         // Calibration parameters will be stored here after calibration
         calibration: {
           left: null,
@@ -351,6 +375,7 @@ export default {
       webSocketUrl: 'ws://localhost:8000/ws', // Default WebSocket URL
       audioCaptureInterval: null,
       videoCaptureInterval: null,
+      depthMapInterval: null,
       isWebSocketConnected: false,
       
       // Status Message System
@@ -382,6 +407,7 @@ export default {
     this.stopVideoStream();
     this.stopAudioStream();
     this.stopSensorData();
+    this.stopDepthMapCalculation();
   },
   methods: {
     // Get Device List
@@ -592,33 +618,56 @@ export default {
         
         this.showInfo('Calibrating stereo cameras... This may take a moment.');
         
-        // In a real implementation, this would use a calibration pattern
-        // and perform proper camera calibration
-        
-        // Simulate calibration process
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Store calibration data (mock data for demonstration)
-        this.stereoParams.calibration = {
-          left: {
+        // Use the backend API for calibration instead of local simulation
+        if (this.selectedStereoPairId) {
+          const response = await api.cameras.calibrateStereoPair(this.selectedStereoPairId, {
+            leftCameraId: this.selectedStereoCameras.left,
+            rightCameraId: this.selectedStereoCameras.right,
             focalLength: this.stereoParams.focalLength,
-            principalPoint: { x: 640, y: 360 },
-            distortion: [0, 0, 0, 0, 0]
-          },
-          right: {
-            focalLength: this.stereoParams.focalLength,
-            principalPoint: { x: 640, y: 360 },
-            distortion: [0, 0, 0, 0, 0]
-          },
-          rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1], // Identity matrix
-          translation: [this.stereoParams.baseline, 0, 0] // Translation vector
-        };
-        
-        this.isStereoCalibrated = true;
-        this.showSuccess('Stereo cameras calibrated successfully');
-        
-        // Start depth map calculation
-        this.startDepthMapCalculation();
+            baseline: this.stereoParams.baseline
+          });
+          
+          if (response.data.status === 'success' && response.data.calibration_result && response.data.calibration_result.success) {
+            // Store calibration data from backend
+            this.stereoParams.calibration = response.data.calibration_result.calibration_data;
+            this.isStereoCalibrated = true;
+            this.showSuccess('Stereo cameras calibrated successfully');
+            
+            // Start depth map calculation
+            this.startDepthMapCalculation();
+          } else {
+            throw new Error(response.data.calibration_result?.message || 'Calibration failed');
+          }
+        } else {
+          // Fallback to local simulation if no stereo pair ID is selected
+          // In a real implementation, this would use a calibration pattern
+          // and perform proper camera calibration
+          
+          // Simulate calibration process
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Store calibration data (mock data for demonstration)
+          this.stereoParams.calibration = {
+            left: {
+              focalLength: this.stereoParams.focalLength,
+              principalPoint: { x: 640, y: 360 },
+              distortion: [0, 0, 0, 0, 0]
+            },
+            right: {
+              focalLength: this.stereoParams.focalLength,
+              principalPoint: { x: 640, y: 360 },
+              distortion: [0, 0, 0, 0, 0]
+            },
+            rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1], // Identity matrix
+            translation: [this.stereoParams.baseline, 0, 0] // Translation vector
+          };
+          
+          this.isStereoCalibrated = true;
+          this.showSuccess('Stereo cameras calibrated successfully (local simulation)');
+          
+          // Start depth map calculation
+          this.startDepthMapCalculation();
+        }
       } catch (error) {
         console.error('Stereo camera calibration failed:', error);
         this.showError('Stereo camera calibration failed: ' + error.message);
@@ -641,7 +690,7 @@ export default {
     },
     
     // Calculate Depth Map from Stereo Images
-    calculateDepthMap() {
+    async calculateDepthMap() {
       if (!this.isStereoCalibrated || !this.areStereoCamerasActive) return;
 
       try {
@@ -668,9 +717,48 @@ export default {
         // Draw left image to depth canvas
         depthCtx.drawImage(leftVideo, 0, 0, depthCanvas.width, depthCanvas.height);
         
-        // In a real implementation, we would perform block matching or other
-        // stereo correspondence algorithms here to calculate the depth map
+        try {
+          // Try to use the backend API for depth map calculation
+          if (this.selectedStereoPairId) {
+            const response = await api.cameras.processStereoPair(this.selectedStereoPairId, {
+              enabled: true,
+              min_disparity: this.stereoParams.minDisparity,
+              num_disparities: this.stereoParams.numDisparities,
+              block_size: this.stereoParams.blockSize
+            });
+            
+            if (response.data.status === 'success' && response.data.result) {
+              const result = response.data.result;
+              
+              // Process the depth map from the backend
+              if (result.depth_map) {
+                // Draw the depth map
+                this.drawDepthMapFromData(depthCtx, result.depth_map);
+                
+                // Draw point cloud if available
+                if (result.point_cloud && result.point_cloud.points && result.point_cloud.points.length > 0) {
+                  this.drawPointCloudFromData(pointCloudCtx, result.point_cloud, depthCanvas.width, depthCanvas.height);
+                } else {
+                  this.drawSimulatedPointCloud(pointCloudCtx, depthCanvas.width, depthCanvas.height);
+                }
+                
+                // Emit the real depth map data
+                this.$emit('depth-map', result.depth_map);
+                
+                // Emit point cloud data if available
+                if (result.point_cloud) {
+                  this.$emit('point-cloud', result.point_cloud);
+                }
+                
+                return;
+              }
+            }
+          }
+        } catch (apiError) {
+          console.warn('Backend depth calculation failed, falling back to local simulation:', apiError);
+        }
         
+        // Fallback to local simulation if API call fails or isn't configured
         // For demonstration, we'll create a simulated depth map
         this.drawSimulatedDepthMap(depthCtx, depthCanvas.width, depthCanvas.height);
         
@@ -685,6 +773,72 @@ export default {
         
       } catch (error) {
         console.error('Depth map calculation error:', error);
+      }
+    },
+    
+    // Draw Depth Map from Backend Data
+    drawDepthMapFromData(ctx, depthMapData) {
+      const { data, width, height } = depthMapData;
+      const imageData = ctx.createImageData(width, height);
+      
+      // Convert depth values to grayscale
+      for (let i = 0; i < data.length; i++) {
+        const index = i * 4;
+        const depthValue = Math.min(255, Math.max(0, data[i]));
+        
+        imageData.data[index] = depthValue;     // R
+        imageData.data[index + 1] = depthValue; // G
+        imageData.data[index + 2] = depthValue; // B
+        imageData.data[index + 3] = 255;        // A
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+    },
+    
+    // Draw Point Cloud from Backend Data
+    drawPointCloudFromData(ctx, pointCloudData, canvasWidth, canvasHeight) {
+      const { points, colors } = pointCloudData;
+      
+      // Clear canvas
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      // Simple 2D projection of 3D points
+      ctx.fillStyle = 'white';
+      
+      // Find point bounds for normalization
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      let minZ = Infinity, maxZ = -Infinity;
+      
+      for (const point of points) {
+        minX = Math.min(minX, point[0]);
+        maxX = Math.max(maxX, point[0]);
+        minY = Math.min(minY, point[1]);
+        maxY = Math.max(maxY, point[1]);
+        minZ = Math.min(minZ, point[2]);
+        maxZ = Math.max(maxZ, point[2]);
+      }
+      
+      // Normalize and draw points
+      const rangeX = maxX - minX || 1;
+      const rangeY = maxY - minY || 1;
+      
+      for (let i = 0; i < points.length; i++) {
+        const [x, y, z] = points[i];
+        const [r, g, b] = colors[i] || [1, 1, 1];
+        
+        // Normalize to canvas coordinates
+        const canvasX = ((x - minX) / rangeX) * canvasWidth;
+        const canvasY = ((y - minY) / rangeY) * canvasHeight;
+        
+        // Adjust size based on depth (z)
+        const size = Math.max(1, 5 * (1 - (z - minZ) / (maxZ - minZ || 1)));
+        
+        ctx.fillStyle = `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, 0.8)`;
+        ctx.beginPath();
+        ctx.arc(canvasX, canvasY, size, 0, 2 * Math.PI);
+        ctx.fill();
       }
     },
     
@@ -715,12 +869,69 @@ export default {
       
       console.log('Generating 3D point cloud from depth map');
       
-      // Placeholder for real point cloud generation
-      // This should be replaced with actual 3D reconstruction algorithms
+      if (!depthMap || !depthMap.data) {
+        return {
+          points: [],
+          colors: [],
+          bounds: { x: [0, 1], y: [0, 1], z: [0, 1] }
+        };
+      }
+      
+      // If depthMap already contains pointCloud data (from server), use that
+      if (depthMap.point_cloud) {
+        return {
+          points: depthMap.point_cloud.points || [],
+          colors: depthMap.point_cloud.colors || [],
+          bounds: depthMap.point_cloud.bounds || { x: [0, 1], y: [0, 1], z: [0, 1] }
+        };
+      }
+      
+      // Fallback: Generate point cloud from depth map data
+      const { width, height, baseline, focalLength } = depthMap;
+      const points = [];
+      const colors = [];
+      const data = depthMap.data;
+      
+      // Simple point cloud generation from depth data
+      for (let y = 0; y < height; y += 4) { // Sample every 4th pixel for performance
+        for (let x = 0; x < width; x += 4) {
+          const index = y * width + x;
+          const depth = data[index] || 0;
+          
+          // Skip points with no depth
+          if (depth === 0) continue;
+          
+          // Calculate 3D coordinates
+          const z = (baseline * focalLength * 1000) / (depth + 0.1); // Convert to mm
+          const realX = ((x - width / 2) * z) / (focalLength * 1000);
+          const realY = ((y - height / 2) * z) / (focalLength * 1000);
+          
+          points.push([realX, realY, z]);
+          
+          // Assign grayscale color based on depth
+          const intensity = Math.min(255, Math.max(0, depth));
+          colors.push([intensity / 255, intensity / 255, intensity / 255]);
+        }
+      }
+      
+      // Calculate bounds
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      let minZ = Infinity, maxZ = -Infinity;
+      
+      for (const point of points) {
+        minX = Math.min(minX, point[0]);
+        maxX = Math.max(maxX, point[0]);
+        minY = Math.min(minY, point[1]);
+        maxY = Math.max(maxY, point[1]);
+        minZ = Math.min(minZ, point[2]);
+        maxZ = Math.max(maxZ, point[2]);
+      }
+      
       return {
-        points: [],
-        colors: [],
-        bounds: { x: [0, 1], y: [0, 1], z: [0, 1] }
+        points,
+        colors,
+        bounds: { x: [minX, maxX], y: [minY, maxY], z: [minZ, maxZ] }
       };
     },
     

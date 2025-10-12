@@ -9,12 +9,12 @@ import logging
 from typing import Dict, Any, List, Optional, Callable
 from abc import ABC, abstractmethod
 
-# Import all mixins
-from .performance_mixin import PerformanceMixin as PerformanceMonitoringMixin
-from .external_api_mixin import ExternalAPIMixin as ExternalAPIIntegrationMixin
-from .cache_mixin import CacheMixin as CacheOptimizationMixin
-from .error_handling_mixin import ErrorHandlingMixin
-from .resource_mixin import ResourceManagementMixin
+# Import unified mixins
+from .unified_mixins import (
+    UnifiedPerformanceCacheMixin as PerformanceMonitoringMixin,
+    UnifiedErrorResourceMixin as ErrorHandlingMixin,
+    UnifiedExternalAPIMixin as ExternalAPIIntegrationMixin
+)
 from .training_mixin import TrainingLifecycleMixin
 from .agi_core_mixin import AGICoreCapabilitiesMixin
 

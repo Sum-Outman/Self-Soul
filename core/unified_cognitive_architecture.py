@@ -1509,7 +1509,7 @@ class NeuralReasoner:
         }
     
     def _create_neural_network(self, model_type: str) -> nn.Module:
-        """Create real neural network architecture"""
+        """Create real neural network architecture with memory optimization"""
         class DynamicNeuralNetwork(nn.Module):
             def __init__(self, input_dim, hidden_dims, output_dim):
                 super(DynamicNeuralNetwork, self).__init__()
@@ -1517,11 +1517,16 @@ class NeuralReasoner:
                 self.hidden_dims = hidden_dims
                 self.output_dim = output_dim
                 
-                # Create dynamic layers
+                # Create dynamic layers with memory optimization
                 layers = []
                 prev_dim = input_dim
                 
-                for hidden_dim in hidden_dims:
+                # Limit network size for stability
+                max_hidden_dims = min(hidden_dims, [256, 128, 64])  # Cap dimensions
+                
+                for i, hidden_dim in enumerate(max_hidden_dims):
+                    if i >= 3:  # Limit to 3 hidden layers maximum
+                        break
                     layers.extend([
                         nn.Linear(prev_dim, hidden_dim),
                         nn.ReLU(),
@@ -1535,7 +1540,11 @@ class NeuralReasoner:
             def forward(self, x):
                 return self.network(x)
         
-        return DynamicNeuralNetwork(self.input_dim, self.hidden_dims, self.output_dim)
+        # Use smaller dimensions for stability
+        safe_hidden_dims = [min(dim, 256) for dim in self.hidden_dims][:3]  # Max 3 layers, 256 neurons
+        safe_output_dim = min(self.output_dim, 100)
+        
+        return DynamicNeuralNetwork(self.input_dim, safe_hidden_dims, safe_output_dim)
         
     def predict(self, input_data: Any, model_type: str = "default") -> Dict[str, Any]:
         """Real neural network prediction"""

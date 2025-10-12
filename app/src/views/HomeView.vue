@@ -1271,25 +1271,52 @@ export default {
     },
     
     // Stereo vision specific methods
-    calibrateStereoPair(pairId) {
+    async calibrateStereoPair(pairId) {
       const stereoPair = this.stereoVisionPairs.find(pair => pair.id === pairId);
       if (stereoPair) {
         this.addSystemMessage(`Starting calibration for stereo pair: ${stereoPair.name}`);
-        this.sendDeviceControlCommand(pairId, 'calibrate_stereo', {
-          leftCameraId: stereoPair.leftCameraId,
-          rightCameraId: stereoPair.rightCameraId
-        });
+        try {
+          const response = await api.cameras.calibrateStereoPair(pairId, {
+            leftCameraId: stereoPair.leftCameraId,
+            rightCameraId: stereoPair.rightCameraId
+          });
+          
+          if (response.data.success) {
+            this.addSystemMessage(`Calibration for stereo pair ${stereoPair.name} completed successfully`);
+            // Update calibration data if available
+            if (response.data.calibrationData) {
+              this.stereoCalibrationData[pairId] = response.data.calibrationData;
+            }
+          } else {
+            throw new Error(response.data.detail || 'Calibration failed');
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'Failed to calibrate stereo pair');
+          this.addSystemMessage(`Failed to calibrate stereo pair: ${error.message || error}`);
+        }
       }
     },
     
     // Enable/disable stereo vision processing
-    toggleStereoVision(pairId) {
+    async toggleStereoVision(pairId) {
       const stereoPair = this.stereoVisionPairs.find(pair => pair.id === pairId);
       if (stereoPair) {
         const isEnabled = !stereoPair.isActive;
-        this.sendDeviceControlCommand(pairId, isEnabled ? 'enable_stereo' : 'disable_stereo');
-        stereoPair.isActive = isEnabled;
-        this.addSystemMessage(`${isEnabled ? 'Enabled' : 'Disabled'} stereo vision for pair: ${stereoPair.name}`);
+        try {
+          const response = await api.cameras.processStereoPair(pairId, {
+            enabled: isEnabled
+          });
+          
+          if (response.data.success) {
+            stereoPair.isActive = isEnabled;
+            this.addSystemMessage(`${isEnabled ? 'Enabled' : 'Disabled'} stereo vision for pair: ${stereoPair.name}`);
+          } else {
+            throw new Error(response.data.detail || 'Failed to toggle stereo vision');
+          }
+        } catch (error) {
+          errorHandler.handleError(error, 'Failed to toggle stereo vision');
+          this.addSystemMessage(`Failed to ${isEnabled ? 'enable' : 'disable'} stereo vision: ${error.message || error}`);
+        }
       }
     },
     
@@ -1626,17 +1653,35 @@ export default {
         }
         
         // Load stereo vision pairs
-        const stereoPairsResponse = await api.get('/api/devices/stereo-pairs');
-        if (stereoPairsResponse.data.status === 'success') {
-          this.stereoVisionPairs = stereoPairsResponse.data.data || [];
-          errorHandler.logInfo(`Loaded ${this.stereoVisionPairs.length} stereo vision pairs`);
+        try {
+          const stereoPairsResponse = await api.cameras.getStereoPairs();
+          if (stereoPairsResponse.data.status === 'success') {
+            this.stereoVisionPairs = stereoPairsResponse.data.data || [];
+            errorHandler.logInfo(`Loaded ${this.stereoVisionPairs.length} stereo vision pairs`);
+          }
+        } catch (error) {
+          errorHandler.logWarning('Failed to load stereo pairs from primary API, falling back to secondary endpoint');
+          // Fallback to original endpoint for backward compatibility
+          try {
+            const stereoPairsResponse = await api.get('/api/devices/stereo-pairs');
+            if (stereoPairsResponse.data.status === 'success') {
+              this.stereoVisionPairs = stereoPairsResponse.data.data || [];
+              errorHandler.logInfo(`Loaded ${this.stereoVisionPairs.length} stereo vision pairs`);
+            }
+          } catch (fallbackError) {
+            errorHandler.logWarning('Failed to load stereo pairs from fallback endpoint');
+          }
         }
         
         // Load stereo calibration data
-        const calibrationResponse = await api.get('/api/devices/stereo-calibration');
-        if (calibrationResponse.data.status === 'success') {
-          this.stereoCalibrationData = calibrationResponse.data.data || {};
-          errorHandler.logInfo('Loaded stereo vision calibration data');
+        try {
+          const calibrationResponse = await api.get('/api/devices/stereo-calibration');
+          if (calibrationResponse.data.status === 'success') {
+            this.stereoCalibrationData = calibrationResponse.data.data || {};
+            errorHandler.logInfo('Loaded stereo vision calibration data');
+          }
+        } catch (error) {
+          errorHandler.logWarning('Failed to load stereo calibration data');
         }
         
         this.addSystemMessage(`Device data loaded: ${this.cameras.length} cameras, ${this.externalDevices.length} external devices, ${this.stereoVisionPairs.length} stereo pairs`);
@@ -1645,8 +1690,6 @@ export default {
         errorHandler.handleError(error, 'Failed to load device data');
         this.addSystemMessage('Failed to load device data from backend. Please ensure the backend service is running.');
         
-        // Initialize with empty arrays
-        this.cameras = [];
         // Initialize with empty arrays
         this.cameras = [];
         this.externalDevices = [];

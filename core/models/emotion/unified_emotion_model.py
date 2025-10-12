@@ -1738,11 +1738,8 @@ class UnifiedEmotionModel(UnifiedModelTemplate):
         """Initialize AGI emotion components with enhanced capabilities using unified tools"""
         try:
             # Use unified AGI tools to initialize all AGI components
-            self.agi_components = AGITools.initialize_agi_components(
-                model_type="emotion",
-                config=self.config,
-                model_id=self._get_model_id()
-            )
+            agi_tools = AGITools()
+            self.agi_components = agi_tools.initialize_agi_components(self.config)
             
             error_handler.log_info("AGI emotion components initialized successfully using unified tools", self._get_model_id())
             

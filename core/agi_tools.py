@@ -1220,6 +1220,125 @@ class AGITools:
             "expected_improvement": 0.2
         }
 
+    # ===== MISSING METHOD FOR AGI CORE MIXIN =====
+    
+    def initialize_agi_components(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Initialize AGI components - this method is required by AGICoreMixin.
+        
+        Args:
+            config: Configuration dictionary for AGI components
+            
+        Returns:
+            Dictionary containing initialized AGI components
+        """
+        if config is None:
+            config = {}
+        
+        self.logger.info(f"Initializing AGI components for {self.model_id}")
+        
+        # Initialize AGI systems if not already done
+        if not self.agi_systems:
+            self.agi_systems = self._initialize_agi_systems()
+        
+        # Create AGI components required by AGICoreMixin
+        agi_components = {
+            "reasoning_engine": self.create_reasoning_engine(
+                capabilities=["deductive", "inductive", "abductive", "counterfactual"],
+                reasoning_depth=5,
+                max_complexity=10
+            ),
+            "decision_maker": self.create_decision_maker(
+                decision_criteria=["utility", "safety", "efficiency", "ethics"],
+                risk_tolerance=0.7,
+                decision_strategies=["utility_based", "rule_based", "multi_criteria"]
+            ),
+            "cognitive_engine": self.create_cognitive_engine(
+                attention_mechanisms=["focused", "distributed", "contextual"],
+                memory_systems=["short_term", "long_term", "episodic"],
+                integration_level="intermediate"
+            ),
+            "meta_learning_system": self.create_meta_learning_system(
+                learning_strategies=["reinforcement", "transfer", "meta", "continual"],
+                adaptation_speed=0.8,
+                generalization_capability=0.7
+            ),
+            "self_reflection_module": self.create_self_reflection_module(
+                performance_metrics=["accuracy", "efficiency", "adaptation", "learning_rate"],
+                reflection_frequency=0.6,
+                improvement_threshold=0.5
+            ),
+            "agi_systems": self.agi_systems,
+            "initialization_time": datetime.now().isoformat(),
+            "model_id": self.model_id
+        }
+        
+        self.logger.info(f"AGI components initialized successfully for {self.model_id}")
+        return agi_components
+    def _adjust_strategies(self, improvement_areas: List[str]) -> Dict[str, Any]:
+        """Adjust strategies based on improvement areas."""
+        return {
+            "adjusted_strategies": improvement_areas,
+            "adjustment_magnitude": 0.3,
+            "expected_improvement": 0.2
+        }
+
+    # ===== MISSING METHOD FOR AGI CORE MIXIN =====
+    
+    def initialize_agi_components(self, config: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Initialize AGI components - this method is required by AGICoreMixin.
+        
+        Args:
+            config: Configuration dictionary for AGI components
+            
+        Returns:
+            Dictionary containing initialized AGI components
+        """
+        if config is None:
+            config = {}
+        
+        self.logger.info(f"Initializing AGI components for {self.model_id}")
+        
+        # Initialize AGI systems if not already done
+        if not self.agi_systems:
+            self.agi_systems = self._initialize_agi_systems()
+        
+        # Create AGI components required by AGICoreMixin
+        agi_components = {
+            "reasoning_engine": self.create_reasoning_engine(
+                capabilities=["deductive", "inductive", "abductive", "counterfactual"],
+                reasoning_depth=5,
+                max_complexity=10
+            ),
+            "decision_maker": self.create_decision_maker(
+                decision_criteria=["utility", "safety", "efficiency", "ethics"],
+                risk_tolerance=0.7,
+                decision_strategies=["utility_based", "rule_based", "multi_criteria"]
+            ),
+            "cognitive_engine": self.create_cognitive_engine(
+                attention_mechanisms=["focused", "distributed", "contextual"],
+                memory_systems=["short_term", "long_term", "episodic"],
+                integration_level="intermediate"
+            ),
+            "meta_learning_system": self.create_meta_learning_system(
+                learning_strategies=["reinforcement", "transfer", "meta", "continual"],
+                adaptation_speed=0.8,
+                generalization_capability=0.7
+            ),
+            "self_reflection_module": self.create_self_reflection_module(
+                performance_metrics=["accuracy", "efficiency", "adaptation", "learning_rate"],
+                reflection_frequency=0.6,
+                improvement_threshold=0.5
+            ),
+            "agi_systems": self.agi_systems,
+            "initialization_time": datetime.now().isoformat(),
+            "model_id": self.model_id
+        }
+        
+        self.logger.info(f"AGI components initialized successfully for {self.model_id}")
+        return agi_components
+
 
 # Factory function for creating AGI tools instances
 def create_agi_tools(model_type: str, model_id: str, config: Dict[str, Any] = None) -> AGITools:

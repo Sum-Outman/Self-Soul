@@ -191,6 +191,7 @@ class ModelRegistry:
     def __init__(self):
         self.models = {}
         self.model_configs = {}
+        self._models_lock = threading.RLock()  # 添加线程锁防止并发问题
         self.model_types = {
             'manager': 'core.models.manager.unified_manager_model.UnifiedManagerModel',           # A管理模型
             'language': 'core.models.language.unified_language_model.UnifiedLanguageModel',        # B大语言模型

@@ -235,7 +235,6 @@ class SystemSettingsManager:
             "source": source
         }
         return self.update_model_setting(model_id, settings)
-        return result
     
     def save_model_config(self, model_id: str, config: Dict[str, Any]) -> bool:
         """

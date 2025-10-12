@@ -256,7 +256,9 @@ class CameraManager:
                 result[camera_id] = self.get_camera_info(camera_id)
         return result
     
-    def perform_binocular_vision(self, left_camera_id: str, right_camera_id: str) -> Dict[str, Any]:
+    def perform_binocular_vision(self, left_camera_id: str, right_camera_id: str, 
+                                min_disparity: int = 0, num_disparities: int = 16, 
+                                block_size: int = 15) -> Dict[str, Any]:
         """Perform binocular vision processing for depth perception"""
         try:
             # Get frames from both cameras
@@ -270,8 +272,14 @@ class CameraManager:
             left_gray = cv2.cvtColor(left_frame, cv2.COLOR_BGR2GRAY)
             right_gray = cv2.cvtColor(right_frame, cv2.COLOR_BGR2GRAY)
             
-            # Create StereoBM object for disparity map calculation
-            stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+            # Create StereoBM object for disparity map calculation with configurable parameters
+            stereo = cv2.StereoBM_create(
+                numDisparities=num_disparities,
+                blockSize=block_size
+            )
+            stereo.setMinDisparity(min_disparity)
+            
+            # Compute disparity map
             disparity = stereo.compute(left_gray, right_gray)
             
             # Normalize the disparity map for display
@@ -280,15 +288,54 @@ class CameraManager:
                 norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U
             )
             
-            # Calculate depth map (simplified, real implementation needs camera calibration)
-            # depth = (focal_length * baseline) / disparity
+            # In a real application, we would use actual calibration data
+            # For now, we'll simulate depth map calculation with default parameters
+            baseline = 0.1  # 10cm baseline distance
+            focal_length = 500  # Pixels
+            
+            # Create point cloud data (simplified)
+            h, w = left_gray.shape
+            point_cloud = []
+            colors = []
+            
+            for y in range(0, h, 5):  # Sample every 5th pixel for performance
+                for x in range(0, w, 5):
+                    disp = disparity[y, x]
+                    if disp > 0:
+                        # Calculate 3D coordinates using triangulation formula
+                        z = (baseline * focal_length) / disp if disp > 0 else 0
+                        x3d = (x - w/2) * z / focal_length
+                        y3d = (y - h/2) * z / focal_length
+                        
+                        point_cloud.append([x3d, y3d, z])
+                        # Get color from original image
+                        b, g, r = left_frame[y, x]
+                        colors.append([r/255, g/255, b/255])
+            
+            # Prepare result data
+            result_data = {
+                "disparity_map": disparity_normalized,
+                "depth_map": {
+                    "data": disparity.tolist() if isinstance(disparity, np.ndarray) else disparity,
+                    "width": w,
+                    "height": h,
+                    "min_disparity": min_disparity,
+                    "num_disparities": num_disparities,
+                    "block_size": block_size
+                },
+                "point_cloud": {
+                    "points": point_cloud,
+                    "colors": colors,
+                    "count": len(point_cloud)
+                },
+                "left_frame_shape": left_frame.shape,
+                "right_frame_shape": right_frame.shape,
+                "timestamp": datetime.now().isoformat()
+            }
             
             return {
                 "success": True,
-                "disparity_map": disparity_normalized,
-                "left_frame": left_frame,
-                "right_frame": right_frame,
-                "timestamp": datetime.now().isoformat()
+                "data": result_data
             }
         except Exception as e:
             logger.error(f"Binocular vision processing failed: {str(e)}")

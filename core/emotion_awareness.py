@@ -149,9 +149,8 @@ class AGIEmotionAwarenessSystem:
         self.self_reflection_engine = SelfReflectionEngine()
         self.self_learning_system = AdvancedSelfLearningSystem()
         
-        # 使用ComponentFactory获取全局共享的UnifiedCognitiveArchitecture实例
-        from core.memory_optimization import ComponentFactory
-        self.cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
+        # 延迟初始化UnifiedCognitiveArchitecture，避免循环依赖
+        self.cognitive_architecture = None
         
         # 情感神经网络模型
         # Emotional neural network model
@@ -1086,6 +1085,19 @@ class AGIEmotionAwarenessSystem:
             'system_goals': self.system_goals.copy()
         }
     
+    def _get_cognitive_architecture(self):
+        """延迟初始化并获取认知架构实例
+           Lazy initialization and get cognitive architecture instance"""
+        if self.cognitive_architecture is None:
+            try:
+                from core.memory_optimization import ComponentFactory
+                self.cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture')
+            except Exception as e:
+                print(f"认知架构初始化失败: {e}")
+                # 创建简单的回退实例
+                self.cognitive_architecture = UnifiedCognitiveArchitecture()
+        return self.cognitive_architecture
+
     def reflect_on_experience(self, experience, outcome):
         """对经验进行反思和学习
            Reflect on experience and learn"""

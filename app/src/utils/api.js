@@ -220,7 +220,12 @@ const api = {
     updateHardwareConfig: (configData) => apiClient.post('/api/hardware/config', configData),
     
     // 测试硬件连接
-    testConnections: () => apiClient.post('/api/hardware/test-connections')
+    testConnections: () => apiClient.post('/api/hardware/test-connections'),
+    
+    // 立体视觉API
+    getStereoPairs: () => apiClient.get('/api/cameras/stereo-pairs'),
+    processStereoPair: (pairId, params = {}) => apiClient.post(`/api/cameras/stereo-pairs/${pairId}/process`, params),
+    calibrateStereoPair: (pairId, params = {}) => apiClient.post(`/api/cameras/stereo-pairs/${pairId}/calibrate`, params)
   },
 
   // 外接API模型配置

@@ -345,7 +345,7 @@ class AutonomousLearningManager:
                 # 更新性能历史
                 # Update performance history
                 self.performance_history[model_id].append({
-                    'timestamp': datetime.datetime.now(),
+                    'timestamp': datetime.now(),
                     'score': performance
                 })
                 
@@ -356,7 +356,7 @@ class AutonomousLearningManager:
                 # 更新模型状态跟踪
                 # Update model status tracking
                 self.model_status_tracking[model_id] = {
-                    'last_trained': datetime.datetime.now(),
+                    'last_trained': datetime.now(),
                     'performance_score': performance,
                     'improvement_rate': improvement_rate,
                     'training_priority': self._calculate_training_priority(model_id)
@@ -376,11 +376,49 @@ class AutonomousLearningManager:
             float: 性能分数
             float: Performance score
         """
-        # 这里应该是实际的评估逻辑
-        # This should be the actual evaluation logic
-        # 为了演示，我们使用随机分数
-        # For demonstration, we use a random score
-        return random.uniform(0.5, 1.0)
+        try:
+            model = self.model_references.get(model_id)
+            if not model:
+                return 0.3  # 无法找到模型，返回低分
+                
+            # 使用实际的性能评估方法
+            if hasattr(model, 'get_performance_metrics'):
+                metrics = model.get_performance_metrics()
+                if metrics:
+                    # 计算综合性能分数
+                    score = 0
+                    weight_sum = 0
+                    weights = {
+                        'accuracy': 0.3,
+                        'precision': 0.2,
+                        'recall': 0.2,
+                        'f1_score': 0.2,
+                        'speed': 0.1
+                    }
+                    
+                    for metric, value in metrics.items():
+                        if metric in weights and isinstance(value, (int, float)):
+                            score += value * weights[metric]
+                            weight_sum += weights[metric]
+                    
+                    return score / weight_sum if weight_sum > 0 else 0.5
+            elif hasattr(model, 'evaluate'):
+                # 如果模型有evaluate方法，调用它
+                result = model.evaluate()
+                if isinstance(result, (int, float)):
+                    return min(max(result, 0), 1)  # 确保在0-1范围内
+            
+            # 对于知识模型，我们可以特殊处理
+            if model_id == 'knowledge' and hasattr(model, 'get_knowledge_coverage'):
+                coverage = model.get_knowledge_coverage()
+                if isinstance(coverage, (int, float)):
+                    return min(max(coverage/100, 0), 1)
+            
+            # 如果没有具体性能指标，返回基础分
+            return 0.5
+        except Exception as e:
+            error_handler.log_error(f"评估模型 {model_id} 性能时出错: {str(e)}", "AutonomousLearningManager")
+            return 0.3
         
     def _calculate_improvement_rate(self, model_id):
         """计算模型性能的改进率
@@ -544,15 +582,42 @@ class AutonomousLearningManager:
             task: 任务类型
             task: Task type
         """
-        # 这里应该有实际的改进逻辑
-        # There should be actual improvement logic here
-        # 为了演示，我们只是记录日志
-        # For demonstration, we just log
-        error_handler.log_info(f"对模型 {model_id} 应用通用改进: {task}", "AutonomousLearningManager")
-        
-        # 模拟改进过程
-        # Simulate improvement process
-        time.sleep(2)
+        try:
+            error_handler.log_info(f"对模型 {model_id} 应用通用改进: {task}", "AutonomousLearningManager")
+            
+            model = self.model_references.get(model_id)
+            if not model:
+                return
+            
+            # 实际的改进逻辑
+            # 1. 从知识库获取相关知识
+            relevant_knowledge = []
+            if self.knowledge_model and hasattr(self.knowledge_model, 'search_knowledge'):
+                # 根据模型ID和任务类型搜索相关知识
+                search_query = f"{model_id} {task}"
+                relevant_knowledge = self.knowledge_model.search_knowledge(search_query, limit=5)
+                
+            # 2. 根据不同的任务类型执行不同的改进
+            if task.endswith('enhancement'):
+                # 基础增强任务
+                if hasattr(model, 'update_parameters'):
+                    # 为模型提供相关知识作为更新参数
+                    model.update_parameters(relevant_knowledge)
+            elif task == 'foundational_knowledge_acquisition':
+                # 基础知识获取
+                if hasattr(model, 'acquire_knowledge'):
+                    model.acquire_knowledge(relevant_knowledge)
+            elif task == 'cross_domain_knowledge_transfer':
+                # 跨领域知识迁移
+                if hasattr(model, 'transfer_knowledge'):
+                    model.transfer_knowledge(relevant_knowledge)
+            
+            # 3. 对于知识模型的特殊处理
+            if model_id == 'knowledge' and hasattr(model, 'consolidate_knowledge'):
+                model.consolidate_knowledge()
+                
+        except Exception as e:
+            error_handler.handle_error(e, "AutonomousLearningManager", f"执行通用改进任务时出错: {task} 对模型: {model_id}")
         
     def _generate_learning_report(self):
         """生成学习报告
@@ -561,7 +626,7 @@ class AutonomousLearningManager:
         # 创建学习报告
         # Create learning report
         report = {
-            'timestamp': datetime.datetime.now(),
+            'timestamp': datetime.now(),
             'models_evaluated': len(self.model_references),
             'improvement_suggestions': self.improvement_suggestions,
             'model_performances': {}

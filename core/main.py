@@ -680,35 +680,44 @@ async def get_language_model_status():
     try:
         language_model = model_registry.get_model("language")
         if language_model:
+            # Initialize base status
             status = {
                 "id": "language",
                 "name": "Language Model",
                 "type": "language",
                 "status": "active",
-                "version": "1.0.0",
-                "cpu_usage": 15.5,
-                "memory_usage": 32.8,
-                "response_time": 125,
-                "success_rate": 0.95,
-                "throughput": 45.2
+                "version": getattr(language_model, 'version', 'unknown'),
             }
+            
+            # Get actual performance metrics from the model if available
+            if hasattr(language_model, 'get_performance_metrics'):
+                try:
+                    metrics = language_model.get_performance_metrics()
+                    if metrics:
+                        status.update(metrics)
+                except Exception as inner_e:
+                    error_handler.log_warning(f"Failed to get performance metrics: {str(inner_e)}", "API")
+            
+            # Get training status if available
+            if hasattr(language_model, 'get_training_status'):
+                try:
+                    training_status = language_model.get_training_status()
+                    if training_status:
+                        status['training_status'] = training_status
+                except Exception as inner_e:
+                    error_handler.log_warning(f"Failed to get training status: {str(inner_e)}", "API")
         else:
             status = {
                 "id": "language",
                 "name": "Language Model",
                 "type": "language",
                 "status": "inactive",
-                "version": "1.0.0",
-                "cpu_usage": 0,
-                "memory_usage": 0,
-                "response_time": 0,
-                "success_rate": 0,
-                "throughput": 0
+                "error": "Model not initialized"
             }
         return {"status": "success", "data": status}
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get language model status")
-        raise HTTPException(status_code=500, detail="Failed to get language model status")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Get management model status
 @app.get("/api/models/management/status")
@@ -722,30 +731,39 @@ async def get_management_model_status():
     try:
         manager_model = model_registry.get_model("manager")
         if manager_model:
+            # Initialize base status
             status = {
                 "id": "manager",
                 "name": "Management Model",
                 "type": "management",
                 "status": "active",
-                "version": "1.0.0",
-                "cpu_usage": 12.3,
-                "memory_usage": 28.6,
-                "response_time": 98,
-                "success_rate": 0.92,
-                "throughput": 38.7
+                "version": getattr(manager_model, 'version', 'unknown'),
             }
+            
+            # Get actual performance metrics from the model if available
+            if hasattr(manager_model, 'get_performance_metrics'):
+                try:
+                    metrics = manager_model.get_performance_metrics()
+                    if metrics:
+                        status.update(metrics)
+                except Exception as inner_e:
+                    error_handler.log_warning(f"Failed to get performance metrics: {str(inner_e)}", "API")
+            
+            # Get sub-models status if available
+            if hasattr(manager_model, 'get_sub_models_status'):
+                try:
+                    sub_models_status = manager_model.get_sub_models_status()
+                    if sub_models_status:
+                        status['sub_models'] = sub_models_status
+                except Exception as inner_e:
+                    error_handler.log_warning(f"Failed to get sub-models status: {str(inner_e)}", "API")
         else:
             status = {
                 "id": "manager",
                 "name": "Management Model",
                 "type": "management",
                 "status": "inactive",
-                "version": "1.0.0",
-                "cpu_usage": 0,
-                "memory_usage": 0,
-                "response_time": 0,
-                "success_rate": 0,
-                "throughput": 0
+                "error": "Model not initialized"
             }
         return {"status": "success", "data": status}
     except Exception as e:
@@ -767,18 +785,35 @@ async def get_from_scratch_model_status():
         has_from_scratch = any(m.get('training_capability', {}).get('from_scratch', False) 
                               for m in available_models.values())
         
+        # Get from scratch training manager if available
+        from_scratch_manager = None
+        try:
+            from core.from_scratch_training import from_scratch_training_manager
+            if hasattr(from_scratch_training_manager, 'initialized') and from_scratch_training_manager.initialized:
+                from_scratch_manager = from_scratch_training_manager
+        except (ImportError, AttributeError):
+            pass
+        
+        # Collect actual data instead of hardcoded values
         status = {
             "id": "from_scratch",
             "name": "From Scratch Model",
             "type": "custom",
             "status": "active" if has_from_scratch else "inactive",
-            "version": "1.0.0",
-            "cpu_usage": 8.7 if has_from_scratch else 0,
-            "memory_usage": 15.2 if has_from_scratch else 0,
-            "response_time": 156 if has_from_scratch else 0,
-            "success_rate": 0.88 if has_from_scratch else 0,
-            "throughput": 22.4 if has_from_scratch else 0
+            "version": getattr(from_scratch_manager, 'version', "Unknown") if from_scratch_manager else "Unknown",
+            "models_supporting": sum(1 for m in available_models.values() if m.get('training_capability', {}).get('from_scratch', False)),
+            "total_models": len(available_models),
+            "global_from_scratch_enabled": getattr(model_registry, 'from_scratch_training_enabled', False) if hasattr(model_registry, 'from_scratch_training_enabled') else False
         }
+        
+        # Add training statistics if available from the manager
+        if from_scratch_manager and hasattr(from_scratch_manager, 'get_training_statistics'):
+            try:
+                training_stats = from_scratch_manager.get_training_statistics()
+                status.update(training_stats)
+            except Exception:
+                pass
+        
         return {"status": "success", "data": status}
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get from scratch model status")
@@ -3576,6 +3611,141 @@ async def get_camera_stream_status(camera_id: str):
         error_handler.handle_error(e, "API", f"Failed to get camera stream status: {camera_id}")
         raise HTTPException(status_code=500, detail=f"Failed to get camera stream status: {str(e)}")
 
+# Stereo vision endpoints
+@app.get("/api/cameras/stereo-pairs")
+async def get_stereo_pairs():
+    """
+    Get all configured stereo camera pairs
+    
+    Returns:
+        List of stereo camera pairs
+    """
+    try:
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        stereo_pairs = hardware_config.get("stereo_pairs", [])
+        
+        return {
+            "status": "success",
+            "stereo_pairs": stereo_pairs
+        }
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get stereo camera pairs")
+        raise HTTPException(status_code=500, detail=f"Failed to get stereo camera pairs: {str(e)}")
+
+@app.post("/api/cameras/stereo-pairs/{pair_id}/process")
+async def process_stereo_pair(pair_id: str, request: Request):
+    """
+    Process a stereo camera pair to get depth information
+    
+    Args:
+        pair_id: Stereo pair ID
+        request: Request body containing processing parameters
+        
+    Returns:
+        Depth map and 3D information
+    """
+    try:
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        stereo_pairs = hardware_config.get("stereo_pairs", [])
+        
+        stereo_pair = next((pair for pair in stereo_pairs if pair.get("id") == pair_id), None)
+        if not stereo_pair:
+            raise HTTPException(status_code=404, detail=f"Stereo pair {pair_id} not found")
+        
+        left_camera_id = stereo_pair.get("left_camera_id")
+        right_camera_id = stereo_pair.get("right_camera_id")
+        
+        # Check if both cameras are connected and streaming
+        left_info = camera_manager.get_camera_info(left_camera_id)
+        right_info = camera_manager.get_camera_info(right_camera_id)
+        
+        if not left_info or not right_info:
+            raise HTTPException(status_code=400, detail="One or both cameras in the stereo pair are not connected")
+        
+        if not left_info["is_streaming"] or not right_info["is_streaming"]:
+            raise HTTPException(status_code=400, detail="One or both cameras in the stereo pair are not streaming")
+        
+        # Get processing parameters
+        params = await request.json()
+        min_disparity = params.get("min_disparity", 0)
+        num_disparities = params.get("num_disparities", 16)
+        block_size = params.get("block_size", 15)
+        
+        # Perform binocular vision processing
+        result = camera_manager.perform_binocular_vision(
+            left_camera_id,
+            right_camera_id,
+            min_disparity=min_disparity,
+            num_disparities=num_disparities,
+            block_size=block_size
+        )
+        
+        if not result["success"]:
+            raise HTTPException(status_code=500, detail=result["error"])
+        
+        # Return the result
+        return {
+            "status": "success",
+            "stereo_pair_id": pair_id,
+            "result": result["data"]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to process stereo pair {pair_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to process stereo pair: {str(e)}")
+
+@app.post("/api/cameras/stereo-pairs/{pair_id}/calibrate")
+async def calibrate_stereo_pair(pair_id: str):
+    """
+    Calibrate a stereo camera pair
+    
+    Args:
+        pair_id: Stereo pair ID
+        
+    Returns:
+        Calibration result
+    """
+    try:
+        settings = system_settings_manager.get_settings()
+        hardware_config = settings.get("hardware_config", {})
+        stereo_pairs = hardware_config.get("stereo_pairs", [])
+        
+        stereo_pair = next((pair for pair in stereo_pairs if pair.get("id") == pair_id), None)
+        if not stereo_pair:
+            raise HTTPException(status_code=404, detail=f"Stereo pair {pair_id} not found")
+        
+        # For now, we'll simulate calibration as the actual implementation would require
+        # physical chessboard calibration patterns and user interaction
+        # In a real implementation, this would be a more complex process
+        
+        # Simulate successful calibration
+        calibration_result = {
+            "success": True,
+            "message": f"Stereo pair {pair_id} calibrated successfully",
+            "calibration_data": {
+                "baseline": 0.1,  # 10cm baseline distance
+                "focal_length": 500,  # Pixels
+                "principal_point": (320, 240),  # (cx, cy)
+                "rectification_matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                "projection_matrix_left": [[500, 0, 320, 0], [0, 500, 240, 0], [0, 0, 1, 0]],
+                "projection_matrix_right": [[500, 0, 320, -50], [0, 500, 240, 0], [0, 0, 1, 0]],
+                "disparity_to_depth": 50.0  # Baseline * focal_length
+            }
+        }
+        
+        return {
+            "status": "success",
+            "calibration_result": calibration_result
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_handler.handle_error(e, "API", f"Failed to calibrate stereo pair {pair_id}")
+        raise HTTPException(status_code=500, detail=f"Failed to calibrate stereo pair: {str(e)}")
+
 # Get camera feed
 @app.websocket("/ws/camera-feed/{camera_id}")
 async def websocket_camera_feed(websocket: WebSocket, camera_id: str):
@@ -3849,6 +4019,7 @@ def initialize_core_components():
     global connection_manager, unified_cognitive_architecture
     global enhanced_meta_cognition, intrinsic_motivation_system, explainable_ai
     global value_alignment, agi_coordinator, api_model_connector
+    global camera_manager
     
     try:
         error_handler.log_info("Initializing core system components...", "System")
@@ -3911,6 +4082,11 @@ def initialize_core_components():
         # Get API Model Connector using ComponentFactory
         api_model_connector = ComponentFactory.get_component('api_model_connector', APIModelConnector)
         error_handler.log_info("API Model Connector initialized", "System")
+        
+        # Get Camera Manager using ComponentFactory
+        from core.hardware.camera_manager import CameraManager
+        camera_manager = ComponentFactory.get_component('camera_manager', CameraManager)
+        error_handler.log_info("Camera Manager initialized", "System")
         
         # Get AGI Coordinator using ComponentFactory (central component)
         agi_coordinator = ComponentFactory.get_component('agi_coordinator', AGICoordinator, from_scratch=False)

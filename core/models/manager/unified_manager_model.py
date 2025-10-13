@@ -927,7 +927,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
         self.api_connector = APIModelConnector()
         
         # Real-time stream manager
-        self.stream_manager = RealTimeStreamManager()
+        self.stream_manager = RealTimeStreamManager(model_id=self.model_id, config=self.config)
         
         # Enhanced monitor
         self.monitor = EnhancedMonitor()

@@ -42,34 +42,37 @@ class AGICoordinator:
         # 延迟导入以避免循环依赖
         from core.model_registry import ModelRegistry
         
-        # 使用ComponentFactory获取全局共享的UnifiedCognitiveArchitecture实例
+        # 使用ComponentFactory获取所有核心组件的单例实例，防止重复加载
         from core.memory_optimization import ComponentFactory
+        
+        # 获取统一认知架构单例
         self.cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
         
-        # 初始化模型注册表
-        self.model_registry = ModelRegistry()
-        # 加载所有模型，除非是从头开始训练模式
-        if not from_scratch:
-            self.model_registry.load_all_models()
+        # 获取模型注册表单例
+        self.model_registry = ComponentFactory.get_component('model_registry', ModelRegistry)
         
-        # 初始化多模态融合模块
-        self.fusion_engine = MultimodalFusion()
-        # 初始化训练管理器
-        self.training_manager = TrainingManager(self.model_registry, from_scratch=from_scratch)
-        # 初始化自主学习系统
-        self.self_learning = UnifiedSelfLearningSystem(self.model_registry, self.training_manager)
+        # 获取多模态融合模块单例
+        self.fusion_engine = ComponentFactory.get_component('multimodal_fusion', MultimodalFusion)
+        
+        # 获取训练管理器单例
+        self.training_manager = ComponentFactory.get_component('training_manager', TrainingManager, self.model_registry, from_scratch=from_scratch)
+        
+        # 获取自主学习系统单例
+        self.self_learning = ComponentFactory.get_component('self_learning', UnifiedSelfLearningSystem, from_scratch=True)
+        
         self.from_scratch = from_scratch
         
         if from_scratch:
             error_handler.log_info("AGICoordinator initialized in from-scratch mode", "AGI System")
         
-        # 初始化增强的AGI组件
-        self.enhanced_meta_cognition = EnhancedMetaCognition()
-        # 通过模型注册表获取知识模型，而不是直接实例化StructuredKnowledgeBase
+        # 获取其他AGI组件的单例实例
+        self.enhanced_meta_cognition = ComponentFactory.get_component('enhanced_meta_cognition', EnhancedMetaCognition)
+        self.intrinsic_motivation = ComponentFactory.get_component('intrinsic_motivation', IntrinsicMotivationSystem)
+        self.explainable_ai = ComponentFactory.get_component('explainable_ai', ExplainableAI)
+        self.value_alignment = ComponentFactory.get_component('value_alignment', ValueAlignment)
+        
+        # 通过模型注册表获取知识模型
         self.structured_knowledge = self.model_registry.get_model('knowledge')
-        self.intrinsic_motivation = IntrinsicMotivationSystem()
-        self.explainable_ai = ExplainableAI()
-        self.value_alignment = ValueAlignment()
         
         # 系统状态 - 动态评估而非硬编码
         self.system_state = {

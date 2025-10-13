@@ -163,13 +163,13 @@ export default {
         // Update model status
         updateModelStatus(response.data.status)
         
-        // Add model response
+        // Add model response with real data from API
         const modelMessage = {
           id: Date.now() + 1,
           sender: 'model',
           content: response.data.response || 'I don\'t have a response yet. I\'m still learning.',
           timestamp: new Date().toISOString(),
-          confidence: response.data.confidence || Math.floor(Math.random() * 30) + 50, // Default to 50-80%
+          confidence: response.data.confidence || 0, // Use real confidence value or 0 if not provided
           responseType: response.data.response_type || 'Generated'
         }
         messages.value.push(modelMessage)
@@ -201,7 +201,16 @@ export default {
           vocabSize: statusData.vocab_size || 0,
           epochs: statusData.epochs || 0,
           lastActivity: statusData.last_activity || new Date().toLocaleString(),
-          confidence: statusData.confidence || Math.floor(Math.random() * 40) + 40 // Default to 40-80%
+          confidence: statusData.confidence || 0 // Use real confidence value or 0 if not provided
+        }
+      } else {
+        // Initialize with zero values if no data
+        modelStatus.value = {
+          trainingMode: 'From Scratch',
+          vocabSize: 0,
+          epochs: 0,
+          lastActivity: 'Never',
+          confidence: 0
         }
       }
     }
@@ -220,13 +229,13 @@ export default {
         const response = await api.models.fromScratchStatus()
         updateModelStatus(response.data)
         
-        // Add welcome message
+        // Add welcome message with real confidence data
         const welcomeMessage = {
           id: 1,
           sender: 'model',
           content: 'Hello! I am an AI learning from scratch. I don\'t have much knowledge yet, but I\'m eager to learn from our conversation!',
           timestamp: new Date().toISOString(),
-          confidence: 60,
+          confidence: response.data.confidence || 0,
           responseType: 'Welcome'
         }
         messages.value.push(welcomeMessage)
@@ -234,13 +243,13 @@ export default {
       } catch (error) {
         errorHandler.handleError(error, 'ChatFromScratch', 'Failed to initialize chat')
         
-        // Add fallback welcome message
+        // Add fallback welcome message with zero confidence
         const fallbackWelcome = {
           id: 1,
           sender: 'model',
           content: 'Hello! I am an AI learning from scratch. Let\'s have a conversation!',
           timestamp: new Date().toISOString(),
-          confidence: 50,
+          confidence: 0,
           responseType: 'Fallback Welcome'
         }
         messages.value.push(fallbackWelcome)

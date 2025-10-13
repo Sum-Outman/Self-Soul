@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from enum import Enum
 import os
 
-from core.models.base_model import UnifiedModelTemplate
+from core.models.unified_model_template import UnifiedModelTemplate
 from core.error_handling import error_handler
 from core.agi_tools import AGITools
 from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator

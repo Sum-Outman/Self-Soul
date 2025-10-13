@@ -502,7 +502,7 @@ class NeuralEmbeddingSpace:
             return outputs.last_hidden_state.mean(dim=1).detach().numpy()
         except Exception as e:
             error_handler.handle_error(e, "NeuralEmbeddingSpace", "Text encoding failed")
-            return np.zeros((1, 768))  # Return default vector
+            return np.zeros((1, self.representation_dim))  # Return default vector with correct dimension
             
     def train_step(self, text, target_embedding):
         """执行一步训练"""
@@ -3160,6 +3160,16 @@ class UnifiedCognitiveArchitecture:
             'self_improvement_active': True
         }
     
+    def set_learning_system(self, learning_system):
+        """设置学习系统 - 修复缺失的方法"""
+        self.learning_system = learning_system
+        error_handler.log_info("学习系统已设置", "UnifiedCognitiveArchitecture")
+        
+    def set_emotion_system(self, emotion_system):
+        """设置情感系统 - 修复缺失的方法"""
+        self.emotion_system = emotion_system
+        error_handler.log_info("情感系统已设置", "UnifiedCognitiveArchitecture")
+        
     def get_architecture_status(self):
         """获取架构状态"""
         return {

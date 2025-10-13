@@ -85,6 +85,59 @@ class RealTimeStreamManager:
             'total_data_transferred': 0,
             'error_count': 0
         }
+        
+        # Callback registry for model stream processing
+        self._callbacks = {}
+    
+    def register_callback(self, callback_id: str, callback_function: Callable, stream_ids: Optional[List[str]] = None):
+        """注册回调函数用于流处理 / Register callback function for stream processing
+        
+        Args:
+            callback_id: 回调标识符 / Callback identifier
+            callback_function: 回调函数 / Callback function
+            stream_ids: 关联的流ID列表 / Associated stream IDs
+        """
+        self._callbacks[callback_id] = {
+            'function': callback_function,
+            'stream_ids': stream_ids or [],
+            'registered_at': datetime.now().isoformat()
+        }
+        logger.info(f"Callback registered: {callback_id} for streams: {stream_ids}")
+    
+    def unregister_callback(self, callback_id: str):
+        """注销回调函数 / Unregister callback function
+        
+        Args:
+            callback_id: 回调标识符 / Callback identifier
+        """
+        if callback_id in self._callbacks:
+            del self._callbacks[callback_id]
+            logger.info(f"Callback unregistered: {callback_id}")
+    
+    async def trigger_callbacks(self, stream_id: str, data: Any):
+        """触发指定流的回调函数 / Trigger callbacks for specified stream
+        
+        Args:
+            stream_id: 流标识符 / Stream identifier
+            data: 要传递的数据 / Data to pass to callbacks
+        """
+        triggered_count = 0
+        for callback_id, callback_info in self._callbacks.items():
+            # 如果回调关联了特定流，只在这些流上触发
+            if not callback_info['stream_ids'] or stream_id in callback_info['stream_ids']:
+                try:
+                    # 异步调用回调函数
+                    if asyncio.iscoroutinefunction(callback_info['function']):
+                        await callback_info['function'](stream_id, data)
+                    else:
+                        callback_info['function'](stream_id, data)
+                    triggered_count += 1
+                except Exception as e:
+                    logger.error(f"Error in callback {callback_id}: {str(e)}")
+                    self.performance_metrics['error_count'] += 1
+        
+        if triggered_count > 0:
+            logger.debug(f"Triggered {triggered_count} callbacks for stream: {stream_id}")
     
     def initialize(self) -> Dict[str, Any]:
         """初始化流管理器资源 / Initialize stream manager resources"""
@@ -537,13 +590,21 @@ class RealTimeStreamManager:
         }
         return metrics
 
-# Create a global instance of the stream manager
-stream_manager = RealTimeStreamManager()
+# Create a singleton instance of the stream manager
+_stream_manager_instance = None
+
+def get_stream_manager():
+    """获取流管理器单例实例 / Get stream manager singleton instance"""
+    global _stream_manager_instance
+    if _stream_manager_instance is None:
+        _stream_manager_instance = RealTimeStreamManager()
+    return _stream_manager_instance
 
 
 @app.websocket("/ws/streams/{stream_id}")
 async def websocket_endpoint(websocket: WebSocket, stream_id: str):
-    """\WebSocket endpoint for real-time data streams"""
+    """WebSocket endpoint for real-time data streams"""
+    stream_manager = get_stream_manager()
     await websocket.accept()
     stream_manager.performance_metrics['total_connections'] += 1
     stream_manager.performance_metrics['active_connections'] += 1
@@ -565,9 +626,9 @@ async def websocket_endpoint(websocket: WebSocket, stream_id: str):
         else:
             await websocket.send_text(f"Error: Stream {stream_id} not found")
     except WebSocketDisconnect:
-        stream_manager.logger.info(f"Client disconnected from stream: {stream_id}")
+        logger.info(f"Client disconnected from stream: {stream_id}")
     except Exception as e:
-        stream_manager.logger.error(f"Error in WebSocket connection: {str(e)}")
+        logger.error(f"Error in WebSocket connection: {str(e)}")
         stream_manager.performance_metrics['error_count'] += 1
     finally:
         # Remove client from all subscriptions
@@ -580,6 +641,7 @@ async def websocket_endpoint(websocket: WebSocket, stream_id: str):
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    stream_manager = get_stream_manager()
     return {
         "status": "healthy",
         "service": "Real-Time Stream Manager",
@@ -592,6 +654,7 @@ async def health_check():
 @app.get("/streams")
 async def list_streams():
     """List all available streams"""
+    stream_manager = get_stream_manager()
     return {
         "streams": list(stream_manager.data_streams.keys()),
         "total_streams": len(stream_manager.data_streams)
@@ -601,12 +664,14 @@ async def list_streams():
 @app.get("/metrics")
 async def get_metrics():
     """Get detailed performance metrics"""
+    stream_manager = get_stream_manager()
     return stream_manager.get_performance_metrics()
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize stream manager on startup"""
+    stream_manager = get_stream_manager()
     # Initialize synchronously since initialize() returns a dict, not an awaitable
     stream_manager.initialize()
     # Start the streaming loop in a background task
@@ -616,11 +681,14 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    stream_manager.logger.info("Real-Time Stream Manager is shutting down")
+    stream_manager = get_stream_manager()
+    logger.info("Real-Time Stream Manager is shutting down")
 
 
 if __name__ == "__main__":
     """Main entry point to start the server"""
+    # Get singleton instance to prevent duplicate loading
+    stream_manager = get_stream_manager()
     logger.info(f"Starting Real-Time Stream Manager on ws://{stream_manager.host}:{stream_manager.port}")
     
     # Start the FastAPI server

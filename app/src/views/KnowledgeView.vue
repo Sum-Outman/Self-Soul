@@ -1128,14 +1128,8 @@ export default {
           uploadProgress.value = 0;
           currentUploadFile.value = file.name;
           
-          // Simulate upload progress
-          const progressInterval = setInterval(() => {
-            if (uploadProgress.value < 100) {
-              uploadProgress.value += Math.floor(Math.random() * 10) + 5;
-            } else {
-              clearInterval(progressInterval);
-            }
-          }, 300);
+          // 清除任何现有的进度模拟
+          // 使用真实的上传进度
           
           // Create form data
           const formData = new FormData();

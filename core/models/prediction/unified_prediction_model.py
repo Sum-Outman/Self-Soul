@@ -546,11 +546,7 @@ class UnifiedPredictionModel(UnifiedModelTemplate):
     
     def _initialize_stream_processor(self) -> None:
         """初始化预测流处理器"""
-        self.stream_processor = RealTimeStreamManager(
-            buffer_size=100,
-            processing_interval=1.0,
-            model_id="prediction"
-        )
+        self.stream_processor = RealTimeStreamManager()
         
         # 注册流处理回调
         self.stream_processor.register_callback(self._process_prediction_stream)

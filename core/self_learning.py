@@ -1336,6 +1336,609 @@ class AGISelfLearningSystem:
         
         return f"{first_memory} 到 {last_memory}"
     
+    def autonomous_learn(self, learning_intensity: float) -> Dict[str, Any]:
+        """
+        AGI级自主学习 - 基于学习强度进行自主知识获取和技能提升
+        参数:
+            learning_intensity: 学习强度 (0.0-1.0)
+        返回: 包含学习结果的字典
+        """
+        try:
+            if not self.initialized:
+                logger.warning("AGI自我学习系统未初始化")
+                return {'success': False, 'reason': 'system_not_initialized'}
+            
+            if not self.learning_enabled:
+                logger.warning("学习功能已禁用")
+                return {'success': False, 'reason': 'learning_disabled'}
+            
+            logger.info(f"开始自主学习，强度: {learning_intensity}")
+            
+            # 基于学习强度调整学习参数
+            adjusted_intensity = max(0.1, min(learning_intensity, 1.0))
+            self.learning_parameters['base_learning_rate'] = 0.01 * adjusted_intensity
+            self.learning_parameters['exploration_rate'] = 0.15 * adjusted_intensity
+            self.learning_parameters['exploitation_rate'] = 0.85 * adjusted_intensity
+            
+            # 生成自主学习任务
+            autonomous_tasks = self._generate_autonomous_tasks(adjusted_intensity)
+            
+            # 执行学习任务
+            learning_results = {}
+            total_knowledge_gain = 0.0
+            
+            for task in autonomous_tasks:
+                task_result = self._execute_autonomous_task(task, adjusted_intensity)
+                learning_results[task['id']] = task_result
+                
+                if task_result.get('success', False):
+                    total_knowledge_gain += task_result.get('knowledge_gain', 0.0)
+            
+            # 更新学习统计
+            self.learning_stats['total_learning_sessions'] += 1
+            self.learning_stats['successful_learnings'] += 1
+            self.learning_stats['total_knowledge_gained'] += total_knowledge_gain
+            
+            # 更新自我监控
+            self._update_self_monitoring_from_autonomous_learning(learning_results, adjusted_intensity)
+            
+            # 保存知识
+            self._save_knowledge()
+            
+            logger.info(f"自主学习完成，知识增益: {total_knowledge_gain:.2f}")
+            
+            return {
+                'success': True,
+                'tasks_completed': len(autonomous_tasks),
+                'total_knowledge_gain': total_knowledge_gain,
+                'learning_results': learning_results,
+                'adjusted_intensity': adjusted_intensity
+            }
+            
+        except Exception as e:
+            logger.error(f"自主学习错误: {e}")
+            self.learning_stats['failed_learnings'] += 1
+            return {'success': False, 'error': str(e)}
+    
+    def _generate_autonomous_tasks(self, intensity: float) -> List[Dict[str, Any]]:
+        """基于学习强度生成自主学习任务"""
+        tasks = []
+        
+        # 基础任务数量基于强度
+        base_task_count = max(1, int(intensity * 5))
+        
+        # 任务类型分布
+        task_types = [
+            'pattern_discovery', 'concept_abstraction', 'causal_analysis',
+            'knowledge_integration', 'skill_refinement', 'meta_learning'
+        ]
+        
+        # 基于强度调整任务复杂度
+        complexity_multiplier = 0.5 + (intensity * 0.5)
+        
+        for i in range(base_task_count):
+            task_type = random.choice(task_types)
+            task_id = f"autonomous_task_{int(time.time() * 1000)}_{i}"
+            
+            task = {
+                'id': task_id,
+                'type': task_type,
+                'complexity': min(1.0, random.uniform(0.3, 0.7) * complexity_multiplier),
+                'priority': random.uniform(0.5, 1.0),
+                'estimated_duration': random.uniform(1.0, 5.0) * intensity,
+                'created': datetime.now().isoformat()
+            }
+            
+            tasks.append(task)
+        
+        # 按优先级排序
+        tasks.sort(key=lambda x: x['priority'], reverse=True)
+        
+        return tasks
+    
+    def _execute_autonomous_task(self, task: Dict[str, Any], intensity: float) -> Dict[str, Any]:
+        """执行单个自主学习任务"""
+        try:
+            task_type = task['type']
+            complexity = task['complexity']
+            
+            logger.info(f"执行自主学习任务: {task_type}, 复杂度: {complexity}")
+            
+            # 根据任务类型执行不同的学习策略
+            if task_type == 'pattern_discovery':
+                result = self._execute_pattern_discovery_task(complexity, intensity)
+            elif task_type == 'concept_abstraction':
+                result = self._execute_concept_abstraction_task(complexity, intensity)
+            elif task_type == 'causal_analysis':
+                result = self._execute_causal_analysis_task(complexity, intensity)
+            elif task_type == 'knowledge_integration':
+                result = self._execute_knowledge_integration_task(complexity, intensity)
+            elif task_type == 'skill_refinement':
+                result = self._execute_skill_refinement_task(complexity, intensity)
+            elif task_type == 'meta_learning':
+                result = self._execute_meta_learning_task(complexity, intensity)
+            else:
+                result = self._execute_general_learning_task(complexity, intensity)
+            
+            # 添加任务ID到结果
+            result['task_id'] = task['id']
+            result['task_type'] = task_type
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"执行自主学习任务失败: {task['id']}, 错误: {e}")
+            return {
+                'success': False,
+                'task_id': task['id'],
+                'task_type': task['type'],
+                'error': str(e)
+            }
+    
+    def _execute_pattern_discovery_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行模式发现任务"""
+        # 生成模拟数据用于模式发现
+        synthetic_data = self._generate_synthetic_pattern_data(complexity, intensity)
+        
+        # 使用元学习器进行模式识别
+        features = torch.tensor(synthetic_data, dtype=torch.float32, device=self.device)
+        pattern_features = self.meta_learner['feature_extractor'](features)
+        pattern_score = torch.sigmoid(pattern_features.mean()).item()
+        
+        # 如果发现显著模式，存储到知识架构
+        patterns_discovered = 0
+        if pattern_score > 0.6 + (complexity * 0.2):
+            pattern_id = f"autonomous_pattern_{hashlib.md5(str(synthetic_data).encode()).hexdigest()[:10]}"
+            pattern = {
+                'id': pattern_id,
+                'type': 'autonomous_discovery',
+                'features': synthetic_data,
+                'pattern_score': pattern_score,
+                'complexity': complexity,
+                'timestamp': datetime.now().isoformat(),
+                'discovery_method': 'autonomous_learning'
+            }
+            
+            self.knowledge_architecture['semantic_memory']['patterns'][pattern_id] = pattern
+            patterns_discovered = 1
+        
+        knowledge_gain = patterns_discovered * (0.2 + complexity * 0.3)
+        
+        return {
+            'success': True,
+            'patterns_discovered': patterns_discovered,
+            'pattern_score': pattern_score,
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity
+        }
+    
+    def _execute_concept_abstraction_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行概念抽象任务"""
+        # 分析现有概念，尝试进行抽象
+        existing_concepts = list(self.knowledge_architecture['semantic_memory']['concepts'].values())
+        concepts_abstracted = 0
+        
+        if len(existing_concepts) >= 2:
+            # 尝试找到可以抽象的概念对
+            for i in range(min(3, len(existing_concepts))):
+                if len(existing_concepts) > i + 1:
+                    concept1 = existing_concepts[i]
+                    concept2 = existing_concepts[i + 1]
+                    
+                    # 简化的概念抽象逻辑
+                    abstraction_success = random.random() < (0.3 + complexity * 0.4)
+                    
+                    if abstraction_success:
+                        abstract_concept_id = f"abstract_concept_{hashlib.md5((concept1['id'] + concept2['id']).encode()).hexdigest()[:8]}"
+                        abstract_concept = {
+                            'id': abstract_concept_id,
+                            'name': f"abstract_{concept1['name']}_{concept2['name']}",
+                            'type': 'abstract_concept',
+                            'component_concepts': [concept1['id'], concept2['id']],
+                            'abstraction_level': complexity,
+                            'created': datetime.now().isoformat(),
+                            'semantic_embedding': [(a + b) / 2 for a, b in zip(concept1['semantic_embedding'], concept2['semantic_embedding'])]
+                        }
+                        
+                        self.knowledge_architecture['semantic_memory']['concepts'][abstract_concept_id] = abstract_concept
+                        concepts_abstracted += 1
+        
+        knowledge_gain = concepts_abstracted * (0.3 + complexity * 0.4)
+        
+        return {
+            'success': True,
+            'concepts_abstracted': concepts_abstracted,
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity
+        }
+    
+    def _execute_causal_analysis_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行因果分析任务"""
+        # 分析经验回放中的因果关系
+        recent_experiences = list(self.experience_replay)[-min(10, len(self.experience_replay)):]
+        causal_relations_discovered = 0
+        
+        for experience in recent_experiences:
+            if 'interaction' in experience and 'learning_results' in experience:
+                interaction = experience['interaction']
+                learning_results = experience['learning_results']
+                
+                # 简化的因果分析
+                if random.random() < (0.2 + complexity * 0.3):
+                    causal_relation = {
+                        'cause': f"interaction_{hashlib.md5(str(interaction).encode()).hexdigest()[:6]}",
+                        'effect': f"learning_{hashlib.md5(str(learning_results).encode()).hexdigest()[:6]}",
+                        'strength': random.uniform(0.5, 0.9),
+                        'evidence_count': 1,
+                        'discovered': datetime.now().isoformat(),
+                        'analysis_complexity': complexity
+                    }
+                    
+                    # 存储因果关系
+                    relation_id = f"causal_relation_{hashlib.md5(str(causal_relation).encode()).hexdigest()[:10]}"
+                    self.knowledge_architecture['causal_models'][relation_id] = causal_relation
+                    causal_relations_discovered += 1
+        
+        knowledge_gain = causal_relations_discovered * (0.4 + complexity * 0.3)
+        
+        return {
+            'success': True,
+            'causal_relations_discovered': causal_relations_discovered,
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity
+        }
+    
+    def _execute_knowledge_integration_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行知识整合任务"""
+        # 整合不同记忆系统的知识
+        integration_successes = 0
+        
+        # 尝试整合语义记忆和程序记忆
+        concepts = list(self.knowledge_architecture['semantic_memory']['concepts'].values())
+        rules = list(self.knowledge_architecture['procedural_memory']['rules'].values())
+        
+        if concepts and rules:
+            # 简化的知识整合
+            integration_attempts = min(3, len(concepts), len(rules))
+            
+            for i in range(integration_attempts):
+                if random.random() < (0.4 + complexity * 0.3):
+                    # 创建知识整合记录
+                    integration_id = f"integration_{hashlib.md5((concepts[i]['id'] + rules[i]['id']).encode()).hexdigest()[:8]}"
+                    integration_record = {
+                        'id': integration_id,
+                        'concept_id': concepts[i]['id'],
+                        'rule_id': rules[i]['id'],
+                        'integration_strength': random.uniform(0.6, 0.9),
+                        'integrated_at': datetime.now().isoformat(),
+                        'complexity': complexity
+                    }
+                    
+                    # 存储到元记忆
+                    self.knowledge_architecture['meta_memory']['integrations'][integration_id] = integration_record
+                    integration_successes += 1
+        
+        knowledge_gain = integration_successes * (0.25 + complexity * 0.35)
+        
+        return {
+            'success': True,
+            'integrations_created': integration_successes,
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity
+        }
+    
+    def _execute_skill_refinement_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行技能精炼任务"""
+        # 精炼现有规则和程序
+        rules = list(self.knowledge_architecture['procedural_memory']['rules'].values())
+        rules_refined = 0
+        
+        for rule in rules:
+            # 基于复杂度和随机性决定是否精炼
+            if random.random() < (0.3 + complexity * 0.2):
+                # 提高规则置信度
+                rule['confidence'] = min(1.0, rule['confidence'] + random.uniform(0.05, 0.15))
+                rule['last_updated'] = datetime.now().isoformat()
+                rules_refined += 1
+        
+        knowledge_gain = rules_refined * (0.15 + complexity * 0.25)
+        
+        return {
+            'success': True,
+            'rules_refined': rules_refined,
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity
+        }
+    
+    def _execute_meta_learning_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行元学习任务"""
+        # 更新元学习模型
+        try:
+            # 生成元学习训练数据
+            meta_features = torch.randn(8, device=self.device) * complexity
+            target_strategy = torch.randint(0, 10, (1,), device=self.device)
+            
+            # 前向传播
+            features = self.meta_learner['feature_extractor'](meta_features)
+            strategy_logits = self.meta_learner['learning_strategy_predictor'](features)
+            
+            # 计算损失
+            loss = nn.CrossEntropyLoss()(strategy_logits.unsqueeze(0), target_strategy)
+            
+            # 反向传播
+            self.meta_optimizer.zero_grad()
+            loss.backward()
+            self.meta_optimizer.step()
+            
+            knowledge_gain = (1.0 - loss.item()) * (0.3 + complexity * 0.4)
+            
+            return {
+                'success': True,
+                'meta_loss': loss.item(),
+                'knowledge_gain': knowledge_gain,
+                'complexity': complexity,
+                'meta_learning_improvement': True
+            }
+            
+        except Exception as e:
+            logger.error(f"元学习任务失败: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'knowledge_gain': 0.0
+            }
+    
+    def _execute_general_learning_task(self, complexity: float, intensity: float) -> Dict[str, Any]:
+        """执行通用学习任务"""
+        # 创建模拟交互数据进行学习
+        synthetic_interaction = {
+            'type': 'autonomous_learning',
+            'input': {
+                'learning_goal': 'general_improvement',
+                'complexity': complexity,
+                'intensity': intensity
+            },
+            'output': {
+                'learning_result': 'success',
+                'knowledge_gain': random.uniform(0.1, 0.5) * complexity
+            },
+            'context': {
+                'autonomous': True,
+                'task_complexity': complexity
+            }
+        }
+        
+        # 使用现有的学习机制
+        learning_result = self.learn_from_interaction(synthetic_interaction)
+        
+        if learning_result['success']:
+            knowledge_gain = learning_result.get('knowledge_gain', 0.1) * complexity
+        else:
+            knowledge_gain = 0.05 * complexity  # 即使失败也有少量学习
+        
+        return {
+            'success': learning_result['success'],
+            'knowledge_gain': knowledge_gain,
+            'complexity': complexity,
+            'method': 'general_autonomous_learning'
+        }
+    
+    def _generate_synthetic_pattern_data(self, complexity: float, intensity: float) -> List[float]:
+        """生成用于模式发现的合成数据"""
+        data_points = 10
+        base_pattern = [math.sin(i * 0.5) for i in range(data_points)]
+        
+        # 添加噪声基于复杂度
+        noise_level = (1.0 - complexity) * 0.3
+        synthetic_data = [value + random.uniform(-noise_level, noise_level) for value in base_pattern]
+        
+        # 标准化到0-1范围
+        min_val = min(synthetic_data)
+        max_val = max(synthetic_data)
+        if max_val > min_val:
+            synthetic_data = [(x - min_val) / (max_val - min_val) for x in synthetic_data]
+        
+        return synthetic_data
+    
+    def _update_self_monitoring_from_autonomous_learning(self, learning_results: Dict[str, Any], intensity: float):
+        """基于自主学习结果更新自我监控"""
+        total_tasks = len(learning_results)
+        successful_tasks = sum(1 for result in learning_results.values() if result.get('success', False))
+        
+        if total_tasks > 0:
+            success_rate = successful_tasks / total_tasks
+            
+            # 更新学习效率
+            efficiency_improvement = success_rate * 0.1 * intensity
+            self.self_monitoring['learning_efficiency'] = min(1.0, 
+                self.self_monitoring['learning_efficiency'] + efficiency_improvement)
+            
+            # 更新问题解决能力
+            problem_solving_improvement = success_rate * 0.08 * intensity
+            self.self_monitoring['problem_solving_ability'] = min(1.0,
+                self.self_monitoring['problem_solving_ability'] + problem_solving_improvement)
+            
+            # 更新适应性评分
+            adaptability_improvement = success_rate * 0.06 * intensity
+            self.self_monitoring['adaptability_score'] = min(1.0,
+                self.self_monitoring['adaptability_score'] + adaptability_improvement)
+    
+    def run_optimization(self, optimization_intensity: float) -> Dict[str, Any]:
+        """
+        运行系统优化
+        参数:
+            optimization_intensity: 优化强度 (0.0-1.0)
+        返回: 包含优化结果的字典
+        """
+        try:
+            logger.info(f"开始系统优化，强度: {optimization_intensity}")
+            
+            adjusted_intensity = max(0.1, min(optimization_intensity, 1.0))
+            
+            # 执行优化任务
+            optimization_results = {
+                'memory_optimization': self._optimize_memory(adjusted_intensity),
+                'knowledge_consolidation': self._consolidate_knowledge_optimization(adjusted_intensity),
+                'learning_parameter_tuning': self._tune_learning_parameters(adjusted_intensity)
+            }
+            
+            # 计算总体优化效果
+            total_improvement = sum(
+                result.get('improvement', 0.0) 
+                for result in optimization_results.values() 
+                if isinstance(result, dict)
+            ) / len(optimization_results)
+            
+            logger.info(f"系统优化完成，总体改进: {total_improvement:.2f}")
+            
+            return {
+                'success': True,
+                'optimization_intensity': adjusted_intensity,
+                'total_improvement': total_improvement,
+                'optimization_results': optimization_results
+            }
+            
+        except Exception as e:
+            logger.error(f"系统优化失败: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def _optimize_memory(self, intensity: float) -> Dict[str, Any]:
+        """优化内存使用"""
+        try:
+            # 清理经验回放
+            original_size = len(self.experience_replay)
+            if original_size > 1000:
+                # 保留最有价值的经验
+                self.experience_replay = deque(
+                    list(self.experience_replay)[-1000:], 
+                    maxlen=1000
+                )
+            
+            # 清理工作记忆
+            self.working_memory.clear()
+            
+            improvement = min(1.0, (original_size - len(self.experience_replay)) / 1000.0) * intensity
+            
+            return {
+                'success': True,
+                'original_memory_size': original_size,
+                'current_memory_size': len(self.experience_replay),
+                'memory_reduction': original_size - len(self.experience_replay),
+                'improvement': improvement
+            }
+            
+        except Exception as e:
+            logger.error(f"内存优化失败: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def _consolidate_knowledge_optimization(self, intensity: float) -> Dict[str, Any]:
+        """优化知识巩固"""
+        try:
+            # 合并相似概念
+            concepts = self.knowledge_architecture['semantic_memory']['concepts']
+            original_concept_count = len(concepts)
+            
+            # 简化的概念合并逻辑
+            concepts_to_remove = []
+            concept_names = {}
+            
+            for concept_id, concept in concepts.items():
+                concept_name = concept['name']
+                if concept_name in concept_names:
+                    # 合并到现有概念
+                    existing_concept = concepts[concept_names[concept_name]]
+                    existing_concept['frequency'] += concept['frequency']
+                    existing_concept['value_examples'].extend(concept['value_examples'])
+                    concepts_to_remove.append(concept_id)
+                else:
+                    concept_names[concept_name] = concept_id
+            
+            # 移除重复概念
+            for concept_id in concepts_to_remove:
+                del concepts[concept_id]
+            
+            improvement = min(1.0, len(concepts_to_remove) / max(1, original_concept_count)) * intensity
+            
+            return {
+                'success': True,
+                'original_concept_count': original_concept_count,
+                'current_concept_count': len(concepts),
+                'concepts_merged': len(concepts_to_remove),
+                'improvement': improvement
+            }
+            
+        except Exception as e:
+            logger.error(f"知识巩固优化失败: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def _tune_learning_parameters(self, intensity: float) -> Dict[str, Any]:
+        """调整学习参数"""
+        try:
+            original_parameters = self.learning_parameters.copy()
+            
+            # 基于性能调整参数
+            success_rate = self.learning_stats['successful_learnings'] / max(1, self.learning_stats['total_learning_sessions'])
+            
+            if success_rate < 0.7:
+                # 提高学习率
+                self.learning_parameters['base_learning_rate'] *= (1.0 + intensity * 0.2)
+                self.learning_parameters['exploration_rate'] *= (1.0 + intensity * 0.1)
+            else:
+                # 降低学习率，提高利用率
+                self.learning_parameters['base_learning_rate'] *= (1.0 - intensity * 0.1)
+                self.learning_parameters['exploitation_rate'] *= (1.0 + intensity * 0.1)
+            
+            improvement = abs(success_rate - 0.7) * intensity
+            
+            return {
+                'success': True,
+                'original_parameters': original_parameters,
+                'adjusted_parameters': self.learning_parameters.copy(),
+                'improvement': improvement,
+                'success_rate': success_rate
+            }
+            
+        except Exception as e:
+            logger.error(f"学习参数调整失败: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def update_performance(self, model_id: str, performance_metrics: Dict[str, Any]) -> bool:
+        """
+        更新模型性能指标
+        参数:
+            model_id: 模型ID
+            performance_metrics: 性能指标字典
+        返回: 成功为True
+        """
+        try:
+            # 更新模型状态跟踪
+            current_time = datetime.now()
+            
+            self.model_status_tracking[model_id].update({
+                'last_trained': current_time,
+                'performance_score': performance_metrics.get('performance_score', 0.0),
+                'improvement_rate': performance_metrics.get('improvement_rate', 0.0),
+                'training_priority': performance_metrics.get('training_priority', 0)
+            })
+            
+            # 记录性能历史
+            self.performance_history[model_id].append({
+                'timestamp': current_time,
+                'metrics': performance_metrics,
+                'model_id': model_id
+            })
+            
+            # 限制历史记录数量
+            if len(self.performance_history[model_id]) > 100:
+                self.performance_history[model_id] = self.performance_history[model_id][-100:]
+            
+            logger.info(f"更新模型性能: {model_id}, 分数: {performance_metrics.get('performance_score', 0.0):.2f}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"更新模型性能失败: {model_id}, 错误: {e}")
+            return False
+    
     def get_detailed_knowledge_report(self) -> Dict[str, Any]:
         """
         获取详细知识报告

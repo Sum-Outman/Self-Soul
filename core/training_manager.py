@@ -70,15 +70,27 @@ from core.autonomous_learning_manager import AutonomousLearningManager
 TrainingManager Class - English class description
 """
 class TrainingManager:
-    """Model Training Manager"""
+    """Model Training Manager - 单例模式实现"""
+    
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls, model_registry: 'ModelRegistry', from_scratch: bool = True):
+        if cls._instance is None:
+            cls._instance = super(TrainingManager, cls).__new__(cls)
+        return cls._instance
     
     def __init__(self, model_registry: 'ModelRegistry', from_scratch: bool = True):
+        # 防止重复初始化
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+            
         self.model_registry = model_registry
         self.training_jobs = {}
         self.training_history = self._load_training_history() if not from_scratch else []
         self.training_lock = threading.Lock()
         
-        # AGI Components Initialization with from_scratch parameter
+        # AGI Components Initialization with from_scratch parameter - 使用单例模式
         self.meta_learning_system = MetaLearningSystem(from_scratch=from_scratch)
         self.knowledge_integrator = KnowledgeIntegrator(from_scratch=from_scratch)
         self.autonomous_learning_manager = AutonomousLearningManager(self.model_registry)
@@ -137,14 +149,19 @@ class TrainingManager:
         # Dashboard update callback
         self.dashboard_update_callback = None
         
-        # AGI Training State Monitoring
+        # AGI Training State Monitoring - 简化版本避免内存溢出
         self.agi_training_state = {
             'current_learning_strategy': 'exploration',
             'learning_phase': 'initial',
             'knowledge_accumulation': 0,
             'meta_cognitive_awareness': 0,
-            'adaptive_parameters': {}
+            'adaptive_parameters': {},
+            'training_start_time': time.time()
         }
+        
+        # 内存优化：限制训练历史大小
+        self.max_training_history = 50  # 最多保存50条训练历史
+        self.max_realtime_queue_size = 100  # 减少实时队列大小
         
         error_handler.log_info("AGI Training Manager initialized with full AGI capabilities", "TrainingManager")
 
@@ -4044,16 +4061,27 @@ class TrainingManager:
         return None
 
     def _prepare_vision_training_data(self, parameters):
-        """准备视觉训练数据 | Prepare vision training data"""
-        data_size = parameters.get('data_size', 100)
-        image_shape = parameters.get('image_shape', (64, 64, 3))
-        vision_data = []
-        for i in range(data_size):
-            vision_data.append({
-                'image': np.random.rand(*image_shape).tolist(),
-                'label': random.randint(0, 9)
-            })
-        return vision_data
+        """准备真实视觉训练数据 - 从真实数据源加载，确保真实有效的训练"""
+        try:
+            # 尝试从真实数据源加载视觉数据
+            vision_data = self._load_real_vision_data(parameters)
+            if vision_data:
+                error_handler.log_info(f"从真实数据源加载了 {len(vision_data)} 条视觉训练数据", "TrainingManager")
+                return vision_data
+            
+            # 如果无法加载真实数据，尝试从知识库中提取真实视觉数据
+            vision_data = self._extract_vision_from_knowledge_bases(parameters)
+            if vision_data:
+                error_handler.log_info(f"从知识库中提取了 {len(vision_data)} 条视觉训练数据", "TrainingManager")
+                return vision_data
+            
+            # 如果所有真实数据源都不可用，抛出异常而不是生成模拟数据
+            raise RuntimeError("无法获取真实的视觉训练数据。请确保数据源可用或提供真实的训练数据。")
+            
+        except Exception as e:
+            error_handler.handle_error(e, "TrainingManager", "准备真实视觉训练数据失败")
+            # 重新抛出异常，让调用者处理
+            raise
 
     def _prepare_spatial_training_data(self, parameters):
         """准备空间训练数据 | Prepare spatial training data"""

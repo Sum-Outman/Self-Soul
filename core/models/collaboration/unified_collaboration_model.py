@@ -470,19 +470,11 @@ class UnifiedCollaborationModel(UnifiedModelTemplate):
 
     def _create_stream_processor(self):
         """Create collaboration-specific stream processor"""
-        return RealTimeStreamManager(
-            stream_type="collaboration_operations",
-            buffer_size=200,
-            processing_interval=0.1
-        )
+        return RealTimeStreamManager()
 
     def _initialize_stream_processor(self):
         """Initialize collaboration-specific stream processor"""
-        self.stream_processor = RealTimeStreamManager(
-            stream_type="collaboration_operations",
-            buffer_size=200,
-            processing_interval=0.1
-        )
+        self.stream_processor = RealTimeStreamManager()
         
         # Register stream processing callbacks
         self.stream_processor.register_callback(

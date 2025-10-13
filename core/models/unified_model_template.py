@@ -351,10 +351,7 @@ class UnifiedModelTemplate(CompositeBaseModel, abc.ABC):
             )
             
             # Initialize AGI emotion awareness system
-            self.agi_emotion_awareness = AGIEmotionAwarenessSystem(
-                model_context=self.model_id,
-                config=config
-            )
+            self.agi_emotion_awareness = AGIEmotionAwarenessSystem()
             
             # Initialize unified cognitive architecture
             self.unified_cognitive_arch = UnifiedCognitiveArchitecture()

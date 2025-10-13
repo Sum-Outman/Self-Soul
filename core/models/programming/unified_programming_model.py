@@ -396,11 +396,7 @@ class UnifiedProgrammingModel(UnifiedModelTemplate):
     def _initialize_stream_processor(self) -> None:
         """初始化编程流处理器"""
         # 这里需要导入RealTimeStreamManager，但文件顶部已经导入
-        self.stream_processor = RealTimeStreamManager(
-            buffer_size=100,
-            processing_interval=1.0,
-            model_id="programming"
-        )
+        self.stream_processor = RealTimeStreamManager()
         
         # 注册流处理回调
         self.stream_processor.register_callback(self._process_programming_stream)

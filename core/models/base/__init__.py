@@ -15,11 +15,11 @@ Components:
 - composite_base_model.py: Complete AGI model with all capabilities
 """
 
-from .performance_mixin import PerformanceMixin
-from .external_api_mixin import ExternalAPIMixin
-from .cache_mixin import CacheMixin
-from .error_handling_mixin import ErrorHandlingMixin
-from .resource_mixin import ResourceManagementMixin as ResourceMixin
+from .unified_mixins import UnifiedPerformanceCacheMixin as PerformanceMixin
+from .unified_mixins import UnifiedExternalAPIMixin as ExternalAPIMixin
+from .unified_mixins import UnifiedPerformanceCacheMixin as CacheMixin
+from .unified_mixins import UnifiedErrorResourceMixin as ErrorHandlingMixin
+from .unified_mixins import UnifiedErrorResourceMixin as ResourceMixin
 from .training_mixin import TrainingLifecycleMixin as TrainingMixin
 from .agi_core_mixin import AGICoreCapabilitiesMixin as AGICoreMixin
 

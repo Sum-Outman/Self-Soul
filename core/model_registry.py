@@ -63,14 +63,10 @@ class ExternalModelProxy:
         # 直接使用传入的api_config进行连接
         
     def connect(self):
-        """连接到外部API模型
-        Connect to external API model
+        """连接到外部API模型 - 修复连接测试逻辑
+        Connect to external API model - fixed connection test logic
         """
         try:
-            # 模拟连接外部API（实际实现应调用具体API）
-            # Simulate connecting to external API (actual implementation should call specific API)
-            time.sleep(0.1)  # 模拟连接延迟
-            
             # 检查必要的配置项
             required_keys = ['url', 'api_key']
             for key in required_keys:
@@ -89,21 +85,116 @@ class ExternalModelProxy:
             # 记录连接尝试
             error_handler.log_info(f"正在连接到外部模型: {self.model_id} ({url})", "ExternalModelProxy")
             
-            # 模拟连接成功
-            self.status = "connected"
-            self.last_connection_time = time.time()
-            
-            # 添加连接成功的详细信息
-            connection_info = {
-                'model_id': self.model_id,
-                'url': url,
-                'model_name': self.api_config.get('model_name', self.model_id),
-                'source': self.api_config.get('source', 'external'),
-                'connection_time': self.last_connection_time
+            # 真实连接测试 - 使用requests库进行实际API调用
+            import requests
+            headers = {
+                'Authorization': f'Bearer {self.api_config["api_key"]}',
+                'Content-Type': 'application/json'
             }
             
-            error_handler.log_info(f"成功连接到外部模型: {self.model_id}", "ExternalModelProxy")
-            return True
+            # 根据模型类型和提供商准备更智能的测试数据
+            model_type = self.api_config.get('model_type', 'general')
+            provider = self.api_config.get('provider', 'unknown')
+            test_data = {}
+            
+            # 根据提供商和模型类型生成合适的测试数据
+            if provider in ['openai', 'anthropic', 'cohere']:
+                # 通用语言模型测试数据
+                test_data = {
+                    'prompt': 'Hello, this is a connection test. Please respond with "OK" if you receive this.',
+                    'max_tokens': 5,
+                    'temperature': 0.1
+                }
+            elif provider in ['huggingface', 'local']:
+                # HuggingFace或本地模型测试数据
+                test_data = {
+                    'inputs': 'Hello, connection test.',
+                    'parameters': {'max_length': 10}
+                }
+            elif model_type == 'vision':
+                # 视觉模型测试数据 - 使用更安全的占位符
+                test_data = {
+                    'task': 'describe',
+                    'image': 'base64_placeholder_for_test'
+                }
+            elif model_type == 'audio':
+                # 音频模型测试数据
+                test_data = {
+                    'audio': 'base64_placeholder_for_test',
+                    'task': 'transcribe'
+                }
+            else:
+                # 通用测试数据
+                test_data = {'test': True, 'message': 'Connection test'}
+            
+            # 发送真实连接测试请求，增加超时和重试机制
+            max_retries = 2
+            for attempt in range(max_retries + 1):
+                try:
+                    response = requests.post(
+                        url,
+                        headers=headers,
+                        json=test_data,
+                        timeout=15  # 减少超时时间
+                    )
+                    
+                    # 检查连接状态 - 更宽松的成功条件
+                    if response.status_code in [200, 201, 202]:
+                        self.status = "connected"
+                        self.last_connection_time = time.time()
+                        
+                        # 记录连接成功的详细信息
+                        connection_info = {
+                            'model_id': self.model_id,
+                            'url': url,
+                            'model_name': self.api_config.get('model_name', self.model_id),
+                            'source': self.api_config.get('source', 'external'),
+                            'connection_time': self.last_connection_time,
+                            'response_status': response.status_code,
+                            'provider': provider
+                        }
+                        
+                        error_handler.log_info(f"成功连接到外部模型: {self.model_id} (提供商: {provider})", "ExternalModelProxy")
+                        return True
+                    else:
+                        # 如果是最后一次尝试，记录详细错误
+                        if attempt == max_retries:
+                            self.status = "error"
+                            error_details = {
+                                'model_id': self.model_id,
+                                'status_code': response.status_code,
+                                'response_text': response.text[:200] if response.text else 'No response body',
+                                'url': url,
+                                'attempt': attempt + 1
+                            }
+                            error_handler.log_warning(f"外部模型连接失败: {error_details}", "ExternalModelProxy")
+                            return False
+                        else:
+                            # 重试前等待
+                            time.sleep(1)
+                            
+                except requests.exceptions.Timeout:
+                    if attempt == max_retries:
+                        self.status = "error"
+                        error_handler.log_warning(f"外部模型连接超时: {self.model_id} (尝试 {attempt + 1})", "ExternalModelProxy")
+                        return False
+                    time.sleep(1)
+                except requests.exceptions.ConnectionError:
+                    if attempt == max_retries:
+                        self.status = "error"
+                        error_handler.log_warning(f"外部模型连接错误: {self.model_id} (尝试 {attempt + 1})", "ExternalModelProxy")
+                        return False
+                    time.sleep(1)
+                except Exception as e:
+                    if attempt == max_retries:
+                        self.status = "error"
+                        error_handler.handle_error(e, "ExternalModelProxy", f"连接外部模型 {self.model_id} 失败 (尝试 {attempt + 1})")
+                        return False
+                    time.sleep(1)
+            
+            # 如果所有重试都失败
+            self.status = "error"
+            return False
             
         except Exception as e:
             self.status = "error"
@@ -214,30 +305,28 @@ class ModelRegistry:
             'autonomous': 'core.models.autonomous.unified_autonomous_model.UnifiedAutonomousModel',        # 自主模型
             'value_alignment': 'core.value_alignment.ValueAlignment'        # 值对齐模型
         }
-        # 增强模型依赖关系管理 | Enhanced model dependency management
+        # 简化模型依赖关系管理，避免循环依赖
         self.model_dependencies = {
-            'manager': ['language', 'knowledge', 'audio', 'vision_image', 'vision_video', 
-                       'spatial', 'sensor', 'computer', 'motion', 'programming', 'emotion',
-                       'collaboration', 'optimization', 'autonomous'],
-            'language': ['knowledge', 'emotion'],
-            'audio': ['language', 'emotion'],
-            'vision_image': ['knowledge', 'emotion'],
-            'vision_video': ['vision_image', 'knowledge', 'emotion'],
-            'spatial': ['vision_image', 'vision_video', 'emotion'],
-            'sensor': ['emotion'],
-            'computer': ['language', 'programming'],
-            'motion': ['spatial', 'sensor', 'optimization'],
-            'knowledge': [],  # 修复循环依赖问题
-            'programming': ['language', 'knowledge', 'optimization'],
+            'manager': ['language', 'knowledge'],  # 简化依赖，只保留核心依赖
+            'language': ['knowledge'],
+            'audio': ['language'],
+            'vision_image': ['knowledge'],
+            'vision_video': ['vision_image'],
+            'spatial': ['vision_image'],
+            'sensor': [],
+            'computer': ['language'],
+            'motion': ['spatial'],
+            'knowledge': [],  # 基础模型无依赖
+            'programming': ['language'],
             'emotion': ['knowledge'],
-            'finance': ['knowledge', 'prediction'],
-            'medical': ['knowledge', 'prediction'],
-            'planning': ['knowledge', 'prediction', 'optimization'],
-            'prediction': ['knowledge'],  # 修复循环依赖问题
-            'collaboration': ['knowledge', 'emotion', 'optimization'],
-            'optimization': ['prediction'],  # 修复循环依赖问题
-            'autonomous': ['knowledge', 'planning', 'optimization', 'collaboration'],
-            'value_alignment': ['knowledge', 'emotion']  # 添加value_alignment模型依赖
+            'finance': ['knowledge'],
+            'medical': ['knowledge'],
+            'planning': ['knowledge'],
+            'prediction': ['knowledge'],
+            'collaboration': ['knowledge'],
+            'optimization': ['prediction'],
+            'autonomous': ['knowledge', 'planning'],
+            'value_alignment': ['knowledge']
         }
         # 模型性能评估和训练状态 | Model performance evaluation and training status
         self.performance_metrics = {}
@@ -245,15 +334,15 @@ class ModelRegistry:
         self.joint_training_coordinator = None  # 联合训练协调器
         self.training_history = {}  # 训练历史记录
         
-        # AGI级别组件初始化
-        self.agi_core = AGICore()  # AGI核心系统
-        self._agi_coordinator = None  # AGI协调器（延迟初始化）
-        self.cognitive_architecture = UnifiedCognitiveArchitecture()  # 统一认知架构
-        self.self_learning_system = AGISelfLearningSystem(from_scratch=False)  # 自我学习系统
-        self.context_memory = ContextMemoryManager()  # 上下文记忆管理器
-        self.intrinsic_motivation = IntrinsicMotivationSystem()  # 内在动机系统
-        self.creative_solver = CreativeProblemSolver()  # 创造性问题解决器
-        self.value_alignment = ValueAlignment()  # 值对齐系统
+        # AGI级别组件延迟初始化
+        self._agi_core = None
+        self._agi_coordinator = None
+        self._cognitive_architecture = None
+        self._self_learning_system = None
+        self._context_memory = None
+        self._intrinsic_motivation = None
+        self._creative_solver = None
+        self._value_alignment = None
         
         # 新增：认知融合引擎和跨模型知识迁移
         self.cognitive_fusion_engine = None  # 认知融合引擎
@@ -261,16 +350,16 @@ class ModelRegistry:
         self.context_manager = None  # 上下文管理器
         self.active_workflows = {}  # 活跃的工作流
         self.workflow_lock = threading.RLock()  # 工作流锁
-        self.executor = ThreadPoolExecutor(max_workers=20)  # 增强线程池用于AGI级别的并行处理
+        self._executor = None  # 延迟初始化线程池
         self.conflict_resolution_strategies = {
             'majority_vote': self._resolve_conflict_majority,
             'expert_model': self._resolve_conflict_expert,
             'hierarchical': self._resolve_conflict_hierarchical,
             'agi_consensus': self._resolve_conflict_agi_consensus  # AGI共识策略
         }
-        self.default_conflict_strategy = 'agi_consensus'  # 默认使用AGI共识策略
+        self.default_conflict_strategy = 'majority_vote'  # 使用更简单的默认策略
         
-        # AGI级别的状态跟踪
+        # 简化AGI状态跟踪
         self.agi_state = {
             'consciousness_level': 0.1,  # 意识水平（0-1）
             'learning_capability': 0.8,  # 学习能力
@@ -287,21 +376,278 @@ class ModelRegistry:
         self.training_progress = {}  # 训练进度跟踪
         self.knowledge_base_integration = {}  # 知识库集成状态
         
+        # 内存优化跟踪
+        self._loaded_dependencies = set()  # 跟踪已加载的依赖
+        self._loading_stack = []  # 跟踪当前加载堆栈，防止循环依赖
+        self._max_recursion_depth = 5  # 限制最大递归深度，防止内存溢出
+        self._max_dependencies = 20  # 限制最大依赖数量
+        
+        # 新增内存管理参数
+        self._last_memory_cleanup = time.time()
+        self._memory_cleanup_interval = 3600  # 1小时清理一次
+        self._max_workflows = 100  # 最大工作流数量
+        self._max_performance_records = 1000  # 最大性能记录数量
+        self._max_training_history_per_model = 50  # 每个模型最大训练历史记录数
+        self._max_loaded_models = 20  # 最大加载模型数量
+        self._max_collaboration_records = 500  # 最大协作记录数量
+        
+        # 内存清理监控
+        self._memory_cleanup_count = 0
+        self._last_memory_usage_report = time.time()
+        self._memory_usage_interval = 1800  # 30分钟报告一次内存使用情况
+        
+        # 启动内存清理监控线程
+        self._cleanup_thread = None
+        self._stop_cleanup_thread = False
+        self._start_cleanup_monitor()
+        
+    def _start_cleanup_monitor(self):
+        """启动内存清理监控线程
+        Start memory cleanup monitoring thread
+        """
+        try:
+            if self._cleanup_thread is None or not self._cleanup_thread.is_alive():
+                self._stop_cleanup_thread = False
+                self._cleanup_thread = threading.Thread(target=self._cleanup_monitor_loop, daemon=True)
+                self._cleanup_thread.start()
+                error_handler.log_info("内存清理监控线程已启动", "ModelRegistry")
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", "启动内存清理监控线程失败")
+            
+    def _cleanup_monitor_loop(self):
+        """内存清理监控循环
+        Memory cleanup monitoring loop
+        """
+        while not self._stop_cleanup_thread:
+            try:
+                current_time = time.time()
+                
+                # 检查是否需要清理内存
+                if current_time - self._last_memory_cleanup > self._memory_cleanup_interval:
+                    self._cleanup_memory()
+                    self._last_memory_cleanup = current_time
+                    
+                # 检查是否需要报告内存使用情况
+                if current_time - self._last_memory_usage_report > self._memory_usage_interval:
+                    self._report_memory_usage()
+                    self._last_memory_usage_report = current_time
+                    
+                # 每30秒检查一次
+                time.sleep(30)
+                
+            except Exception as e:
+                error_handler.handle_error(e, "ModelRegistry", "内存清理监控循环出错")
+                time.sleep(60)  # 出错时等待更长时间
+                
+    def _cleanup_memory(self):
+        """执行实际的内存清理操作
+        Perform actual memory cleanup operations
+        """
+        try:
+            start_time = time.time()
+            cleanup_stats = {
+                'workflows_cleaned': 0,
+                'performance_records_cleaned': 0,
+                'training_history_cleaned': 0,
+                'collaboration_records_cleaned': 0
+            }
+            
+            error_handler.log_info("开始内存清理操作", "ModelRegistry")
+            
+            # 1. 清理过期的工作流
+            with self.workflow_lock:
+                workflows_to_clean = []
+                current_time = time.time()
+                for workflow_id, workflow_info in self.active_workflows.items():
+                    # 清理已完成、失败或取消且超过1小时的工作流
+                    if (workflow_info.get('status') in ['completed', 'failed', 'cancelled'] and 
+                        current_time - workflow_info.get('end_time', 0) > 3600):
+                        workflows_to_clean.append(workflow_id)
+                
+                for workflow_id in workflows_to_clean:
+                    del self.active_workflows[workflow_id]
+                    cleanup_stats['workflows_cleaned'] += 1
+                
+                # 限制活跃工作流数量
+                if len(self.active_workflows) > self._max_workflows:
+                    # 按结束时间排序，删除最旧的
+                    sorted_workflows = sorted(
+                        self.active_workflows.items(),
+                        key=lambda x: x[1].get('end_time', 0)
+                    )
+                    excess_count = len(self.active_workflows) - self._max_workflows
+                    for i in range(excess_count):
+                        workflow_id, _ = sorted_workflows[i]
+                        del self.active_workflows[workflow_id]
+                        cleanup_stats['workflows_cleaned'] += 1
+            
+            # 2. 清理性能记录
+            if len(self.performance_metrics) > self._max_performance_records:
+                # 按最后活动时间排序，删除最不活跃的
+                sorted_metrics = sorted(
+                    self.performance_metrics.items(),
+                    key=lambda x: x[1].get('last_collaboration_time', 0)
+                )
+                excess_count = len(self.performance_metrics) - self._max_performance_records
+                for i in range(excess_count):
+                    model_id, _ = sorted_metrics[i]
+                    del self.performance_metrics[model_id]
+                    cleanup_stats['performance_records_cleaned'] += 1
+            
+            # 3. 清理训练历史记录
+            for model_id in list(self.training_history.keys()):
+                history = self.training_history[model_id]
+                if len(history) > self._max_training_history_per_model:
+                    # 保留最近的记录
+                    self.training_history[model_id] = history[-self._max_training_history_per_model:]
+                    cleanup_stats['training_history_cleaned'] += len(history) - len(self.training_history[model_id])
+            
+            # 4. 清理协作记录（如果有的话）
+            # 这里假设协作记录存储在某个地方，实际实现中可能需要调整
+            if hasattr(self, '_collaboration_records'):
+                if len(self._collaboration_records) > self._max_collaboration_records:
+                    # 按时间戳排序，删除最旧的
+                    sorted_records = sorted(
+                        self._collaboration_records,
+                        key=lambda x: x.get('timestamp', 0)
+                    )
+                    excess_count = len(self._collaboration_records) - self._max_collaboration_records
+                    for i in range(excess_count):
+                        self._collaboration_records.remove(sorted_records[i])
+                        cleanup_stats['collaboration_records_cleaned'] += 1
+            
+            # 5. 清理加载的模型（如果有太多）
+            if len(self.models) > self._max_loaded_models:
+                # 按最后访问时间排序，卸载最不活跃的模型
+                model_access_times = {}
+                for model_id, model in self.models.items():
+                    if hasattr(model, 'last_access_time'):
+                        model_access_times[model_id] = model.last_access_time
+                    else:
+                        model_access_times[model_id] = 0
+                
+                sorted_models = sorted(
+                    model_access_times.items(),
+                    key=lambda x: x[1]
+                )
+                
+                excess_count = len(self.models) - self._max_loaded_models
+                for i in range(excess_count):
+                    model_id, _ = sorted_models[i]
+                    self.unload_model(model_id)
+            
+            # 6. 强制垃圾回收
+            import gc
+            gc.collect()
+            
+            # 记录清理统计
+            end_time = time.time()
+            cleanup_stats['duration'] = end_time - start_time
+            cleanup_stats['timestamp'] = time.time()
+            self._memory_cleanup_count += 1
+            
+            error_handler.log_info(
+                f"内存清理完成: 工作流清理{cleanup_stats['workflows_cleaned']}个, "
+                f"性能记录清理{cleanup_stats['performance_records_cleaned']}个, "
+                f"训练历史清理{cleanup_stats['training_history_cleaned']}条, "
+                f"协作记录清理{cleanup_stats['collaboration_records_cleaned']}条, "
+                f"耗时{cleanup_stats['duration']:.2f}秒",
+                "ModelRegistry"
+            )
+            
+            return cleanup_stats
+            
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", "内存清理操作失败")
+            return {'error': str(e)}
+            
+    def _report_memory_usage(self):
+        """报告内存使用情况
+        Report memory usage
+        """
+        try:
+            import psutil
+            import os
+            
+            process = psutil.Process(os.getpid())
+            memory_info = process.memory_info()
+            
+            memory_stats = {
+                'rss_mb': memory_info.rss / 1024 / 1024,  # 常驻内存
+                'vms_mb': memory_info.vms / 1024 / 1024,  # 虚拟内存
+                'memory_percent': process.memory_percent(),
+                'models_count': len(self.models),
+                'workflows_count': len(self.active_workflows),
+                'performance_records_count': len(self.performance_metrics),
+                'training_history_count': sum(len(h) for h in self.training_history.values()),
+                'cleanup_count': self._memory_cleanup_count,
+                'timestamp': time.time()
+            }
+            
+            error_handler.log_info(
+                f"内存使用报告: RSS={memory_stats['rss_mb']:.1f}MB, "
+                f"VMS={memory_stats['vms_mb']:.1f}MB, "
+                f"使用率={memory_stats['memory_percent']:.1f}%, "
+                f"模型数={memory_stats['models_count']}, "
+                f"工作流数={memory_stats['workflows_count']}, "
+                f"清理次数={memory_stats['cleanup_count']}",
+                "ModelRegistry"
+            )
+            
+            return memory_stats
+            
+        except ImportError:
+            # psutil不可用，使用基础报告
+            memory_stats = {
+                'models_count': len(self.models),
+                'workflows_count': len(self.active_workflows),
+                'performance_records_count': len(self.performance_metrics),
+                'training_history_count': sum(len(h) for h in self.training_history.values()),
+                'cleanup_count': self._memory_cleanup_count,
+                'timestamp': time.time(),
+                'psutil_available': False
+            }
+            
+            error_handler.log_info(
+                f"基础内存报告: 模型数={memory_stats['models_count']}, "
+                f"工作流数={memory_stats['workflows_count']}, "
+                f"清理次数={memory_stats['cleanup_count']}",
+                "ModelRegistry"
+            )
+            
+            return memory_stats
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", "内存使用报告失败")
+            return {'error': str(e)}
+            
+    def stop_cleanup_monitor(self):
+        """停止内存清理监控线程
+        Stop memory cleanup monitoring thread
+        """
+        try:
+            self._stop_cleanup_thread = True
+            if self._cleanup_thread and self._cleanup_thread.is_alive():
+                self._cleanup_thread.join(timeout=5)
+            error_handler.log_info("内存清理监控线程已停止", "ModelRegistry")
+        except Exception as e:
+            error_handler.handle_error(e, "ModelRegistry", "停止内存清理监控线程失败")
+        
+    def set_agi_coordinator(self, agi_coordinator):
+        """设置AGI协调器引用，避免循环依赖
+        Set AGI coordinator reference to avoid circular dependencies
+        """
+        self._agi_coordinator = agi_coordinator
+        error_handler.log_info("AGI协调器引用已设置", "ModelRegistry")
+
     @property
     def agi_coordinator(self):
-        """AGI协调器延迟加载属性
-        AGI Coordinator lazy loading property
+        """AGI协调器属性 - 修复循环依赖问题
+        AGI Coordinator property - fixed circular dependency issue
         """
         if self._agi_coordinator is None:
-            try:
-                # 延迟导入以避免循环依赖
-                from core.agi_coordinator import AGICoordinator
-                self._agi_coordinator = AGICoordinator()
-                error_handler.log_info("AGI协调器已延迟加载", "ModelRegistry")
-            except ImportError as e:
-                error_handler.handle_error(e, "ModelRegistry", "无法导入AGICoordinator模块")
-                # 创建简化版本的协调器
-                self._agi_coordinator = self._create_fallback_agi_coordinator()
+            # 避免循环依赖，不在这里创建AGICoordinator实例
+            error_handler.log_warning("AGI协调器未设置，使用备用协调器", "ModelRegistry")
+            return self._create_fallback_agi_coordinator()
         return self._agi_coordinator
 
     def _create_fallback_agi_coordinator(self):
@@ -344,10 +690,10 @@ class ModelRegistry:
             
             # 添加AGI系统集成配置
             enhanced_config.update({
-                'agi_core': self.agi_core,
-                'cognitive_architecture': self.cognitive_architecture,
-                'self_learning_system': self.self_learning_system,
-                'context_memory': self.context_memory,
+                'agi_core': self._agi_core,
+                'cognitive_architecture': self._cognitive_architecture,
+                'self_learning_system': self._self_learning_system,
+                'context_memory': self._context_memory,
                 'from_scratch': self.from_scratch_training_enabled,
                 'model_registry': self  # 传递模型注册表引用
             })
@@ -396,7 +742,7 @@ class ModelRegistry:
             
             # 如果模型支持AGI方法，进行深度集成
             if hasattr(model_instance, 'initialize_agi'):
-                model_instance.initialize_agi(self.agi_core)
+                model_instance.initialize_agi(self._agi_core)
                 
             # 通知AGI协调器新模型已注册
             self.agi_coordinator.on_model_registered(model_id, model_instance)
@@ -441,16 +787,48 @@ class ModelRegistry:
             error_handler.log_warning(f"未知模型类型: {model_id}", "ModelRegistry")
             return None
         
-        # AGI级别的依赖解析 - 考虑认知依赖关系
-        dependency_order = self._get_agi_dependency_loading_order(model_id)
+        # 防止循环依赖和重复加载 - 检查当前模型是否正在加载中
+        if model_id in self._loading_stack:
+            error_handler.log_warning(f"检测到循环依赖或重复加载: {model_id} (加载堆栈: {self._loading_stack})", "ModelRegistry")
+            return None
         
-        # 按依赖顺序加载模型
-        for dep_id in dependency_order:
-            if dep_id not in self.models:
-                error_handler.log_info(f"AGI级别加载模型 {model_id} 的认知依赖: {dep_id}", "ModelRegistry")
-                # 递归加载依赖，但不重复加载当前模型
-                if dep_id != model_id:
-                    self.load_model(dep_id, force_reload=force_reload, priority=priority + 1, from_scratch=from_scratch)
+        # 检查递归深度，防止无限递归
+        if priority > 10:  # 最大递归深度为10
+            error_handler.log_error(f"模型加载递归深度过大: {model_id} (优先级: {priority})", "ModelRegistry")
+            return None
+        
+        # 将当前模型添加到加载堆栈
+        self._loading_stack.append(model_id)
+        
+        try:
+            # AGI级别的依赖解析 - 考虑认知依赖关系
+            dependency_order = self._get_agi_dependency_loading_order(model_id)
+            
+            # 按依赖顺序加载模型，但避免重复加载
+            for dep_id in dependency_order:
+                if dep_id not in self.models or force_reload:
+                    # 检查依赖是否已经在加载堆栈中（防止循环依赖）
+                    if dep_id in self._loading_stack:
+                        error_handler.log_warning(f"跳过循环依赖: {dep_id} 已在加载堆栈中", "ModelRegistry")
+                        continue
+                    
+                    # 检查依赖是否已经加载过
+                    if dep_id in self._loaded_dependencies:
+                        error_handler.log_info(f"依赖 {dep_id} 已加载过，跳过重复加载", "ModelRegistry")
+                        continue
+                    
+                    error_handler.log_info(f"AGI级别加载模型 {model_id} 的认知依赖: {dep_id}", "ModelRegistry")
+                    
+                    # 递归加载依赖，但不重复加载当前模型
+                    if dep_id != model_id:
+                        dep_model = self.load_model(dep_id, force_reload=force_reload, priority=priority + 1, from_scratch=from_scratch)
+                        if dep_model:
+                            # 标记依赖已加载
+                            self._loaded_dependencies.add(dep_id)
+                        else:
+                            error_handler.log_warning(f"加载依赖 {dep_id} 失败，但继续加载主模型 {model_id}", "ModelRegistry")
+        except Exception as e:
+            error_handler.log_warning(f"依赖加载过程中出现错误，但继续加载主模型 {model_id}: {str(e)}", "ModelRegistry")
         
         try:
             # 解析模块路径和类名
@@ -473,7 +851,7 @@ class ModelRegistry:
             config.update({
                 'related_models': self._get_agi_related_models(model_id),  # 获取AGI级别的相关模型
                 'priority': priority,
-                'agi_system': self.agi_core,
+    'agi_system': self._agi_core,
                 'cognitive_context': self._get_cognitive_context(model_id),
                 'learning_capability': self.agi_state['learning_capability']
             })
@@ -675,8 +1053,8 @@ class ModelRegistry:
         }
         
     def _notify_agi_model_loaded(self, model_id: str, from_scratch: bool):
-        """AGI级别的模型加载通知
-        AGI-level model loaded notification
+        """AGI级别的模型加载通知 - 完全修复JSON序列化问题
+        AGI-level model loaded notification - completely fixed JSON serialization issues
         
         Args:
             model_id: 模型ID / Model ID
@@ -686,49 +1064,58 @@ class ModelRegistry:
             # 使用error_handler记录信息，避免print可能带来的问题
             error_handler.log_info(f"AGI system integrating model: {model_id} (from_scratch: {from_scratch})", "ModelRegistry")
             
-            # 避免递归调用 - 只进行基本的状态更新
+            # 安全的AGI状态更新 - 只使用基本数据类型，确保完全可序列化
             try:
-                # 直接使用基本数值操作
+                # 直接使用基本数值操作，避免任何复杂对象
+                # 确保所有值都是基本类型，可以直接JSON序列化
                 knowledge_acc = float(self.agi_state.get('knowledge_accumulation', 0.0))
                 consciousness = float(self.agi_state.get('consciousness_level', 0.1))
                 interactions = int(self.agi_state.get('total_interactions', 0))
+                learning_capability = float(self.agi_state.get('learning_capability', 0.8))
+                problem_solving = float(self.agi_state.get('problem_solving_ability', 0.7))
+                creativity = float(self.agi_state.get('creativity_level', 0.6))
+                ethical_alignment = float(self.agi_state.get('ethical_alignment', 0.9))
+                last_reflection = float(self.agi_state.get('last_self_reflection', time.time()))
                 
-                self.agi_state['knowledge_accumulation'] = min(1.0, knowledge_acc + 0.1)
-                self.agi_state['consciousness_level'] = min(1.0, consciousness + 0.05)
-                self.agi_state['total_interactions'] = interactions + 1
-                self.agi_state['last_self_reflection'] = time.time()
+                # 更新状态，确保所有值都是基本类型且完全可序列化
+                self.agi_state = {
+                    'consciousness_level': float(min(1.0, consciousness + 0.05)),
+                    'learning_capability': float(learning_capability),
+                    'problem_solving_ability': float(problem_solving),
+                    'creativity_level': float(creativity),
+                    'ethical_alignment': float(ethical_alignment),
+                    'last_self_reflection': float(time.time()),
+                    'total_interactions': int(interactions + 1),
+                    'knowledge_accumulation': float(min(1.0, knowledge_acc + 0.1))
+                }
                 
-                # 确保所有值是基本类型 - 修复JSON序列化问题
-                safe_agi_state = {}
-                for key, value in self.agi_state.items():
-                    if isinstance(value, (int, float, str, bool)):
-                        safe_agi_state[key] = value
-                    elif value is None:
-                        safe_agi_state[key] = None
-                    else:
-                        # 对于其他类型，转换为字符串或基本类型
-                        try:
-                            # 尝试转换为基本类型
-                            if hasattr(value, '__dict__'):
-                                # 对于对象，只保存关键信息
-                                safe_agi_state[key] = f"object_{type(value).__name__}"
-                            else:
-                                safe_agi_state[key] = str(value)
-                        except:
-                            safe_agi_state[key] = "unserializable_value"
-                
-                self.agi_state = safe_agi_state
+                # 验证AGI状态完全可序列化
+                try:
+                    json.dumps(self.agi_state)
+                except Exception as json_error:
+                    error_handler.log_warning(f"AGI state JSON serialization failed: {json_error}", "ModelRegistry")
+                    # 如果JSON序列化失败，使用最安全的基本值
+                    self.agi_state = {
+                        'consciousness_level': 0.1,
+                        'learning_capability': 0.8,
+                        'problem_solving_ability': 0.7,
+                        'creativity_level': 0.6,
+                        'ethical_alignment': 0.9,
+                        'last_self_reflection': float(time.time()),
+                        'total_interactions': 0,
+                        'knowledge_accumulation': 0.0
+                    }
                         
             except Exception as e:
                 error_handler.log_warning(f"AGI state update failed for {model_id}: {type(e).__name__}", "ModelRegistry")
-                # 如果状态更新失败，重置为安全状态
+                # 如果状态更新失败，重置为安全状态 - 只包含基本类型
                 self.agi_state = {
                     'consciousness_level': 0.1,
                     'learning_capability': 0.8,
                     'problem_solving_ability': 0.7,
                     'creativity_level': 0.6,
                     'ethical_alignment': 0.9,
-                    'last_self_reflection': time.time(),
+                    'last_self_reflection': float(time.time()),
                     'total_interactions': 0,
                     'knowledge_accumulation': 0.0
                 }
@@ -737,14 +1124,14 @@ class ModelRegistry:
         except Exception as e:
             # 使用最简单的错误处理
             error_handler.log_warning(f"Error in AGI model load notification for {model_id}: {type(e).__name__}", "ModelRegistry")
-            # 确保AGI状态是安全的
+            # 确保AGI状态是安全的 - 只包含基本类型
             self.agi_state = {
                 'consciousness_level': 0.1,
                 'learning_capability': 0.8,
                 'problem_solving_ability': 0.7,
                 'creativity_level': 0.6,
                 'ethical_alignment': 0.9,
-                'last_self_reflection': time.time(),
+                'last_self_reflection': float(time.time()),
                 'total_interactions': 0,
                 'knowledge_accumulation': 0.0
             }

@@ -63,6 +63,7 @@ from core.value_alignment import ValueAlignment
 from core.agi_coordinator import AGICoordinator
 from core.external_api_service import ExternalAPIService
 from core.api_model_connector import APIModelConnector
+from core.memory_optimization import ComponentFactory
 
 # WebSocket connection manager
 class ConnectionManager:
@@ -509,28 +510,61 @@ async def websocket_autonomous_learning_status(websocket: WebSocket):
 @app.on_event("startup")
 async def startup_event():
     """
-    System startup event handler - Initialize all global components
+    System startup event handler - Initialize all global components with memory optimization
+    Enhanced to prevent duplicate loading and memory overflow
     """
     global model_registry, training_manager, emotion_system, autonomous_learning_manager
     global system_settings_manager, system_monitor, connection_manager
     global unified_cognitive_architecture, enhanced_meta_cognition, intrinsic_motivation_system
     global explainable_ai, value_alignment, agi_coordinator, api_model_connector
     
+    # Check if already initialized to prevent duplicate startup
+    if hasattr(startup_event, '_initialized') and startup_event._initialized:
+        error_handler.log_warning("System startup already completed, skipping duplicate initialization", "System")
+        return
+    
     error_handler.log_info("Self Soul system is starting up...", "System")
     
     try:
-        # Initialize core components in dependency order
+        # Initialize memory optimization first
+        error_handler.log_info("Initializing memory optimization system...", "System")
+        from core.memory_optimization import configure_memory_optimization, memory_optimizer
+        configure_memory_optimization(
+            enable_optimization=True,
+            lightweight_mode=True,  # Start in lightweight mode to conserve memory
+            max_memory_usage=70
+        )
+        
+        # Check memory usage before starting
+        memory_info = memory_optimizer.check_memory_usage()
+        error_handler.log_info(f"Initial memory usage: {memory_info['used']:.2f}MB ({memory_info['percent']:.1f}%)", "System")
+        
+        # Initialize core components in dependency order with memory optimization
         error_handler.log_info("Initializing system settings manager...", "System")
         system_settings_manager = SystemSettingsManager()
         
+        # Run memory optimization after each major component initialization
+        if memory_optimizer.should_optimize():
+            memory_optimizer.optimize_memory()
+            error_handler.log_info("Memory optimized after system settings manager initialization", "System")
+        
         error_handler.log_info("Initializing model registry...", "System")
-        model_registry = ModelRegistry()
+        # 使用ComponentFactory获取全局共享的ModelRegistry实例，避免循环依赖
+        model_registry = ComponentFactory.get_component('model_registry', ModelRegistry)
+        
+        if memory_optimizer.should_optimize():
+            memory_optimizer.optimize_memory()
+            error_handler.log_info("Memory optimized after model registry initialization", "System")
         
         error_handler.log_info("Initializing dataset manager...", "System")
         dataset_manager = DatasetManager()
         
         error_handler.log_info("Initializing training manager...", "System")
         training_manager = TrainingManager(model_registry)
+        
+        if memory_optimizer.should_optimize():
+            memory_optimizer.optimize_memory()
+            error_handler.log_info("Memory optimized after training manager initialization", "System")
         
         error_handler.log_info("Initializing emotion awareness system...", "System")
         emotion_system = AGIEmotionAwarenessSystem()
@@ -546,6 +580,10 @@ async def startup_event():
         
         error_handler.log_info("Initializing unified cognitive architecture...", "System")
         unified_cognitive_architecture = UnifiedCognitiveArchitecture()
+        
+        if memory_optimizer.should_optimize():
+            memory_optimizer.optimize_memory()
+            error_handler.log_info("Memory optimized after cognitive architecture initialization", "System")
         
         error_handler.log_info("Initializing enhanced meta cognition...", "System")
         enhanced_meta_cognition = EnhancedMetaCognition()
@@ -565,22 +603,92 @@ async def startup_event():
         error_handler.log_info("Initializing API model connector...", "System")
         api_model_connector = APIModelConnector()
         
-        error_handler.log_info("Initializing AGI coordinator...", "System")
-        agi_coordinator = AGICoordinator()
-        
         # Load model modes from settings
         error_handler.log_info("Loading model modes from settings...", "System")
         load_model_modes_from_settings()
         
-        # Load all models
-        error_handler.log_info("Loading all models...", "System")
-        loaded_models = model_registry.load_all_models()
-        error_handler.log_info(f"Successfully loaded {len(loaded_models)} models: {', '.join(loaded_models)}", "System")
+        # Initialize AGI coordinator with delayed model loading to avoid circular dependencies
+        error_handler.log_info("Initializing AGI coordinator...", "System")
+        agi_coordinator = AGICoordinator()
         
-        # Initialize all loaded models
-        error_handler.log_info("Initializing all models...", "System")
+        if memory_optimizer.should_optimize():
+            memory_optimizer.optimize_memory()
+            error_handler.log_info("Memory optimized after AGI coordinator initialization", "System")
+        
+        # Load only essential models first to prevent memory overflow
+        error_handler.log_info("Loading essential models first...", "System")
+        
+        # Define essential models that must be loaded for basic functionality
+        essential_models = ["manager", "language", "knowledge", "vision", "audio"]
+        
+        # Get all available model IDs
+        all_models = model_registry.get_all_models()
+        error_handler.log_info(f"Found {len(all_models)} available models", "System")
+        
+        # Separate essential and non-essential models
+        essential_to_load = [model for model in essential_models if model in all_models]
+        non_essential_models = [model for model in all_models if model not in essential_models]
+        
+        # Load essential models first
+        error_handler.log_info(f"Loading essential models: {', '.join(essential_to_load)}", "System")
+        loaded_essential_models = []
+        
+        for model_id in essential_to_load:
+            try:
+                if model_registry.load_model(model_id, priority=1):  # High priority for essential models
+                    loaded_essential_models.append(model_id)
+                    error_handler.log_info(f"Essential model {model_id} loaded successfully", "System")
+                else:
+                    error_handler.log_warning(f"Failed to load essential model {model_id}", "System")
+            except Exception as e:
+                error_handler.handle_error(e, "System", f"Failed to load essential model {model_id}")
+            
+            # Optimize memory after each essential model
+            if memory_optimizer.should_optimize():
+                memory_optimizer.optimize_memory()
+                error_handler.log_info(f"Memory optimized after loading essential model {model_id}", "System")
+            
+            await asyncio.sleep(0.1)  # Small delay between essential models
+        
+        # Load non-essential models in smaller batches to avoid memory spikes
+        batch_size = 2  # Reduced batch size to prevent memory overflow
+        loaded_non_essential_models = []
+        
+        for i in range(0, len(non_essential_models), batch_size):
+            # Check memory usage before loading next batch
+            current_memory = memory_optimizer.check_memory_usage()
+            if current_memory['percent'] > 75:  # If memory usage is too high, stop loading
+                error_handler.log_warning(f"Memory usage too high ({current_memory['percent']:.1f}%), stopping non-essential model loading", "System")
+                break
+                
+            batch = non_essential_models[i:i + batch_size]
+            error_handler.log_info(f"Loading non-essential batch {i//batch_size + 1}: {', '.join(batch)}", "System")
+            
+            for model_id in batch:
+                try:
+                    if model_registry.load_model(model_id, priority=2):  # Lower priority for non-essential
+                        loaded_non_essential_models.append(model_id)
+                        error_handler.log_info(f"Non-essential model {model_id} loaded successfully", "System")
+                    else:
+                        error_handler.log_warning(f"Failed to load non-essential model {model_id}", "System")
+                except Exception as e:
+                    error_handler.handle_error(e, "System", f"Failed to load non-essential model {model_id}")
+            
+            # Optimize memory after each batch
+            if memory_optimizer.should_optimize():
+                memory_optimizer.optimize_memory()
+                error_handler.log_info(f"Memory optimized after batch {i//batch_size + 1}", "System")
+            
+            # Small delay between batches
+            await asyncio.sleep(0.3)
+        
+        all_loaded_models = loaded_essential_models + loaded_non_essential_models
+        error_handler.log_info(f"Successfully loaded {len(all_loaded_models)} models (essential: {len(loaded_essential_models)}, non-essential: {len(loaded_non_essential_models)})", "System")
+        
+        # Initialize only loaded models to prevent errors
+        error_handler.log_info("Initializing loaded models...", "System")
         initialized_count = 0
-        for model_id in loaded_models:
+        for model_id in all_loaded_models:
             model = model_registry.get_model(model_id)
             if model and hasattr(model, 'initialize'):
                 try:
@@ -593,12 +701,20 @@ async def startup_event():
                 except Exception as e:
                     error_handler.handle_error(e, "System", f"Model {model_id} initialization failed")
         
-        error_handler.log_info(f"Successfully initialized {initialized_count}/{len(loaded_models)} models", "System")
+        error_handler.log_info(f"Successfully initialized {initialized_count}/{len(all_loaded_models)} models", "System")
         
-        # Start all model independent services
-        error_handler.log_info("Starting all model independent services...", "System")
+        # Start only essential model services first
+        error_handler.log_info("Starting essential model services...", "System")
         try:
-            startup_results = model_service_manager.start_all_model_services()
+            # Only start services for loaded models
+            startup_results = {}
+            for model_id in all_loaded_models:
+                try:
+                    success = model_service_manager.start_model_service(model_id)
+                    startup_results[model_id] = success
+                except Exception as e:
+                    error_handler.handle_error(e, "System", f"Failed to start service for model {model_id}")
+                    startup_results[model_id] = False
             
             # Count successfully started model services
             success_count = sum(1 for success in startup_results.values() if success)
@@ -618,6 +734,8 @@ async def startup_event():
         except Exception as e:
             error_handler.handle_error(e, "System", "Failed to start model services")
         
+        # Mark startup as completed to prevent duplicate initialization
+        startup_event._initialized = True
         error_handler.log_info("Self Soul system startup completed successfully!", "System")
         
     except Exception as e:
@@ -965,9 +1083,9 @@ async def chat_with_manager_model(input_data: dict):
                 from core.models.manager.unified_manager_model import create_unified_manager_model
                 manager_model = create_unified_manager_model()
                 model_registry.register_model("manager", manager_model)
-                logger.info("Manager model loaded successfully")
+                error_handler.log_info("Manager model loaded successfully", "API")
             except Exception as load_error:
-                logger.error(f"Failed to load manager model: {str(load_error)}")
+                error_handler.handle_error(load_error, "API", f"Failed to load manager model: {str(load_error)}")
                 raise HTTPException(status_code=500, detail=f"Manager model not loaded: {str(load_error)}")
         
         # Process message with manager model
@@ -989,7 +1107,7 @@ async def chat_with_manager_model(input_data: dict):
             response_text = response.get("output", "")
         else:
             response_text = "I apologize, but I encountered an error while processing your message."
-            logger.error(f"Manager model processing error: {response.get('error', 'Unknown error')}")
+            error_handler.handle_error(Exception(f"Manager model processing error: {response.get('error', 'Unknown error')}"), "API", "Manager model processing failed")
         
         conversation_history.append({"role": "assistant", "content": response_text})
         
@@ -1014,7 +1132,6 @@ async def chat_with_manager_model(input_data: dict):
             }
         }
     except Exception as e:
-        logger.error(f"Failed to process manager model chat request: {str(e)}")
         error_handler.handle_error(e, "API", "Failed to process manager model chat request")
         
         # Return fallback response with error details
@@ -1633,6 +1750,22 @@ async def get_dashboard_system():
         enhanced_metrics = system_monitor.get_enhanced_metrics()
         base_metrics = enhanced_metrics.get("base_metrics", {})
         
+        # Calculate actual trend based on historical data
+        trend_data = enhanced_metrics.get("trends", {})
+        
+        # Get actual network metrics
+        network_io = base_metrics.get("network_io", {})
+        bytes_recv = network_io.get("bytes_recv", 0)
+        bytes_sent = network_io.get("bytes_sent", 0)
+        
+        # Calculate network usage in MB/s (convert from bytes to MB)
+        network_in_mbps = bytes_recv / 1024 / 1024
+        network_out_mbps = bytes_sent / 1024 / 1024
+        
+        # Get actual response time from task metrics
+        task_metrics = enhanced_metrics.get("task_metrics", [])
+        avg_response_time = task_metrics[0].get("avg_response_time", 0) if task_metrics else 0
+        
         metrics = [
             {
                 "id": "cpu_usage",
@@ -1641,8 +1774,8 @@ async def get_dashboard_system():
                 "unit": "%",
                 "threshold": 90,
                 "warning": 70,
-                "trend": "stable",
-                "change": "0%"
+                "trend": trend_data.get("cpu_trend", "stable"),
+                "change": f"{trend_data.get('cpu_change', 0):.1f}%"
             },
             {
                 "id": "memory_usage",
@@ -1651,8 +1784,8 @@ async def get_dashboard_system():
                 "unit": "%",
                 "threshold": 85,
                 "warning": 75,
-                "trend": "stable",
-                "change": "0%"
+                "trend": trend_data.get("memory_trend", "stable"),
+                "change": f"{trend_data.get('memory_change', 0):.1f}%"
             },
             {
                 "id": "disk_usage",
@@ -1661,38 +1794,38 @@ async def get_dashboard_system():
                 "unit": "%",
                 "threshold": 95,
                 "warning": 85,
-                "trend": "stable",
-                "change": "0%"
+                "trend": trend_data.get("disk_trend", "stable"),
+                "change": f"{trend_data.get('disk_change', 0):.1f}%"
             },
             {
                 "id": "network_in",
                 "title": "Network In",
-                "value": base_metrics.get("network_io", {}).get("bytes_recv", 0) / 1024 / 1024,
+                "value": network_in_mbps,
                 "unit": "MB/s",
                 "threshold": 100,
                 "warning": 50,
-                "trend": "stable",
-                "change": "0MB/s"
+                "trend": trend_data.get("network_in_trend", "stable"),
+                "change": f"{trend_data.get('network_in_change', 0):.1f}MB/s"
             },
             {
                 "id": "network_out",
                 "title": "Network Out",
-                "value": base_metrics.get("network_io", {}).get("bytes_sent", 0) / 1024 / 1024,
+                "value": network_out_mbps,
                 "unit": "MB/s",
                 "threshold": 100,
                 "warning": 50,
-                "trend": "stable",
-                "change": "0MB/s"
+                "trend": trend_data.get("network_out_trend", "stable"),
+                "change": f"{trend_data.get('network_out_change', 0):.1f}MB/s"
             },
             {
                 "id": "response_time",
                 "title": "Average Response Time",
-                "value": enhanced_metrics.get("task_metrics", [{}])[0].get("avg_response_time", 0),
+                "value": avg_response_time,
                 "unit": "ms",
                 "threshold": 1000,
                 "warning": 500,
-                "trend": "stable",
-                "change": "Extremely Fast"
+                "trend": trend_data.get("response_time_trend", "stable"),
+                "change": f"{trend_data.get('response_time_change', 0):.1f}ms"
             }
         ]
         
@@ -3053,25 +3186,25 @@ async def search_knowledge(query: str = None, domain: str = None):
         domain: Domain filter
         
     Returns:
-        Search results
+        Search results from actual knowledge base
     """
     try:
-        # Mock search results
-        search_results = [
-            {"id": "1", "name": "system_architecture.pdf", "type": "pdf", "size": "2.5 MB", "last_modified": "2024-01-15T10:30:00", "domain": "System Architecture"},
-            {"id": "2", "name": "model_documentation.md", "type": "md", "size": "1.2 MB", "last_modified": "2024-01-14T15:45:00", "domain": "Model Documentation"}
-        ]
+        # Get knowledge model and perform actual search
+        knowledge_model = model_registry.get_model("knowledge")
+        if not knowledge_model:
+            raise HTTPException(status_code=500, detail="Knowledge model not available")
         
-        # Filter results based on query and domain if provided
-        if query:
-            search_results = [r for r in search_results if query.lower() in r["name"].lower() or query.lower() in r["domain"].lower()]
+        # Perform actual knowledge search
+        search_results = knowledge_model.search_knowledge(query=query, domain=domain)
         
-        if domain:
-            search_results = [r for r in search_results if domain.lower() == r["domain"].lower()]
-        
-        return {"status": "success", "results": search_results, "total": len(search_results)}
+        return {
+            "status": "success", 
+            "results": search_results.get("results", []), 
+            "total": search_results.get("total", 0),
+            "search_time": search_results.get("search_time", 0)
+        }
     except Exception as e:
-        error_handler.handle_error(e, "API", "Search failed")
+        error_handler.handle_error(e, "API", "Knowledge search failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Preview knowledge file
@@ -3161,43 +3294,41 @@ async def get_knowledge_stats():
     try:
         # Get knowledge base status from knowledge model via model registry
         knowledge_model = model_registry.get_model('knowledge')
-        knowledge_base_status = knowledge_model.get_knowledge_base_status() if knowledge_model else {}
+        if not knowledge_model:
+            return {"status": "success", "stats": {
+                "total_domains": 0,
+                "total_items": 0,
+                "total_size": "0 MB",
+                "updated_domains": 0,
+                "recent_updates": 0,
+                "domain_categories": []
+            }}
         
-        # Simulated knowledge statistics for frontend display
+        knowledge_base_status = knowledge_model.get_knowledge_base_status()
+        
+        # Use actual data from knowledge base
         knowledge_stats = {
-            "total_domains": knowledge_base_status.get("total_domains", 5),
-            "total_items": knowledge_base_status.get("total_items", 125),
-            "total_size": knowledge_base_status.get("total_size", "15.8 MB"),
-            "updated_domains": knowledge_base_status.get("updated_domains", 3),
-            "recent_updates": knowledge_base_status.get("recent_updates", 8),
-            "domain_categories": [
-                {"name": "System Architecture", "count": 25},
-                {"name": "Model Documentation", "count": 30},
-                {"name": "Training Data", "count": 40},
-                {"name": "Knowledge Graph", "count": 15},
-                {"name": "User Manual", "count": 15}
-            ]
+            "total_domains": knowledge_base_status.get("total_domains", 0),
+            "total_items": knowledge_base_status.get("total_items", 0),
+            "total_size": knowledge_base_status.get("total_size", "0 MB"),
+            "updated_domains": knowledge_base_status.get("updated_domains", 0),
+            "recent_updates": knowledge_base_status.get("recent_updates", 0),
+            "domain_categories": knowledge_base_status.get("domain_categories", [])
         }
         
         return {"status": "success", "stats": knowledge_stats}
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get knowledge statistics")
-        # Return simulated data even if error occurs to ensure frontend displays normally
+        # Return empty data instead of simulated data
         return {
             "status": "success",
             "stats": {
-                "total_domains": 5,
-                "total_items": 125,
-                "total_size": "15.8 MB",
-                "updated_domains": 3,
-                "recent_updates": 8,
-                "domain_categories": [
-                    {"name": "System Architecture", "count": 25},
-                    {"name": "Model Documentation", "count": 30},
-                    {"name": "Training Data", "count": 40},
-                    {"name": "Knowledge Graph", "count": 15},
-                    {"name": "User Manual", "count": 15}
-                ]
+                "total_domains": 0,
+                "total_items": 0,
+                "total_size": "0 MB",
+                "updated_domains": 0,
+                "recent_updates": 0,
+                "domain_categories": []
             }
         }
 
@@ -3214,16 +3345,9 @@ async def get_knowledge_files():
         files = knowledge_enhancer.get_available_knowledge_files()
         return {"status": "success", "files": files}
     except Exception as e:
-        error_handler.log_warning(f"Failed to get actual knowledge files, using mock data: {str(e)}", "API")
-        # Fallback to mock data if actual data retrieval fails
-        mock_files = [
-            {"id": "1", "name": "system_architecture.pdf", "type": "pdf", "size": "2.5 MB", "last_modified": "2024-01-15T10:30:00"},
-            {"id": "2", "name": "model_documentation.md", "type": "md", "size": "1.2 MB", "last_modified": "2024-01-14T15:45:00"},
-            {"id": "3", "name": "training_dataset.csv", "type": "csv", "size": "15.8 MB", "last_modified": "2024-01-13T09:12:00"},
-            {"id": "4", "name": "knowledge_graph.json", "type": "json", "size": "3.7 MB", "last_modified": "2024-01-12T14:20:00"},
-            {"id": "5", "name": "user_manual.docx", "type": "docx", "size": "4.1 MB", "last_modified": "2024-01-11T11:05:00"}
-        ]
-        return {"status": "success", "files": mock_files}
+        error_handler.handle_error(e, "API", "Failed to get knowledge files")
+        # Return empty list instead of mock data
+        return {"status": "success", "files": []}
 
 # Autonomous learning endpoints
 @app.post("/api/knowledge/auto-learning/start")
@@ -3286,11 +3410,12 @@ async def get_autonomous_learning_progress():
         }
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get autonomous learning progress")
-        # Return mock progress data if actual data retrieval fails
+        # Return empty data instead of mock data
         return {
-            "status": "success",
+            "status": "error",
+            "message": "Failed to retrieve autonomous learning progress",
             "progress": 0,
-            "learning_status": "idle",
+            "learning_status": "error",
             "logs": [],
             "domains": [],
             "priority": "balanced"
@@ -3841,7 +3966,7 @@ async def websocket_camera_feed(websocket: WebSocket, camera_id: str):
                         frame_count += 1
                         last_frame = frame
                     else:
-                        logger.warning(f"Failed to encode frame from camera {camera_id}")
+                        error_handler.log_warning(f"Failed to encode frame from camera {camera_id}", "Camera")
                 
                 # Sleep for a short time to control frame rate
                 await asyncio.sleep(0.033)  # ~30 FPS
@@ -3983,126 +4108,30 @@ async def get_system_stats():
         # Get system monitoring data
         enhanced_metrics = system_monitor.get_enhanced_metrics()
         
-        # Prepare system statistics
+        # Prepare system statistics using actual data with fallback to 0
         system_stats = {
-            "active_models": enhanced_metrics.get("active_models", 3),
-            "total_models": enhanced_metrics.get("total_models", 8),
-            "cpu_usage": enhanced_metrics.get("base_metrics", {}).get("cpu_usage", 25.3),
-            "memory_usage": enhanced_metrics.get("base_metrics", {}).get("memory_usage", 42.7),
-            "disk_usage": enhanced_metrics.get("base_metrics", {}).get("disk_usage", 68.9),
-            "uptime": enhanced_metrics.get("base_metrics", {}).get("uptime", "02:45:18")
+            "active_models": enhanced_metrics.get("active_models", 0),
+            "total_models": enhanced_metrics.get("total_models", 0),
+            "cpu_usage": enhanced_metrics.get("base_metrics", {}).get("cpu_usage", 0),
+            "memory_usage": enhanced_metrics.get("base_metrics", {}).get("memory_usage", 0),
+            "disk_usage": enhanced_metrics.get("base_metrics", {}).get("disk_usage", 0),
+            "uptime": enhanced_metrics.get("base_metrics", {}).get("uptime", "00:00:00")
         }
         
         return {"status": "success", "stats": system_stats}
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get system statistics")
-        # Return simulated data
-        return {
-            "status": "success",
-            "stats": {
-                "active_models": 3,
-                "total_models": 8,
-                "cpu_usage": 25.3,
-                "memory_usage": 42.7,
-                "disk_usage": 68.9,
-                "uptime": "02:45:18"
-            }
-        }
+        raise HTTPException(status_code=500, detail="Failed to get system statistics")
 
-# Initialize core components
+# Initialize core components - This function is now deprecated and should not be called directly
+# All initialization should happen in the startup_event to prevent duplicate initialization
 def initialize_core_components():
     """
-    Initialize all core system components using ComponentFactory to ensure singleton instances
+    DEPRECATED: Do not call this function directly. 
+    All component initialization is now handled by the startup_event to prevent duplicate loading.
     """
-    global model_registry, training_manager, dataset_manager, emotion_system
-    global autonomous_learning_manager, system_settings_manager, system_monitor
-    global connection_manager, unified_cognitive_architecture
-    global enhanced_meta_cognition, intrinsic_motivation_system, explainable_ai
-    global value_alignment, agi_coordinator, api_model_connector
-    global camera_manager
-    
-    try:
-        error_handler.log_info("Initializing core system components...", "System")
-        
-        # Import ComponentFactory for singleton management
-        from core.memory_optimization import ComponentFactory
-        
-        # Get Connection Manager using ComponentFactory
-        connection_manager = ComponentFactory.get_component('connection_manager', ConnectionManager)
-        error_handler.log_info("Connection Manager initialized", "System")
-        
-        # Get System Settings Manager using ComponentFactory
-        system_settings_manager = ComponentFactory.get_component('system_settings_manager', SystemSettingsManager)
-        error_handler.log_info("System Settings Manager initialized", "System")
-        
-        # Get System Monitor using ComponentFactory
-        system_monitor = ComponentFactory.get_component('system_monitor', SystemMonitor)
-        error_handler.log_info("System Monitor initialized", "System")
-        
-        # Get Model Registry using ComponentFactory
-        model_registry = ComponentFactory.get_component('model_registry', ModelRegistry)
-        error_handler.log_info("Model Registry initialized", "System")
-        
-        # Get Dataset Manager using ComponentFactory
-        dataset_manager = ComponentFactory.get_component('dataset_manager', DatasetManager)
-        error_handler.log_info("Dataset Manager initialized", "System")
-        
-        # Get Training Manager using ComponentFactory, passing model_registry as dependency
-        training_manager = ComponentFactory.get_component('training_manager', TrainingManager, model_registry)
-        error_handler.log_info("Training Manager initialized", "System")
-        
-        # Get AGI Emotion Awareness System using ComponentFactory
-        emotion_system = ComponentFactory.get_component('emotion_system', AGIEmotionAwarenessSystem)
-        error_handler.log_info("AGI Emotion Awareness System initialized", "System")
-        
-        # Get Autonomous Learning Manager using ComponentFactory, passing model_registry as dependency
-        autonomous_learning_manager = ComponentFactory.get_component('autonomous_learning_manager', AutonomousLearningManager, model_registry)
-        error_handler.log_info("Autonomous Learning Manager initialized", "System")
-        
-        # Get Unified Cognitive Architecture using ComponentFactory
-        unified_cognitive_architecture = ComponentFactory.get_component('unified_cognitive_architecture', UnifiedCognitiveArchitecture)
-        error_handler.log_info("Unified Cognitive Architecture initialized", "System")
-        
-        # Get Enhanced Meta Cognition using ComponentFactory
-        enhanced_meta_cognition = ComponentFactory.get_component('enhanced_meta_cognition', EnhancedMetaCognition)
-        error_handler.log_info("Enhanced Meta Cognition initialized", "System")
-        
-        # Get Intrinsic Motivation System using ComponentFactory
-        intrinsic_motivation_system = ComponentFactory.get_component('intrinsic_motivation_system', IntrinsicMotivationSystem)
-        error_handler.log_info("Intrinsic Motivation System initialized", "System")
-        
-        # Get Explainable AI using ComponentFactory
-        explainable_ai = ComponentFactory.get_component('explainable_ai', ExplainableAI)
-        error_handler.log_info("Explainable AI initialized", "System")
-        
-        # Get Value Alignment using ComponentFactory
-        value_alignment = ComponentFactory.get_component('value_alignment', ValueAlignment)
-        error_handler.log_info("Value Alignment initialized", "System")
-        
-        # Get API Model Connector using ComponentFactory
-        api_model_connector = ComponentFactory.get_component('api_model_connector', APIModelConnector)
-        error_handler.log_info("API Model Connector initialized", "System")
-        
-        # Get Camera Manager using ComponentFactory
-        from core.hardware.camera_manager import CameraManager
-        camera_manager = ComponentFactory.get_component('camera_manager', CameraManager)
-        error_handler.log_info("Camera Manager initialized", "System")
-        
-        # Get AGI Coordinator using ComponentFactory (central component)
-        agi_coordinator = ComponentFactory.get_component('agi_coordinator', AGICoordinator, from_scratch=False)
-        error_handler.log_info("AGI Coordinator initialized", "System")
-        
-        # Load model modes from settings
-        load_model_modes_from_settings()
-        error_handler.log_info("Model modes loaded from settings", "System")
-        
-        return True
-    except Exception as e:
-        error_handler.handle_error(e, "System", "Critical failure during component initialization")
-        # Log the error with traceback for debugging
-        import traceback
-        error_handler.log_error(f"Error details: {traceback.format_exc()}", "System")
-        return False
+    error_handler.log_warning("initialize_core_components() is deprecated and should not be called directly. Use startup_event instead.", "System")
+    return True
 
 # Asynchronous initialization function
 async def async_initialize_components():

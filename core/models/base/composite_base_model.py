@@ -18,14 +18,16 @@ from .unified_mixins import (
 from .training_mixin import TrainingLifecycleMixin
 from .agi_core_mixin import AGICoreCapabilitiesMixin
 
+# 创建别名以兼容现有代码
+CacheOptimizationMixin = PerformanceMonitoringMixin
+ResourceManagementMixin = ErrorHandlingMixin
+
 logger = logging.getLogger(__name__)
 
 class CompositeBaseModel(
     PerformanceMonitoringMixin,
     ExternalAPIIntegrationMixin,
-    CacheOptimizationMixin,
     ErrorHandlingMixin,
-    ResourceManagementMixin,
     TrainingLifecycleMixin,
     AGICoreCapabilitiesMixin,
     ABC
@@ -57,9 +59,7 @@ class CompositeBaseModel(
         # Initialize all mixins in the correct order
         PerformanceMonitoringMixin.__init__(self)
         ExternalAPIIntegrationMixin.__init__(self)
-        CacheOptimizationMixin.__init__(self)
         ErrorHandlingMixin.__init__(self)
-        ResourceManagementMixin.__init__(self)
         TrainingLifecycleMixin.__init__(self)
         AGICoreCapabilitiesMixin.__init__(self)
         

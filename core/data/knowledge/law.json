@@ -1,0 +1,263 @@
+{
+  "domain": "law",
+  "name": {
+    "zh": "法学",
+    "en": "Law",
+    "de": "Recht",
+    "ja": "法学",
+    "ru": "Право"
+  },
+  "description": {
+    "zh": "法学是研究法律规范、法律制度、法律实施和法律理论的学科",
+    "en": "Law is the discipline that studies legal norms, legal systems, law enforcement, and legal theory",
+    "de": "Recht ist die Disziplin, die Rechtsnormen, Rechtssysteme, Rechtsdurchsetzung und Rechtstheorie untersucht",
+    "ja": "法学は法規範、法制度、法の執行、法理論を研究する学問です",
+    "ru": "Право - это дисциплина, изучающая правовые нормы, правовые системы, правоприменение и правовую теорию"
+  },
+  "concepts": [
+    {
+      "concept": "constitution",
+      "name": {
+        "zh": "宪法",
+        "en": "Constitution",
+        "de": "Verfassung",
+        "ja": "憲法",
+        "ru": "Конституция"
+      },
+      "description": {
+        "zh": "国家的根本大法，规定国家的基本制度和公民的基本权利",
+        "en": "The fundamental law of a country that establishes the basic system and fundamental rights of citizens",
+        "de": "Das Grundgesetz eines Landes, das das grundlegende System und die grundlegenden Rechte der Bürger festlegt",
+        "ja": "国家の基本制度と国民の基本権利を定める国の根本的な法律",
+        "ru": "Основной закон страны, устанавливающий базовую систему и основные права граждан"
+      }
+    },
+    {
+      "concept": "civil_law",
+      "name": {
+        "zh": "民法",
+        "en": "Civil Law",
+        "de": "Zivilrecht",
+        "ja": "民法",
+        "ru": "Гражданское право"
+      },
+      "description": {
+        "zh": "调整平等主体之间人身关系和财产关系的法律规范",
+        "en": "Legal norms that regulate personal and property relationships between equal subjects",
+        "de": "Rechtsnormen, die persönliche und vermögensrechtliche Beziehungen zwischen gleichberechtigten Subjekten regeln",
+        "ja": "平等な主体間の人的関係と財産関係を調整する法規範",
+        "ru": "Правовые нормы, регулирующие личные и имущественные отношения между равноправными субъектами"
+      }
+    },
+    {
+      "concept": "criminal_law",
+      "name": {
+        "zh": "刑法",
+        "en": "Criminal Law",
+        "de": "Strafrecht",
+        "ja": "刑法",
+        "ru": "Уголовное право"
+      },
+      "description": {
+        "zh": "规定犯罪行为及其法律后果的法律规范",
+        "en": "Legal norms that define criminal acts and their legal consequences",
+        "de": "Rechtsnormen, die Straftaten und ihre rechtlichen Folgen definieren",
+        "ja": "犯罪行為とその法的結果を規定する法規範",
+        "ru": "Правовые нормы, определяющие преступные деяния и их правовые последствия"
+      }
+    },
+    {
+      "concept": "administrative_law",
+      "name": {
+        "zh": "行政法",
+        "en": "Administrative Law",
+        "de": "Verwaltungsrecht",
+        "ja": "行政法",
+        "ru": "Административное право"
+      },
+      "description": {
+        "zh": "调整行政机关与公民、法人之间关系的法律规范",
+        "en": "Legal norms that regulate the relationships between administrative organs and citizens or legal entities",
+        "de": "Rechtsnormen, die die Beziehungen zwischen Verwaltungsorganen und Bürgern oder juristischen Personen regeln",
+        "ja": "行政機関と市民、法人との関係を調整する法規範",
+        "ru": "Правовые нормы, регулирующие отношения между административными органами и гражданами или юридическими лицами"
+      }
+    },
+    {
+      "concept": "international_law",
+      "name": {
+        "zh": "国际法",
+        "en": "International Law",
+        "de": "Internationales Recht",
+        "ja": "国際法",
+        "ru": "Международное право"
+      },
+      "description": {
+        "zh": "调整国家之间关系的法律原则和规范",
+        "en": "Legal principles and norms that regulate relationships between nations",
+        "de": "Rechtsgrundsätze und -normen, die die Beziehungen zwischen Nationen regeln",
+        "ja": "国家間の関係を調整する法的原則と規範",
+        "ru": "Правовые принципы и нормы, регулирующие отношения между государствами"
+      }
+    }
+  ],
+  "legal_systems": [
+    {
+      "system": "common_law",
+      "name": {
+        "zh": "普通法系",
+        "en": "Common Law System",
+        "de": "Common-Law-System",
+        "ja": "コモン・ロー法系",
+        "ru": "Система общего права"
+      },
+      "description": {
+        "zh": "以判例法为主要法律渊源的法律体系",
+        "en": "A legal system where case law is the primary source of law",
+        "de": "Ein Rechtssystem, in dem Fallrecht die Hauptrechtsquelle ist",
+        "ja": "判例法が主要な法源である法体系",
+        "ru": "Правовая система, в которой прецедентное право является основным источником права"
+      }
+    },
+    {
+      "system": "civil_law",
+      "name": {
+        "zh": "大陆法系",
+        "en": "Civil Law System",
+        "de": "Zivilrechtssystem",
+        "ja": "大陸法系",
+        "ru": "Система гражданского права"
+      },
+      "description": {
+        "zh": "以成文法为主要法律渊源的法律体系",
+        "en": "A legal system where written statutes are the primary source of law",
+        "de": "Ein Rechtssystem, in dem geschriebene Gesetze die Hauptrechtsquelle sind",
+        "ja": "成文法が主要な法源である法体系",
+        "ru": "Правовая система, в которой писаные законы являются основным источником права"
+      }
+    },
+    {
+      "system": "islamic_law",
+      "name": {
+        "zh": "伊斯兰法系",
+        "en": "Islamic Law System",
+        "de": "Islamisches Rechtssystem",
+        "ja": "イスラム法系",
+        "ru": "Система исламского права"
+      },
+      "description": {
+        "zh": "基于伊斯兰教教义的法律体系",
+        "en": "A legal system based on Islamic religious teachings",
+        "de": "Ein Rechtssystem, das auf islamischen religiösen Lehren basiert",
+        "ja": "イスラム教の教義に基づく法体系",
+        "ru": "Правовая система, основанная на исламских религиозных учениях"
+      }
+    }
+  ],
+  "legal_principles": [
+    {
+      "principle": "rule_of_law",
+      "name": {
+        "zh": "法治原则",
+        "en": "Rule of Law",
+        "de": "Rechtsstaatlichkeit",
+        "ja": "法の支配",
+        "ru": "Верховенство права"
+      },
+      "description": {
+        "zh": "法律至上，所有人和机构都必须遵守法律",
+        "en": "The supremacy of law, where all persons and institutions are subject to and accountable to law",
+        "de": "Die Vorherrschaft des Rechts, bei der alle Personen und Institutionen dem Recht unterworfen und rechenschaftspflichtig sind",
+        "ja": "法の優位性、すべての人と機関が法に従い、法に対して責任を負うこと",
+        "ru": "Верховенство закона, при котором все лица и учреждения подчиняются закону и несут перед ним ответственность"
+      }
+    },
+    {
+      "principle": "presumption_of_innocence",
+      "name": {
+        "zh": "无罪推定原则",
+        "en": "Presumption of Innocence",
+        "de": "Unschuldsvermutung",
+        "ja": "無罪の推定",
+        "ru": "Презумпция невиновности"
+      },
+      "description": {
+        "zh": "任何人在被证明有罪之前都被推定为无罪",
+        "en": "The principle that a person is considered innocent until proven guilty",
+        "de": "Das Prinzip, dass eine Person als unschuldig gilt, bis ihre Schuld bewiesen ist",
+        "ja": "有罪が証明されるまで人は無罪と推定される原則",
+        "ru": "Принцип, согласно которому человек считается невиновным, пока его вина не будет доказана"
+      }
+    },
+    {
+      "principle": "equality_before_law",
+      "name": {
+        "zh": "法律面前人人平等",
+        "en": "Equality Before the Law",
+        "de": "Gleichheit vor dem Gesetz",
+        "ja": "法の下の平等",
+        "ru": "Равенство перед законом"
+      },
+      "description": {
+        "zh": "所有人在法律面前享有平等的权利和义务",
+        "en": "The principle that all persons have equal rights and obligations before the law",
+        "de": "Das Prinzip, dass alle Personen vor dem Gesetz gleiche Rechte und Pflichten haben",
+        "ja": "すべての人が法の前で平等な権利と義務を持つ原則",
+        "ru": "Принцип, согласно которому все лица имеют равные права и обязанности перед законом"
+      }
+    }
+  ],
+  "legal_professions": [
+    {
+      "profession": "lawyer",
+      "name": {
+        "zh": "律师",
+        "en": "Lawyer",
+        "de": "Rechtsanwalt",
+        "ja": "弁護士",
+        "ru": "Адвокат"
+      },
+      "description": {
+        "zh": "为当事人提供法律服务和代理的专业人士",
+        "en": "A professional who provides legal services and representation to clients",
+        "de": "Ein Fachmann, der rechtliche Dienstleistungen und Vertretung für Mandanten erbringt",
+        "ja": "依頼者に法的サービスと代理を提供する専門家",
+        "ru": "Профессионал, предоставляющий юридические услуги и представительство клиентам"
+      }
+    },
+    {
+      "profession": "judge",
+      "name": {
+        "zh": "法官",
+        "en": "Judge",
+        "de": "Richter",
+        "ja": "裁判官",
+        "ru": "Судья"
+      },
+      "description": {
+        "zh": "在法庭上主持审判并作出裁决的司法官员",
+        "en": "A judicial officer who presides over court proceedings and makes rulings",
+        "de": "Ein Justizbeamter, der über Gerichtsverfahren präsidiert und Entscheidungen trifft",
+        "ja": "裁判手続きを主宰し、判決を下す司法官",
+        "ru": "Судебный служащий, который председательствует в судебных процессах и выносит решения"
+      }
+    },
+    {
+      "profession": "prosecutor",
+      "name": {
+        "zh": "检察官",
+        "en": "Prosecutor",
+        "de": "Staatsanwalt",
+        "ja": "検察官",
+        "ru": "Прокурор"
+      },
+      "description": {
+        "zh": "代表国家提起刑事诉讼的司法官员",
+        "en": "A judicial officer who represents the state in criminal prosecutions",
+        "de": "Ein Justizbeamter, der den Staat in Strafverfolgungen vertritt",
+        "ja": "刑事訴追において国家を代表する司法官",
+        "ru": "Судебный служащий, представляющий государство в уголовном преследовании"
+      }
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+<!--
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Self Brain - Human-like AGI Artificial Intelligence System with self-awareness, autonomous learning, and self-improvement capabilities">
+  <meta name="keywords" content="AGI, Artificial Intelligence, Self Learning, Multimodal, Speech Recognition, Computer Vision, Knowledge Base, Machine Learning">
+  <meta name="author" content="Self Brain Team - silencecrowtom@qq.com">
+  <meta name="generator" content="Self Brain AGI System">
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Self Brain - Advanced AGI System">
+  <meta property="og:description" content="Advanced AGI system with self-awareness, autonomous learning, and self-improvement capabilities">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://self-brain.example.com">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Self Brain - Advanced AGI System">
+  <meta name="twitter:description" content="Advanced AGI system with self-awareness, autonomous learning, and self-improvement capabilities">
+  
+  <!-- Favicon -->
+  <link rel="manifest" href="/site.webmanifest">
+  
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="/src/main.js" as="script">
+  <link rel="preload" href="/src/assets/main.css" as="style">
+  
+  <!-- Preconnect to External Services -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <title>Self Brain System Initializing | AGI Brain System</title>
+  
+  <script type="module" src="/src/main.js"></script>
+  
+  <style>
+    /* 全局样式重置 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    /* 加载覆盖层 */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease-out;
+    }
+    
+    .loading-container {
+      max-width: 800px;
+      padding: 40px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Logo 样式 */
+    .logo {
+      font-size: 6rem;
+      margin-bottom: 30px;
+      animation: pulse 2s infinite ease-in-out;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+    
+    @keyframes pulse {
+      0% { 
+        transform: scale(1) rotate(0deg);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        transform: scale(1.1) rotate(5deg);
+        text-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+      }
+      100% { 
+        transform: scale(1) rotate(0deg);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    /* 标题样式 */
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      font-weight: 700;
+      background: linear-gradient(45deg, #fff, #ffd700, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* 状态消息样式 */
+    .status-message {
+      font-size: 1.8rem;
+      margin: 40px 0;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+    
+    /* 进度条容器 */
+    .progress-container {
+      width: 100%;
+      max-width: 400px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      margin: 30px auto;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+      animation: progressAnimation 3s ease-in-out infinite;
+    }
+    
+    @keyframes progressAnimation {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+    
+    /* 系统信息 */
+    .system-info {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    
+    .system-info p {
+      margin: 5px 0;
+    }
+    
+    /* 版权信息 */
+    .copyright {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .loading-container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      .logo {
+        font-size: 4rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .status-message {
+        font-size: 1.2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .logo {
+        font-size: 3rem;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .status-message {
+        font-size: 1rem;
+      }
+    }
+    
+    /* 加载完成动画 */
+    .loading-complete {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载覆盖层 -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-container">
+      <div class="logo">👻</div>
+      <h1>Self Brain System Initializing</h1>
+      <div class="status-message" id="status-message">
+        Loading core modules...
+      </div>
+      
+      <!-- 进度条 -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      
+      <!-- 系统信息 -->
+      <div class="system-info">
+        <p>版本: 1.0.0 | Apache 2.0 License</p>
+        <p>邮箱: silencecrowtom@qq.com</p>
+      </div>
+      
+      <div class="copyright">
+        © 2025 Self Brain Team. All rights reserved.
+      </div>
+    </div>
+  </div>
+  
+  <!-- Vue应用挂载点 -->
+  <div id="app"></div>
+  
+  <script>
+    // 简化的加载处理 - 立即显示应用
+    document.addEventListener('DOMContentLoaded', function() {
+      const loadingOverlay = document.getElementById('loading-overlay');
+      
+      // 立即隐藏加载覆盖层
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 100);
+      
+      // 错误处理
+      window.addEventListener('error', function(e) {
+        console.error('页面加载错误:', e.error);
+      });
+    });
+  </script>
+</body>
+</html>

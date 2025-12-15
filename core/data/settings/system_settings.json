@@ -1,0 +1,100 @@
+{
+  "models": {
+    "manager": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Manager Model",
+      "active": true,
+      "source": "local"
+    },
+    "language": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Language Model",
+      "active": true,
+      "source": "local"
+    },
+    "audio": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Audio Model",
+      "active": true,
+      "source": "local"
+    },
+    "vision_image": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Vision Image Model",
+      "active": true,
+      "source": "local"
+    },
+    "vision_video": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Vision Video Model",
+      "active": true,
+      "source": "local"
+    },
+    "spatial": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Spatial Model",
+      "active": true,
+      "source": "local"
+    },
+    "sensor": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Sensor Model",
+      "active": true,
+      "source": "local"
+    },
+    "computer": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Computer Model",
+      "active": true,
+      "source": "local"
+    },
+    "motion": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Motion Model",
+      "active": true,
+      "source": "local"
+    },
+    "knowledge": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Knowledge Model",
+      "active": true,
+      "source": "local"
+    },
+    "programming": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "name": "Programming Model",
+      "active": true,
+      "source": "local"
+    }
+  },
+  "system": {
+    "data_retention": 30,
+    "auto_update": true,
+    "log_level": "info",
+    "max_memory_usage": 80,
+    "max_cpu_usage": 90
+  }
+
+}

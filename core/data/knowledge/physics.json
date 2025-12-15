@@ -1,0 +1,221 @@
+{
+  "domain": "physics",
+  "name": {
+    "zh": "物理学",
+    "en": "Physics",
+    "de": "Physik",
+    "ja": "物理学",
+    "ru": "Физика"
+  },
+  "description": {
+    "zh": "物理学是研究物质、能量、空间和时间的基本规律的科学",
+    "en": "Physics is the science that studies the fundamental laws of matter, energy, space and time",
+    "de": "Physik ist die Wissenschaft, die die grundlegenden Gesetze von Materie, Energie, Raum und Zeit untersucht",
+    "ja": "物理学は、物質、エネルギー、空間、時間の基本法則を研究する科学です",
+    "ru": "Физика - это наука, изучающая фундаментальные законы материи, энергии, пространства и времени"
+  },
+  "subdomains": [
+    {
+      "name": {
+        "zh": "经典力学",
+        "en": "Classical Mechanics",
+        "de": "Klassische Mechanik",
+        "ja": "古典力学",
+        "ru": "Классическая механика"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "牛顿运动定律",
+            "en": "Newton's Laws of Motion",
+            "de": "Newtonsche Bewegungsgesetze",
+            "ja": "ニュートンの運動法則",
+            "ru": "Законы движения Ньютона"
+          },
+          "definition": {
+            "zh": "描述物体运动的基本定律，包括惯性定律、加速度定律和作用反作用定律",
+            "en": "Fundamental laws describing the motion of objects, including the law of inertia, acceleration law, and action-reaction law",
+            "de": "Grundlegende Gesetze, die die Bewegung von Objekten beschreiben, einschließlich des Trägheitsgesetzes, Beschleunigungsgesetzes und Aktions-Reaktions-Gesetzes",
+            "ja": "物体の運動を記述する基本法則で、慣性の法則、加速度の法則、作用・反作用の法則を含む",
+            "ru": "Фундаментальные законы, описывающие движение объектов, включая закон инерции, закон ускорения и закон действия-противодействия"
+          }
+        },
+        {
+          "term": {
+            "zh": "万有引力",
+            "en": "Universal Gravitation",
+            "de": "Universelle Gravitation",
+            "ja": "万有引力",
+            "ru": "Всемирное тяготение"
+          },
+          "definition": {
+            "zh": "任何两个物体之间都存在相互吸引的力，与它们的质量乘积成正比，与距离平方成反比",
+            "en": "Any two objects attract each other with a force proportional to the product of their masses and inversely proportional to the square of the distance between them",
+            "de": "Zwei beliebige Objekte ziehen sich mit einer Kraft an, die proportional zum Produkt ihrer Massen und umgekehrt proportional zum Quadrat des Abstands zwischen ihnen ist",
+            "ja": "任意の2つの物体の間には、それらの質量の積に比例し、距離の2乗に反比例する引力が働く",
+            "ru": "Любые два объекта притягиваются друг к другу с силой, пропорциональной произведению их масс и обратно пропорциональной квадрату расстояния между ними"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "zh": "电磁学",
+        "en": "Electromagnetism",
+        "de": "Elektromagnetismus",
+        "ja": "電磁気学",
+        "ru": "Электромагнетизм"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "麦克斯韦方程组",
+            "en": "Maxwell's Equations",
+            "de": "Maxwellsche Gleichungen",
+            "ja": "マクスウェルの方程式",
+            "ru": "Уравнения Максвелла"
+          },
+          "definition": {
+            "zh": "描述电场、磁场与电荷密度、电流密度之间关系的偏微分方程组",
+            "en": "A set of partial differential equations that describe the relationship between electric fields, magnetic fields, charge density, and current density",
+            "de": "Ein Satz partieller Differentialgleichungen, die die Beziehung zwischen elektrischen Feldern, magnetischen Feldern, Ladungsdichte und Stromdichte beschreiben",
+            "ja": "電場、磁場、電荷密度、電流密度の関係を記述する偏微分方程式のセット",
+            "ru": "Набор дифференциальных уравнений в частных производных, описывающих связь между электрическими полями, магнитными полями, плотностью заряда и плотностью тока"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "zh": "量子力学",
+        "en": "Quantum Mechanics",
+        "de": "Quantenmechanik",
+        "ja": "量子力学",
+        "ru": "Квантовая механика"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "薛定谔方程",
+            "en": "Schrödinger Equation",
+            "de": "Schrödinger-Gleichung",
+            "ja": "シュレーディンガー方程式",
+            "ru": "Уравнение Шрёдингера"
+          },
+          "definition": {
+            "zh": "描述量子系统状态随时间演化的偏微分方程",
+            "en": "A partial differential equation that describes how the quantum state of a physical system changes with time",
+            "de": "Eine partielle Differentialgleichung, die beschreibt, wie sich der Quantenzustand eines physikalischen Systems mit der Zeit ändert",
+            "ja": "物理系の量子状態が時間とともにどのように変化するかを記述する偏微分方程式",
+            "ru": "Дифференциальное уравнение в частных производных, описывающее, как квантовое состояние физической системы изменяется со временем"
+          }
+        }
+      ]
+    },
+    {
+      "name": {
+        "zh": "热力学",
+        "en": "Thermodynamics",
+        "de": "Thermodynamik",
+        "ja": "熱力学",
+        "ru": "Термодинамика"
+      },
+      "concepts": [
+        {
+          "term": {
+            "zh": "热力学第一定律",
+            "en": "First Law of Thermodynamics",
+            "de": "Erster Hauptsatz der Thermodynamik",
+            "ja": "熱力学第一法則",
+            "ru": "Первый закон термодинамики"
+          },
+          "definition": {
+            "zh": "能量守恒定律在热力学中的表述，系统内能的变化等于系统吸收的热量减去系统对外做的功",
+            "en": "The law of conservation of energy applied to thermodynamic systems, stating that the change in internal energy equals the heat added to the system minus the work done by the system",
+            "de": "Der Energieerhaltungssatz auf thermodynamische Systeme angewendet, der besagt, dass die Änderung der inneren Energie gleich der dem System zugeführten Wärme minus der vom System geleisteten Arbeit ist",
+            "ja": "熱力学系に適用されるエネルギー保存の法則で、内部エネルギーの変化は系に加えられた熱量から系が行った仕事を引いたものに等しい",
+            "ru": "Закон сохранения энергии, примененный к термодинамическим системам, гласящий, что изменение внутренней энергии равно теплу, добавленному к системе, минус работа, совершаемая системой"
+          }
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "name": {
+        "zh": "牛顿第二定律",
+        "en": "Newton's Second Law",
+        "de": "Newtons zweites Gesetz",
+        "ja": "ニュートンの第二法則",
+        "ru": "Второй закон Ньютона"
+      },
+      "formula": "F = m * a",
+      "variables": {
+        "F": {"zh": "力", "en": "Force", "de": "Kraft", "ja": "力", "ru": "Сила"},
+        "m": {"zh": "质量", "en": "Mass", "de": "Masse", "ja": "質量", "ru": "Масса"},
+        "a": {"zh": "加速度", "en": "Acceleration", "de": "Beschleunigung", "ja": "加速度", "ru": "Ускорение"}
+      }
+    },
+    {
+      "name": {
+        "zh": "万有引力定律",
+        "en": "Law of Universal Gravitation",
+        "de": "Gesetz der universellen Gravitation",
+        "ja": "万有引力の法則",
+        "ru": "Закон всемирного тяготения"
+      },
+      "formula": "F = G * (m1 * m2) / r^2",
+      "variables": {
+        "F": {"zh": "引力", "en": "Gravitational force", "de": "Gravitationskraft", "ja": "引力", "ru": "Гравитационная сила"},
+        "G": {"zh": "引力常数", "en": "Gravitational constant", "de": "Gravitationskonstante", "ja": "万有引力定数", "ru": "Гравитационная постоянная"},
+        "m1": {"zh": "质量1", "en": "Mass 1", "de": "Masse 1", "ja": "質量1", "ru": "Масса 1"},
+        "m2": {"zh": "质量2", "en": "Mass 2", "de": "Masse 2", "ja": "質量2", "ru": "Масса 2"},
+        "r": {"zh": "距离", "en": "Distance", "de": "Abstand", "ja": "距離", "ru": "Расстояние"}
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": {
+        "zh": "光速",
+        "en": "Speed of Light",
+        "de": "Lichtgeschwindigkeit",
+        "ja": "光速",
+        "ru": "Скорость света"
+      },
+      "symbol": "c",
+      "value": 299792458,
+      "unit": {"zh": "米/秒", "en": "m/s", "de": "m/s", "ja": "m/s", "ru": "м/с"}
+    },
+    {
+      "name": {
+        "zh": "普朗克常数",
+        "en": "Planck Constant",
+        "de": "Plancksches Wirkungsquantum",
+        "ja": "プランク定数",
+        "ru": "Постоянная Планка"
+      },
+      "symbol": "h",
+      "value": 6.62607015e-34,
+      "unit": {"zh": "焦耳·秒", "en": "J·s", "de": "J·s", "ja": "J·s", "ru": "Дж·с"}
+    }
+  ],
+  "applications": [
+    {
+      "name": {
+        "zh": "半导体技术",
+        "en": "Semiconductor Technology",
+        "de": "Halbleitertechnologie",
+        "ja": "半導体技術",
+        "ru": "Полупроводниковая технология"
+      },
+      "description": {
+        "zh": "基于量子力学原理的电子器件制造技术",
+        "en": "Electronic device manufacturing technology based on quantum mechanics principles",
+        "de": "Elektronische Bauelementeherstellungstechnologie auf Basis von Quantenmechanik-Prinzipien",
+        "ja": "量子力学の原理に基づく電子デバイス製造技術",
+        "ru": "Технология производства электронных устройств на основе принципов квантовой механики"
+      }
+    }
+  ]
+}

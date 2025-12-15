@@ -1,0 +1,160 @@
+{
+  "domain": "mechanical_engineering",
+  "name": {
+    "en": "Mechanical Engineering",
+    "zh": "机械工程",
+    "de": "Maschinenbau",
+    "ja": "機械工学",
+    "ru": "Машиностроение"
+  },
+  "description": {
+    "en": "Design, analysis, manufacturing, and maintenance of mechanical systems",
+    "zh": "机械系统的设计、分析、制造和维护",
+    "de": "Design, Analyse, Herstellung und Wartung mechanischer Systeme",
+    "ja": "機械システムの設計、解析、製造、保守",
+    "ru": "Проектирование, анализ, производство и обслуживание механических систем"
+  },
+  "concepts": [
+    {
+      "id": "thermodynamics",
+      "name": {
+        "en": "Thermodynamics",
+        "zh": "热力学",
+        "de": "Thermodynamik",
+        "ja": "熱力学",
+        "ru": "Термодинамика"
+      },
+      "description": {
+        "en": "Study of energy, heat, work, and their transformations",
+        "zh": "研究能量、热量、功及其转化的学科",
+        "de": "Studium von Energie, Wärme, Arbeit und ihren Umwandlungen",
+        "ja": "エネルギー、熱、仕事、およびそれらの変換の研究",
+        "ru": "Изучение энергии, тепла, работы и их преобразований"
+      },
+      "examples": [
+        "Heat engine efficiency calculations",
+        "Refrigeration cycle analysis",
+        "Energy conservation principles",
+        "Entropy and second law applications"
+      ]
+    },
+    {
+      "id": "mechanics_of_materials",
+      "name": {
+        "en": "Mechanics of Materials",
+        "zh": "材料力学",
+        "de": "Werkstoffmechanik",
+        "ja": "材料力学",
+        "ru": "Механика материалов"
+      },
+      "description": {
+        "en": "Behavior of solid materials under various loading conditions",
+        "zh": "固体材料在各种载荷条件下的行为",
+        "de": "Verhalten fester Materialien unter verschiedenen Belastungsbedingungen",
+        "ja": "様々な負荷条件下での固体材料の挙動",
+        "ru": "Поведение твердых материалов при различных условиях нагружения"
+      },
+      "examples": [
+        "Stress-strain relationship analysis",
+        "Beam deflection calculations",
+        "Material failure theories",
+        "Fatigue and fracture mechanics"
+      ]
+    },
+    {
+      "id": "fluid_mechanics",
+      "name": {
+        "en": "Fluid Mechanics",
+        "zh": "流体力学",
+        "de": "Strömungsmechanik",
+        "ja": "流体力学",
+        "ru": "Механика жидкости"
+      },
+      "description": {
+        "en": "Study of fluids (liquids and gases) and their forces and behavior",
+        "zh": "研究流体（液体和气体）及其力和行为的学科",
+        "de": "Studium von Fluiden (Flüssigkeiten und Gasen) und ihren Kräften und Verhalten",
+        "ja": "流体（液体と気体）とその力と挙動の研究",
+        "ru": "Изучение жидкостей (жидкостей и газов) и их сил и поведения"
+      },
+      "examples": [
+        "Bernoulli's equation applications",
+        "Viscosity and flow calculations",
+        "Pump and turbine design",
+        "Aerodynamic force analysis"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "energy_conservation",
+      "name": {
+        "en": "Energy Conservation",
+        "zh": "能量守恒",
+        "de": "Energieerhaltung",
+        "ja": "エネルギー保存",
+        "ru": "Сохранение энергии"
+      },
+      "description": {
+        "en": "Fundamental principle that energy cannot be created or destroyed",
+        "zh": "能量不能被创造或毁灭的基本原理",
+        "de": "Grundlegendes Prinzip, dass Energie nicht erzeugt oder zerstört werden kann",
+        "ja": "エネルギーは創造も破壊もできないという基本原理",
+        "ru": "Фундаментальный принцип, согласно которому энергия не может быть создана или уничтожена"
+      }
+    },
+    {
+      "id": "newtonian_mechanics",
+      "name": {
+        "en": "Newtonian Mechanics",
+        "zh": "牛顿力学",
+        "de": "Newtonsche Mechanik",
+        "ja": "ニュートン力学",
+        "ru": "Ньютоновская механика"
+      },
+      "description": {
+        "en": "Laws of motion governing mechanical systems and forces",
+        "zh": "支配机械系统和力的运动定律",
+        "de": "Bewegungsgesetze, die mechanische Systeme und Kräfte regieren",
+        "ja": "機械システムと力を支配する運動の法則",
+        "ru": "Законы движения, управляющие механическими системами и силами"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "machine_design",
+      "name": {
+        "en": "Machine Design",
+        "zh": "机械设计",
+        "de": "Maschinendesign",
+        "ja": "機械設計",
+        "ru": "Проектирование машин"
+      },
+      "description": {
+        "en": "Creating mechanical systems and components for specific functions",
+        "zh": "为特定功能创建机械系统和组件",
+        "de": "Erstellung mechanischer Systeme und Komponenten für spezifische Funktionen",
+        "ja": "特定の機能のための機械システムとコンポーネントの作成",
+        "ru": "Создание механических систем и компонентов для конкретных функций"
+      }
+    },
+    {
+      "id": "manufacturing_processes",
+      "name": {
+        "en": "Manufacturing Processes",
+        "zh": "制造工艺",
+        "de": "Fertigungsprozesse",
+        "ja": "製造プロセス",
+        "ru": "Производственные процессы"
+      },
+      "description": {
+        "en": "Techniques for producing mechanical components and systems",
+        "zh": "生产机械组件和系统的技术",
+        "de": "Techniken zur Herstellung mechanischer Komponenten und Systeme",
+        "ja": "機械部品とシステムを生産する技術",
+        "ru": "Техники производства механических компонентов и систем"
+      }
+    }
+  ]
+}

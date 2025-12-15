@@ -1,0 +1,160 @@
+{
+  "domain": "food_engineering",
+  "name": {
+    "en": "Food Engineering",
+    "zh": "食品工程",
+    "de": "Lebensmitteltechnik",
+    "ja": "食品工学",
+    "ru": "Пищевая инженерия"
+  },
+  "description": {
+    "en": "Application of engineering principles to food processing and preservation",
+    "zh": "将工程原理应用于食品加工和保存",
+    "de": "Anwendung ingenieurwissenschaftlicher Prinzipien auf Lebensmittelverarbeitung und -konservierung",
+    "ja": "食品加工と保存への工学原理の応用",
+    "ru": "Применение инженерных принципов к переработке и сохранению пищевых продуктов"
+  },
+  "concepts": [
+    {
+      "id": "food_processing",
+      "name": {
+        "en": "Food Processing",
+        "zh": "食品加工",
+        "de": "Lebensmittelverarbeitung",
+        "ja": "食品加工",
+        "ru": "Переработка пищевых продуктов"
+      },
+      "description": {
+        "en": "Transformation of raw ingredients into food products",
+        "zh": "将原料转化为食品产品的过程",
+        "de": "Umwandlung von Rohzutaten in Lebensmittelprodukte",
+        "ja": "原材料を食品製品に変換するプロセス",
+        "ru": "Преобразование сырых ингредиентов в пищевые продукты"
+      },
+      "examples": [
+        "Thermal processing techniques",
+        "Mechanical separation methods",
+        "Fermentation processes",
+        "Packaging and preservation"
+      ]
+    },
+    {
+      "id": "food_safety",
+      "name": {
+        "en": "Food Safety",
+        "zh": "食品安全",
+        "de": "Lebensmittelsicherheit",
+        "ja": "食品安全",
+        "ru": "Безопасность пищевых продуктов"
+      },
+      "description": {
+        "en": "Prevention of foodborne illnesses and contamination",
+        "zh": "预防食源性疾病和污染",
+        "de": "Prävention von lebensmittelbedingten Krankheiten und Kontamination",
+        "ja": "食中毒と汚染の予防",
+        "ru": "Профилактика болезней пищевого происхождения и загрязнения"
+      },
+      "examples": [
+        "HACCP system implementation",
+        "Microbiological testing protocols",
+        "Sanitation procedures",
+        "Quality control standards"
+      ]
+    },
+    {
+      "id": "food_preservation",
+      "name": {
+        "en": "Food Preservation",
+        "zh": "食品保存",
+        "de": "Lebensmittelkonservierung",
+        "ja": "食品保存",
+        "ru": "Сохранение пищевых продуктов"
+      },
+      "description": {
+        "en": "Methods to extend shelf life and maintain food quality",
+        "zh": "延长保质期和保持食品质量的方法",
+        "de": "Methoden zur Verlängerung der Haltbarkeit und Aufrechterhaltung der Lebensmittelqualität",
+        "ja": "保存期間の延長と食品品質の維持の方法",
+        "ru": "Методы продления срока годности и поддержания качества пищевых продуктов"
+      },
+      "examples": [
+        "Refrigeration and freezing techniques",
+        "Canning and bottling processes",
+        "Drying and dehydration methods",
+        "Chemical preservation approaches"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "mass_energy_balance",
+      "name": {
+        "en": "Mass and Energy Balance",
+        "zh": "质量和能量平衡",
+        "de": "Massen- und Energiebilanz",
+        "ja": "質量とエネルギーバランス",
+        "ru": "Баланс массы и энергии"
+      },
+      "description": {
+        "en": "Conservation principles applied to food processing operations",
+        "zh": "应用于食品加工操作的质量和能量守恒原理",
+        "de": "Erhaltungsprinzipien, die auf Lebensmittelverarbeitungsvorgänge angewendet werden",
+        "ja": "食品加工操作に適用される保存則",
+        "ru": "Принципы сохранения, применяемые к операциям переработки пищевых продуктов"
+      }
+    },
+    {
+      "id": "thermal_processing",
+      "name": {
+        "en": "Thermal Processing",
+        "zh": "热处理",
+        "de": "Thermische Verarbeitung",
+        "ja": "熱処理",
+        "ru": "Термическая обработка"
+      },
+      "description": {
+        "en": "Application of heat to achieve preservation and quality objectives",
+        "zh": "应用热量实现保存和质量目标",
+        "de": "Anwendung von Wärme zur Erreichung von Konservierungs- und Qualitätszielen",
+        "ja": "保存と品質目標を達成するための熱の応用",
+        "ru": "Применение тепла для достижения целей сохранения и качества"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "process_optimization",
+      "name": {
+        "en": "Process Optimization",
+        "zh": "工艺优化",
+        "de": "Prozessoptimierung",
+        "ja": "プロセス最適化",
+        "ru": "Оптимизация процессов"
+      },
+      "description": {
+        "en": "Improving efficiency and quality in food production",
+        "zh": "提高食品生产的效率和质量",
+        "de": "Verbesserung der Effizienz und Qualität in der Lebensmittelproduktion",
+        "ja": "食品生産における効率と品質の向上",
+        "ru": "Повышение эффективности и качества в производстве пищевых продуктов"
+      }
+    },
+    {
+      "id": "product_development",
+      "name": {
+        "en": "Product Development",
+        "zh": "产品开发",
+        "de": "Produktentwicklung",
+        "ja": "製品開発",
+        "ru": "Разработка продукции"
+      },
+      "description": {
+        "en": "Creating new food products and improving existing ones",
+        "zh": "创建新的食品产品和改进现有产品",
+        "de": "Erstellung neuer Lebensmittelprodukte und Verbesserung bestehender",
+        "ja": "新しい食品製品の作成と既存製品の改善",
+        "ru": "Создание новых пищевых продуктов и улучшение существующих"
+      }
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "domain": "humanities",
+  "name": {
+    "en": "Humanities",
+    "zh": "人文学",
+    "de": "Geisteswissenschaften",
+    "ja": "人文科学",
+    "ru": "Гуманитарные науки"
+  },
+  "description": {
+    "en": "Study of human culture, philosophy, literature, arts, and human experience",
+    "zh": "研究人类文化、哲学、文学、艺术和人类经验的学科",
+    "de": "Studium der menschlichen Kultur, Philosophie, Literatur, Kunst und menschlichen Erfahrung",
+    "ja": "人間の文化、哲学、文学、芸術、人間の経験の研究",
+    "ru": "Изучение человеческой культуры, философии, литературы, искусства и человеческого опыта"
+  },
+  "concepts": [
+    {
+      "id": "cultural_studies",
+      "name": {
+        "en": "Cultural Studies",
+        "zh": "文化研究",
+        "de": "Kulturwissenschaften",
+        "ja": "文化研究",
+        "ru": "Культурные исследования"
+      },
+      "description": {
+        "en": "Interdisciplinary study of cultural phenomena and practices",
+        "zh": "对文化现象和实践的跨学科研究",
+        "de": "Interdisziplinäre Untersuchung kultureller Phänomene und Praktiken",
+        "ja": "文化的現象と実践の学際的研究",
+        "ru": "Междисциплинарное изучение культурных явлений и практик"
+      },
+      "examples": [
+        "Popular culture analysis",
+        "Media representation studies",
+        "Cultural identity exploration",
+        "Subcultural movements examination"
+      ]
+    },
+    {
+      "id": "philosophical_traditions",
+      "name": {
+        "en": "Philosophical Traditions",
+        "zh": "哲学传统",
+        "de": "Philosophische Traditionen",
+        "ja": "哲学的伝統",
+        "ru": "Философские традиции"
+      },
+      "description": {
+        "en": "Major schools of philosophical thought throughout history",
+        "zh": "历史上主要的哲学思想流派",
+        "de": "Hauptschulen philosophischen Denkens im Laufe der Geschichte",
+        "ja": "歴史を通じた主要な哲学的思考の学派",
+        "ru": "Основные школы философской мысли на протяжении истории"
+      },
+      "examples": [
+        "Western philosophy from ancient to contemporary",
+        "Eastern philosophical traditions",
+        "Analytic vs continental philosophy",
+        "Ethical and moral philosophy systems"
+      ]
+    },
+    {
+      "id": "literary_analysis",
+      "name": {
+        "en": "Literary Analysis",
+        "zh": "文学分析",
+        "de": "Literaturanalyse",
+        "ja": "文学分析",
+        "ru": "Литературный анализ"
+      },
+      "description": {
+        "en": "Critical examination and interpretation of literary works",
+        "zh": "对文学作品的批判性检查和解释",
+        "de": "Kritische Untersuchung und Interpretation literarischer Werke",
+        "ja": "文学作品の批判的検討と解釈",
+        "ru": "Критическое исследование и интерпретация литературных произведений"
+      },
+      "examples": [
+        "Narrative structure analysis",
+        "Character development studies",
+        "Thematic exploration",
+        "Historical context interpretation"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "critical_thinking",
+      "name": {
+        "en": "Critical Thinking",
+        "zh": "批判性思维",
+        "de": "Kritisches Denken",
+        "ja": "批判的思考",
+        "ru": "Критическое мышление"
+      },
+      "description": {
+        "en": "Objective analysis and evaluation of issues to form judgments",
+        "zh": "对问题进行客观分析和评估以形成判断",
+        "de": "Objektive Analyse und Bewertung von Themen zur Urteilsbildung",
+        "ja": "判断を形成するための問題の客観的分析と評価",
+        "ru": "Объективный анализ и оценка вопросов для формирования суждений"
+      }
+    },
+    {
+      "id": "cultural_relativism",
+      "name": {
+        "en": "Cultural Relativism",
+        "zh": "文化相对主义",
+        "de": "Kultureller Relativismus",
+        "ja": "文化的相対主義",
+        "ru": "Культурный релятивизм"
+      },
+      "description": {
+        "en": "Understanding cultural practices within their own cultural context",
+        "zh": "在自身文化背景下理解文化实践",
+        "de": "Verständnis kultureller Praktiken in ihrem eigenen kulturellen Kontext",
+        "ja": "独自の文化的文脈における文化的実践の理解",
+        "ru": "Понимание культурных практик в их собственном культурном контексте"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "cultural_interpretation",
+      "name": {
+        "en": "Cultural Interpretation",
+        "zh": "文化解释",
+        "de": "Kulturelle Interpretation",
+        "ja": "文化的解釈",
+        "ru": "Культурная интерпретация"
+      },
+      "description": {
+        "en": "Understanding and explaining cultural artifacts and practices",
+        "zh": "理解和解释文化文物和实践",
+        "de": "Verständnis und Erklärung kultureller Artefakte und Praktiken",
+        "ja": "文化的遺物と実践の理解と説明",
+        "ru": "Понимание и объяснение культурных артефактов и практик"
+      }
+    },
+    {
+      "id": "ethical_framework",
+      "name": {
+        "en": "Ethical Framework Development",
+        "zh": "伦理框架开发",
+        "de": "Ethische Rahmenentwicklung",
+        "ja": "倫理的枠組みの開発",
+        "ru": "Разработка этической основы"
+      },
+      "description": {
+        "en": "Creating systems for moral reasoning and decision making",
+        "zh": "为道德推理和决策创建系统",
+        "de": "Erstellung von Systemen für moralisches Denken und Entscheidungsfindung",
+        "ja": "道徳的推論と意思決定のためのシステムの作成",
+        "ru": "Создание систем для моральных рассуждений и принятия решений"
+      }
+    }
+  ]
+}

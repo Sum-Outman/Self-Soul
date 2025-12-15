@@ -1,0 +1,227 @@
+{
+  "domain": "medicine",
+  "name": {
+    "zh": "医学",
+    "en": "Medicine",
+    "de": "Medizin",
+    "ja": "医学",
+    "ru": "Медицина"
+  },
+  "description": {
+    "zh": "医学是研究人类健康、疾病预防、诊断、治疗和康复的科学",
+    "en": "Medicine is the science of human health, disease prevention, diagnosis, treatment, and rehabilitation",
+    "de": "Medizin ist die Wissenschaft von der menschlichen Gesundheit, Krankheitsprävention, Diagnose, Behandlung und Rehabilitation",
+    "ja": "医学は人間の健康、疾病予防、診断、治療、リハビリテーションを研究する科学です",
+    "ru": "Медицина - это наука о здоровье человека, профилактике заболеваний, диагностике, лечении и реабилитации"
+  },
+  "concepts": [
+    {
+      "concept": "anatomy",
+      "name": {
+        "zh": "解剖学",
+        "en": "Anatomy",
+        "de": "Anatomie",
+        "ja": "解剖学",
+        "ru": "Анатомия"
+      },
+      "description": {
+        "zh": "研究生物体结构和组织的科学",
+        "en": "The science that studies the structure and organization of living organisms",
+        "de": "Die Wissenschaft, die die Struktur und Organisation lebender Organismen untersucht",
+        "ja": "生物の構造と組織を研究する科学",
+        "ru": "Наука, изучающая структуру и организацию живых организмов"
+      }
+    },
+    {
+      "concept": "physiology",
+      "name": {
+        "zh": "生理学",
+        "en": "Physiology",
+        "de": "Physiologie",
+        "ja": "生理学",
+        "ru": "Физиология"
+      },
+      "description": {
+        "zh": "研究生物体功能和生命过程的科学",
+        "en": "The science that studies the functions and life processes of living organisms",
+        "de": "Die Wissenschaft, die die Funktionen und Lebensprozesse lebender Organismen untersucht",
+        "ja": "生物の機能と生命過程を研究する科学",
+        "ru": "Наука, изучающая функции и жизненные процессы живых организмов"
+      }
+    },
+    {
+      "concept": "pathology",
+      "name": {
+        "zh": "病理学",
+        "en": "Pathology",
+        "de": "Pathologie",
+        "ja": "病理学",
+        "ru": "Патология"
+      },
+      "description": {
+        "zh": "研究疾病原因、机制和影响的科学",
+        "en": "The science that studies the causes, mechanisms, and effects of diseases",
+        "de": "Die Wissenschaft, die die Ursachen, Mechanismen und Auswirkungen von Krankheiten untersucht",
+        "ja": "疾病の原因、メカニズム、影響を研究する科学",
+        "ru": "Наука, изучающая причины, механизмы и последствия заболеваний"
+      }
+    },
+    {
+      "concept": "pharmacology",
+      "name": {
+        "zh": "药理学",
+        "en": "Pharmacology",
+        "de": "Pharmakologie",
+        "ja": "薬理学",
+        "ru": "Фармакология"
+      },
+      "description": {
+        "zh": "研究药物作用、性质和效果的学科",
+        "en": "The discipline that studies the actions, properties, and effects of drugs",
+        "de": "Die Disziplin, die die Wirkungen, Eigenschaften und Effekte von Arzneimitteln untersucht",
+        "ja": "薬物の作用、性質、効果を研究する学問",
+        "ru": "Дисциплина, изучающая действие, свойства и эффекты лекарственных средств"
+      }
+    },
+    {
+      "concept": "immunology",
+      "name": {
+        "zh": "免疫学",
+        "en": "Immunology",
+        "de": "Immunologie",
+        "ja": "免疫学",
+        "ru": "Иммунология"
+      },
+      "description": {
+        "zh": "研究免疫系统和免疫反应的学科",
+        "en": "The discipline that studies the immune system and immune responses",
+        "de": "Die Disziplin, die das Immunsystem und Immunantworten untersucht",
+        "ja": "免疫系と免疫応答を研究する学問",
+        "ru": "Дисциплина, изучающая иммунную систему и иммунные реакции"
+      }
+    }
+  ],
+  "specialties": [
+    {
+      "specialty": "internal_medicine",
+      "name": {
+        "zh": "内科学",
+        "en": "Internal Medicine",
+        "de": "Innere Medizin",
+        "ja": "内科学",
+        "ru": "Терапия"
+      },
+      "description": {
+        "zh": "专注于成人疾病的预防、诊断和治疗的医学专科",
+        "en": "A medical specialty focused on the prevention, diagnosis, and treatment of adult diseases",
+        "de": "Eine medizinische Fachrichtung, die sich auf die Prävention, Diagnose und Behandlung von Erwachsenenkrankheiten konzentriert",
+        "ja": "成人の疾病の予防、診断、治療に焦点を当てた医学専門分野",
+        "ru": "Медицинская специальность, ориентированная на профилактику, диагностику и лечение заболеваний у взрослых"
+      }
+    },
+    {
+      "specialty": "surgery",
+      "name": {
+        "zh": "外科学",
+        "en": "Surgery",
+        "de": "Chirurgie",
+        "ja": "外科学",
+        "ru": "Хирургия"
+      },
+      "description": {
+        "zh": "通过手术操作治疗疾病和损伤的医学专科",
+        "en": "A medical specialty that treats diseases and injuries through surgical operations",
+        "de": "Eine medizinische Fachrichtung, die Krankheiten und Verletzungen durch chirurgische Eingriffe behandelt",
+        "ja": "外科手術によって疾病や損傷を治療する医学専門分野",
+        "ru": "Медицинская специальность, занимающаяся лечением заболеваний и травм с помощью хирургических операций"
+      }
+    },
+    {
+      "specialty": "pediatrics",
+      "name": {
+        "zh": "儿科学",
+        "en": "Pediatrics",
+        "de": "Pädiatrie",
+        "ja": "小児科学",
+        "ru": "Педиатрия"
+      },
+      "description": {
+        "zh": "专注于儿童和青少年健康与疾病的医学专科",
+        "en": "A medical specialty focused on the health and diseases of children and adolescents",
+        "de": "Eine medizinische Fachrichtung, die sich auf die Gesundheit und Krankheiten von Kindern und Jugendlichen konzentriert",
+        "ja": "子供と青年の健康と疾病に焦点を当てた医学専門分野",
+        "ru": "Медицинская специальность, ориентированная на здоровье и заболевания детей и подростков"
+      }
+    },
+    {
+      "specialty": "obstetrics_gynecology",
+      "name": {
+        "zh": "妇产科学",
+        "en": "Obstetrics and Gynecology",
+        "de": "Gynäkologie und Geburtshilfe",
+        "ja": "産婦人科学",
+        "ru": "Акушерство и гинекология"
+      },
+      "description": {
+        "zh": "专注于女性生殖系统健康和妊娠相关问题的医学专科",
+        "en": "A medical specialty focused on women's reproductive health and pregnancy-related issues",
+        "de": "Eine medizinische Fachrichtung, die sich auf die reproduktive Gesundheit von Frauen und schwangerschaftsbedingte Probleme konzentriert",
+        "ja": "女性の生殖器の健康と妊娠関連の問題に焦点を当てた医学専門分野",
+        "ru": "Медицинская специальность, ориентированная на репродуктивное здоровье женщин и вопросы, связанные с беременностью"
+      }
+    }
+  ],
+  "medical_procedures": [
+    {
+      "procedure": "diagnosis",
+      "name": {
+        "zh": "诊断",
+        "en": "Diagnosis",
+        "de": "Diagnose",
+        "ja": "診断",
+        "ru": "Диагностика"
+      },
+      "description": {
+        "zh": "通过症状、体征和检查结果确定疾病的过程",
+        "en": "The process of identifying a disease through symptoms, signs, and examination results",
+        "de": "Der Prozess der Identifizierung einer Krankheit durch Symptome, Anzeichen und Untersuchungsergebnisse",
+        "ja": "症状、兆候、検査結果を通じて疾病を特定する過程",
+        "ru": "Процесс идентификации заболевания по симптомам, признакам и результатам обследования"
+      }
+    },
+    {
+      "procedure": "treatment",
+      "name": {
+        "zh": "治疗",
+        "en": "Treatment",
+        "de": "Behandlung",
+        "ja": "治療",
+        "ru": "Лечение"
+      },
+      "description": {
+        "zh": "应用医疗干预措施来改善健康状况或治愈疾病",
+        "en": "The application of medical interventions to improve health conditions or cure diseases",
+        "de": "Die Anwendung medizinischer Interventionen zur Verbesserung des Gesundheitszustands oder zur Heilung von Krankheiten",
+        "ja": "健康状態の改善や疾病の治癒のために医療的介入を適用すること",
+        "ru": "Применение медицинских вмешательств для улучшения состояния здоровья или излечения заболеваний"
+      }
+    },
+    {
+      "procedure": "prevention",
+      "name": {
+        "zh": "预防",
+        "en": "Prevention",
+        "de": "Prävention",
+        "ja": "予防",
+        "ru": "Профилактика"
+      },
+      "description": {
+        "zh": "采取措施防止疾病发生或发展的过程",
+        "en": "The process of taking measures to prevent the occurrence or development of diseases",
+        "de": "Der Prozess der Durchführung von Maßnahmen zur Verhinderung des Auftretens oder der Entwicklung von Krankheiten",
+        "ja": "疾病の発生や進行を防止するための措置を講じる過程",
+        "ru": "Процесс принятия мер для предотвращения возникновения или развития заболеваний"
+      }
+    }
+  ]
+}

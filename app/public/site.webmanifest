@@ -1,0 +1,10 @@
+{
+  "name": "Self Brain System",
+  "short_name": "Self Brain",
+  "description": "Human-like AGI Artificial Intelligence System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a2a6c",
+  "icons": []
+}

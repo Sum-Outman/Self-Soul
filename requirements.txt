@@ -1,0 +1,41 @@
+# AGI Brain System Requirements
+# Core web server dependencies
+fastapi>=0.70.0
+uvicorn>=0.17.0
+python-multipart>=0.0.5
+# Basic dependencies
+numpy>=1.19.0
+pandas>=1.1.0
+scikit-learn>=0.24.0
+requests>=2.25.0
+pyyaml>=5.4.0
+loguru>=0.5.0
+psutil>=5.8.0
+# Data processing
+pickle-mixin>=1.0.2
+# Models and AI
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.28.0
+opencv-python>=4.7.0
+Pillow>=9.4.0
+# Audio processing
+pyaudio>=0.2.11
+sounddevice>=0.4.6
+pydub>=0.25.1
+speechrecognition>=3.10.0
+# UI and visualization
+matplotlib>=3.7.0
+seaborn>=0.12.2
+plotly>=5.13.0
+dash>=2.10.0
+# Remote control and system management
+paramiko>=3.0.0
+pywinrm>=0.5.0
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+json5>=0.9.11
+chardet>=5.1.0
+click>=8.1.3

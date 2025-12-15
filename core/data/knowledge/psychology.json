@@ -1,0 +1,160 @@
+{
+  "domain": "psychology",
+  "name": {
+    "en": "Psychology",
+    "zh": "心理学",
+    "de": "Psychologie",
+    "ja": "心理学",
+    "ru": "Психология"
+  },
+  "description": {
+    "en": "Scientific study of mind, behavior, and mental processes",
+    "zh": "对心智、行为和心理过程的科学研究",
+    "de": "Wissenschaftliche Untersuchung von Geist, Verhalten und mentalen Prozessen",
+    "ja": "心、行動、精神的プロセスの科学的研究",
+    "ru": "Научное изучение разума, поведения и психических процессов"
+  },
+  "concepts": [
+    {
+      "id": "cognitive_processes",
+      "name": {
+        "en": "Cognitive Processes",
+        "zh": "认知过程",
+        "de": "Kognitive Prozesse",
+        "ja": "認知プロセス",
+        "ru": "Когнитивные процессы"
+      },
+      "description": {
+        "en": "Mental activities involved in acquiring knowledge and understanding",
+        "zh": "涉及获取知识和理解的心理活动",
+        "de": "Mentale Aktivitäten, die am Erwerb von Wissen und Verständnis beteiligt sind",
+        "ja": "知識と理解の獲得に関与する精神的活動",
+        "ru": "Психическая деятельность, связанная с приобретением знаний и пониманием"
+      },
+      "examples": [
+        "Attention and perception mechanisms",
+        "Memory formation and retrieval",
+        "Problem-solving strategies",
+        "Decision-making processes"
+      ]
+    },
+    {
+      "id": "emotional_intelligence",
+      "name": {
+        "en": "Emotional Intelligence",
+        "zh": "情绪智力",
+        "de": "Emotionale Intelligenz",
+        "ja": "感情的知性",
+        "ru": "Эмоциональный интеллект"
+      },
+      "description": {
+        "en": "Ability to perceive, understand, and manage emotions",
+        "zh": "感知、理解和管理情绪的能力",
+        "de": "Fähigkeit, Emotionen wahrzunehmen, zu verstehen und zu managen",
+        "ja": "感情を認識し、理解し、管理する能力",
+        "ru": "Способность воспринимать, понимать и управлять эмоциями"
+      },
+      "examples": [
+        "Self-awareness and self-regulation",
+        "Empathy and social awareness",
+        "Emotional expression control",
+        "Interpersonal relationship management"
+      ]
+    },
+    {
+      "id": "developmental_psychology",
+      "name": {
+        "en": "Developmental Psychology",
+        "zh": "发展心理学",
+        "de": "Entwicklungspsychologie",
+        "ja": "発達心理学",
+        "ru": "Психология развития"
+      },
+      "description": {
+        "en": "Study of psychological changes throughout human lifespan",
+        "zh": "研究人类整个生命周期中的心理变化",
+        "de": "Studium psychologischer Veränderungen im gesamten menschlichen Lebenszyklus",
+        "ja": "人間の生涯を通じた心理的変化の研究",
+        "ru": "Изучение психологических изменений на протяжении всей человеческой жизни"
+      },
+      "examples": [
+        "Child cognitive development stages",
+        "Adolescent identity formation",
+        "Adult psychological maturation",
+        "Aging and cognitive changes"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "behavioral_patterns",
+      "name": {
+        "en": "Behavioral Patterns",
+        "zh": "行为模式",
+        "de": "Verhaltensmuster",
+        "ja": "行動パターン",
+        "ru": "Поведенческие паттерны"
+      },
+      "description": {
+        "en": "Consistent ways individuals respond to situations and stimuli",
+        "zh": "个体对情境和刺激做出反应的一致方式",
+        "de": "Konsistente Wege, wie Individuen auf Situationen und Reize reagieren",
+        "ja": "個人が状況や刺激に反応する一貫した方法",
+        "ru": "Последовательные способы реагирования индивидов на ситуации и стимулы"
+      }
+    },
+    {
+      "id": "mental_health",
+      "name": {
+        "en": "Mental Health",
+        "zh": "心理健康",
+        "de": "Psychische Gesundheit",
+        "ja": "精神的健康",
+        "ru": "Психическое здоровье"
+      },
+      "description": {
+        "en": "State of well-being where individuals realize their abilities",
+        "zh": "个体实现其能力的幸福状态",
+        "de": "Zustand des Wohlbefindens, in dem Individuen ihre Fähigkeiten verwirklichen",
+        "ja": "個人が自分の能力を実現する幸福な状態",
+        "ru": "Состояние благополучия, в котором индивиды реализуют свои способности"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "clinical_psychology",
+      "name": {
+        "en": "Clinical Psychology",
+        "zh": "临床心理学",
+        "de": "Klinische Psychologie",
+        "ja": "臨床心理学",
+        "ru": "Клиническая психология"
+      },
+      "description": {
+        "en": "Assessment, diagnosis, and treatment of mental disorders",
+        "zh": "心理障碍的评估、诊断和治疗",
+        "de": "Bewertung, Diagnose und Behandlung psychischer Störungen",
+        "ja": "精神障害の評価、診断、治療",
+        "ru": "Оценка, диагностика и лечение психических расстройств"
+      }
+    },
+    {
+      "id": "organizational_psychology",
+      "name": {
+        "en": "Organizational Psychology",
+        "zh": "组织心理学",
+        "de": "Organisationspsychologie",
+        "ja": "組織心理学",
+        "ru": "Организационная психология"
+      },
+      "description": {
+        "en": "Applying psychological principles to workplace and organizations",
+        "zh": "将心理学原理应用于工作场所和组织",
+        "de": "Anwendung psychologischer Prinzipien am Arbeitsplatz und in Organisationen",
+        "ja": "職場と組織への心理学的原則の適用",
+        "ru": "Применение психологических принципов на рабочем месте и в организациях"
+      }
+    }
+  ]
+}

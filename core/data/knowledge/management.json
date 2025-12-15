@@ -1,0 +1,160 @@
+{
+  "domain": "management",
+  "name": {
+    "en": "Management",
+    "zh": "管理学",
+    "de": "Management",
+    "ja": "経営学",
+    "ru": "Менеджмент"
+  },
+  "description": {
+    "en": "Study of planning, organizing, leading, and controlling organizational resources",
+    "zh": "研究规划、组织、领导和控制组织资源的学科",
+    "de": "Studium der Planung, Organisation, Führung und Kontrolle organisatorischer Ressourcen",
+    "ja": "組織資源の計画、組織化、リーダーシップ、管理の研究",
+    "ru": "Изучение планирования, организации, руководства и контроля организационных ресурсов"
+  },
+  "concepts": [
+    {
+      "id": "strategic_planning",
+      "name": {
+        "en": "Strategic Planning",
+        "zh": "战略规划",
+        "de": "Strategische Planung",
+        "ja": "戦略的計画",
+        "ru": "Стратегическое планирование"
+      },
+      "description": {
+        "en": "Process of defining organizational direction and making decisions",
+        "zh": "定义组织方向并做出决策的过程",
+        "de": "Prozess der Definition der organisatorischen Richtung und Entscheidungsfindung",
+        "ja": "組織の方向性を定義し意思決定を行うプロセス",
+        "ru": "Процесс определения организационного направления и принятия решений"
+      },
+      "examples": [
+        "SWOT analysis implementation",
+        "Mission and vision development",
+        "Strategic goal setting",
+        "Resource allocation planning"
+      ]
+    },
+    {
+      "id": "organizational_behavior",
+      "name": {
+        "en": "Organizational Behavior",
+        "zh": "组织行为学",
+        "de": "Organisationsverhalten",
+        "ja": "組織行動論",
+        "ru": "Организационное поведение"
+      },
+      "description": {
+        "en": "Study of human behavior in organizational settings",
+        "zh": "研究组织环境中的人类行为",
+        "de": "Studium menschlichen Verhaltens in organisatorischen Umgebungen",
+        "ja": "組織環境における人間行動の研究",
+        "ru": "Изучение человеческого поведения в организационных условиях"
+      },
+      "examples": [
+        "Leadership styles analysis",
+        "Team dynamics examination",
+        "Motivation theories application",
+        "Organizational culture development"
+      ]
+    },
+    {
+      "id": "operations_management",
+      "name": {
+        "en": "Operations Management",
+        "zh": "运营管理",
+        "de": "Betriebsmanagement",
+        "ja": "オペレーションズマネジメント",
+        "ru": "Управление операциями"
+      },
+      "description": {
+        "en": "Design and control of production processes and business operations",
+        "zh": "设计和控制生产过程及业务运营",
+        "de": "Design und Kontrolle von Produktionsprozessen und Geschäftsabläufen",
+        "ja": "生産プロセスと業務運営の設計と管理",
+        "ru": "Проектирование и контроль производственных процессов и бизнес-операций"
+      },
+      "examples": [
+        "Supply chain optimization",
+        "Quality control systems",
+        "Process improvement methodologies",
+        "Inventory management techniques"
+      ]
+    }
+  ],
+  "principles": [
+    {
+      "id": "leadership_principles",
+      "name": {
+        "en": "Leadership Principles",
+        "zh": "领导原则",
+        "de": "Führungsprinzipien",
+        "ja": "リーダーシップ原則",
+        "ru": "Принципы лидерства"
+      },
+      "description": {
+        "en": "Fundamental guidelines for effective leadership and management",
+        "zh": "有效领导和管理的根本指导原则",
+        "de": "Grundlegende Richtlinien für effektive Führung und Management",
+        "ja": "効果的なリーダーシップと管理のための基本的なガイドライン",
+        "ru": "Фундаментальные руководящие принципы эффективного лидерства и управления"
+      }
+    },
+    {
+      "id": "decision_making",
+      "name": {
+        "en": "Decision Making",
+        "zh": "决策制定",
+        "de": "Entscheidungsfindung",
+        "ja": "意思決定",
+        "ru": "Принятие решений"
+      },
+      "description": {
+        "en": "Process of selecting among alternatives to achieve objectives",
+        "zh": "在备选方案中选择以实现目标的过程",
+        "de": "Prozess der Auswahl zwischen Alternativen zur Zielerreichung",
+        "ja": "目標を達成するための選択肢の中から選択するプロセス",
+        "ru": "Процесс выбора между альтернативами для достижения целей"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "project_management",
+      "name": {
+        "en": "Project Management",
+        "zh": "项目管理",
+        "de": "Projektmanagement",
+        "ja": "プロジェクト管理",
+        "ru": "Управление проектами"
+      },
+      "description": {
+        "en": "Planning, executing, and controlling projects to achieve specific goals",
+        "zh": "规划、执行和控制项目以实现特定目标",
+        "de": "Planung, Durchführung und Kontrolle von Projekten zur Erreichung spezifischer Ziele",
+        "ja": "特定の目標を達成するためのプロジェクトの計画、実行、管理",
+        "ru": "Планирование, выполнение и контроль проектов для достижения конкретных целей"
+      }
+    },
+    {
+      "id": "human_resource_management",
+      "name": {
+        "en": "Human Resource Management",
+        "zh": "人力资源管理",
+        "de": "Personalmanagement",
+        "ja": "人的資源管理",
+        "ru": "Управление человеческими ресурсами"
+      },
+      "description": {
+        "en": "Managing people within organizations to achieve organizational objectives",
+        "zh": "在组织内管理人员以实现组织目标",
+        "de": "Management von Menschen in Organisationen zur Erreichung organisatorischer Ziele",
+        "ja": "組織目標を達成するための組織内の人材管理",
+        "ru": "Управление людьми в организациях для достижения организационных целей"
+      }
+    }
+  ]
+}

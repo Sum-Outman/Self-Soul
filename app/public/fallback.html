@@ -1,0 +1,50 @@
+"""
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Self Brain - 备用入口</title>
+  <script>
+    // 强制刷新主应用
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 2000);
+  </script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+    .message {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="message">
+    <h1>Self Brain 系统</h1>
+    <p>正在重定向到主应用...</p>
+    <p>如果页面没有自动跳转，<a href="index.html">请点击这里</a></p>
+  </div>
+</body>
+</html>

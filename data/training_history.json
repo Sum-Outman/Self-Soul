@@ -1,0 +1,324 @@
+[
+  {
+    "job_id": "train_1756365590_",
+    "models": [],
+    "start_time": 1756365590.7041228,
+    "end_time": 1756365590.7047768,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756694450_manager",
+    "models": [
+      "manager"
+    ],
+    "start_time": 1756694450.383407,
+    "end_time": 1756694450.38676,
+    "status": "failed",
+    "error": "train() got an unexpected keyword argument 'callback'"
+  },
+  {
+    "job_id": "train_1756712974_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756712979.4528046,
+    "end_time": 1756712979.4632106,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756713200_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756713205.5984821,
+    "end_time": 1756713205.6019356,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756713383_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756713388.7383566,
+    "end_time": 1756713388.7403631,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756713681_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756713685.636327,
+    "end_time": 1756713685.639115,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756713874_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756713880.232087,
+    "end_time": 1756713880.234222,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756714142_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756714147.3409188,
+    "end_time": 1756714147.3440573,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756714282_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756714286.7355976,
+    "end_time": 1756714286.7378294,
+    "status": "failed",
+    "error": "There is no current event loop in thread 'Thread-3'."
+  },
+  {
+    "job_id": "train_1756714703_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756714707.5962408,
+    "end_time": 1756714707.723705,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756714703_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756714707.5962408,
+    "end_time": 1756714707.7247224,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756740365_language",
+    "models": [
+      "language"
+    ],
+    "start_time": 1756740365.857669,
+    "end_time": 1756740365.8616748,
+    "status": "failed",
+    "error": "train() got an unexpected keyword argument 'learning_rate'"
+  },
+  {
+    "job_id": "train_1756740367_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756740367.874239,
+    "end_time": 1756740368.0930378,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756740367_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756740367.874239,
+    "end_time": 1756740368.0950365,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756740560_language",
+    "models": [
+      "language"
+    ],
+    "start_time": 1756740560.9261737,
+    "end_time": 1756740562.1193492,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756740562_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756740562.9406974,
+    "end_time": 1756740563.1634374,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756740562_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756740562.9406974,
+    "end_time": 1756740563.1644366,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756771577_language_audio_vision_image",
+    "models": [
+      "language",
+      "audio",
+      "vision_image"
+    ],
+    "start_time": 1756771577.2620318,
+    "end_time": 1756771578.36788,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756771577_language_audio_vision_image",
+    "models": [
+      "language",
+      "audio",
+      "vision_image"
+    ],
+    "start_time": 1756771577.2620318,
+    "end_time": 1756771578.3688827,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756775288_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756775288.1402733,
+    "end_time": 1756775289.2487617,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756775288_language_vision_image",
+    "models": [
+      "language",
+      "vision_image"
+    ],
+    "start_time": 1756775288.1402733,
+    "end_time": 1756775289.250761,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756788371_language_knowledge_vision_image",
+    "models": [
+      "language",
+      "knowledge",
+      "vision_image"
+    ],
+    "start_time": 1756788371.5957875,
+    "end_time": 1756788372.1483703,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756788371_language_knowledge_vision_image",
+    "models": [
+      "language",
+      "knowledge",
+      "vision_image"
+    ],
+    "start_time": 1756788371.5957875,
+    "end_time": 1756788372.1493719,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789220_",
+    "models": [],
+    "start_time": 1756789220.2706149,
+    "end_time": 1756789220.2706149,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789339_",
+    "models": [],
+    "start_time": 1756789339.2693002,
+    "end_time": 1756789339.2703037,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789359_",
+    "models": [],
+    "start_time": 1756789359.6524396,
+    "end_time": 1756789359.6534379,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789380_",
+    "models": [],
+    "start_time": 1756789380.9706516,
+    "end_time": 1756789380.9716463,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789402_language_knowledge_vision_image",
+    "models": [
+      "language",
+      "knowledge",
+      "vision_image"
+    ],
+    "start_time": 1756789402.192063,
+    "end_time": 1756789403.2832174,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756789402_language_knowledge_vision_image",
+    "models": [
+      "language",
+      "knowledge",
+      "vision_image"
+    ],
+    "start_time": 1756789402.192063,
+    "end_time": 1756789403.284216,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756802821_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756802821.3188643,
+    "end_time": 1756802821.8671937,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1756802821_language_knowledge",
+    "models": [
+      "language",
+      "knowledge"
+    ],
+    "start_time": 1756802821.3188643,
+    "end_time": 1756802821.8691945,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1757053812_",
+    "models": [],
+    "start_time": 1757053812.6860309,
+    "end_time": 1757053812.6896696,
+    "status": "completed"
+  },
+  {
+    "job_id": "train_1765775041_",
+    "models": [],
+    "start_time": 1765775041.7411528,
+    "end_time": 1765775041.7720869,
+    "status": "failed",
+    "error": "'TrainingManager' object has no attribute '_initialize_agi_fallback_strategy'"
+  }
+]

@@ -44,8 +44,8 @@ class DeepKnowledgeRepresentation(nn.Module):
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
         
-        # 强制使用从零开始训练模式，避免外部模型依赖
-        self.from_scratch = True
+        # 设置训练模式
+        self.from_scratch = from_scratch
         
         # 使用简单的嵌入层而不是BERT
         logger.info("Using simple embedding layer (from_scratch mode only)")

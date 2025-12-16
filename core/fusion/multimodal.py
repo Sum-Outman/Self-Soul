@@ -38,18 +38,17 @@ MultimodalFusion Class - English class description
 class MultimodalFusion:
     """多模态数据融合引擎 / Multimodal Data Fusion Engine"""
     
-    
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
+    """
+    __init__函数 - 中文函数描述
+    __init__ Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def __init__(self):
         # 融合权重
         self.fusion_weights = {
             'text': 0.3,
@@ -72,19 +71,19 @@ def __init__(self):
             'feedback_history': []
         }
 
-    # 增强：多模态融合方法
+        # 增强：多模态融合方法
     
-"""
-fuse_results函数 - 中文函数描述
-fuse_results Function - English function description
+    """
+    fuse_results函数 - 中文函数描述
+    fuse_results Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def fuse_results(self, results, modalities=None, context=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def fuse_results(self, results, modalities=None, context=None):
         """融合多个模型的结果，支持上下文感知"""
         try:
             error_handler.log_info(f"开始多模态融合，模态: {list(results.keys())}", "MultimodalFusion")
@@ -129,17 +128,17 @@ def fuse_results(self, results, modalities=None, context=None):
 
     # 新增：基于上下文调整融合权重
     
-"""
-_adjust_weights_based_on_context函数 - 中文函数描述
-_adjust_weights_based_on_context Function - English function description
+    """
+    _adjust_weights_based_on_context函数 - 中文函数描述
+    _adjust_weights_based_on_context Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _adjust_weights_based_on_context(self, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _adjust_weights_based_on_context(self, context):
         """根据上下文调整融合权重"""
         # 简单实现：基于上下文类型调整权重
         adjusted_weights = {}
@@ -175,17 +174,17 @@ def _adjust_weights_based_on_context(self, context):
 
     # 新增：更新上下文历史
     
-"""
-_update_context_history函数 - 中文函数描述
-_update_context_history Function - English function description
+    """
+    _update_context_history函数 - 中文函数描述
+    _update_context_history Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _update_context_history(self, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _update_context_history(self, context):
         """更新上下文历史"""
         # 添加新上下文
         self.context_aware_fusion['context_history'].append({
@@ -199,17 +198,17 @@ def _update_context_history(self, context):
 
     # 增强：加权融合策略
     
-"""
-_weighted_fusion函数 - 中文函数描述
-_weighted_fusion Function - English function description
+    """
+    _weighted_fusion函数 - 中文函数描述
+    _weighted_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _weighted_fusion(self, results):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _weighted_fusion(self, results):
         """高级加权融合策略，考虑模型置信度和可靠性"""
         # 简单实现，实际应用中需要根据具体数据类型和模型结果调整
         fused_result = {}
@@ -277,17 +276,17 @@ def _weighted_fusion(self, results):
 
     # 增强：文本和视觉融合策略
     
-"""
-_text_visual_fusion函数 - 中文函数描述
-_text_visual_fusion Function - English function description
+    """
+    _text_visual_fusion函数 - 中文函数描述
+    _text_visual_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _text_visual_fusion(self, results):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _text_visual_fusion(self, results):
         """增强的文本和视觉融合策略"""
         # 实现文本和视觉数据的融合
         # 例如，将图像识别的结果与文本描述结合起来
@@ -337,17 +336,17 @@ def _text_visual_fusion(self, results):
 
     # 增强：音频和视觉融合策略
     
-"""
-_audio_visual_fusion函数 - 中文函数描述
-_audio_visual_fusion Function - English function description
+    """
+    _audio_visual_fusion函数 - 中文函数描述
+    _audio_visual_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _audio_visual_fusion(self, results):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _audio_visual_fusion(self, results):
         """增强的音频和视觉融合策略"""
         # 实现音频和视觉数据的融合
         audio_result = results.get('audio', {})
@@ -387,17 +386,17 @@ def _audio_visual_fusion(self, results):
 
     # 新增：基于深度学习的融合
     
-"""
-deep_learning_fusion函数 - 中文函数描述
-deep_learning_fusion Function - English function description
+    """
+    deep_learning_fusion函数 - 中文函数描述
+    deep_learning_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def deep_learning_fusion(self, results, model=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def deep_learning_fusion(self, results, model=None):
         """使用深度学习模型进行多模态融合"""
         # 简单实现，实际应使用预训练的多模态融合模型
         # 例如 CLIP、ViLBERT、ALIGN 等
@@ -436,17 +435,17 @@ def deep_learning_fusion(self, results, model=None):
 
     # 新增：基于反馈的自适应融合
     
-"""
-update_based_on_feedback函数 - 中文函数描述
-update_based_on_feedback Function - English function description
+    """
+    update_based_on_feedback函数 - 中文函数描述
+    update_based_on_feedback Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def update_based_on_feedback(self, feedback, fused_result):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def update_based_on_feedback(self, feedback, fused_result):
         """基于用户或系统反馈更新融合策略"""
         if not self.adaptive_learner['enabled']:
             return
@@ -475,17 +474,17 @@ def update_based_on_feedback(self, feedback, fused_result):
 
     # 内部方法：选择融合策略
     
-"""
-_select_fusion_strategy函数 - 中文函数描述
-_select_fusion_strategy Function - English function description
+    """
+    _select_fusion_strategy函数 - 中文函数描述
+    _select_fusion_strategy Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _select_fusion_strategy(self, modalities):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _select_fusion_strategy(self, modalities):
         """根据模态组合选择融合策略"""
         # 检查是否包含文本和视觉
         if 'text' in modalities and ('image' in modalities or 'video' in modalities):
@@ -499,17 +498,17 @@ def _select_fusion_strategy(self, modalities):
 
     # 新增：自适应融合策略
     
-"""
-adaptive_fusion函数 - 中文函数描述
-adaptive_fusion Function - English function description
+    """
+    adaptive_fusion函数 - 中文函数描述
+    adaptive_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def adaptive_fusion(self, results, context=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def adaptive_fusion(self, results, context=None):
         """基于上下文的自适应融合策略
         Context-based adaptive fusion strategy
         """
@@ -537,153 +536,127 @@ def adaptive_fusion(self, results, context=None):
             # 回退到标准融合
             return self._weighted_fusion(results)
     
+    """
+    _assess_result_quality函数 - 中文函数描述
+    _assess_result_quality Function - English function description
     
-"""
-_assess_result_quality函数 - 中文函数描述
-_assess_result_quality Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_result_quality(self, results):
-        """评估各模态结果的质量
-        Assess the quality of results from each modality
-        """
+    Args:
+        results: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _assess_result_quality(self, results):
+        """评估各模态结果的质量"""
         quality_scores = {}
         
         for modality, result in results.items():
-            # 简单实现：基于结果的完整性和置信度评估质量
-            score = 0.5  # 默认分数 Default score
+            quality = 1.0
             
-            # 检查结果是否包含置信度
+            # 基于置信度评分
+            if 'confidence' in result:
+                quality = result['confidence']
+            
+            # 基于完整性评分
             if isinstance(result, dict):
-                if 'confidence' in result:
-                    score = min(max(result['confidence'], 0), 1)
-                elif 'probability' in result:
-                    score = min(max(result['probability'], 0), 1)
-                
-                # 检查结果完整性
-                if len(result) > 3:
-                    score += 0.1  # 额外加分 Extra points
+                # 检查关键字段是否存在
+                required_fields = {'text': ['content'], 'image': ['description'], 'audio': ['transcript']}
+                if modality in required_fields:
+                    missing_fields = [field for field in required_fields[modality] if field not in result]
+                    if missing_fields:
+                        quality *= 0.7  # 减少质量评分
             
-            quality_scores[modality] = score
+            quality_scores[modality] = quality
         
         return quality_scores
     
+    """
+    _adjust_weights_based_on_quality函数 - 中文函数描述
+    _adjust_weights_based_on_quality Function - English function description
     
-"""
-_adjust_weights_based_on_quality函数 - 中文函数描述
-_adjust_weights_based_on_quality Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _adjust_weights_based_on_quality(self, quality_scores):
-        """根据结果质量调整融合权重
-        Adjust fusion weights based on result quality
-        """
-        adjusted_weights = {}
-        total_quality = sum(quality_scores.values())
+    Args:
+        quality_scores: 参数描述 (Parameter description)
         
-        if total_quality > 0:
-            for modality, score in quality_scores.items():
-                # 基础权重乘以质量分数
-                base_weight = self.fusion_weights.get(modality, 0.25)
-                adjusted_weights[modality] = base_weight * score
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _adjust_weights_based_on_quality(self, quality_scores):
+        """根据结果质量调整融合权重"""
+        adjusted_weights = {}
+        
+        for modality, quality in quality_scores.items():
+            # 获取基础权重
+            base_weight = self.fusion_weights.get(modality, 0.25)
             
-            # 重新归一化
-            total_adjusted = sum(adjusted_weights.values())
-            if total_adjusted > 0:
-                for modality in adjusted_weights:
-                    adjusted_weights[modality] /= total_adjusted
-        else:
-            # 质量评估失败，使用默认权重
-            adjusted_weights = self.fusion_weights.copy()
+            # 根据质量调整权重
+            adjusted_weights[modality] = base_weight * quality
+        
+        # 归一化权重
+        total_weight = sum(adjusted_weights.values())
+        if total_weight > 0:
+            for modality in adjusted_weights:
+                adjusted_weights[modality] /= total_weight
         
         return adjusted_weights
     
+    """
+    _weighted_fusion_simple函数 - 中文函数描述
+    _weighted_fusion_simple Function - English function description
     
-"""
-_weighted_fusion_simple函数 - 中文函数描述
-_weighted_fusion_simple Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _weighted_fusion_simple(self, results, weights=None):
-        """加权融合策略（简单版本，接受自定义权重）
-        Weighted fusion strategy (simple version, accepts custom weights)
-        """
-        # 修改现有方法以接受自定义权重
-        # Modified existing method to accept custom weights
-        if weights is None:
-            weights = self.fusion_weights
-            
-        # 简单实现，实际应用中需要根据具体数据类型和模型结果调整
-        # Simple implementation, in practice should be adjusted based on specific data types and model results
+    Args:
+        results: 参数描述 (Parameter description)
+        weights: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _weighted_fusion_simple(self, results, weights):
+        """简单加权融合策略"""
         fused_result = {}
         
-        # 计算所有权重的总和
-        # Calculate the sum of all weights
-        total_weight = sum(weights.get(m, 0.25) for m in results)
-        
-        if total_weight == 0:
-            total_weight = 1  # 避免除零错误 Avoid division by zero error
-        
-        # 对每个模态的结果进行加权融合
-        # Weighted fusion of results from each modality
         for modality, result in results.items():
-            weight = weights.get(modality, 0.25) / total_weight
+            weight = weights.get(modality, 0.25)
             
-            # 根据结果类型执行不同的融合操作
-            # Perform different fusion operations based on result type
             if isinstance(result, dict):
                 for key, value in result.items():
+                    if key in ['confidence', 'timestamp', 'source']:
+                        continue
+                        
                     if key not in fused_result:
                         fused_result[key] = 0
-                    # 如果是数值类型，进行加权求和
-                    # If numeric type, perform weighted sum
+                        
                     if isinstance(value, (int, float)):
                         fused_result[key] += value * weight
-                    # 如果是字符串类型，取第一个值
-                    # If string type, take the first value
-                    elif isinstance(value, str) and key not in fused_result:
-                        fused_result[key] = value
-                    # 其他类型，可以根据具体需求扩展
-                    # Other types can be extended based on specific needs
+                    elif isinstance(value, str):
+                        if key not in fused_result:
+                            fused_result[key] = value
+                        else:
+                            if value not in fused_result[key]:
+                                fused_result[key] += f"; {value}"
         
         return fused_result
-
-    # 新增：高级自适应融合策略
     
-"""
-advanced_adaptive_fusion函数 - 中文函数描述
-advanced_adaptive_fusion Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
+    """
+    advanced_adaptive_fusion函数 - 中文函数描述
+    advanced_adaptive_fusion Function - English function description
     
-Returns:
-    返回值描述 (Return value description)
-"""
-def advanced_adaptive_fusion(self, results, context=None, task_type=None):
-        """高级自适应多模态融合策略，支持动态策略选择和实时优化"""
+    Args:
+        results: 多模态结果
+        context: 上下文信息
+        task_type: 任务类型
+        
+    Returns:
+        融合后的结果
+    """
+    def advanced_adaptive_fusion(self, results, context=None, task_type=None):
+        """高级自适应融合策略，考虑上下文和任务类型"""
         try:
             error_handler.log_info("开始高级自适应多模态融合", "MultimodalFusion")
             
             if not results:
                 return {}
             
-            # 分析输入数据和上下文
+            # 分析融合输入
             fusion_analysis = self._analyze_fusion_inputs(results, context, task_type)
             
             # 选择最优融合策略
@@ -712,18 +685,19 @@ def advanced_adaptive_fusion(self, results, context=None, task_type=None):
             # 回退到标准自适应融合
             return self.adaptive_fusion(results, context)
     
+    """
+    _analyze_fusion_inputs函数 - 中文函数描述
+    _analyze_fusion_inputs Function - English function description
     
-"""
-_analyze_fusion_inputs函数 - 中文函数描述
-_analyze_fusion_inputs Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _analyze_fusion_inputs(self, results, context, task_type):
+    Args:
+        results: 参数描述 (Parameter description)
+        context: 上下文信息
+        task_type: 任务类型
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _analyze_fusion_inputs(self, results, context, task_type):
         """深度分析融合输入数据、上下文和任务类型"""
         analysis = {
             'modality_characteristics': {},
@@ -751,18 +725,18 @@ def _analyze_fusion_inputs(self, results, context, task_type):
         
         return analysis
     
+    """
+    _analyze_modality_characteristics函数 - 中文函数描述
+    _analyze_modality_characteristics Function - English function description
     
-"""
-_analyze_modality_characteristics函数 - 中文函数描述
-_analyze_modality_characteristics Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _analyze_modality_characteristics(self, result, modality):
+    Args:
+        result: 模态结果
+        modality: 模态类型
+        
+    Returns:
+        模态特征分析结果
+    """
+    def _analyze_modality_characteristics(self, result, modality):
         """分析特定模态数据的特征"""
         characteristics = {
             'data_type': self._determine_data_type(result),
@@ -773,18 +747,17 @@ def _analyze_modality_characteristics(self, result, modality):
         }
         return characteristics
     
+    """
+    _determine_data_type函数 - 中文函数描述
+    _determine_data_type Function - English function description
     
-"""
-_determine_data_type函数 - 中文函数描述
-_determine_data_type Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _determine_data_type(self, result):
+    Args:
+        result: 要分析的结果
+        
+    Returns:
+        数据类型
+    """
+    def _determine_data_type(self, result):
         """确定数据类型（数值、分类、文本、视觉等）"""
         if isinstance(result, dict):
             if any(isinstance(v, (int, float)) for v in result.values()):
@@ -799,18 +772,17 @@ def _determine_data_type(self, result):
             return 'textual'
         return 'unknown'
     
+    """
+    _assess_completeness函数 - 中文函数描述
+    _assess_completeness Function - English function description
     
-"""
-_assess_completeness函数 - 中文函数描述
-_assess_completeness Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_completeness(self, result):
+    Args:
+        result: 要评估的数据
+        
+    Returns:
+        完整性分数
+    """
+    def _assess_completeness(self, result):
         """评估数据完整性"""
         if isinstance(result, dict):
             # 检查关键字段是否存在
@@ -820,18 +792,17 @@ def _assess_completeness(self, result):
             return completeness
         return 0.7  # 默认完整性分数
     
+    """
+    _assess_internal_consistency函数 - 中文函数描述
+    _assess_internal_consistency Function - English function description
     
-"""
-_assess_internal_consistency函数 - 中文函数描述
-_assess_internal_consistency Function - English function description
-
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_internal_consistency(self, result):
+    Args:
+        result: 要评估的数据
+        
+    Returns:
+        内部一致性分数
+    """
+    def _assess_internal_consistency(self, result):
         """评估内部一致性"""
         if isinstance(result, dict):
             # 检查置信度与值的一致性
@@ -845,19 +816,19 @@ def _assess_internal_consistency(self, result):
                     return 0.8
             return 0.6
         return 0.5
-    
-    
-"""
-_assess_novelty函数 - 中文函数描述
-_assess_novelty Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_novelty(self, result, modality):
+
+    """
+    _assess_novelty函数 - 中文函数描述
+    _assess_novelty Function - English function description
+
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _assess_novelty(self, result, modality):
         """评估数据新颖性（与历史数据比较）"""
         # 简单实现：检查是否与最近结果相似
         novelty_score = 0.7  # 默认新颖性
@@ -872,17 +843,17 @@ def _assess_novelty(self, result, modality):
         return novelty_score
     
     
-"""
-_assess_reliability函数 - 中文函数描述
-_assess_reliability Function - English function description
+    """
+    _assess_reliability函数 - 中文函数描述
+    _assess_reliability Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_reliability(self, modality):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _assess_reliability(self, modality):
         """评估模态的可靠性（基于历史性能）"""
         reliability_scores = {
             'text': 0.8,
@@ -894,17 +865,17 @@ def _assess_reliability(self, modality):
         return reliability_scores.get(modality, 0.5)
     
     
-"""
-_comprehensive_quality_assessment函数 - 中文函数描述
-_comprehensive_quality_assessment Function - English function description
+    """
+    _comprehensive_quality_assessment函数 - 中文函数描述
+    _comprehensive_quality_assessment Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _comprehensive_quality_assessment(self, results):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _comprehensive_quality_assessment(self, results):
         """综合质量评估"""
         quality_scores = {}
         
@@ -929,17 +900,17 @@ def _comprehensive_quality_assessment(self, results):
         return quality_scores
     
     
-"""
-_assess_context_relevance函数 - 中文函数描述
-_assess_context_relevance Function - English function description
+    """
+    _assess_context_relevance函数 - 中文函数描述
+    _assess_context_relevance Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _assess_context_relevance(self, results, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _assess_context_relevance(self, results, context):
         """评估各模态结果与上下文的相关性"""
         relevance_scores = {}
         
@@ -970,17 +941,17 @@ def _assess_context_relevance(self, results, context):
         return relevance_scores
     
     
-"""
-_analyze_task_requirements函数 - 中文函数描述
-_analyze_task_requirements Function - English function description
+    """
+    _analyze_task_requirements函数 - 中文函数描述
+    _analyze_task_requirements Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _analyze_task_requirements(self, task_type):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _analyze_task_requirements(self, task_type):
         """分析任务需求"""
         task_requirements = {
             'precision_required': 0.7,
@@ -1004,17 +975,17 @@ def _analyze_task_requirements(self, task_type):
         return task_requirements
     
     
-"""
-_check_temporal_consistency函数 - 中文函数描述
-_check_temporal_consistency Function - English function description
+    """
+    _check_temporal_consistency函数 - 中文函数描述
+    _check_temporal_consistency Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _check_temporal_consistency(self, results):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _check_temporal_consistency(self, results):
         """检查时间一致性（与历史结果比较）"""
         consistency_scores = {}
         
@@ -1037,17 +1008,17 @@ def _check_temporal_consistency(self, results):
         return consistency_scores
     
     
-"""
-_calculate_result_similarity函数 - 中文函数描述
-_calculate_result_similarity Function - English function description
+    """
+    _calculate_result_similarity函数 - 中文函数描述
+    _calculate_result_similarity Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _calculate_result_similarity(self, result1, result2):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _calculate_result_similarity(self, result1, result2):
         """计算两个结果的相似度"""
         if type(result1) != type(result2):
             return 0.3
@@ -1088,17 +1059,17 @@ def _calculate_result_similarity(self, result1, result2):
         return 0.4  # 默认相似度
     
     
-"""
-_select_optimal_fusion_strategy函数 - 中文函数描述
-_select_optimal_fusion_strategy Function - English function description
+    """
+    _select_optimal_fusion_strategy函数 - 中文函数描述
+    _select_optimal_fusion_strategy Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _select_optimal_fusion_strategy(self, fusion_analysis):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _select_optimal_fusion_strategy(self, fusion_analysis):
         """选择最优融合策略"""
         # 基于分析结果选择策略
         quality_scores = fusion_analysis['quality_assessment']
@@ -1129,17 +1100,17 @@ def _select_optimal_fusion_strategy(self, fusion_analysis):
             return self.adaptive_fusion
     
     
-"""
-_precision_optimized_fusion函数 - 中文函数描述
-_precision_optimized_fusion Function - English function description
+    """
+    _precision_optimized_fusion函数 - 中文函数描述
+    _precision_optimized_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _precision_optimized_fusion(self, results, params=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _precision_optimized_fusion(self, results, params=None):
         """精度优化的融合策略"""
         # 实现高精度需求的融合逻辑
         fused_result = {}
@@ -1167,17 +1138,17 @@ def _precision_optimized_fusion(self, results, params=None):
         return fused_result
     
     
-"""
-_explainable_fusion函数 - 中文函数描述
-_explainable_fusion Function - English function description
+    """
+    _explainable_fusion函数 - 中文函数描述
+    _explainable_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _explainable_fusion(self, results, params=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _explainable_fusion(self, results, params=None):
         """可解释性优化的融合策略"""
         fused_result = {}
         fusion_explanation = {}
@@ -1205,17 +1176,17 @@ def _explainable_fusion(self, results, params=None):
         return fused_result
     
     
-"""
-_adjust_fusion_parameters函数 - 中文函数描述
-_adjust_fusion_parameters Function - English function description
+    """
+    _adjust_fusion_parameters函数 - 中文函数描述
+    _adjust_fusion_parameters Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _adjust_fusion_parameters(self, fusion_analysis):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _adjust_fusion_parameters(self, fusion_analysis):
         """动态调整融合参数"""
         params = {
             'weights': {},
@@ -1245,17 +1216,17 @@ def _adjust_fusion_parameters(self, fusion_analysis):
         return params
     
     
-"""
-_record_fusion_decision函数 - 中文函数描述
-_record_fusion_decision Function - English function description
+    """
+    _record_fusion_decision函数 - 中文函数描述
+    _record_fusion_decision Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _record_fusion_decision(self, decision_info):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _record_fusion_decision(self, decision_info):
         """记录融合决策信息"""
         if not hasattr(self, 'fusion_decisions_history'):
             self.fusion_decisions_history = []
@@ -1267,17 +1238,17 @@ def _record_fusion_decision(self, decision_info):
             self.fusion_decisions_history = self.fusion_decisions_history[-100:]
     
     
-"""
-get_fusion_metrics函数 - 中文函数描述
-get_fusion_metrics Function - English function description
+    """
+    get_fusion_metrics函数 - 中文函数描述
+    get_fusion_metrics Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def get_fusion_metrics(self):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def get_fusion_metrics(self):
         """获取融合性能指标"""
         metrics = {
             'total_fusions': len(self.fusion_decisions_history) if hasattr(self, 'fusion_decisions_history') else 0,
@@ -1298,33 +1269,33 @@ def get_fusion_metrics(self):
         return metrics
     
     
-"""
-enable_adaptive_learning函数 - 中文函数描述
-enable_adaptive_learning Function - English function description
+    """
+    enable_adaptive_learning函数 - 中文函数描述
+    enable_adaptive_learning Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def enable_adaptive_learning(self, enabled=True):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def enable_adaptive_learning(self, enabled=True):
         """启用或禁用自适应学习"""
         self.adaptive_learner['enabled'] = enabled
         error_handler.log_info(f"自适应学习 {'启用' if enabled else '禁用'}", "MultimodalFusion")
     
     
-"""
-update_from_feedback函数 - 中文函数描述
-update_from_feedback Function - English function description
+    """
+    update_from_feedback函数 - 中文函数描述
+    update_from_feedback Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def update_from_feedback(self, feedback_data):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def update_from_feedback(self, feedback_data):
         """基于反馈数据更新融合策略"""
         if not self.adaptive_learner['enabled']:
             return
@@ -1341,17 +1312,17 @@ def update_from_feedback(self, feedback_data):
         error_handler.log_info("基于反馈更新融合策略完成", "MultimodalFusion")
     
     
-"""
-_analyze_feedback函数 - 中文函数描述
-_analyze_feedback Function - English function description
+    """
+    _analyze_feedback函数 - 中文函数描述
+    _analyze_feedback Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _analyze_feedback(self, feedback_data):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _analyze_feedback(self, feedback_data):
         """分析反馈数据"""
         analysis = {
             'preferred_modalities': [],
@@ -1370,17 +1341,17 @@ def _analyze_feedback(self, feedback_data):
         return analysis
     
     
-"""
-_update_weights_from_feedback函数 - 中文函数描述
-_update_weights_from_feedback Function - English function description
+    """
+    _update_weights_from_feedback函数 - 中文函数描述
+    _update_weights_from_feedback Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _update_weights_from_feedback(self, feedback_analysis):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _update_weights_from_feedback(self, feedback_analysis):
         """基于反馈更新融合权重"""
         # 增加首选模态的权重
         for modality in feedback_analysis['preferred_modalities']:
@@ -1401,17 +1372,17 @@ def _update_weights_from_feedback(self, feedback_analysis):
                 self.fusion_weights[modality] /= total_weight
     
     
-"""
-_update_strategy_selection函数 - 中文函数描述
-_update_strategy_selection Function - English function description
+    """
+    _update_strategy_selection函数 - 中文函数描述
+    _update_strategy_selection Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _update_strategy_selection(self, feedback_analysis):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _update_strategy_selection(self, feedback_analysis):
         """基于反馈更新策略选择逻辑"""
         # 这里可以实现更复杂的策略选择逻辑更新
         # 目前简单记录反馈信息
@@ -1431,17 +1402,17 @@ MultimodalFusionEngine Class - English class description
 class MultimodalFusionEngine:
     """多模态融合引擎，整合来自不同模型的信息"""
     
-"""
-__init__函数 - 中文函数描述
-__init__ Function - English function description
+    """
+    __init__函数 - 中文函数描述
+    __init__ Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def __init__(self):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def __init__(self):
         self.fusion_strategies = {
             'early': self._early_fusion,
             'late': self._late_fusion,
@@ -1451,17 +1422,17 @@ def __init__(self):
         self.context_store = {}
 
     
-"""
-fuse函数 - 中文函数描述
-fuse Function - English function description
+    """
+    fuse函数 - 中文函数描述
+    fuse Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def fuse(self, inputs, strategy=None, context_id=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def fuse(self, inputs, strategy=None, context_id=None):
         """融合多模态输入
         Args:
             inputs: 包含不同模态数据的字典
@@ -1484,62 +1455,62 @@ def fuse(self, inputs, strategy=None, context_id=None):
         return result
 
     
-"""
-_early_fusion函数 - 中文函数描述
-_early_fusion Function - English function description
+    """
+    _early_fusion函数 - 中文函数描述
+    _early_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _early_fusion(self, inputs, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _early_fusion(self, inputs, context):
         # 早期融合实现
         pass
 
     
-"""
-_late_fusion函数 - 中文函数描述
-_late_fusion Function - English function description
+    """
+    _late_fusion函数 - 中文函数描述
+    _late_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _late_fusion(self, inputs, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _late_fusion(self, inputs, context):
         # 晚期融合实现
         pass
 
     
-"""
-_hybrid_fusion函数 - 中文函数描述
-_hybrid_fusion Function - English function description
+    """
+    _hybrid_fusion函数 - 中文函数描述
+    _hybrid_fusion Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _hybrid_fusion(self, inputs, context):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _hybrid_fusion(self, inputs, context):
         # 混合融合实现
         pass
 
     
-"""
-_update_context函数 - 中文函数描述
-_update_context Function - English function description
+    """
+    _update_context函数 - 中文函数描述
+    _update_context Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def _update_context(self, context, inputs, result):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def _update_context(self, context, inputs, result):
         # 更新上下文
         pass
 
@@ -1552,17 +1523,17 @@ class AdvancedMultimodalFusion(MultimodalFusion):
     """高级多模态融合类，用于管理模型"""
     
     
-"""
-fuse函数 - 中文函数描述
-fuse Function - English function description
+    """
+    fuse函数 - 中文函数描述
+    fuse Function - English function description
 
-Args:
-    params: 参数描述 (Parameter description)
-    
-Returns:
-    返回值描述 (Return value description)
-"""
-def fuse(self, results, emotion=None):
+    Args:
+        params: 参数描述 (Parameter description)
+        
+    Returns:
+        返回值描述 (Return value description)
+    """
+    def fuse(self, results, emotion=None):
         """融合结果，考虑情感状态"""
         context = {'emotion': emotion} if emotion else {}
         return self.adaptive_fusion(results, context)

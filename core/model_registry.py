@@ -1159,6 +1159,18 @@ class ModelRegistry:
                 'knowledge_accumulation': 0.0
             }
         
+    def is_model_registered(self, model_id: str) -> bool:
+        """检查模型是否已注册
+        Check if model is registered
+        
+        Args:
+            model_id: 模型ID
+            
+        Returns:
+            bool: 如果模型已注册返回True，否则False
+        """
+        return model_id in self.models
+
     def get_model(self, model_id: str):
         """获取已注册的模型实例
         Get registered model instance

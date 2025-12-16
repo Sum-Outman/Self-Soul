@@ -63,21 +63,36 @@ class ComponentFactory:
             if memory_optimizer.should_optimize():
                 memory_optimizer.optimize_memory()
                 
+            # 深拷贝kwargs以避免修改原始参数
+            optimized_kwargs = kwargs.copy()
+            
             # 如果在轻量模式下，传递轻量参数
             if memory_optimizer.lightweight_mode:
                 if hasattr(component_class, 'get_lightweight_params'):
-                    lightweight_kwargs = component_class.get_lightweight_params()
-                    kwargs.update(lightweight_kwargs)
+                    try:
+                        lightweight_kwargs = component_class.get_lightweight_params()
+                        optimized_kwargs.update(lightweight_kwargs)
+                    except Exception as e:
+                        print(f"Warning: Failed to get lightweight params for {component_class.__name__}: {e}")
                 # 为常见模型组件设置轻量参数
-                if 'representation_dim' in kwargs:
-                    kwargs['representation_dim'] = min(kwargs['representation_dim'], 384)
-                if 'num_layers' in kwargs:
-                    kwargs['num_layers'] = max(1, kwargs['num_layers'] // 2)
-                if 'nhead' in kwargs:
-                    kwargs['nhead'] = max(4, kwargs['nhead'] // 2)
-                
+                if 'representation_dim' in optimized_kwargs:
+                    optimized_kwargs['representation_dim'] = min(optimized_kwargs['representation_dim'], 384)
+                if 'num_layers' in optimized_kwargs:
+                    optimized_kwargs['num_layers'] = max(1, optimized_kwargs['num_layers'] // 2)
+                if 'nhead' in optimized_kwargs:
+                    optimized_kwargs['nhead'] = max(4, optimized_kwargs['nhead'] // 2)
+                if 'hidden_size' in optimized_kwargs:
+                    optimized_kwargs['hidden_size'] = max(32, optimized_kwargs['hidden_size'] // 2)
+                if 'num_heads' in optimized_kwargs:
+                    optimized_kwargs['num_heads'] = max(2, optimized_kwargs['num_heads'] // 2)
+            
             # 创建组件实例
-            global_components_registry[component_name] = component_class(*args, **kwargs)
+            try:
+                component_instance = component_class(*args, **optimized_kwargs)
+                global_components_registry[component_name] = component_instance
+            except Exception as e:
+                print(f"Error: Failed to create component {component_name}: {e}")
+                raise
         
         return global_components_registry[component_name]
     

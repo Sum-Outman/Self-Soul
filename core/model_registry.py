@@ -39,7 +39,7 @@ from core.unified_cognitive_architecture import UnifiedCognitiveArchitecture  # 
 from core.self_learning import AGISelfLearningSystem  # 自我学习系统
 from core.context_memory import ContextMemoryManager  # 上下文记忆管理器
 from core.intrinsic_motivation_system import IntrinsicMotivationSystem  # 内在动机系统
-from core.creative_problem_solver import CreativeProblemSolver  # 创造性问题解决器
+from core.creative_problem_solver import EnhancedCreativeProblemSolver  # 创造性问题解决器
 from core.value_alignment import ValueAlignment  # 值对齐系统
 from concurrent.futures import ThreadPoolExecutor
 

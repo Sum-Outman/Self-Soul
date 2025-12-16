@@ -103,6 +103,7 @@ class AGISelfLearningSystem:
         self.self_monitoring = {
             'learning_efficiency': 0.8,
             'knowledge_retention': 0.75,
+            'knowledge_consolidation': 0.7,
             'problem_solving_ability': 0.7,
             'adaptability_score': 0.65,
             'creativity_level': 0.6
@@ -388,6 +389,12 @@ class AGISelfLearningSystem:
         # 评估知识架构的完整性
         knowledge_completeness = self._assess_knowledge_completeness()
         
+        # 评估知识巩固效果
+        knowledge_consolidation = self._verify_knowledge_consolidation()
+        
+        # 评估知识保留情况
+        knowledge_retention = self._assess_learning_retention()
+        
         # 评估学习效率
         learning_efficiency = self.self_monitoring['learning_efficiency']
         
@@ -395,8 +402,14 @@ class AGISelfLearningSystem:
         self.performance_history['knowledge_state'].append({
             'timestamp': datetime.now(),
             'completeness': knowledge_completeness,
+            'consolidation': knowledge_consolidation,
+            'retention': knowledge_retention,
             'efficiency': learning_efficiency
         })
+        
+        # 更新自我监控
+        self.self_monitoring['knowledge_retention'] = knowledge_retention
+        self.self_monitoring['knowledge_consolidation'] = knowledge_consolidation
     
     def _assess_knowledge_completeness(self):
         """评估知识完整性"""
@@ -410,6 +423,85 @@ class AGISelfLearningSystem:
                                      total_rules * 0.3 + total_causal_models * 0.2) / 100)
         
         return completeness_score
+    
+    def _verify_knowledge_consolidation(self):
+        """验证知识巩固效果"""
+        # 测试知识的应用能力
+        consolidation_score = 0.0
+        test_count = 0
+        
+        # 测试概念理解
+        concepts = list(self.knowledge_architecture['semantic_memory']['concepts'].values())
+        if concepts:
+            test_count += 1
+            # 检查概念是否有相关概念和示例值
+            concept_score = sum(1 for c in concepts if len(c.get('related_concepts', [])) > 0 and len(c.get('value_examples', [])) > 0) / len(concepts)
+            consolidation_score += concept_score * 0.3
+        
+        # 测试规则应用
+        rules = list(self.knowledge_architecture['procedural_memory']['rules'].values())
+        if rules:
+            test_count += 1
+            # 检查规则是否有使用记录和置信度
+            rule_score = sum(1 for r in rules if r.get('usage_count', 0) > 0 and r.get('confidence', 0) > 0.5) / len(rules)
+            consolidation_score += rule_score * 0.3
+        
+        # 测试因果模型理解
+        causal_models = list(self.knowledge_architecture['causal_models'].values())
+        if causal_models:
+            test_count += 1
+            # 检查因果模型是否有证据支持和预测能力
+            causal_score = sum(1 for m in causal_models if m.get('evidence_count', 0) > 0 and m.get('predictive_power', 0) > 0.5) / len(causal_models)
+            consolidation_score += causal_score * 0.2
+        
+        # 测试模式识别能力
+        patterns = list(self.knowledge_architecture['semantic_memory']['patterns'].values())
+        if patterns:
+            test_count += 1
+            # 检查模式是否有上下文信息和高置信度
+            pattern_score = sum(1 for p in patterns if p.get('context', {}) and p.get('pattern_score', 0) > 0.7) / len(patterns)
+            consolidation_score += pattern_score * 0.2
+        
+        return consolidation_score / test_count if test_count > 0 else 0.0
+    
+    def _assess_learning_retention(self):
+        """评估知识保留情况"""
+        retention_score = 0.0
+        category_count = 0
+        
+        # 检查概念的保留情况
+        concepts = self.knowledge_architecture['semantic_memory']['concepts']
+        if concepts:
+            category_count += 1
+            recent_concepts = sum(1 for c in concepts.values() if 
+                                datetime.fromisoformat(c['last_encountered']) > datetime.now() - timedelta(days=30))
+            retention_score += (recent_concepts / len(concepts)) * 0.3
+        
+        # 检查规则的保留情况
+        rules = self.knowledge_architecture['procedural_memory']['rules']
+        if rules:
+            category_count += 1
+            recent_rules = sum(1 for r in rules.values() if 
+                              datetime.fromisoformat(r['last_used']) > datetime.now() - timedelta(days=30))
+            retention_score += (recent_rules / len(rules)) * 0.3
+        
+        # 检查因果模型的保留情况
+        causal_models = self.knowledge_architecture['causal_models']
+        if causal_models:
+            category_count += 1
+            recent_models = sum(1 for m in causal_models.values() if 
+                               datetime.fromisoformat(m['last_updated']) > datetime.now() - timedelta(days=30))
+            retention_score += (recent_models / len(causal_models)) * 0.2
+        
+        # 检查经验的保留情况
+        episodes = self.knowledge_architecture['episodic_memory']
+        if episodes:
+            category_count += 1
+            recent_episodes = sum(1 for e in episodes if 
+                                datetime.fromisoformat(e['timestamp']) > datetime.now() - timedelta(days=30))
+            retention_score += (recent_episodes / len(episodes)) * 0.2
+        
+        return retention_score / category_count if category_count > 0 else 0.0
     
     def _select_learning_target(self):
         """选择学习目标"""
@@ -521,11 +613,19 @@ class AGISelfLearningSystem:
     
     def _generate_learning_report(self):
         """生成学习报告"""
+        # 评估当前知识状态的各个维度
+        knowledge_completeness = self._assess_knowledge_completeness()
+        knowledge_consolidation = self._verify_knowledge_consolidation()
+        knowledge_retention = self._assess_learning_retention()
+        
         report = {
             'timestamp': datetime.now(),
             'learning_progress': self.learning_progress,
-            'knowledge_completeness': self._assess_knowledge_completeness(),
+            'knowledge_completeness': knowledge_completeness,
+            'knowledge_consolidation': knowledge_consolidation,
+            'knowledge_retention': knowledge_retention,
             'learning_efficiency': self.self_monitoring['learning_efficiency'],
+            'problem_solving_ability': self.self_monitoring['problem_solving_ability'],
             'improvement_suggestions': self.improvement_suggestions.copy()
         }
         
@@ -533,7 +633,7 @@ class AGISelfLearningSystem:
         self.improvement_suggestions = []
         
         # 记录报告
-        self._add_learning_log(f"学习报告生成: 进度{self.learning_progress}%, 完整性{report['knowledge_completeness']:.2f}")
+        self._add_learning_log(f"学习报告生成: 进度{self.learning_progress}%, 完整性{knowledge_completeness:.2f}, 巩固度{knowledge_consolidation:.2f}, 保留率{knowledge_retention:.2f}")
     
     def suggest_improvement(self, suggestion):
         """添加改进建议"""
@@ -1159,13 +1259,25 @@ class AGISelfLearningSystem:
             if 'causal_learning' in learning_results and learning_results['causal_learning']['success']:
                 consolidated_items += learning_results['causal_learning'].get('causal_models_built', 0)
             
+            # 整合模式
+            if 'basic_learning' in learning_results and learning_results['basic_learning']['success']:
+                consolidated_items += learning_results['basic_learning'].get('patterns_identified', 0)
+            
+            # 整合规则
+            if 'basic_learning' in learning_results and learning_results['basic_learning']['success']:
+                consolidated_items += learning_results['basic_learning'].get('rules_extracted', 0)
+            
+            # 验证知识巩固效果
+            consolidation_quality = self._verify_knowledge_consolidation()
+            
             # 更新知识巩固状态
-            consolidation_strength = min(1.0, consolidated_items / 10.0)
+            consolidation_strength = min(1.0, (consolidated_items / 10.0) * consolidation_quality)
             
             return {
                 'success': True,
                 'consolidated_items': consolidated_items,
                 'consolidation_strength': consolidation_strength,
+                'consolidation_quality': consolidation_quality,
                 'memory_impact': consolidation_strength * 0.8
             }
             

@@ -142,3 +142,6 @@ data/knowledge/
 logs/
 config/api_config.json
 node_modules
+
+# Windows special device file
+nul

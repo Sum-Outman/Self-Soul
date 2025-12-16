@@ -847,7 +847,65 @@ class ModelCollaborationOrchestrator:
         if key:
             return self.shared_memory.get(key)
         else:
-            return self.shared_memory
+            # 返回所有共享内存数据的副本
+            return dict(self.shared_memory)
+    
+
+    
+    def add_performance_metrics(self, metrics: Dict[str, Any]) -> None:
+        """添加性能指标
+        Add performance metrics
+        
+        Args:
+            metrics: 性能指标数据 | Performance metrics data
+        """
+        try:
+            asyncio.run(self._add_performance_metrics_async(metrics))
+        except RuntimeError:
+            # 如果已经在事件循环中
+            asyncio.create_task(self._add_performance_metrics_async(metrics))
+    
+    async def _add_performance_metrics_async(self, metrics: Dict[str, Any]) -> None:
+        """异步添加性能指标
+        Add performance metrics asynchronously
+        
+        Args:
+            metrics: 性能指标数据 | Performance metrics data
+        """
+        async with self.lock:
+            # 更新性能统计
+            if "success" in metrics and metrics["success"]:
+                self.performance_stats.success_count += 1
+            elif "success" in metrics:
+                self.performance_stats.failure_count += 1
+            
+            if "execution_time" in metrics:
+                self.performance_stats.execution_time += metrics["execution_time"]
+                self.performance_stats.avg_execution_time = (
+                    self.performance_stats.execution_time / 
+                    self.performance_stats.total_collaborations
+                    if self.performance_stats.total_collaborations > 0 else 0
+                )
+    
+    def get_performance_report(self) -> Dict[str, Any]:
+        """获取性能报告
+        Get performance report
+
+        Returns:
+            Dict[str, Any]: 性能报告数据 | Performance report data
+        """
+        return {
+            "total_collaborations": self.performance_stats.total_collaborations,
+            "success_count": self.performance_stats.success_count,
+            "failure_count": self.performance_stats.failure_count,
+            "success_rate": (
+                self.performance_stats.success_count / 
+                self.performance_stats.total_collaborations * 100
+                if self.performance_stats.total_collaborations > 0 else 0
+            ),
+            "avg_execution_time": self.performance_stats.avg_execution_time,
+            "active_collaborations": len(self.active_collaborations)
+        }
     
     def clear_shared_memory(self, key: str = None) -> bool:
         """清除共享内存数据

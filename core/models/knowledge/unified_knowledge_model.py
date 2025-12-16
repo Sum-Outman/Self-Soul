@@ -2460,6 +2460,12 @@ class AGICognitiveReasoningEngine:
         # AGI-specific enhancements
         self.meta_reasoning_enabled = self.config.get('meta_reasoning_enabled', True)
         self.self_reflection_enabled = self.config.get('self_reflection_enabled', True)
+        self.meta_reasoning_level = self.config.get('meta_reasoning_level', 0.7)
+        
+        # Reflection and improvement attributes
+        self.reflection_history = []
+        self.reasoning_type_effectiveness = {}
+        self.evidence_retrieval_depth = self.config.get('evidence_retrieval_depth', 1.0)
         
         self.logger.info("AGI cognitive reasoning engine initialized successfully")
         
@@ -2524,11 +2530,143 @@ class AGICognitiveReasoningEngine:
         
         return result
         
+    def _update_reasoning_strategies(self, reflection):
+        """Update reasoning strategies based on reflection insights"""
+        # Adjust reasoning weights based on confidence
+        if reflection['confidence'] < 0.5:
+            # Increase weight for more thorough reasoning methods
+            self.domain_weights = {k: v * 1.05 for k, v in self.domain_weights.items()}
+            
+        # Track reasoning type effectiveness
+        if reflection['reasoning_type'] not in self.reasoning_type_effectiveness:
+            self.reasoning_type_effectiveness[reflection['reasoning_type']] = {}
+            self.reasoning_type_effectiveness[reflection['reasoning_type']]['total'] = 0
+            self.reasoning_type_effectiveness[reflection['reasoning_type']]['successful'] = 0
+            
+        self.reasoning_type_effectiveness[reflection['reasoning_type']]['total'] += 1
+        if reflection['confidence'] > 0.6:
+            self.reasoning_type_effectiveness[reflection['reasoning_type']]['successful'] += 1
+        
+        # Update evidence retrieval strategies if needed
+        if 'Lack of supporting evidence' in reflection['weaknesses']:
+            self.evidence_retrieval_depth += 0.1
+            self.evidence_retrieval_depth = min(2.0, self.evidence_retrieval_depth)
+            
+        # Adjust meta-reasoning level based on reasoning quality
+        if 'Low confidence reasoning' in reflection['weaknesses']:
+            self.meta_reasoning_enabled = True
+            self.meta_reasoning_level = min(1.0, self.meta_reasoning_level + 0.1)
+        elif reflection['confidence'] > 0.8:
+            self.meta_reasoning_level = max(0.5, self.meta_reasoning_level - 0.05)
+            
+        self.logger.debug(f"Reasoning strategies updated based on reflection: {reflection}")
+    
     def _reflect_on_reasoning(self, result):
         """Reflect on reasoning process for continuous improvement"""
-        # Simple reflection implementation
-        if result.get("confidence", 0) < 0.5:
+        reflection = {
+            'timestamp': time.time(),
+            'reasoning_type': result.get('reasoning_type', 'unknown'),
+            'confidence': result.get('confidence', 0),
+            'strengths': [],
+            'weaknesses': [],
+            'improvements': [],
+            'conclusions_analyzed': result.get('conclusions', []),
+            'domain_coverage': result.get('domain_coverage', []),
+            'evidence_quality': result.get('evidence_quality', []),
+            'reasoning_efficiency': result.get('reasoning_efficiency', 1.0),
+            'novelty_score': result.get('novelty_score', 0.0),
+            'user_feedback': result.get('user_feedback', {}),
+            'meta_reasoning_level': self.meta_reasoning_level
+        }
+        
+        # Analyze strengths
+        if result.get('confidence', 0) > 0.7:
+            reflection['strengths'].append('High confidence reasoning')
+        if len(result.get('conclusions', [])) > 0:
+            reflection['strengths'].append('Clear conclusions provided')
+        if result.get('evidence', []):
+            reflection['strengths'].append('Evidence-based reasoning')
+        if len(result.get('domain_coverage', [])) > 1:
+            reflection['strengths'].append('Cross-domain reasoning capability')
+        if result.get('reasoning_efficiency', 1.0) > 0.8:
+            reflection['strengths'].append('Efficient reasoning process')
+        if result.get('novelty_score', 0.0) > 0.6:
+            reflection['strengths'].append('Creative and novel reasoning')
+        if result.get('user_feedback', {}).get('satisfaction', 0) > 0.7:
+            reflection['strengths'].append('Positive user feedback')
+        
+        # Analyze weaknesses
+        if result.get('confidence', 0) < 0.5:
+            reflection['weaknesses'].append('Low confidence reasoning')
             self.logger.debug(f"Low confidence reasoning: {result.get('conclusions', [])}")
+        if len(result.get('conclusions', [])) == 0:
+            reflection['weaknesses'].append('No clear conclusions')
+        if not result.get('evidence', []):
+            reflection['weaknesses'].append('Lack of supporting evidence')
+        if len(result.get('domain_coverage', [])) == 0:
+            reflection['weaknesses'].append('No domain context specified')
+        if result.get('reasoning_efficiency', 1.0) < 0.5:
+            reflection['weaknesses'].append('Inefficient reasoning process')
+        if result.get('novelty_score', 0.0) < 0.3:
+            reflection['weaknesses'].append('Lack of creative reasoning')
+        if result.get('user_feedback', {}).get('satisfaction', 0) < 0.4:
+            reflection['weaknesses'].append('Negative user feedback')
+        if result.get('evidence_quality', []).count('low') > len(result.get('evidence_quality', [])) * 0.5:
+            reflection['weaknesses'].append('Poor evidence quality')
+        
+        # Generate improvement suggestions based on weaknesses
+        if 'Low confidence reasoning' in reflection['weaknesses']:
+            for domain in result.get('domain_coverage', []):
+                reflection['improvements'].append(f'Enhance domain knowledge in {domain}')
+            reflection['improvements'].append('Increase evidence retrieval depth for future reasoning')
+            reflection['improvements'].append('Use multiple reasoning methods to cross-validate conclusions')
+        
+        if 'Lack of supporting evidence' in reflection['weaknesses']:
+            reflection['improvements'].append('Expand knowledge base coverage in relevant domains')
+            reflection['improvements'].append('Implement more sophisticated evidence retrieval algorithms')
+            reflection['improvements'].append('Add external data sources for evidence collection')
+        
+        if 'No clear conclusions' in reflection['weaknesses']:
+            reflection['improvements'].append('Implement conclusion synthesis algorithms')
+            reflection['improvements'].append('Add explicit conclusion generation steps to reasoning workflow')
+            reflection['improvements'].append('Use template-based conclusion framing for complex queries')
+        
+        if 'Inefficient reasoning process' in reflection['weaknesses']:
+            reflection['improvements'].append('Optimize evidence retrieval algorithms')
+            reflection['improvements'].append('Implement caching for frequent queries')
+            reflection['improvements'].append('Adjust reasoning depth based on query complexity')
+        
+        if 'Lack of creative reasoning' in reflection['weaknesses']:
+            reflection['improvements'].append('Incorporate lateral thinking techniques')
+            reflection['improvements'].append('Add cross-domain analogy generation')
+            reflection['improvements'].append('Implement counterfactual reasoning capabilities')
+        
+        if 'Poor evidence quality' in reflection['weaknesses']:
+            reflection['improvements'].append('Implement evidence quality assessment algorithms')
+            reflection['improvements'].append('Prioritize high-quality evidence sources')
+            reflection['improvements'].append('Add evidence verification steps')
+        
+        # Update reasoning strategies based on reflection
+        self._update_reasoning_strategies(reflection)
+        
+        # Store reflection for future learning
+        self.reflection_history.append(reflection)
+        
+        # Log important reflections
+        if reflection['weaknesses']:
+            self.logger.info(f"Reasoning reflection - Weaknesses identified: {reflection['weaknesses']}")
+        if reflection['improvements']:
+            self.logger.info(f"Reasoning reflection - Improvements suggested: {reflection['improvements']}")
+        
+        # Generate improvement suggestions for the model
+        if self.agi_self_reflection:
+            try:
+                improvement_suggestions = self.agi_self_reflection.generate_improvements(reflection)
+                if improvement_suggestions:
+                    reflection['agi_improvements'] = improvement_suggestions
+                    self.logger.debug(f"AGI self-reflection improvements: {improvement_suggestions}")
+            except Exception as e:
+                self.logger.warning(f"AGI self-reflection failed: {str(e)}")
 
 
 class EnhancedCognitiveReasoningEngine:

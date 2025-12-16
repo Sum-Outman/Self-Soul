@@ -161,7 +161,20 @@ class MockNN(types.ModuleType):
         self.ModuleList = MockModuleList
         # 添加其他可能用到的属性
         self.functional = types.ModuleType('functional')
+        self.functional.__package__ = 'torch.nn.functional'
+        # 添加常用的functional函数
+        self.functional.softmax = lambda x, dim: x
+        self.functional.relu = lambda x: x
+        self.functional.sigmoid = lambda x: x
+        self.functional.tanh = lambda x: x
+        self.functional.gelu = lambda x: x
+        self.functional.dropout = lambda x, p: x
+        self.functional.layer_norm = lambda x, normalized_shape: x
+        self.functional.mse_loss = lambda x, y: 0.0
+        self.functional.cross_entropy = lambda x, y: 0.0
+        
         self.init = types.ModuleType('init')
+        self.init.__package__ = 'torch.nn.init'
         # 添加缺失的属性
         self.BatchNorm1d = MockLayerNorm  # 使用LayerNorm作为BatchNorm1d的模拟
         self.ReLU = MockGELU  # 使用GELU作为ReLU的模拟
@@ -277,6 +290,7 @@ class MockTorch(types.ModuleType):
                 return 0
         self.utils.data.Dataset = MockDataset
         self.utils.data.DataLoader = MockDataLoader
+        self.utils.data.TensorDataset = MockDataset
         
         # 设置optim模块的属性
         setattr(self, 'optim', self.optim)
@@ -287,6 +301,8 @@ class MockTorch(types.ModuleType):
 mock_torch = MockTorch()
 sys.modules['torch'] = mock_torch
 sys.modules['torch.nn'] = mock_torch.nn
+sys.modules['torch.nn.functional'] = mock_torch.nn.functional
+sys.modules['torch.nn.init'] = mock_torch.nn.init
 sys.modules['torch.optim'] = mock_torch.optim
 sys.modules['torch.cuda'] = mock_torch.cuda
 sys.modules['torch.device'] = mock_torch.device

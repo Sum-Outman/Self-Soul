@@ -1466,8 +1466,48 @@ class MultimodalFusionEngine:
         返回值描述 (Return value description)
     """
     def _early_fusion(self, inputs, context):
-        # 早期融合实现
-        pass
+        """早期融合：在特征提取阶段融合多模态数据
+        Early fusion: fuse multimodal data at feature extraction stage
+        """
+        fused_features = {}
+        feature_dimensions = {}
+        
+        # 收集所有模态的特征
+        for modality, data in inputs.items():
+            if isinstance(data, dict) and 'features' in data:
+                features = data['features']
+                fused_features[modality] = features
+                feature_dimensions[modality] = len(features)
+        
+        # 对齐特征维度
+        max_dim = max(feature_dimensions.values()) if feature_dimensions else 0
+        aligned_features = []
+        
+        for modality, features in fused_features.items():
+            # 对特征进行填充或截断以对齐维度
+            if len(features) < max_dim:
+                # 填充零值
+                padded = features + [0.0] * (max_dim - len(features))
+                aligned_features.append(padded)
+            elif len(features) > max_dim:
+                # 截断特征
+                truncated = features[:max_dim]
+                aligned_features.append(truncated)
+            else:
+                aligned_features.append(features)
+        
+        if not aligned_features:
+            return {'fused_result': 'No features to fuse', 'fusion_strategy': 'early'}
+        
+        # 简单的特征拼接作为早期融合
+        concatenated = [item for sublist in aligned_features for item in sublist]
+        
+        return {
+            'fused_features': concatenated,
+            'fusion_strategy': 'early',
+            'feature_dimensions': feature_dimensions,
+            'context_used': context
+        }
 
     
     """
@@ -1481,8 +1521,58 @@ class MultimodalFusionEngine:
         返回值描述 (Return value description)
     """
     def _late_fusion(self, inputs, context):
-        # 晚期融合实现
-        pass
+        """晚期融合：在决策阶段融合多模态数据结果
+        Late fusion: fuse multimodal data results at decision stage
+        """
+        fused_results = {}
+        confidence_scores = {}
+        
+        # 收集所有模态的结果和置信度
+        for modality, data in inputs.items():
+            if isinstance(data, dict):
+                # 提取结果数据
+                result_data = {k: v for k, v in data.items() if k != 'confidence'}
+                
+                # 提取置信度
+                confidence = data.get('confidence', 0.5)
+                confidence_scores[modality] = confidence
+                
+                # 根据置信度加权融合
+                for key, value in result_data.items():
+                    if key not in fused_results:
+                        fused_results[key] = []
+                    
+                    fused_results[key].append((value, confidence))
+        
+        # 对每个键进行融合
+        final_result = {}
+        for key, weighted_values in fused_results.items():
+            # 根据数据类型选择融合方式
+            if all(isinstance(v[0], (int, float)) for v in weighted_values):
+                # 数值类型：加权平均
+                total_weight = sum(w for v, w in weighted_values)
+                if total_weight > 0:
+                    weighted_avg = sum(v * w for v, w in weighted_values) / total_weight
+                    final_result[key] = weighted_avg
+            elif all(isinstance(v[0], str) for v in weighted_values):
+                # 字符串类型：根据置信度选择最可靠的
+                sorted_values = sorted(weighted_values, key=lambda x: x[1], reverse=True)
+                final_result[key] = sorted_values[0][0]
+                # 记录所有结果作为参考
+                final_result[f"{key}_all"] = [v for v, w in weighted_values]
+                final_result[f"{key}_confidences"] = [w for v, w in weighted_values]
+            else:
+                # 其他类型：简单合并
+                final_result[key] = [v for v, w in weighted_values]
+        
+        # 添加融合元数据
+        final_result.update({
+            'fusion_strategy': 'late',
+            'confidence_scores': confidence_scores,
+            'context_used': context
+        })
+        
+        return final_result
 
     
     """
@@ -1496,8 +1586,62 @@ class MultimodalFusionEngine:
         返回值描述 (Return value description)
     """
     def _hybrid_fusion(self, inputs, context):
-        # 混合融合实现
-        pass
+        """混合融合：结合早期融合和晚期融合的优点
+        Hybrid fusion: combine the advantages of both early and late fusion
+        """
+        # 分离特征数据和结果数据
+        feature_data = {}
+        result_data = {}
+        
+        for modality, data in inputs.items():
+            if isinstance(data, dict):
+                # 检查是否包含特征数据（用于早期融合）
+                if 'features' in data:
+                    feature_data[modality] = data
+                # 检查是否包含结果数据（用于晚期融合）
+                elif any(k not in ['features', 'confidence'] for k in data.keys()):
+                    result_data[modality] = data
+            else:
+                result_data[modality] = data
+        
+        # 执行早期融合（如果有特征数据）
+        early_fusion_result = {}
+        if feature_data:
+            early_fusion_result = self._early_fusion(feature_data, context)
+        
+        # 执行晚期融合（如果有结果数据）
+        late_fusion_result = {}
+        if result_data:
+            late_fusion_result = self._late_fusion(result_data, context)
+        
+        # 合并两种融合结果
+        hybrid_result = {**early_fusion_result, **late_fusion_result}
+        
+        # 更新融合策略标识
+        hybrid_result['fusion_strategy'] = 'hybrid'
+        
+        # 如果两种融合都执行了，添加融合策略说明
+        if feature_data and result_data:
+            hybrid_result['fusion_approach'] = {
+                'early_fusion_applied': True,
+                'late_fusion_applied': True,
+                'early_fusion_modalities': list(feature_data.keys()),
+                'late_fusion_modalities': list(result_data.keys())
+            }
+        elif feature_data:
+            hybrid_result['fusion_approach'] = {
+                'early_fusion_applied': True,
+                'late_fusion_applied': False,
+                'early_fusion_modalities': list(feature_data.keys())
+            }
+        elif result_data:
+            hybrid_result['fusion_approach'] = {
+                'early_fusion_applied': False,
+                'late_fusion_applied': True,
+                'late_fusion_modalities': list(result_data.keys())
+            }
+        
+        return hybrid_result
 
     
     """
@@ -1511,8 +1655,48 @@ class MultimodalFusionEngine:
         返回值描述 (Return value description)
     """
     def _update_context(self, context, inputs, result):
-        # 更新上下文
-        pass
+        """更新上下文信息，用于持续对话
+        Update context information for continuous dialogue
+        """
+        updated_context = context.copy()
+        
+        # 添加当前输入的模态信息
+        updated_context['last_modalities'] = list(inputs.keys())
+        updated_context['last_update_time'] = time.time()
+        
+        # 保存关键融合结果
+        if isinstance(result, dict):
+            # 提取关键信息
+            key_info = {}
+            
+            # 保存融合策略
+            if 'fusion_strategy' in result:
+                key_info['last_strategy'] = result['fusion_strategy']
+            
+            # 保存置信度信息
+            if 'confidence_scores' in result:
+                key_info['last_confidences'] = result['confidence_scores']
+            
+            # 保存主要结果数据
+            main_results = {k: v for k, v in result.items() 
+                          if k not in ['fusion_strategy', 'confidence_scores', 'context_used', 
+                                      'fusion_approach', 'feature_dimensions', 'fused_features']}
+            
+            if main_results:
+                key_info['last_results'] = main_results
+            
+            # 更新上下文历史
+            if 'history' not in updated_context:
+                updated_context['history'] = []
+            
+            updated_context['history'].append(key_info)
+            
+            # 限制历史记录长度
+            max_history = 10
+            if len(updated_context['history']) > max_history:
+                updated_context['history'] = updated_context['history'][-max_history:]
+        
+        return updated_context
 
 
 """

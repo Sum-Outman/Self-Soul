@@ -117,6 +117,16 @@ class SystemMonitor:
         self.collaboration_metrics = {}
         self.data_streams = {}
         
+        # AGI-specific metrics
+        self.agi_metrics = {
+            "cognitive_load": deque(maxlen=1000),  # 认知负载
+            "learning_efficiency": deque(maxlen=1000),  # 学习效率
+            "decision_quality": deque(maxlen=1000),  # 决策质量
+            "creativity_score": deque(maxlen=1000),  # 创造力得分
+            "problem_solving_speed": deque(maxlen=1000),  # 问题解决速度
+            "knowledge_growth": deque(maxlen=1000)  # 知识增长
+        }
+        
         # Alert system
         self.alert_rules = self.config.get("alert_rules", {})
         self.active_alerts = {}
@@ -229,6 +239,7 @@ class SystemMonitor:
                 self._collect_model_metrics()
                 self._collect_collaboration_metrics()
                 self._update_data_streams()
+                self._collect_agi_metrics()  # 收集AGI指标
                 
                 # AGI enhancement processing
                 if self.anomaly_detection_enabled:
@@ -685,6 +696,105 @@ class SystemMonitor:
         except Exception as e:
             self.logger.error(f"Adaptive threshold adjustment error: {str(e)}")
     
+    def _collect_agi_metrics(self):
+        """Collect AGI-specific metrics (cognitive load, learning efficiency, etc.)"""
+        try:
+            timestamp = datetime.now()
+            
+            # 模拟AGI指标的计算（在实际系统中，这些指标应从其他AGI模块获取）
+            
+            # 1. 认知负载：基于CPU使用率和任务数量
+            cpu_usage = psutil.cpu_percent(interval=0.1)
+            active_tasks = len([t for t in self.task_metrics if t.get("status") == "active"])
+            cognitive_load = min(100.0, cpu_usage + active_tasks * 5.0)
+            
+            # 2. 学习效率：基于模型性能和历史学习记录
+            if len(self.learning_history) > 10:
+                recent_cpu = [m["cpu"] for m in list(self.learning_history)[-10:]]
+                avg_cpu = np.mean(recent_cpu)
+                # 学习效率与CPU使用率成反比（假设低CPU使用率表示高效学习）
+                learning_efficiency = max(0.0, 100.0 - avg_cpu * 0.8)
+            else:
+                learning_efficiency = 75.0  # 默认值
+            
+            # 3. 决策质量：基于任务成功率和错误率
+            if len(self.task_metrics) > 0:
+                completed_tasks = [t for t in self.task_metrics if t.get("status") == "completed"]
+                failed_tasks = [t for t in self.task_metrics if t.get("status") == "failed"]
+                if len(completed_tasks) + len(failed_tasks) > 0:
+                    success_rate = len(completed_tasks) / (len(completed_tasks) + len(failed_tasks)) * 100
+                    decision_quality = success_rate
+                else:
+                    decision_quality = 80.0  # 默认值
+            else:
+                decision_quality = 80.0
+            
+            # 4. 创造力得分：基于系统运行时间和任务多样性
+            system_uptime_minutes = (timestamp - self.learning_history[0]["timestamp"]).total_seconds() / 60 if self.learning_history else 1
+            task_diversity = len(set([t.get("type", "unknown") for t in self.task_metrics]))
+            creativity_score = min(100.0, 20.0 + min(system_uptime_minutes * 0.1, 40.0) + task_diversity * 5.0)
+            
+            # 5. 问题解决速度：基于最近任务的平均完成时间
+            if len(self.task_metrics) > 0:
+                recent_tasks = list(self.task_metrics)[-10:]
+                task_durations = []
+                for task in recent_tasks:
+                    if "start_time" in task and "end_time" in task:
+                        try:
+                            start = datetime.fromisoformat(task["start_time"])
+                            end = datetime.fromisoformat(task["end_time"])
+                            duration = (end - start).total_seconds()
+                            task_durations.append(duration)
+                        except:
+                            pass
+                if task_durations:
+                    avg_duration = np.mean(task_durations)
+                    # 问题解决速度与任务持续时间成反比（更快=更高分数）
+                    problem_solving_speed = min(100.0, max(0.0, 100.0 - avg_duration))
+                else:
+                    problem_solving_speed = 50.0
+            else:
+                problem_solving_speed = 50.0
+            
+            # 6. 知识增长：基于模型数量和协作次数
+            model_count = len(self.model_metrics)
+            collaboration_count = len(self.collaboration_metrics)
+            knowledge_growth = min(100.0, model_count * 10.0 + collaboration_count * 5.0)
+            
+            # 将AGI指标添加到对应的deque中
+            self.agi_metrics["cognitive_load"].append({
+                "timestamp": timestamp,
+                "value": cognitive_load
+            })
+            self.agi_metrics["learning_efficiency"].append({
+                "timestamp": timestamp,
+                "value": learning_efficiency
+            })
+            self.agi_metrics["decision_quality"].append({
+                "timestamp": timestamp,
+                "value": decision_quality
+            })
+            self.agi_metrics["creativity_score"].append({
+                "timestamp": timestamp,
+                "value": creativity_score
+            })
+            self.agi_metrics["problem_solving_speed"].append({
+                "timestamp": timestamp,
+                "value": problem_solving_speed
+            })
+            self.agi_metrics["knowledge_growth"].append({
+                "timestamp": timestamp,
+                "value": knowledge_growth
+            })
+            
+            # 记录AGI指标摘要
+            self.logger.debug(f"AGI Metrics: Cognitive Load={cognitive_load:.1f}, Learning Efficiency={learning_efficiency:.1f}, "
+                            f"Decision Quality={decision_quality:.1f}, Creativity={creativity_score:.1f}, "
+                            f"Problem Solving Speed={problem_solving_speed:.1f}, Knowledge Growth={knowledge_growth:.1f}")
+            
+        except Exception as e:
+            self.logger.error(f"AGI metrics collection error: {str(e)}")
+    
     # Public interface methods
     def add_task_metric(self, task_info: Dict[str, Any]):
         """Add task metrics"""
@@ -700,6 +810,15 @@ class SystemMonitor:
         """Get enhanced metrics"""
         base_metrics = self.collect_metrics()
         
+        # 获取最新的AGI指标值
+        agi_current_values = {}
+        for metric_name, metric_deque in self.agi_metrics.items():
+            if metric_deque:
+                latest_value = list(metric_deque)[-1]["value"]
+                agi_current_values[metric_name] = latest_value
+            else:
+                agi_current_values[metric_name] = 0.0
+        
         enhanced_metrics = {
             "base_metrics": base_metrics,
             "model_metrics": self.model_metrics,
@@ -712,6 +831,13 @@ class SystemMonitor:
                 "adaptive_thresholds": self.adaptive_thresholds,
                 "maintenance_warnings": self.maintenance_warnings,
                 "alert_history": list(self.alert_history)[-10:]
+            },
+            "agi_metrics": {
+                "current_values": agi_current_values,
+                "historical_trends": {
+                    metric_name: list(metric_deque)[-50:]  # 最近50个数据点
+                    for metric_name, metric_deque in self.agi_metrics.items()
+                }
             }
         }
         
@@ -892,6 +1018,7 @@ class SystemMonitor:
                 },
                 "performance": performance_stats,
                 "agi_enhancements": enhanced_metrics.get("agi_enhancements", {}),
+                "agi_metrics": enhanced_metrics.get("agi_metrics", {}),
                 "timestamp": datetime.now().isoformat(),
                 "status": "healthy"
             }

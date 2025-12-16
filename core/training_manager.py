@@ -202,9 +202,9 @@ class TrainingManager:
 
     def _process_realtime_training_data(self):
         """Process real-time training data"""
-        while True:
+        while self._realtime_processing_active:
             try:
-                data_item = self.realtime_data_queue.get()
+                data_item = self.realtime_data_queue.get(timeout=1)  # 添加超时以定期检查标志
                 if data_item is None:
                     continue
                     
@@ -217,9 +217,13 @@ class TrainingManager:
 
                 # Mark task as done
                 self.realtime_data_queue.task_done()
+            except queue.Empty:
+                # 超时，继续循环检查标志
+                continue
             except Exception as e:
                 error_handler.handle_error(e, "TrainingManager", "Failed to process real-time training data")
-                self.realtime_data_queue.task_done()
+                if not self.realtime_data_queue.empty():
+                    self.realtime_data_queue.task_done()
 
     def _initialize_knowledge_components_for_scratch_training(self, job_id):
         """Initialize knowledge components for scratch training without loading any pretrained knowledge
@@ -239,8 +243,8 @@ class TrainingManager:
             # Initialize knowledge model without loading pretrained knowledge
             self.knowledge_model.initialize(from_scratch=True)
             
-            # Create KnowledgeEnhancer instance
-            self.knowledge_enhancer = KnowledgeEnhancer()
+            # Create KnowledgeEnhancer instance with knowledge model
+            self.knowledge_enhancer = KnowledgeEnhancer(self.knowledge_model)
             
             # Initialize knowledge enhancer without loading pretrained knowledge
             self.knowledge_enhancer.initialize(from_scratch=True)
@@ -375,7 +379,8 @@ class TrainingManager:
             # Validate model types
             valid_models = ['manager', 'language', 'audio', 'vision_image', 'vision_video', 
                           'spatial', 'sensor', 'computer', 'motion', 
-                          'knowledge', 'programming']
+                          'knowledge', 'programming', 'emotion', 'social', 'creative', 
+                          'planning', 'reasoning', 'decision', 'memory', 'meta_cognition']
             for model_id in model_ids:
                 if model_id not in valid_models:
                     raise ValueError(f"Invalid model type: {model_id}")

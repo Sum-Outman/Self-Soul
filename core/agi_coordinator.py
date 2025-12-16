@@ -249,31 +249,53 @@ class AGICoordinator:
             if not models_status:
                 return 0.1
             
-            # 基础能力分数（基于模型覆盖率和性能）
-            base_score = self.system_state['agi_level']  # 初始值
+            # 模型覆盖率（基于已加载和活跃的模型数量）
+            active_models = len([m for m in models_status if m.get('status') == 'active'])
+            total_models = len(self.model_registry.models) if hasattr(self.model_registry, 'models') else 19
+            model_coverage = min(active_models / max(total_models, 1), 1.0)
             
-            # 性能加权因子
-            performance_factor = performance_metrics['success_rate'] * 0.4 + \
-                                (1 - performance_metrics['error_rate']) * 0.3 + \
-                                (1 / (1 + performance_metrics['avg_processing_time'])) * 0.3
+            # 基础能力分数（基于模型覆盖率）
+            base_score = model_coverage * 0.5  # 模型覆盖率占基础分数的50%
+            
+            # 性能加权因子（成功率和错误率）
+            success_weight = 0.5
+            error_weight = 0.3
+            speed_weight = 0.2
+            
+            # 处理时间的归一化（假设合理的处理时间范围是0.1-10秒）
+            normalized_processing_time = min(max(performance_metrics['avg_processing_time'], 0.1), 10.0)
+            speed_score = 1.0 - ((normalized_processing_time - 0.1) / 9.9)  # 0.1秒对应1.0，10秒对应0.0
+            
+            performance_factor = performance_metrics['success_rate'] * success_weight + \
+                                (1 - performance_metrics['error_rate']) * error_weight + \
+                                speed_score * speed_weight
             
             # 学习进度因子
-            learning_factor = self.system_state['learning_progress'] * 0.2
+            learning_progress = self.self_learning.get_learning_progress()
+            learning_factor = learning_progress * 0.2
             
             # 元认知信心因子
-            meta_cognition_factor = self.meta_cognition['confidence_level'] * 0.1
+            meta_cognition_factor = self.meta_cognition.get('confidence_level', 0.5) * 0.15
             
-            # 综合计算新AGI水平
-            new_agi_level = base_score * 0.6 + performance_factor * 0.2 + learning_factor * 0.1 + meta_cognition_factor * 0.1
+            # 知识覆盖率因子
+            knowledge_coverage = self._calculate_knowledge_coverage()
+            knowledge_factor = knowledge_coverage * 0.15
+            
+            # 综合计算新AGI水平（重新分配权重）
+            new_agi_level = base_score + performance_factor * 0.3 + learning_factor * 0.2 + meta_cognition_factor * 0.15 + knowledge_factor * 0.15
             
             # 平滑过渡，避免剧烈变化
-            smoothed_agi_level = 0.8 * self.system_state['agi_level'] + 0.2 * new_agi_level
+            if 'agi_level' in self.system_state and self.system_state['agi_level'] > 0.1:
+                smoothed_agi_level = 0.7 * self.system_state['agi_level'] + 0.3 * new_agi_level
+            else:
+                smoothed_agi_level = new_agi_level  # 初始状态直接使用新值
             
+            # 限制范围并返回
             return min(max(smoothed_agi_level, 0.1), 1.0)
             
         except Exception as e:
             error_handler.handle_error(e, "AGICoordinator", "计算当前AGI水平失败")
-            return self.system_state['agi_level']  # 保持原值
+            return self.system_state.get('agi_level', 0.1)  # 返回默认值或当前值
     
     def _calculate_autonomy_level(self, performance_metrics):
         """计算自主性水平"""

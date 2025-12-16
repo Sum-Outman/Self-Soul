@@ -86,6 +86,11 @@ class AutonomousLearningManager:
         self.learning_logs = []
         self.max_logs = 50
         
+        # 优先级队列用于存储需要处理的改进建议
+        self.priority_queue = []
+        # 已实施的建议记录
+        self.implemented_suggestions = []
+        
         # 初始化模型引用
         self._initialize_model_references()
         # 设置学习基础设施
@@ -648,6 +653,185 @@ class AutonomousLearningManager:
         # Clear improvement suggestions for next round
         self.improvement_suggestions = []
         
+    def evaluate_suggestion_impact(self, suggestion):
+        """评估建议的影响程度
+        Evaluate the impact of a suggestion
+        
+        Args:
+            suggestion: 改进建议字典，包含type, target, content等字段
+            suggestion: Improvement suggestion dictionary with type, target, content fields
+            
+        Returns:
+            float: 影响评分（0-1之间）
+            float: Impact score (between 0-1)
+        """
+        try:
+            impact = 0.0
+            
+            # 1. 根据建议类型评估影响
+            suggestion_type = suggestion.get('type', 'general')
+            type_weights = {
+                'core': 0.8,
+                'model': 0.7,
+                'optimization': 0.6,
+                'knowledge': 0.5,
+                'interface': 0.4,
+                'general': 0.3
+            }
+            impact += type_weights.get(suggestion_type, 0.3) * 0.4
+            
+            # 2. 根据目标范围评估影响
+            target = suggestion.get('target', 'system')
+            if target == 'system':
+                impact += 0.3  # 系统级影响
+            elif target in self.model_references:
+                impact += 0.2  # 模型级影响
+            else:
+                impact += 0.1  # 组件级影响
+            
+            # 3. 根据预期收益评估影响
+            expected_benefit = suggestion.get('expected_benefit', 0.5)
+            impact += expected_benefit * 0.2
+            
+            # 4. 根据实施难度反向评估影响（难度低，影响相对更大）
+            implementation_difficulty = suggestion.get('implementation_difficulty', 0.5)
+            impact += (1 - implementation_difficulty) * 0.1
+            
+            # 确保影响分数在0-1范围内
+            return min(max(impact, 0), 1)
+        except Exception as e:
+            error_handler.log_error(f"评估建议影响时出错: {str(e)}", "AutonomousLearningManager")
+            return 0.5  # 默认中间值
+    
+    def process_improvement(self, suggestion):
+        """处理改进建议，包括影响评估、优先级排序和调度
+        Process improvement suggestion, including impact evaluation, priority ranking and scheduling
+        
+        Args:
+            suggestion: 改进建议
+            suggestion: Improvement suggestion
+        """
+        try:
+            # 评估建议影响
+            impact = self.evaluate_suggestion_impact(suggestion)
+            suggestion['impact_score'] = impact
+            
+            # 添加时间戳
+            suggestion['timestamp'] = datetime.now()
+            
+            # 如果是高影响建议（>0.6），加入优先级队列
+            if impact > 0.6:
+                self.priority_queue.append(suggestion)
+                # 按影响分数排序优先级队列
+                self.priority_queue.sort(key=lambda x: x['impact_score'], reverse=True)
+                self._add_learning_log(f"高影响建议已加入优先级队列: {suggestion.get('content', '未命名建议')} (影响分数: {impact:.2f})")
+                
+                # 立即调度实施
+                self.schedule_implementation(suggestion)
+            else:
+                # 低影响建议加入普通改进列表
+                self.improvement_suggestions.append(suggestion)
+                self._add_learning_log(f"普通影响建议已记录: {suggestion.get('content', '未命名建议')} (影响分数: {impact:.2f})")
+        except Exception as e:
+            error_handler.handle_error(e, "AutonomousLearningManager", "处理改进建议时出错")
+    
+    def schedule_implementation(self, suggestion):
+        """调度建议的实施
+        Schedule the implementation of a suggestion
+        
+        Args:
+            suggestion: 改进建议
+            suggestion: Improvement suggestion
+        """
+        try:
+            self._add_learning_log(f"开始实施建议: {suggestion.get('content', '未命名建议')}")
+            
+            # 获取建议目标
+            target = suggestion.get('target', 'system')
+            suggestion_type = suggestion.get('type', 'general')
+            content = suggestion.get('content', '')
+            
+            # 根据建议类型和目标执行不同的实施策略
+            if target == 'system':
+                # 系统级建议处理
+                self._implement_system_suggestion(suggestion)
+            elif target in self.model_references:
+                # 模型级建议处理
+                self._implement_model_suggestion(target, suggestion)
+            else:
+                # 通用建议处理
+                self._implement_general_suggestion(suggestion)
+            
+            # 记录已实施的建议
+            suggestion['implemented'] = True
+            suggestion['implementation_time'] = datetime.now()
+            self.implemented_suggestions.append(suggestion)
+            
+            # 如果建议在优先级队列中，移除它
+            if suggestion in self.priority_queue:
+                self.priority_queue.remove(suggestion)
+            
+            self._add_learning_log(f"建议实施完成: {suggestion.get('content', '未命名建议')}")
+        except Exception as e:
+            error_handler.handle_error(e, "AutonomousLearningManager", "调度实施建议时出错")
+    
+    def _implement_system_suggestion(self, suggestion):
+        """实施系统级建议
+        Implement system-level suggestion
+        
+        Args:
+            suggestion: 系统级建议
+        """
+        try:
+            content = suggestion.get('content', '')
+            if 'training_interval' in content or '优化间隔' in content:
+                # 调整训练间隔
+                if hasattr(self.config, 'training_interval'):
+                    self.config.training_interval = suggestion.get('parameters', {}).get('training_interval', 3600)
+            elif 'learning_interval' in content or '学习间隔' in content:
+                # 调整学习间隔
+                if hasattr(self.config, 'learning_interval'):
+                    self.config.learning_interval = suggestion.get('parameters', {}).get('learning_interval', 300)
+            # 其他系统级建议处理逻辑...
+        except Exception as e:
+            error_handler.log_error(f"实施系统级建议时出错: {str(e)}", "AutonomousLearningManager")
+    
+    def _implement_model_suggestion(self, model_id, suggestion):
+        """实施模型级建议
+        Implement model-level suggestion
+        
+        Args:
+            model_id: 模型ID
+            suggestion: 模型级建议
+        """
+        try:
+            model = self.model_references.get(model_id)
+            if not model:
+                error_handler.log_warning(f"无法找到模型: {model_id}", "AutonomousLearningManager")
+                return
+            
+            # 调用模型的improve方法
+            if hasattr(model, 'improve'):
+                model.improve(suggestion.get('content', ''), self.knowledge_model)
+            else:
+                error_handler.log_warning(f"模型 {model_id} 没有improve方法", "AutonomousLearningManager")
+        except Exception as e:
+            error_handler.log_error(f"实施模型级建议时出错: {str(e)}", "AutonomousLearningManager")
+    
+    def _implement_general_suggestion(self, suggestion):
+        """实施通用建议
+        Implement general suggestion
+        
+        Args:
+            suggestion: 通用建议
+        """
+        try:
+            content = suggestion.get('content', '')
+            error_handler.log_info(f"实施通用建议: {content}", "AutonomousLearningManager")
+            # 通用建议处理逻辑...
+        except Exception as e:
+            error_handler.log_error(f"实施通用建议时出错: {str(e)}", "AutonomousLearningManager")
+    
     def suggest_improvement(self, suggestion):
         """添加改进建议
         Add improvement suggestion
@@ -656,8 +840,8 @@ class AutonomousLearningManager:
             suggestion: 改进建议
             suggestion: Improvement suggestion
         """
-        self.improvement_suggestions.append(suggestion)
-        error_handler.log_info(f"添加改进建议: {suggestion}", "AutonomousLearningManager")
+        # 直接调用process_improvement处理建议
+        self.process_improvement(suggestion)
         
     def get_performance_metrics(self):
         """获取性能指标

@@ -1053,6 +1053,13 @@ export default {
           models.value = apiModels
           console.log('Loaded models from API count:', models.value.length)
           notify.success('Models loaded successfully from API')
+          
+          // Initialize trainingStatus for all API models
+          models.value.forEach(model => {
+            if (!model.trainingStatus) {
+              model.trainingStatus = { isTraining: false, progress: 0, status: 'idle' }
+            }
+          })
         } else {
           // Fallback to default models if API returns empty
           console.log('API returned empty models list, using default models')
@@ -1369,7 +1376,8 @@ export default {
             cpuUsage: 5,
             responseTime: 15
           },
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Language Model
         {
@@ -1388,7 +1396,8 @@ export default {
             cpuUsage: 12,
             responseTime: 80
           },
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Knowledge Model
         {
@@ -1407,7 +1416,8 @@ export default {
             cpuUsage: 8,
             responseTime: 30
           },
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Vision Model
         {
@@ -1421,7 +1431,8 @@ export default {
           port: 8004,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Audio Model
         {
@@ -1435,7 +1446,8 @@ export default {
           port: 8005,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Autonomous Model
         {
@@ -1449,7 +1461,8 @@ export default {
           port: 8006,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Programming Model
         {
@@ -1463,7 +1476,8 @@ export default {
           port: 8007,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Planning Model
         {
@@ -1477,7 +1491,8 @@ export default {
           port: 8008,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Emotion Model
         {
@@ -1491,7 +1506,8 @@ export default {
           port: 8009,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Spatial Model
         {
@@ -1505,7 +1521,8 @@ export default {
           port: 8010,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Computer Vision Model
         {
@@ -1519,7 +1536,8 @@ export default {
           port: 8011,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Sensor Model
         {
@@ -1533,7 +1551,8 @@ export default {
           port: 8012,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Motion Model
         {
@@ -1547,7 +1566,8 @@ export default {
           port: 8013,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Prediction Model
         {
@@ -1561,7 +1581,8 @@ export default {
           port: 8014,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Advanced Reasoning Model
         {
@@ -1575,7 +1596,8 @@ export default {
           port: 8015,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Data Fusion Model
         {
@@ -1589,7 +1611,8 @@ export default {
           port: 8016,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Creative Problem Solving Model
         {
@@ -1603,7 +1626,8 @@ export default {
           port: 8017,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Meta Cognition Model
         {
@@ -1617,7 +1641,8 @@ export default {
           port: 8018,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // Value Alignment Model
         {
@@ -1631,7 +1656,8 @@ export default {
           port: 8019,
           lastUpdated: new Date().toISOString(),
           version: '1.0.0',
-          source: 'local'
+          source: 'local',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         // External API Model
         {
@@ -1649,7 +1675,8 @@ export default {
           sourceProvider: 'openai',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         {
           id: 'anthropic',
@@ -1666,7 +1693,8 @@ export default {
           sourceProvider: 'anthropic',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         {
           id: 'google',
@@ -1683,7 +1711,8 @@ export default {
           sourceProvider: 'google',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         {
           id: 'huggingface',
@@ -1700,7 +1729,8 @@ export default {
           sourceProvider: 'huggingface',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         {
           id: 'mistral',
@@ -1717,7 +1747,8 @@ export default {
           sourceProvider: 'mistral',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         },
         {
           id: 'custom',
@@ -1734,7 +1765,8 @@ export default {
           sourceProvider: 'custom',
           rateLimit: 1000,
           lastUpdated: new Date().toISOString(),
-          version: '1.0.0'
+          version: '1.0.0',
+          trainingStatus: { isTraining: false, progress: 0, status: 'idle' }
         }
       ]
       

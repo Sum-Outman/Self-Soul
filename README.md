@@ -55,34 +55,49 @@ Self Soul /
 └── README.md                 # Project documentation
 ```
 
-## Core Models
+## From-Scratch Training Architecture
 
-Self Soul includes 19 specialized AI models working together to provide comprehensive intelligence capabilities:
+**Self Soul implements a complete from-scratch training architecture for all 19 models, without relying on any pre-trained models.** This ensures full control over model development, ethical alignment, and AGI compliance.
 
-### Foundational Models
+### Core Training Principles
+- **No Pre-trained Models**: All neural networks are built from scratch using PyTorch
+- **Custom Architectures**: Each model type has specialized neural network designs
+- **AGI-Compliant Design**: Models follow AGI principles for unified cognitive architecture
+- **Autonomous Improvement**: Built-in self-learning and meta-cognition capabilities
 
-- **Manager Model**: Orchestrates other models and manages system resources
-- **Language Model**: Processes natural language and generates human-like responses
-- **Knowledge Model**: Organizes and retrieves structured and unstructured knowledge
-- **Vision Model**: Analyzes images and video content
-- **Audio Model**: Processes and understands sound and speech
-- **Autonomous Model**: Manages self-directed learning and adaptation
+### Model Architecture Overview
 
-### Advanced Models
+#### Foundational Models (From-Scratch Implementation)
 
-- **Programming Model**: Generates and optimizes code
-- **Planning Model**: Creates and executes complex plans
-- **Emotion Model**: Recognizes and responds to emotional cues
-- **Spatial Model**: Processes spatial relationships and navigation
-- **Computer Vision Model**: Advanced visual understanding
-- **Sensor Model**: Processes data from various sensors
-- **Motion Model**: Analyzes and predicts movement patterns
-- **Prediction Model**: Makes data-driven forecasts and predictions
-- **Advanced Reasoning Model**: Performs complex logical reasoning and problem-solving tasks
-- **Data Fusion Model**: Integrates information from multiple sources for comprehensive understanding
-- **Creative Problem Solving Model**: Develops innovative solutions to complex challenges
-- **Meta Cognition Model**: Monitors and optimizes the system's own cognitive processes
-- **Value Alignment Model**: Ensures system behaviors align with defined ethical guidelines and values
+- **Manager Model (Port 8001)**: CoordinationNeuralNetwork, TaskAllocationNetwork - Manages system resources and orchestrates other models
+- **Language Model (Port 8002)**: LanguageNeuralNetwork, FromScratchLanguageTrainer - Custom NLP architecture with transformer-based text processing
+- **Knowledge Model (Port 8003)**: AGI-enhanced neural components for structured and unstructured knowledge organization
+- **Vision Model (Port 8004)**: SimpleVisionCNN, VisionDataset - Custom CNN architecture for image and video analysis
+- **Audio Model (Port 8005)**: AGI-enhanced audio processing neural networks for sound and speech understanding
+- **Autonomous Model (Port 8006)**: AdvancedDecisionNetwork, ExperienceReplayBuffer - Self-directed learning and adaptation
+
+#### Advanced Models (Complete From-Scratch Training)
+
+- **Programming Model (Port 8007)**: ProgrammingNeuralNetwork, ProgrammingDataset - Code generation and optimization
+- **Planning Model (Port 8008)**: PlanningStrategyNetwork, StepPredictionNetwork - Complex planning and execution
+- **Emotion Model (Port 8009)**: EmotionRecognitionNetwork, FromScratchEmotionTrainer - Emotional intelligence
+- **Spatial Model (Port 8010)**: SpatialNeuralNetwork, SpatialDataset - Spatial reasoning and navigation
+- **Computer Vision Model (Port 8011)**: CommandPredictionNetwork, SystemOptimizationNetwork - Advanced visual understanding
+- **Sensor Model (Port 8012)**: SensorNeuralNetwork, SensorDataset - Multi-sensor data processing
+- **Motion Model (Port 8013)**: TrajectoryPlanningNetwork, MotionControlNetwork, FeedbackLearningNetwork - Movement analysis and prediction
+- **Prediction Model (Port 8014)**: PredictionNeuralNetwork (LSTM+Attention), PredictionDataset - Data-driven forecasting
+- **Advanced Reasoning Model (Port 8015)**: OptimizationPolicyNetwork, ParameterOptimizationNetwork, ResourceAllocationNetwork - Complex logical reasoning
+- **Data Fusion Model (Port 8016)**: CollaborationNeuralNetwork, StrategyOptimizationNetwork, PerformancePredictionNetwork - Multi-source information integration
+- **Creative Problem Solving Model (Port 8017)**: NeuralGenerators, CombinatorialInnovation, AnalogyReasoning - Innovative solution development
+- **Meta Cognition Model (Port 8018)**: ExperienceBasedLearner, ValueLearningSystem, GoalGenerationSystem - Self-monitoring and optimization
+- **Value Alignment Model (Port 8019)**: Custom Tokenizer, SimpleTextEncoder, ValueSystem - Ethical alignment and safety
+
+### Training System Features
+
+- **Unified Training Interface**: All models implement `enable_training()`, `disable_training()`, `train_step()`
+- **Model Persistence**: Standardized `save_model()`, `load_model()` methods
+- **Distributed Training**: Each model runs on dedicated port (8001-8019) for parallel processing
+- **Training Management**: Centralized `FromScratchTrainingManager` coordinates all training activities
 
 ## Installation Guide
 
@@ -159,16 +174,11 @@ Self Soul includes 19 specialized AI models working together to provide comprehe
 5. **Settings**: Configure system preferences and language settings
 6. **Help Center**: Access documentation and usage guides
 
-### Multi-language Support
+### language Support
 
-Self Soul supports 5 languages out of the box:
 - English
-- Chinese (Simplified)
-- German
-- Japanese
-- Russian
 
-You can switch languages from the settings page or using the language switcher in the header.
+
 
 ## Port Configuration
 

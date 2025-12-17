@@ -148,12 +148,20 @@ export function getModelDisplayName(id) {
     'C': 'Audio Model',
     'D': 'Image Vision Model',
     'E': 'Video Vision Model',
-    'F': 'Spatial Perception Model',
+    'F': 'Spatial Positioning Model',
     'G': 'Sensor Perception Model',
     'H': 'Computer Control Model',
-    'I': 'Motion and Actuator Model',
+    'I': 'Motion Control Model',
     'J': 'Knowledge Expert Model',
-    'K': 'Programming Model'
+    'K': 'Programming Model',
+    'L': 'Planning Model',
+    'M': 'Autonomous Model',
+    'N': 'Emotion Model',
+    'O': 'Spatial Model',
+    'P': 'Computer Vision Model',
+    'Q': 'Sensor Model',
+    'R': 'Motion Model',
+    'S': 'Prediction Model'
   };
   return displayNames[letterId] || letterId;
 }
@@ -176,7 +184,15 @@ export function getModelDescription(id) {
     'H': 'Computer control and interface model',
     'I': 'Motion control and actuator management model',
     'J': 'Knowledge base and expert system model',
-    'K': 'Programming and code generation model'
+    'K': 'Programming and code generation model',
+    'L': 'Planning and decision-making model for task execution',
+    'M': 'Autonomous operation and self-governance model',
+    'N': 'Emotion recognition and response model',
+    'O': 'Advanced spatial mapping and navigation model',
+    'P': 'Computer vision and object recognition model',
+    'Q': 'Sensor data fusion and analysis model',
+    'R': 'Motion planning and execution model',
+    'S': 'Predictive analysis and forecasting model'
   };
   return descriptions[letterId] || 'Unknown model';
 }

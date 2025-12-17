@@ -955,7 +955,8 @@ class AdvancedReasoningEngine:
     def __init__(self):
         self.inference_rules = self._load_inference_rules()
         self.problem_solving_strategies = self._load_problem_solving_strategies()
-        self.knowledge_integration = KnowledgeIntegrationModule()
+        # 延迟加载KnowledgeIntegrationModule以避免循环导入
+        self.knowledge_integration = None
         
     def _load_inference_rules(self):
         """Load inference rules"""
@@ -1081,18 +1082,415 @@ class AdvancedReasoningEngine:
     
     def _abductive_reasoning(self, evidence):
         """Abductive reasoning"""
-        possible_explanations = [
-            "This might be because an event occurred",
-            "This might be caused by some reason",
-            "This might be the result of a natural phenomenon"
-        ]
+        # Implement abductive reasoning
+        if not evidence:
+            return {"type": "abductive", "explanation": "No evidence provided", "confidence": 0.0}
         
+        # Simple abductive reasoning based on patterns
+        explanations = []
+        for fact in evidence:
+            # Chinese pattern recognition
+            if "湿" in fact and "下雨" not in fact:
+                explanations.append(("可能下雨了", 0.8))
+            elif "冷" in fact:
+                explanations.append(("天气可能变冷了", 0.7))
+            # English pattern recognition
+            elif "wet" in fact.lower() and "rain" not in fact.lower():
+                explanations.append(("It might have rained", 0.8))
+            elif "cold" in fact.lower():
+                explanations.append(("The weather might be cold", 0.7))
+        
+        if not explanations:
+            return {"type": "abductive", "explanation": "No plausible explanation found", "confidence": 0.2}
+        
+        # Select the most plausible explanation
+        best_explanation, confidence = max(explanations, key=lambda x: x[1])
         return {
             "type": "abductive",
-            "explanations": possible_explanations,
-            "best_explanation": possible_explanations[0],
-            "confidence": 0.7
+            "explanation": best_explanation,
+            "confidence": confidence,
+            "evidence": evidence
         }
+    
+    def _analogical_reasoning(self, source_domain, target_domain, mappings):
+        """Analogical reasoning"""
+        if not mappings:
+            return {"type": "analogical", "conclusion": "No mappings provided", "confidence": 0.0}
+        
+        # Simple analogical reasoning
+        conclusions = []
+        for source, target in mappings.items():
+            # Chinese analogy pattern
+            if "是" in source and "是" in target:
+                source_property = source.split("是")[1].strip()
+                target_conclusion = f"{target.split('是')[0].strip()}是{source_property}"
+                conclusions.append((target_conclusion, 0.7))
+            # English analogy pattern
+            elif "is" in source.lower() and "is" in target.lower():
+                source_property = source.lower().split("is")[1].strip()
+                target_conclusion = f"{target.split(' ')[0]} is {source_property}"
+                conclusions.append((target_conclusion, 0.7))
+        
+        if not conclusions:
+            return {"type": "analogical", "conclusion": "No analogical conclusion found", "confidence": 0.3}
+        
+        # Select the strongest conclusion
+        best_conclusion, confidence = max(conclusions, key=lambda x: x[1])
+        return {
+            "type": "analogical",
+            "conclusion": best_conclusion,
+            "confidence": confidence,
+            "source_domain": source_domain,
+            "target_domain": target_domain,
+            "mappings": mappings
+        }
+    
+    def _general_reasoning(self, premises):
+        """General reasoning fallback"""
+        if not premises:
+            return {"type": "general", "conclusion": "No premises provided", "confidence": 0.0}
+        
+        # Simple reasoning based on premise count
+        return {
+            "type": "general",
+            "conclusion": f"Based on {len(premises)} premises",
+            "confidence": min(0.7, len(premises) * 0.1)
+        }
+
+class UnifiedCognitiveArchitecture:
+    """Unified Cognitive Architecture - 整合工作记忆系统与现有组件"""
+    
+    def __init__(self):
+        """初始化统一认知架构"""
+        # 导入必要的组件
+        try:
+            from core.working_memory import WorkingMemory
+            from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
+        except ImportError as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Failed to import required modules")
+            raise
+        
+        # 初始化核心组件
+        self.embedding_space = NeuralEmbeddingSpace()
+        self.symbolic_mapper = SymbolicMapper()
+        self.cross_modal_reasoner = CrossModalReasoner()
+        self.reasoning_engine = AdvancedReasoningEngine()
+        self.working_memory = WorkingMemory()
+        self.knowledge_integrator = AGIKnowledgeIntegrator()
+        
+        # 配置参数
+        self.memory_decay_interval = 3600  # 记忆衰减间隔（秒）
+        self.last_decay_time = time.time()
+        
+        # 统计信息
+        self.stats = {
+            'processed_inputs': 0,
+            'memory_integrations': 0,
+            'reasoning_operations': 0,
+            'knowledge_queries': 0
+        }
+        
+        logging.info("统一认知架构初始化完成")
+    
+    def process_multimodal_input(self, input_data, data_type, confidence=0.0, metadata=None, source="user"):
+        """处理多模态输入数据"""
+        try:
+            self.stats['processed_inputs'] += 1
+            
+            # 1. 编码输入数据
+            encoded_data = self.embedding_space.encode(input_data, data_type)
+            
+            # 2. 映射到符号概念
+            symbolic_concepts = self.symbolic_mapper.map_to_symbols(encoded_data)
+            
+            # 3. 添加到工作记忆
+            memory_id = self.working_memory.add_memory(
+                content=input_data,
+                modality=data_type,
+                embedding=encoded_data,
+                confidence=confidence,
+                metadata=metadata,
+                source=source
+            )
+            
+            # 4. 更新符号映射器的概念空间
+            for concept, _ in symbolic_concepts:
+                if concept not in self.symbolic_mapper.concept_space:
+                    self.symbolic_mapper.add_concept(concept)
+            
+            # 5. 整合到知识管理系统
+            self._integrate_to_knowledge_system(input_data, data_type, encoded_data, symbolic_concepts, metadata)
+            
+            # 6. 执行记忆衰减检查
+            self._check_memory_decay()
+            
+            return {
+                "status": "success",
+                "memory_id": memory_id,
+                "symbolic_concepts": symbolic_concepts,
+                "processing_time": time.time()
+            }
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Multimodal input processing failed")
+            return {"status": "error", "message": str(e)}
+    
+    def perform_cognitive_reasoning(self, query, data_type="text", reasoning_type="deductive", context=None):
+        """执行认知推理"""
+        try:
+            self.stats['reasoning_operations'] += 1
+            
+            # 1. 从工作记忆中检索相关信息
+            memory_results = self.working_memory.retrieve_memory(query, data_type, limit=3)
+            
+            # 2. 从知识管理系统中检索相关知识
+            knowledge_results = self.knowledge_integrator.semantic_query(query, max_results=3)
+            self.stats['knowledge_queries'] += 1
+            
+            # 3. 整合检索结果
+            integrated_context = self._integrate_context(memory_results, knowledge_results, context)
+            
+            # 4. 根据推理类型执行推理
+            if reasoning_type == "deductive":
+                result = self.reasoning_engine.perform_reasoning(integrated_context, "deductive")
+            elif reasoning_type == "inductive":
+                result = self.reasoning_engine.perform_reasoning(integrated_context, "inductive")
+            elif reasoning_type == "abductive":
+                result = self.reasoning_engine.perform_reasoning(integrated_context, "abductive")
+            elif reasoning_type == "analogical":
+                # 类比推理需要额外的映射信息
+                if context and "source_domain" in context and "target_domain" in context and "mappings" in context:
+                    result = self.reasoning_engine._analogical_reasoning(
+                        context["source_domain"],
+                        context["target_domain"],
+                        context["mappings"]
+                    )
+                else:
+                    result = {"type": "error", "message": "Analogical reasoning requires source_domain, target_domain, and mappings in context"}
+            else:
+                result = self.reasoning_engine.perform_reasoning(integrated_context, "general")
+            
+            return {
+                "status": "success",
+                "reasoning_type": reasoning_type,
+                "result": result,
+                "context": integrated_context,
+                "memory_results": [mr.content for mr in memory_results],
+                "knowledge_results": knowledge_results
+            }
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Cognitive reasoning failed")
+            return {"status": "error", "message": str(e)}
+    
+    def manage_working_memory(self, operation, **kwargs):
+        """管理工作记忆"""
+        try:
+            if operation == "retrieve":
+                return {"status": "success", "results": self.working_memory.retrieve_memory(**kwargs)}
+            elif operation == "add":
+                memory_id = self.working_memory.add_memory(**kwargs)
+                return {"status": "success", "memory_id": memory_id}
+            elif operation == "clear":
+                self.working_memory.clear_memory()
+                return {"status": "success", "message": "Working memory cleared"}
+            elif operation == "stats":
+                return {"status": "success", "stats": self.working_memory.get_memory_stats()}
+            elif operation == "decay":
+                self.working_memory.decay_memories()
+                return {"status": "success", "message": "Memory decay performed"}
+            else:
+                return {"status": "error", "message": f"Unknown operation: {operation}"}
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", f"Working memory management failed: {operation}")
+            return {"status": "error", "message": str(e)}
+    
+    def query_knowledge_base(self, query, max_results=5, similarity_threshold=0.7, domain_weights=None):
+        """查询知识库"""
+        try:
+            self.stats['knowledge_queries'] += 1
+            results = self.knowledge_integrator.semantic_query(query, max_results, similarity_threshold, domain_weights)
+            return {"status": "success", "results": results}
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Knowledge base query failed")
+            return {"status": "error", "message": str(e)}
+    
+    def _integrate_to_knowledge_system(self, input_data, data_type, encoded_data, symbolic_concepts, metadata=None):
+        """将输入数据整合到知识管理系统"""
+        try:
+            self.stats['memory_integrations'] += 1
+            
+            # 对于文本数据，尝试解析为知识关系
+            if data_type == "text" and isinstance(input_data, str):
+                # 简单的关系提取
+                if "是" in input_data or "are" in input_data.lower() or "is" in input_data.lower():
+                    # 尝试解析为实体-关系-实体三元组
+                    self._parse_and_add_relation(input_data, symbolic_concepts, metadata)
+            
+            # 将符号概念添加到知识系统
+            for concept, _ in symbolic_concepts:
+                self.knowledge_integrator.add_entity(concept, metadata={"modality": data_type})
+            
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Knowledge system integration failed")
+    
+    def _parse_and_add_relation(self, text, symbolic_concepts, metadata=None):
+        """解析文本并添加知识关系"""
+        try:
+            # 简单的关系提取逻辑
+            if "是" in text:
+                parts = text.split("是")
+                if len(parts) == 2:
+                    subject = parts[0].strip()
+                    object_ = parts[1].strip()
+                    self.knowledge_integrator.add_relation(subject, "is", object_, confidence=0.8, metadata=metadata)
+            elif "are" in text.lower():
+                lower_text = text.lower()
+                subject_start = lower_text.find("all") + 3 if "all" in lower_text else 0
+                subject_end = lower_text.find("are")
+                subject = text[subject_start:subject_end].strip()
+                object_ = text[subject_end + 3:].strip()
+                self.knowledge_integrator.add_relation(subject, "is", object_, confidence=0.8, metadata=metadata)
+            elif "is" in text.lower():
+                lower_text = text.lower()
+                subject_end = lower_text.find("is")
+                subject = text[:subject_end].strip()
+                object_ = text[subject_end + 2:].strip()
+                self.knowledge_integrator.add_relation(subject, "is", object_, confidence=0.8, metadata=metadata)
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Relation parsing failed")
+    
+    def _integrate_context(self, memory_results, knowledge_results, external_context=None):
+        """整合上下文信息"""
+        integrated_context = []
+        
+        # 添加记忆结果
+        for memory_item in memory_results:
+            if isinstance(memory_item, dict):
+                integrated_context.append(memory_item.get("content", ""))
+            else:
+                integrated_context.append(memory_item.content)
+        
+        # 添加知识结果
+        for knowledge_item in knowledge_results:
+            if isinstance(knowledge_item, dict):
+                # 从知识整合器的结果格式中提取信息
+                subject = knowledge_item.get("subject", "")
+                relation = knowledge_item.get("relation", "")
+                object_ = knowledge_item.get("object", "")
+                if subject and relation and object_:
+                    integrated_context.append(f"{subject} {relation} {object_}")
+            else:
+                integrated_context.append(str(knowledge_item))
+        
+        # 添加外部上下文
+        if external_context:
+            if isinstance(external_context, list):
+                integrated_context.extend(external_context)
+            else:
+                integrated_context.append(str(external_context))
+        
+        return integrated_context
+    
+    def _check_memory_decay(self):
+        """检查并执行记忆衰减"""
+        current_time = time.time()
+        if current_time - self.last_decay_time > self.memory_decay_interval:
+            self.working_memory.decay_memories()
+            self.last_decay_time = current_time
+            logging.debug("执行记忆衰减")
+    
+    def get_system_stats(self):
+        """获取系统统计信息"""
+        memory_stats = self.working_memory.get_memory_stats()
+        knowledge_stats = {
+            'total_entities': len(self.knowledge_integrator.entities),
+            'total_relations': len(self.knowledge_integrator.relations)
+        }
+        concept_stats = self.symbolic_mapper.get_concept_statistics()
+        
+        return {
+            'cognitive_architecture': self.stats,
+            'working_memory': memory_stats,
+            'knowledge_base': knowledge_stats,
+            'concept_space': concept_stats,
+            'timestamp': time.time()
+        }
+    
+    def reset_system(self):
+        """重置整个认知系统"""
+        try:
+            # 重置工作记忆
+            self.working_memory.clear_memory()
+            
+            # 重置统计信息
+            self.stats = {
+                'processed_inputs': 0,
+                'memory_integrations': 0,
+                'reasoning_operations': 0,
+                'knowledge_queries': 0
+            }
+            
+            # 重置时间戳
+            self.last_decay_time = time.time()
+            
+            logging.info("统一认知系统已重置")
+            return {"status": "success", "message": "System reset completed"}
+        except Exception as e:
+            error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "System reset failed")
+            return {"status": "error", "message": str(e)}
+
+# 添加测试代码
+if __name__ == "__main__":
+    print("测试统一认知架构...")
+    
+    # 初始化统一认知架构
+    try:
+        uca = UnifiedCognitiveArchitecture()
+        
+        # 测试多模态输入处理
+        print("\n1. 处理文本输入：'水是生命之源'")
+        result = uca.process_multimodal_input(
+            input_data="水是生命之源",
+            data_type="text",
+            confidence=0.9,
+            metadata={"domain": "science"},
+            source="user"
+        )
+        print(f"处理结果: {result['status']}, 记忆ID: {result['memory_id']}")
+        print(f"符号概念: {result['symbolic_concepts']}")
+        
+        # 测试推理功能
+        print("\n2. 执行演绎推理：'水是生命之源' -> '人类需要水'")
+        reasoning_result = uca.perform_cognitive_reasoning(
+            query="人类需要什么来生存？",
+            data_type="text",
+            reasoning_type="deductive",
+            context=["水是生命之源"]
+        )
+        print(f"推理结果: {reasoning_result['result']}")
+        
+        # 测试知识库查询
+        print("\n3. 查询知识库：'水'")
+        query_result = uca.query_knowledge_base("水", max_results=3)
+        print(f"查询结果: {query_result['results']}")
+        
+        # 测试工作记忆管理
+        print("\n4. 工作记忆统计：")
+        memory_stats = uca.manage_working_memory("stats")
+        print(f"记忆统计: {memory_stats['stats']}")
+        
+        # 测试系统统计
+        print("\n5. 系统统计：")
+        system_stats = uca.get_system_stats()
+        print(f"处理输入数: {system_stats['cognitive_architecture']['processed_inputs']}")
+        print(f"知识库实体数: {system_stats['knowledge_base']['total_entities']}")
+        print(f"概念空间大小: {system_stats['concept_space']['total_concepts']}")
+        
+        print("\n测试完成!")
+        
+    except Exception as e:
+        print(f"测试失败: {e}")
+        import traceback
+        traceback.print_exc()
     
     def _analogical_reasoning(self, analogy_data):
         """Analogical reasoning"""
@@ -3065,6 +3463,18 @@ class EnhancedSelfAwarenessModule:
             'timestamp': time.time()
         }
 
+    def monitor_metacognition(self):
+        """Monitor metacognitive processes - called by tests"""
+        # Return metacognitive monitoring metrics
+        return {
+            'metacognitive_awareness': self.metacognitive_monitor.get_metacognitive_score(),
+            'thinking_log_entries': len(self.metacognitive_monitor.thinking_log),
+            'strategy_registry_count': len(self.metacognitive_monitor.strategy_registry),
+            'error_patterns_detected': len(self.metacognitive_monitor.error_patterns),
+            'knowledge_gaps_identified': len(self.metacognitive_monitor.knowledge_gaps),
+            'monitoring_timestamp': time.time()
+        }
+
     def reflect_on_performance(self, task_results, context):
         """Enhanced reflection with AGI-level depth"""
         reflection = {
@@ -3712,6 +4122,48 @@ class EnhancedNeuroSymbolicReasoner:
             # 重新归一化权重
             self._normalize_strategy_weights()
     
+    def infer_causal_strength(self, cause, effect, context=None):
+        """Infer the strength of causal relationship between cause and effect"""
+        # 模拟因果强度推断
+        # 在实际实现中，这可能会使用统计方法或因果模型
+        try:
+            # 简单的基于文本相似性的因果强度推断
+            cause_str = str(cause).lower()
+            effect_str = str(effect).lower()
+            
+            # 计算基本强度
+            strength = 0.5  # 默认强度
+            
+            # 如果有上下文，可以调整强度
+            if context and 'causal_prior' in context:
+                strength = context['causal_prior'].get('strength', strength)
+            
+            # 基于关键词的调整
+            strong_causal_keywords = ['directly causes', 'leads to', 'results in', 'produces']
+            weak_causal_keywords = ['might cause', 'could lead to', 'sometimes results in']
+            
+            # 检查是否有强因果关系指示词
+            for keyword in strong_causal_keywords:
+                if keyword in cause_str or keyword in effect_str:
+                    strength = min(1.0, strength + 0.3)
+            
+            # 检查是否有弱因果关系指示词
+            for keyword in weak_causal_keywords:
+                if keyword in cause_str or keyword in effect_str:
+                    strength = max(0.1, strength - 0.2)
+            
+            return {
+                'cause': cause,
+                'effect': effect,
+                'inferred_strength': strength,
+                'confidence': 0.8,
+                'method': 'text_based_inference',
+                'timestamp': time.time()
+            }
+        except Exception as e:
+            error_handler.handle_error(e, "EnhancedNeuroSymbolicReasoner", "Causal strength inference failed")
+            return {"error": str(e), "inferred_strength": 0.5, "confidence": 0.3}
+    
     def _normalize_strategy_weights(self):
         """Normalize strategy weights to sum to 1.0"""
         total = sum(self.reasoning_strategies.values())
@@ -4290,6 +4742,77 @@ class ArchitectureAdjuster:
         """Get adjustment history"""
         return self.adaptation_history[-limit:] if self.adaptation_history else []
     
+    def dynamic_adjustment(self, performance_data, resource_availability):
+        """Dynamically adjust architecture based on performance and resource availability"""
+        try:
+            # 分析性能数据
+            performance_score = performance_data.get('score', 0.5)
+            resource_utilization = resource_availability.get('utilization', 0.5)
+            
+            # 决定是否需要调整
+            needs_adjustment = False
+            adjustment_type = None
+            
+            if performance_score < 0.6:
+                needs_adjustment = True
+                adjustment_type = 'performance_based'
+            elif resource_utilization > 0.8:
+                needs_adjustment = True
+                adjustment_type = 'resource_based'
+            
+            if not needs_adjustment:
+                return {
+                    'adjusted': False,
+                    'reason': 'No adjustment needed based on current metrics',
+                    'current_config': self.current_config,
+                    'performance_score': performance_score,
+                    'resource_utilization': resource_utilization
+                }
+            
+            # 决定新的配置
+            new_config = self.current_config
+            if adjustment_type == 'performance_based':
+                # 如果性能差，升级配置
+                config_hierarchy = ['lightweight', 'balanced', 'advanced', 'agi_optimized']
+                current_index = config_hierarchy.index(self.current_config) if self.current_config in config_hierarchy else 1
+                if current_index < len(config_hierarchy) - 1:
+                    new_config = config_hierarchy[current_index + 1]
+            elif adjustment_type == 'resource_based':
+                # 如果资源紧张，降级配置
+                config_hierarchy = ['lightweight', 'balanced', 'advanced', 'agi_optimized']
+                current_index = config_hierarchy.index(self.current_config) if self.current_config in config_hierarchy else 1
+                if current_index > 0:
+                    new_config = config_hierarchy[current_index - 1]
+            
+            # 执行调整
+            if new_config != self.current_config:
+                old_config = self.current_config
+                self.current_config = new_config
+                
+                return {
+                    'adjusted': True,
+                    'old_config': old_config,
+                    'new_config': new_config,
+                    'adjustment_type': adjustment_type,
+                    'performance_score': performance_score,
+                    'resource_utilization': resource_utilization,
+                    'details': self.architecture_configs.get(new_config, {})
+                }
+            else:
+                return {
+                    'adjusted': False,
+                    'reason': 'Configuration unchanged despite adjustment need',
+                    'current_config': self.current_config
+                }
+                
+        except Exception as e:
+            error_handler.handle_error(e, "ArchitectureAdjuster", "Dynamic adjustment failed")
+            return {
+                'adjusted': False,
+                'error': str(e),
+                'current_config': self.current_config
+            }
+    
     def get_current_config_details(self):
         """Get current configuration details"""
         return self.architecture_configs.get(self.current_config, {})
@@ -4531,6 +5054,8 @@ class UnifiedCognitiveArchitecture:
         from core.adaptive_learning_engine import EnhancedAdaptiveLearningEngine
         from core.meta_learning_system import EnhancedMetaLearningSystem
         from core.creative_problem_solver import EnhancedCreativeProblemSolver
+        from core.knowledge_integrator_enhanced import AGIKnowledgeIntegrator
+        from core.working_memory import WorkingMemory
         
         # Dynamic architecture state
         self.architecture_state = {
@@ -4583,6 +5108,12 @@ class UnifiedCognitiveArchitecture:
         # 统一认知监控器
         self.cognitive_monitor = CognitiveArchitectureMonitor()
         
+        # AGI知识整合器
+        self.knowledge_integrator = AGIKnowledgeIntegrator(from_scratch=True)
+        
+        # 工作记忆系统
+        self.working_memory = WorkingMemory()
+        
         # Initialize component communication
         self._initialize_component_communication()
         
@@ -4601,7 +5132,9 @@ class UnifiedCognitiveArchitecture:
             'problem_solver': self.general_problem_solver,
             'meta_learning': self.meta_learning_system,
             'self_awareness': self.self_awareness_module,
-            'neuro_symbolic': self.neuro_symbolic_reasoner
+            'neuro_symbolic': self.neuro_symbolic_reasoner,
+            'knowledge_integrator': self.knowledge_integrator,
+            'working_memory': self.working_memory
         }
         
         for name, component in components.items():
@@ -4621,14 +5154,42 @@ class UnifiedCognitiveArchitecture:
             # 映射到符号概念
             symbolic_concepts = self.symbolic_mapper.map_to_symbols(unified_rep)
             
-            # 进行推理（这里简化处理）
+            # 进行跨模态推理
             reasoning_result = self.cross_modal_reasoner.reason([unified_rep])
+            
+            # 将处理后的信息存储到工作记忆中
+            self.working_memory.store(
+                content=input_data,
+                content_type=input_type,
+                representation=unified_rep,
+                symbolic_concepts=symbolic_concepts,
+                reasoning_result=reasoning_result
+            )
+            
+            # 尝试从符号概念中提取知识关系并整合到知识图谱
+            if symbolic_concepts and isinstance(symbolic_concepts, list) and len(symbolic_concepts) >= 2:
+                # 简单的知识提取逻辑：概念之间的关联
+                for i in range(len(symbolic_concepts) - 1):
+                    subject = symbolic_concepts[i]
+                    object = symbolic_concepts[i+1]
+                    relation = "related_to"
+                    # 添加到知识图谱
+                    self.knowledge_integrator.add_knowledge(
+                        subject=subject,
+                        relation=relation,
+                        object=object,
+                        confidence=0.7,
+                        source="system_generated",
+                        domain="general"
+                    )
             
             return {
                 'unified_representation': unified_rep.tolist(),
                 'symbolic_concepts': symbolic_concepts,
                 'reasoning_result': reasoning_result.tolist() if hasattr(reasoning_result, 'tolist') else reasoning_result,
-                'processing_type': input_type
+                'processing_type': input_type,
+                'memory_stored': True,
+                'knowledge_integrated': True
             }
         except Exception as e:
             error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Input processing failed")
@@ -4637,8 +5198,56 @@ class UnifiedCognitiveArchitecture:
     def solve_problem(self, problem_description, context=None):
         """解决通用问题"""
         try:
-            solution = self.general_problem_solver.solve(problem_description, context)
-            return solution
+            # 首先从工作记忆中检索相关信息
+            memory_context = self.working_memory.retrieve_related_content(problem_description, max_results=5)
+            
+            # 从知识图谱中获取相关背景知识
+            knowledge_context = self.knowledge_integrator.semantic_query(problem_description, max_results=10)
+            
+            # 整合上下文信息
+            combined_context = {
+                'memory_context': memory_context,
+                'knowledge_context': knowledge_context,
+                'external_context': context or {}
+            }
+            
+            # 使用增强版问题解决器解决问题
+            solution = self.general_problem_solver.solve(problem_description, combined_context)
+            
+            # 将问题和解决方案存储到工作记忆中
+            self.working_memory.store(
+                content=f"Problem: {problem_description}\nSolution: {solution}",
+                content_type="problem_solution",
+                representation=None,
+                symbolic_concepts=[problem_description.split()[0], "solution"],
+                reasoning_result=solution
+            )
+            
+            # 将解决方案中的新知识整合到知识图谱
+            if isinstance(solution, dict) and 'steps' in solution:
+                for step in solution['steps']:
+                    if isinstance(step, str) and '→' in step:
+                        parts = step.split('→')
+                        if len(parts) == 2:
+                            subject, object = parts[0].strip(), parts[1].strip()
+                            self.knowledge_integrator.add_knowledge(
+                                subject=subject,
+                                relation="leads_to",
+                                object=object,
+                                confidence=0.6,
+                                source="problem_solution",
+                                domain="general"
+                            )
+            
+            return {
+                'solution': solution,
+                'context_used': {
+                    'memory_items': len(memory_context),
+                    'knowledge_items': len(knowledge_context)
+                },
+                'problem_type': 'general',
+                'solved': True
+            }
         except Exception as e:
             error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Problem solving failed")
             return {"error": str(e)}
@@ -4671,8 +5280,21 @@ class UnifiedCognitiveArchitecture:
     def self_reflect(self, task_context, performance_data):
         """执行自我反思"""
         try:
+            # 从工作记忆中检索相关任务历史
+            task_history = self.working_memory.retrieve_related_content(task_context, max_results=10)
+            
+            # 从知识图谱中获取相关自我改进知识
+            improvement_knowledge = self.knowledge_integrator.semantic_query("self_improvement learning")
+            
+            # 整合反思上下文
+            reflection_context = {
+                'task_history': task_history,
+                'improvement_knowledge': improvement_knowledge
+            }
+            
+            # 执行自我反思
             reflection = self.self_awareness_module.reflect_on_performance(
-                performance_data, task_context
+                performance_data, task_context, reflection_context
             )
             
             # 更新自我模型
@@ -4683,10 +5305,38 @@ class UnifiedCognitiveArchitecture:
             }
             self.self_awareness_module.update_self_model(new_knowledge)
             
+            # 将反思结果存储到工作记忆中
+            self.working_memory.store(
+                content=f"Reflection on task: {task_context}\nInsights: {reflection['insights_gained']}",
+                content_type="reflection",
+                representation=None,
+                symbolic_concepts=["reflection", "self_improvement"],
+                reasoning_result=reflection
+            )
+            
+            # 将反思中的新知识整合到知识图谱
+            for insight in reflection['insights_gained']:
+                if isinstance(insight, str) and 'because' in insight:
+                    parts = insight.split('because')
+                    if len(parts) == 2:
+                        effect, cause = parts[0].strip(), parts[1].strip()
+                        self.knowledge_integrator.add_knowledge(
+                            subject=cause,
+                            relation="causes",
+                            object=effect,
+                            confidence=0.8,
+                            source="self_reflection",
+                            domain="self_awareness"
+                        )
+            
             return {
                 'reflection_result': reflection,
                 'self_awareness_level': self.self_awareness_module.current_awareness_level,
-                'improvement_actions': reflection['improvement_actions']
+                'improvement_actions': reflection['improvement_actions'],
+                'context_used': {
+                    'task_history_items': len(task_history),
+                    'improvement_knowledge_items': len(improvement_knowledge)
+                }
             }
         except Exception as e:
             error_handler.handle_error(e, "UnifiedCognitiveArchitecture", "Self-reflection failed")
@@ -4699,11 +5349,28 @@ class UnifiedCognitiveArchitecture:
         self_report = self.self_awareness_module.generate_self_report()
         reasoning_stats = self.neuro_symbolic_reasoner.get_reasoning_stats()
         
+        # 获取知识整合器状态
+        knowledge_integrator_stats = self.knowledge_integrator.get_performance_metrics()
+        
+        # 获取工作记忆系统状态
+        working_memory_stats = {
+            'total_items': self.working_memory.get_total_items(),
+            'recent_items': self.working_memory.get_recent_items(),
+            'active_buffers': {
+                'central_executive': len(self.working_memory.central_executive),
+                'phonological_loop': len(self.working_memory.phonological_loop),
+                'visuospatial_sketchpad': len(self.working_memory.visuospatial_sketchpad),
+                'episodic_buffer': len(self.working_memory.episodic_buffer)
+            }
+        }
+        
         return {
             'architecture_status': architecture_status,
             'meta_learning_status': meta_learning_status,
             'self_awareness_report': self_report,
             'reasoning_statistics': reasoning_stats,
+            'knowledge_integrator_stats': knowledge_integrator_stats,
+            'working_memory_stats': working_memory_stats,
             'overall_system_health': 'optimal',
             'agi_capability_level': 'advanced',
             'autonomous_learning_capability': 'enabled',
@@ -4731,6 +5398,25 @@ class UnifiedCognitiveArchitecture:
         error_handler.log_info("记忆系统已设置", "UnifiedCognitiveArchitecture")
 
     
+    def _initialize_dynamic_architecture(self):
+        """Initialize dynamic architecture components"""
+        # 初始化动态架构组件
+        self.dynamic_components = {
+            'neural_embedding_space': self.unified_representation,
+            'symbolic_mapper': self.symbolic_mapper,
+            'cross_modal_reasoner': self.cross_modal_reasoner,
+            'problem_solver': self.general_problem_solver,
+            'meta_learning_system': self.meta_learning_system,
+            'self_awareness': self.self_awareness_module,
+            'neuro_symbolic_reasoner': self.neuro_symbolic_reasoner,
+            'architecture_adjuster': self.architecture_adjuster,
+            'adaptive_learning_engine': self.adaptive_learning_engine,
+            'advanced_reasoning_engine': self.advanced_reasoning_engine,
+            'cognitive_monitor': self.cognitive_monitor
+        }
+        self.architecture_state['dynamic_components_initialized'] = True
+        self.architecture_state['initialization_time'] = time.time()
+
     def get_architecture_status(self):
         """获取架构状态"""
         return {

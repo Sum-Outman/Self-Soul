@@ -2045,9 +2045,15 @@ export default {
     async disconnectSerialPort() {
       try {
         this.stopSerialListener();
-        await api.serial.disconnect();
-        this.serialConnected = false;
-        this.addSystemMessage(`Disconnected from ${this.selectedSerialPort}`);
+        // Only make API call if actually connected and have a selected port
+        if (this.serialConnected && this.selectedSerialPort) {
+          await api.serial.disconnect({ port: this.selectedSerialPort });
+          this.serialConnected = false;
+          this.addSystemMessage(`Disconnected from ${this.selectedSerialPort}`);
+        } else {
+          // Just update UI state if not actually connected
+          this.serialConnected = false;
+        }
       } catch (error) {
         errorHandler.handleError(error, 'Failed to disconnect serial port');
         this.addSystemMessage('Failed to disconnect serial port');

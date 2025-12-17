@@ -234,27 +234,37 @@ The system uses the following ports:
 | Realtime Stream Manager | 8765 | Manages real-time data streams and inter-model communication |
 | Performance Monitoring | 8081 | Monitors system performance and resource usage |
 
-### Model Ports (8001-8019)
-Each AI model has a dedicated port:
-- Manager Model: 8001
-- Language Model: 8002
-- Knowledge Model: 8003
-- Vision Model: 8004
-- Audio Model: 8005
-- Autonomous Model: 8006
-- Programming Model: 8007
-- Planning Model: 8008
-- Emotion Model: 8009
-- Spatial Model: 8010
-- Computer Vision Model: 8011
-- Sensor Model: 8012
-- Motion Model: 8013
-- Prediction Model: 8014
-- Advanced Reasoning Model: 8015
-- Data Fusion Model: 8016
-- Creative Problem Solving Model: 8017
-- Meta Cognition Model: 8018
-- Value Alignment Model: 8019
+### Model Ports (8001-8019) - From-Scratch Training Architecture
+
+Each AI model has a dedicated port and implements complete from-scratch training:
+
+| Port | Model Type | From-Scratch Components | Training Capabilities |
+|------|------------|-------------------------|----------------------|
+| 8001 | Manager Model | CoordinationNeuralNetwork, TaskAllocationNetwork | Resource orchestration and system management |
+| 8002 | Language Model | LanguageNeuralNetwork, FromScratchLanguageTrainer | Custom NLP with transformer-based processing |
+| 8003 | Knowledge Model | AGI-enhanced knowledge components | Structured and unstructured knowledge organization |
+| 8004 | Vision Model | SimpleVisionCNN, VisionDataset | Custom CNN for image and video analysis |
+| 8005 | Audio Model | AGI-enhanced audio processing networks | Sound and speech understanding |
+| 8006 | Autonomous Model | AdvancedDecisionNetwork, ExperienceReplayBuffer | Self-directed learning and adaptation |
+| 8007 | Programming Model | ProgrammingNeuralNetwork, ProgrammingDataset | Code generation and optimization |
+| 8008 | Planning Model | PlanningStrategyNetwork, StepPredictionNetwork | Complex planning and execution |
+| 8009 | Emotion Model | EmotionRecognitionNetwork, FromScratchEmotionTrainer | Emotional intelligence and recognition |
+| 8010 | Spatial Model | SpatialNeuralNetwork, SpatialDataset | Spatial reasoning and navigation |
+| 8011 | Computer Vision Model | CommandPredictionNetwork, SystemOptimizationNetwork | Advanced visual understanding |
+| 8012 | Sensor Model | SensorNeuralNetwork, SensorDataset | Multi-sensor data processing |
+| 8013 | Motion Model | TrajectoryPlanningNetwork, MotionControlNetwork, FeedbackLearningNetwork | Movement analysis and prediction |
+| 8014 | Prediction Model | PredictionNeuralNetwork (LSTM+Attention), PredictionDataset | Data-driven forecasting |
+| 8015 | Advanced Reasoning Model | OptimizationPolicyNetwork, ParameterOptimizationNetwork, ResourceAllocationNetwork | Complex logical reasoning |
+| 8016 | Data Fusion Model | CollaborationNeuralNetwork, StrategyOptimizationNetwork, PerformancePredictionNetwork | Multi-source information integration |
+| 8017 | Creative Problem Solving Model | NeuralGenerators, CombinatorialInnovation, AnalogyReasoning | Innovative solution development |
+| 8018 | Meta Cognition Model | ExperienceBasedLearner, ValueLearningSystem, GoalGenerationSystem | Self-monitoring and optimization |
+| 8019 | Value Alignment Model | Custom Tokenizer, SimpleTextEncoder, ValueSystem | Ethical alignment and safety |
+
+**Key Training Features:**
+- All models implement `enable_training()`, `disable_training()`, `train_step()` methods
+- Standardized `save_model()`, `load_model()` for model persistence
+- Centralized `FromScratchTrainingManager` coordinates all training activities
+- Each model runs on dedicated port for parallel distributed training
 
 ### Troubleshooting
 

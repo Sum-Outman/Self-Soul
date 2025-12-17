@@ -460,10 +460,10 @@ class FromScratchTrainingManager:
         
         return train_data, val_data, test_data
         
-    def _prepare_model_architecture(self, model, model_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Prepare model architecture for training"""
+    def _prepare_model_for_training(self, model, model_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Prepare model for training"""
         try:
-            error_handler.log_info(f"Preparing model architecture for model: {model_id}", "FromScratchTrainingManager")
+            error_handler.log_info(f"Preparing model for training: {model_id}", "FromScratchTrainingManager")
             
             # Initialize model with from_scratch=True
             if hasattr(model, 'initialize'):
@@ -487,7 +487,7 @@ class FromScratchTrainingManager:
             
             return {"success": True, "model_id": model_id}
         except Exception as e:
-            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to prepare model architecture for model: {model_id}")
+            error_handler.handle_error(e, "FromScratchTrainingManager", f"Failed to prepare model for training: {model_id}")
             return {"success": False, "message": str(e)}
             
     def _initialize_optimizer(self, model, config: Dict[str, Any]):

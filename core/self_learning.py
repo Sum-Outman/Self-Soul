@@ -4,6 +4,7 @@ AGI自我学习系统 - 完全AGI级别的自我学习能力
 """
 
 import logging
+import math
 import numpy as np
 import torch
 import torch.nn as nn

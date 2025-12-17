@@ -175,7 +175,7 @@
       </div>
       
       <!-- Training Strategy Selection -->
-      <div class="strategy-selection" v-if="trainingMode === 'joint'">
+      <div class="strategy-selection">
         <h2>Training Strategy</h2>
         <div class="strategy-options">
           <div 
@@ -877,10 +877,25 @@ export default {
         // Log error
         console.error('Error loading models:', error);
         errorHandler.handleError(error, 'Failed to load models');
-        showError('Failed to load models from backend. Please ensure the backend service is running.');
+        showError('Failed to load models from backend. Using default model list.');
         
-        // Initialize with empty array instead of mock data
-        availableModels.value = [];
+        // Initialize with default model list based on modelIdMapper
+        availableModels.value = Object.keys(letterToIdMap).map(letterId => {
+          const stringId = letterToIdMap[letterId];
+          return {
+            id: letterId,
+            backendId: stringId,
+            name: getModelDisplayName(letterId),
+            description: getModelDescription(letterId),
+            type: 'default',
+            status: 'available',
+            trainingStatus: {
+              isTraining: false,
+              progress: 0,
+              status: 'idle'
+            }
+          };
+        });
       } finally {
         modelsLoading.value = false;
       }
@@ -979,11 +994,24 @@ export default {
     
     // Get model tooltip information
     const getModelTooltip = computed(() => (modelId) => {
+      const model = availableModels.value.find(m => m.id === modelId);
       const dependencies = modelDependencies.value[modelId];
-      if (dependencies && dependencies.length > 0) {
-        return `Requires models: ${dependencies.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}`;
+      let tooltip = '';
+      
+      // Add model description if available
+      if (model && model.description) {
+        tooltip += `${model.description}\n`;
       }
-      return '';
+      
+      // Add dependencies if any
+      if (dependencies && dependencies.length > 0) {
+        tooltip += `Requires: ${dependencies.map(d => {
+          const depModel = availableModels.value.find(m => m.id === d);
+          return depModel ? depModel.name : d.toUpperCase();
+        }).join(', ')}`;
+      }
+      
+      return tooltip;
     });
     
     // Select recommended combination - ensure all dependencies are satisfied
@@ -1026,6 +1054,18 @@ export default {
       
       // Show success message
       showSuccess('All models selected');
+    };
+    
+    // Clear selected models
+    const clearSelectedModels = () => {
+      selectedModels.value = [];
+      showInfo('All models deselected');
+    };
+    
+    // Get model name by ID
+    const getModelName = (modelId) => {
+      const model = availableModels.value.find(m => m.id === modelId);
+      return model ? model.name : modelId;
     };
     
     // Show warning
@@ -1296,7 +1336,7 @@ export default {
           parameters: {
             ...parameters.value,
             strategy: selectedStrategy.value,
-            knowledge_assist: knowledgeAssistOptions.value
+            knowledge_assist: selectedStrategy === 'knowledge_assisted' ? knowledgeAssistOptions.value : null
           },
           training_mode: trainingMode.value,
           fromScratch: parameters.value.fromScratch || false

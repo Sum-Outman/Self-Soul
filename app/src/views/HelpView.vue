@@ -15,7 +15,7 @@
             <h3>Search Results ({{ searchResults.length }})</h3>
             <ul>
               <li v-for="result in searchResults" :key="result.id">
-                <a href="#{{ result.id }}" @click="scrollToSection(result.id)">{{ result.title }}</a>
+                <a :href="'#' + result.id" @click.prevent="scrollToSection(result.id)">{{ result.title }}</a>
               </li>
             </ul>
           </div>
@@ -39,14 +39,14 @@
         <nav class="help-nav">
           <h3>Contents</h3>
           <ul>
-            <li><a href="#system-overview" @click="scrollToSection('system-overview')">System Overview</a></li>
-            <li><a href="#ports-config" @click="scrollToSection('ports-config')">Service Ports Configuration</a></li>
-            <li><a href="#getting-started" @click="scrollToSection('getting-started')">Getting Started</a></li>
-            <li><a href="#core-models" @click="scrollToSection('core-models')">Core Cognitive Models</a></li>
-            <li><a href="#training-methodology" @click="scrollToSection('training-methodology')">Training Methodology</a></li>
-            <li><a href="#advanced-capabilities" @click="scrollToSection('advanced-capabilities')">Advanced Capabilities</a></li>
-            <li><a href="#troubleshooting" @click="scrollToSection('troubleshooting')">Troubleshooting & Support</a></li>
-            <li><a href="#system-requirements" @click="scrollToSection('system-requirements')">System Requirements</a></li>
+            <li><a href="#system-overview" @click.prevent="scrollToSection('system-overview')">System Overview</a></li>
+            <li><a href="#ports-config" @click.prevent="scrollToSection('ports-config')">Service Ports Configuration</a></li>
+            <li><a href="#getting-started" @click.prevent="scrollToSection('getting-started')">Getting Started</a></li>
+            <li><a href="#core-models" @click.prevent="scrollToSection('core-models')">Core Cognitive Models</a></li>
+            <li><a href="#training-methodology" @click.prevent="scrollToSection('training-methodology')">Training Methodology</a></li>
+            <li><a href="#advanced-capabilities" @click.prevent="scrollToSection('advanced-capabilities')">Advanced Capabilities</a></li>
+            <li><a href="#troubleshooting" @click.prevent="scrollToSection('troubleshooting')">Troubleshooting & Support</a></li>
+            <li><a href="#system-requirements" @click.prevent="scrollToSection('system-requirements')">System Requirements</a></li>
           </ul>
         </nav>
       </aside>
@@ -167,79 +167,79 @@
         <div class="model-grid">
           <div class="model-card">
             <h3>Manager Model (Port 8001)</h3>
-            <p>Orchestrates task distribution and coordinates model interactions</p>
+            <p>System manager model for coordination</p>
           </div>
-          <div class="model-card">
+            <div class="model-card">
             <h3>Language Model (Port 8002)</h3>
-            <p>Processes natural language inputs and generates coherent responses</p>
+            <p>Natural language processing model</p>
           </div>
           <div class="model-card">
             <h3>Knowledge Model (Port 8003)</h3>
-            <p>Manages information storage, retrieval, and knowledge synthesis</p>
+            <p>Knowledge base and retrieval model</p>
           </div>
           <div class="model-card">
             <h3>Vision Model (Port 8004)</h3>
-            <p>Analyzes visual content including images, videos, and spatial data</p>
+            <p>Computer vision and image processing model</p>
           </div>
           <div class="model-card">
             <h3>Audio Model (Port 8005)</h3>
-            <p>Interprets auditory inputs including speech, music, and environmental sounds</p>
+            <p>Audio processing and speech recognition model</p>
           </div>
           <div class="model-card">
             <h3>Autonomous Model (Port 8006)</h3>
-            <p>Enables self-directed decision making and independent action execution</p>
+            <p>Self-governing and decision-making model</p>
           </div>
           <div class="model-card">
             <h3>Programming Model (Port 8007)</h3>
-            <p>Generates, analyzes, and optimizes computer code across multiple languages</p>
+            <p>Code generation and software development model</p>
           </div>
           <div class="model-card">
             <h3>Planning Model (Port 8008)</h3>
-            <p>Develops strategic plans and optimizes task execution sequences</p>
+            <p>Strategic planning and execution model</p>
           </div>
           <div class="model-card">
             <h3>Emotion Model (Port 8009)</h3>
-            <p>Recognizes, interprets, and responds to emotional cues and contexts</p>
+            <p>Emotional analysis and response model</p>
           </div>
           <div class="model-card">
             <h3>Spatial Model (Port 8010)</h3>
-            <p>Understands and manipulates spatial relationships and geometries</p>
+            <p>Spatial reasoning and navigation model</p>
           </div>
           <div class="model-card">
             <h3>Computer Vision Model (Port 8011)</h3>
-            <p>Advanced analysis of visual data for object recognition and scene understanding</p>
+            <p>Advanced computer vision capabilities</p>
           </div>
           <div class="model-card">
             <h3>Sensor Model (Port 8012)</h3>
-            <p>Processes data from various sensors and IoT devices</p>
+            <p>Sensor data processing and integration</p>
           </div>
           <div class="model-card">
             <h3>Motion Model (Port 8013)</h3>
-            <p>Analyzes and predicts movement patterns and physical interactions</p>
+            <p>Motion planning and control model</p>
           </div>
           <div class="model-card">
             <h3>Prediction Model (Port 8014)</h3>
-            <p>Performs statistical analysis and forecasts future outcomes</p>
+            <p>Predictive analytics and forecasting model</p>
           </div>
           <div class="model-card">
             <h3>Advanced Reasoning Model (Port 8015)</h3>
-            <p>Performs complex logical reasoning and problem-solving tasks</p>
+            <p>Complex logical reasoning capabilities</p>
           </div>
           <div class="model-card">
             <h3>Data Fusion Model (Port 8016)</h3>
-            <p>Integrates information from multiple sources for comprehensive understanding</p>
+            <p>Multi-source data integration and fusion</p>
           </div>
           <div class="model-card">
             <h3>Creative Problem Solving Model (Port 8017)</h3>
-            <p>Develops innovative solutions to complex challenges</p>
+            <p>Innovative problem-solving approaches</p>
           </div>
           <div class="model-card">
             <h3>Meta Cognition Model (Port 8018)</h3>
-            <p>Monitors and optimizes the system's own cognitive processes</p>
+            <p>Self-awareness and cognitive monitoring</p>
           </div>
           <div class="model-card">
             <h3>Value Alignment Model (Port 8019)</h3>
-            <p>Ensures system behaviors align with defined ethical guidelines and values</p>
+            <p>Ethical decision making and value alignment</p>
           </div>
         </div>
         </div>
@@ -447,45 +447,27 @@ export default {
       // Matched search results
       searchResults: [],
       // Show search results instead of normal content
-      showSearchResults: false
-    }
-  },
-  computed: {
-    // Filter sections based on search query
-    filteredSections() {
-      if (!this.searchQuery) {
-        this.showSearchResults = false;
-        return null;
-      }
-      
-      const query = this.searchQuery.toLowerCase();
-      const results = [];
-      const sections = document.querySelectorAll('.help-section');
-      
-      sections.forEach((section) => {
-        const sectionId = section.id;
-        const sectionTitle = section.querySelector('h2').textContent.toLowerCase();
-        const sectionContent = section.textContent.toLowerCase();
-        
-        if (sectionTitle.includes(query) || sectionContent.includes(query)) {
-          results.push({
-            id: sectionId,
-            title: section.querySelector('h2').textContent
-          });
-        }
-      });
-      
-      this.searchResults = results;
-      this.showSearchResults = results.length > 0;
-      return results;
+      showSearchResults: false,
+      // Debounce timer for search
+      searchDebounce: null
     }
   },
   watch: {
     searchQuery(newQuery) {
-      // Reset section expansion when search query changes
+      // Debounced search when query changes
+      if (this.searchDebounce) {
+        clearTimeout(this.searchDebounce);
+      }
+      
       if (!newQuery) {
         this.showSearchResults = false;
+        this.searchResults = [];
+        return;
       }
+      
+      this.searchDebounce = setTimeout(() => {
+        this.performSearch();
+      }, 300);
     }
   },
   mounted() {
@@ -498,6 +480,74 @@ export default {
     document.removeEventListener('keydown', this.handleKeyDown);
   },
   methods: {
+    // Perform search across all sections and content
+    performSearch() {
+      const query = this.searchQuery.toLowerCase().trim();
+      
+      if (!query) {
+        this.searchResults = [];
+        this.showSearchResults = false;
+        return;
+      }
+      
+      const results = [];
+      const sections = document.querySelectorAll('.help-section');
+      
+      sections.forEach((section) => {
+        if (!section) return;
+        
+        const sectionId = section.id;
+        let sectionTitle = '';
+        let sectionContent = '';
+        
+        // Get section title (h2)
+        const titleElement = section.querySelector('h2');
+        if (titleElement) {
+          sectionTitle = titleElement.textContent.toLowerCase();
+        }
+        
+        // Get all text content from section
+        sectionContent = section.textContent.toLowerCase();
+        
+        // Search in title or content
+        if (sectionTitle.includes(query) || sectionContent.includes(query)) {
+          results.push({
+            id: sectionId,
+            title: titleElement ? titleElement.textContent : 'Untitled Section'
+          });
+        }
+        
+        // Also search within model cards, feature cards, etc.
+        const subElements = section.querySelectorAll('.model-card, .feature-card, .feature-item, .faq-item, .requirement-item, .step-content');
+        subElements.forEach((element) => {
+          const elementText = element.textContent.toLowerCase();
+          if (elementText.includes(query)) {
+            // Find the nearest parent section id
+            const parentSection = element.closest('.help-section');
+            if (parentSection && parentSection.id) {
+              // Check if this section is already in results
+              const existingResult = results.find(r => r.id === parentSection.id);
+              if (!existingResult) {
+                const parentTitle = parentSection.querySelector('h2');
+                results.push({
+                  id: parentSection.id,
+                  title: parentTitle ? parentTitle.textContent : 'Section'
+                });
+              }
+            }
+          }
+        });
+      });
+      
+      // Remove duplicates
+      const uniqueResults = results.filter((result, index, self) =>
+        index === self.findIndex((r) => r.id === result.id)
+      );
+      
+      this.searchResults = uniqueResults;
+      this.showSearchResults = uniqueResults.length > 0;
+    },
+    
     // Toggle section expansion
     toggleSection(sectionName) {
       this.sectionExpanded[sectionName] = !this.sectionExpanded[sectionName];

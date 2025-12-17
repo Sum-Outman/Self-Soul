@@ -12,20 +12,25 @@ export const letterToIdMap = {
   'C': 'audio',             // Audio Processing Model
   'D': 'vision_image',      // Image Vision Model
   'E': 'vision_video',      // Video Vision Model
-  'F': 'spatial_positioning', // Spatial Positioning Model
-  'G': 'sensor_perception', // Sensor Perception Model
-  'H': 'computer_control',  // Computer Control Model
-  'I': 'motion_control',    // Motion and Actuator Control Model
+  'F': 'spatial',           // Spatial Model
+  'G': 'sensor',            // Sensor Model
+  'H': 'computer',          // Computer Model
+  'I': 'motion',            // Motion Model
   'J': 'knowledge',         // Knowledge Expert Model
   'K': 'programming',       // Programming Model
   'L': 'planning',          // Planning Model
   'M': 'autonomous',        // Autonomous Model
   'N': 'emotion',           // Emotion Model
-  'O': 'spatial',           // Spatial Model
-  'P': 'computer_vision',   // Computer Vision Model
-  'Q': 'sensor',            // Sensor Model
-  'R': 'motion',            // Motion Model
-  'S': 'prediction'         // Prediction Model
+  'O': 'spatial',           // Spatial Model (duplicate for compatibility)
+  'P': 'vision_image',      // Computer Vision Model (using existing vision_image)
+  'Q': 'sensor',            // Sensor Model (duplicate for compatibility)
+  'R': 'motion',            // Motion Model (duplicate for compatibility)
+  'S': 'prediction',        // Prediction Model
+  'T': 'collaboration',     // Collaboration Model
+  'U': 'optimization',      // Optimization Model
+  'V': 'finance',           // Finance Model
+  'W': 'medical',           // Medical Model
+  'X': 'value_alignment'    // Value Alignment Model
 };
 
 // 字符串ID到字母ID的映射
@@ -35,20 +40,21 @@ export const idToLetterMap = {
   'audio': 'C',
   'vision_image': 'D',
   'vision_video': 'E',
-  'spatial_positioning': 'F',
-  'sensor_perception': 'G',
-  'computer_control': 'H',
-  'motion_control': 'I',
+  'spatial': 'F',
+  'sensor': 'G',
+  'computer': 'H',
+  'motion': 'I',
   'knowledge': 'J',
   'programming': 'K',
   'planning': 'L',
   'autonomous': 'M',
   'emotion': 'N',
-  'spatial': 'O',
-  'computer_vision': 'P',
-  'sensor': 'Q',
-  'motion': 'R',
-  'prediction': 'S'
+  'prediction': 'S',
+  'collaboration': 'T',
+  'optimization': 'U',
+  'finance': 'V',
+  'medical': 'W',
+  'value_alignment': 'X'
 };
 
 // 所有字母ID列表
@@ -143,25 +149,30 @@ export function getAllCoreStringIds() {
 export function getModelDisplayName(id) {
   const letterId = idToLetterMap[id] || id;
   const displayNames = {
-    'A': 'Manager Model',
-    'B': 'Language Model',
-    'C': 'Audio Model',
-    'D': 'Image Vision Model',
-    'E': 'Video Vision Model',
-    'F': 'Spatial Positioning Model',
-    'G': 'Sensor Perception Model',
-    'H': 'Computer Control Model',
-    'I': 'Motion Control Model',
-    'J': 'Knowledge Expert Model',
-    'K': 'Programming Model',
-    'L': 'Planning Model',
-    'M': 'Autonomous Model',
-    'N': 'Emotion Model',
+    'A': 'Unified Manager Model',
+    'B': 'Unified Language Model',
+    'C': 'Unified Audio Model',
+    'D': 'Unified Image Vision Model',
+    'E': 'Unified Video Vision Model',
+    'F': 'Unified Spatial Model',
+    'G': 'Unified Sensor Model',
+    'H': 'Unified Computer Model',
+    'I': 'Unified Motion Model',
+    'J': 'Unified Knowledge Model',
+    'K': 'Unified Programming Model',
+    'L': 'Unified Planning Model',
+    'M': 'Unified Autonomous Model',
+    'N': 'Unified Emotion Model',
     'O': 'Spatial Model',
     'P': 'Computer Vision Model',
     'Q': 'Sensor Model',
     'R': 'Motion Model',
-    'S': 'Prediction Model'
+    'S': 'Unified Prediction Model',
+    'T': 'Unified Collaboration Model',
+    'U': 'Unified Optimization Model',
+    'V': 'Unified Finance Model',
+    'W': 'Unified Medical Model',
+    'X': 'Unified Value Alignment Model'
   };
   return displayNames[letterId] || letterId;
 }
@@ -192,7 +203,12 @@ export function getModelDescription(id) {
     'P': 'Computer vision and object recognition model',
     'Q': 'Sensor data fusion and analysis model',
     'R': 'Motion planning and execution model',
-    'S': 'Predictive analysis and forecasting model'
+    'S': 'Predictive analysis and forecasting model',
+    'T': 'Model collaboration and coordination model for joint task execution',
+    'U': 'Model optimization and performance enhancement model',
+    'V': 'Financial analysis and decision-making model',
+    'W': 'Medical data analysis and healthcare model',
+    'X': 'Value alignment and ethical decision-making model'
   };
   return descriptions[letterId] || 'Unknown model';
 }

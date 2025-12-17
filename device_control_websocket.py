@@ -45,6 +45,15 @@ async def handle_client(websocket, path):
                 if data.get('type') == 'ping':
                     await websocket.send(json.dumps({'type': 'pong'}))
                 
+                # Handle device status requests
+                elif data.get('type') == 'request_status':
+                    # Send current device status
+                    status_response = {
+                        'type': 'initial_status',
+                        'devices': device_states
+                    }
+                    await websocket.send(json.dumps(status_response))
+                
                 # Handle device control commands
                 elif data.get('type') == 'command':
                     device_id = data.get('device_id')

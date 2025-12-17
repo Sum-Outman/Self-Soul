@@ -243,10 +243,56 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
         self.self_position = np.array([0, 0, 0])
         self.self_velocity = np.array([0, 0, 0])
         
+        # Initialize neural network
+        self._initialize_neural_networks()
+        
         # Initialize AGI components for spatial reasoning
         self._initialize_agi_spatial_components()
         
         self.logger.info("Spatial model specific components initialized")
+        
+    def _initialize_neural_networks(self):
+        """Initialize the neural networks used by the spatial model"""
+        try:
+            self.logger.info("Initializing spatial neural network")
+            
+            # Initialize neural network with configuration
+            nn_config = self.config.get("neural_network", {})
+            
+            # Get network parameters from config
+            input_channels = nn_config.get("input_channels", 6)
+            hidden_size = nn_config.get("hidden_size", 256)
+            num_layers = nn_config.get("num_layers", 3)
+            output_size = nn_config.get("output_size", 128)
+            
+            # Create the neural network
+            self.neural_network = SpatialNeuralNetwork(
+                input_channels=input_channels,
+                hidden_size=hidden_size,
+                num_layers=num_layers,
+                output_size=output_size
+            )
+            
+            # Initialize loss functions
+            self.depth_criterion = nn.MSELoss()
+            self.object_criterion = nn.MSELoss()
+            self.motion_criterion = nn.MSELoss()
+            
+            # Initialize optimizer
+            learning_rate = nn_config.get("learning_rate", 0.001)
+            self.optimizer = optim.Adam(self.neural_network.parameters(), lr=learning_rate)
+            
+            # Set training state flags
+            self.is_trained = False
+            self.training_completed = False
+            self.training_epochs_completed = 0
+            
+            self.logger.info("Spatial neural network initialized successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to initialize spatial neural network: {str(e)}")
+            # Create a default network even if initialization fails
+            self.neural_network = SpatialNeuralNetwork()
     
     def _process_operation(self, operation: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process spatial operations with model-specific logic"""
@@ -741,8 +787,9 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
         try:
             self.logger.info("Starting neural network training for spatial model")
             
-            # Initialize neural network
-            self.neural_network = SpatialNeuralNetwork()
+            # Ensure neural network is initialized
+            if not hasattr(self, 'neural_network') or self.neural_network is None:
+                self._initialize_neural_networks()
             
             # Prepare training data - use real training data instead of synthetic
             if isinstance(training_data, list) and len(training_data) > 0:
@@ -766,13 +813,9 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
             # Create data loader
             dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
             
-            # Define loss functions for multi-task learning
-            depth_criterion = nn.MSELoss()
-            object_criterion = nn.MSELoss()
-            motion_criterion = nn.MSELoss()
-            
-            # Define optimizer
-            optimizer = optim.Adam(self.neural_network.parameters(), lr=learning_rate)
+            # Update optimizer with learning rate from config
+            if learning_rate != self.config.get('neural_network', {}).get('learning_rate', 0.001):
+                self.optimizer = optim.Adam(self.neural_network.parameters(), lr=learning_rate)
             
             # Training metrics
             metrics = {
@@ -800,23 +843,23 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
                 # Training loop
                 self.neural_network.train()
                 for batch in dataloader:
-                    optimizer.zero_grad()
+                    self.optimizer.zero_grad()
                     
                     # Forward pass
                     outputs = self.neural_network(batch['stereo_pair'])
                     
                     # Calculate losses for each task
-                    depth_loss = depth_criterion(
+                    depth_loss = self.depth_criterion(
                         outputs['depth'].squeeze(), 
                         batch['depth_target']
                     )
                     
-                    object_loss = object_criterion(
+                    object_loss = self.object_criterion(
                         outputs['objects'], 
                         batch['object_target']
                     )
                     
-                    motion_loss = motion_criterion(
+                    motion_loss = self.motion_criterion(
                         outputs['motion'], 
                         batch['motion_target']
                     )
@@ -886,6 +929,11 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
             }
             
             self._save_training_history(training_history)
+            
+            # Update training status flags
+            self.is_trained = True
+            self.training_completed = True
+            self.training_epochs_completed = epoch + 1
             
             self.logger.info("Spatial model training completed successfully")
             

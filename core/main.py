@@ -936,21 +936,7 @@ async def get_models_status():
         error_handler.handle_error(e, "API", "Failed to get model status")
         raise HTTPException(status_code=500, detail="Failed to get model status")
 
-# Get all available models
-@app.get("/api/models/available")
-async def get_available_models():
-    """
-    Get list of all available models
 
-    Returns:
-        List of available models
-    """
-    try:
-        models = model_registry.get_all_models()
-        return {"status": "success", "data": models}
-    except Exception as e:
-        error_handler.handle_error(e, "API", "Failed to get available models")
-        raise HTTPException(status_code=500, detail="Failed to get available models")
 
 # Get language model status
 @app.get("/api/models/language/status")
@@ -1162,6 +1148,41 @@ async def get_all_models():
     except Exception as e:
         error_handler.handle_error(e, "API", "Failed to get all models")
         raise HTTPException(status_code=500, detail="Failed to get all models")
+
+# Get available models (for frontend model selection)
+@app.get("/api/models/available")
+async def get_available_models():
+    """
+    Get available models information for frontend model selection
+
+    Returns:
+        Available models information
+    """
+    try:
+        # This endpoint is used by the frontend for model selection
+        # Get all registered models (including both loaded and unloaded ones)
+        models_status = model_registry.get_all_models_status()
+        
+        # Format the response to match frontend expectations
+        available_models = []
+        for model_id, status_info in models_status.items():
+            available_models.append({
+                "id": model_id,
+                "name": status_info.get("name", model_id),
+                "type": status_info.get("details", {}).get("model_type", "unknown"),
+                "status": status_info.get("status", "unknown"),
+                "is_loaded": status_info.get("details", {}).get("is_loaded", False),
+                "trainingStatus": {
+                    "isTraining": status_info.get("details", {}).get("is_training", False),
+                    "progress": status_info.get("details", {}).get("training_progress", 0),
+                    "status": status_info.get("details", {}).get("training_status", "idle")
+                }
+            })
+        
+        return {"status": "success", "models": available_models}
+    except Exception as e:
+        error_handler.handle_error(e, "API", "Failed to get available models")
+        raise HTTPException(status_code=500, detail="Failed to get available models")
 
 # Chat API endpoint
 @app.post("/api/chat")

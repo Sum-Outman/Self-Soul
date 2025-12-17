@@ -868,7 +868,15 @@ export default {
         const response = await api.get('/api/models/available');
         
         if (response.data.status === 'success') {
-          availableModels.value = response.data.models || [];
+          // Convert backend model IDs to frontend letter IDs for proper UI display
+          availableModels.value = (response.data.models || []).map(model => {
+            const frontendId = idToLetter(model.id);
+            return {
+              ...model,
+              id: frontendId,
+              backendId: model.id
+            };
+          });
           showInfo('Models loaded successfully from backend');
         } else {
           throw new Error(response.data.message || 'Failed to load models');

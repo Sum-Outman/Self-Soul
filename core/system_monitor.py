@@ -27,7 +27,7 @@ AGI Enhancements:
 """
 system_monitor.py - Unified System Monitoring Module
 
-Copyright (c) 2025 AGI Brain Team
+Copyright (c) 2025 AGI Soul Team
 Licensed under the Apache License, Version 2.0
 """
 import logging

@@ -13,7 +13,7 @@
 """
 
 """
-# Self Brain 统一错误处理和日志系统
+# Self Soul 统一错误处理和日志系统
 AGI System Unified Error Handling and Logging System
 """
 import logging
@@ -42,7 +42,7 @@ ErrorHandler类 - 中文类描述
 ErrorHandler Class - English class description
 """
 class ErrorHandler:
-    """Self Brain 统一错误处理类"""
+    """Self Soul 统一错误处理类"""
     
     def __init__(self):
         self.logger = logging.getLogger('AGI_System')

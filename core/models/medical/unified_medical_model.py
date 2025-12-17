@@ -1703,7 +1703,7 @@ class UnifiedMedicalModel(UnifiedModelTemplate):
         enhanced = preventive_advice.copy()
         elderly_specific = [
             "Fall prevention strategies and home safety assessment",
-            "Cognitive health screening and brain exercises",
+            "Cognitive health screening and Soul exercises",
             "Bone health and osteoporosis prevention",
             "Polypharmacy management and medication review"
         ]

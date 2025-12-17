@@ -1,4 +1,4 @@
-# AGI Brain System Requirements - Python 3.6 Compatible
+# AGI Soul System Requirements - Python 3.6 Compatible
 # Core web server dependencies
 fastapi>=0.70.0
 uvicorn>=0.17.0

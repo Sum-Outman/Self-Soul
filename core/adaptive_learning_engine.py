@@ -14,7 +14,7 @@ Function: Dynamically optimize training parameters using advanced algorithms bas
 4. 实时自适应调整
 5. 支持神经架构搜索（NAS）集成
 
-版权所有 (c) 2025 AGI Brain Team
+版权所有 (c) 2025 AGI Soul Team
 Licensed under the Apache License, Version 2.0
 """
 

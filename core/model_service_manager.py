@@ -52,7 +52,7 @@ class ModelServiceManager:
             
             # 创建FastAPI应用
             app = FastAPI(
-                title=f"Self Brain - {model_id} Model",
+                title=f"Self Soul - {model_id} Model",
                 description=f"{model_id} 模型的独立服务",
                 version="1.0.0",
                 docs_url=f"/{model_id}/docs",

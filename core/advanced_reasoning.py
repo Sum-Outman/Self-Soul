@@ -27,7 +27,7 @@ Features:
 9. 自适应学习和自我改进
 10. 知识图谱与推理的深度融合
 
-版权所有 (c) 2025 AGI Brain Team
+版权所有 (c) 2025 AGI Soul Team
 Licensed under the Apache License, Version 2.0
 """
 
@@ -511,8 +511,8 @@ class EnhancedAdvancedReasoningEngine:
                     ("sunlight", "enables", "photosynthesis"),
                     ("photosynthesis", "produces", "energy"),
                     ("energy", "required_for", "life"),
-                    ("thinking", "requires", "brain"),
-                    ("brain", "part_of", "body"),
+                    ("thinking", "requires", "Soul"),
+                    ("Soul", "part_of", "body"),
                     ("cause", "precedes", "effect"),
                     ("action", "causes", "reaction"),
                     ("knowledge", "enables", "understanding"),

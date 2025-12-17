@@ -36,7 +36,7 @@ export default {
   setup(props, { emit }) {
     const currentStep = ref(1);
     const steps = [
-      { title: 'Welcome to AGI System', description: 'This is an artificial intelligence system with self-awareness and autonomous learning capabilities. The system includes 11 core models working together to achieve human brain-like functionality.' },
+      { title: 'Welcome to AGI System', description: 'This is an artificial intelligence system with self-awareness and autonomous learning capabilities. The system includes 11 core models working together to achieve human Soul-like functionality.' },
       { title: 'Model Management', description: 'The Manager Model (A) coordinates all sub-model tasks, supporting multiple interaction methods including voice, text, and images. Model configuration and monitoring can be done through the main interface.' },
       { title: 'Training and Control', description: 'The system supports both individual model training and joint training. The training control panel allows selecting models for training and setting training parameters.' },
       { title: 'Real-time Monitoring', description: 'The monitoring dashboard provides real-time system status, model performance, and resource usage. Supports real-time data stream viewing and model restart operations.' },

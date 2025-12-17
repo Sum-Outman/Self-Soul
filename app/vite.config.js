@@ -1,6 +1,6 @@
 /*!
- * AGI Brain System
- * Copyright 2025 AGI Brain Team
+ * AGI Soul System
+ * Copyright 2025 AGI Soul Team
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at

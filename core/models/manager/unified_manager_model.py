@@ -661,7 +661,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
             "Speech recognition technology has improved significantly.",
             "Robotics and automation are changing manufacturing processes.",
             "Data science involves extracting insights from complex data.",
-            "Neural networks mimic the structure of the human brain.",
+            "Neural networks mimic the structure of the human Soul.",
             "Deep learning has revolutionized many AI applications."
         ]
         return np.random.choice(sample_texts)

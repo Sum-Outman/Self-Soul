@@ -23,7 +23,7 @@ Provides common interfaces and functionality to ensure consistency across all mo
 data_processor.py - 中文描述
 data_processor.py - English description
 
-版权所有 (c) 2025 AGI Brain Team
+版权所有 (c) 2025 AGI Soul Team
 Licensed under the Apache License, Version 2.0
 """
 import json

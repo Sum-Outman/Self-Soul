@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def create_minimal_app():
     """创建一个最小化的FastAPI应用，只包含健康检查端点"""
-    app = FastAPI(title="AGI Brain Minimal Server", version="1.0")
+    app = FastAPI(title="AGI Soul Minimal Server", version="1.0")
     
     @app.get("/health")
     async def health_check():
@@ -20,13 +20,13 @@ def create_minimal_app():
     
     @app.get("/")
     async def root():
-        return {"message": "Welcome to AGI Brain", "endpoints": ["/health"]}
+        return {"message": "Welcome to AGI Soul", "endpoints": ["/health"]}
     
     return app
 
 if __name__ == "__main__":
     try:
-        print("=== AGI Brain Minimal Server ===")
+        print("=== AGI Soul Minimal Server ===")
         print(f"Python version: {sys.version}")
         print(f"Current directory: {os.getcwd()}")
         

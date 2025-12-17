@@ -1,4 +1,4 @@
-// AI Brain System Type Definitions
+// AI Soul System Type Definitions
 
 /**
  * Model type definition

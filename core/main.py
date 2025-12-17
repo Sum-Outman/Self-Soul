@@ -4376,7 +4376,7 @@ async def async_initialize_components():
 # Server startup code
 if __name__ == "__main__":
     """
-    Main entry point for starting the Self Brain AGI system backend server
+    Main entry point for starting the Self Soul AGI system backend server
     """
     # 添加内存优化配置
     from core.memory_optimization import configure_memory_optimization, MemoryOptimizer
@@ -4384,7 +4384,7 @@ if __name__ == "__main__":
     # 检测系统资源并配置适当的内存优化策略
     # 可以根据命令行参数、环境变量或配置文件来设置
     import argparse
-    parser = argparse.ArgumentParser(description='Self Brain AGI System')
+    parser = argparse.ArgumentParser(description='Self Soul AGI System')
     parser.add_argument('--lightweight', action='store_true', help='Run in lightweight mode with reduced memory usage')
     parser.add_argument('--max-memory', type=int, default=75, help='Maximum memory usage percentage threshold')
     args = parser.parse_args()
@@ -4422,7 +4422,7 @@ if __name__ == "__main__":
     root_logger.setLevel(logging.DEBUG)
     
     logger = logging.getLogger("MainServer")
-    logger.info("Starting Self Brain AGI system backend server...")
+    logger.info("Starting Self Soul AGI system backend server...")
     
     # Add port availability check
     import socket

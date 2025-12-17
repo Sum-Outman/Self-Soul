@@ -370,7 +370,7 @@ class EnhancedCreativeProblemSolver:
         """Initialize creative knowledge base with diverse inspiration sources"""
         return {
             "creative_techniques": [
-                "brainstorming", "mind_mapping", "scamper", "six_thinking_hats",
+                "Soulstorming", "mind_mapping", "scamper", "six_thinking_hats",
                 "triz", "design_thinking", "lateral_thinking", "synectics",
                 "morphological_analysis", "random_stimulation", "provocation",
                 "challenge_assumptions", "concept_fan", "discontinuity_analysis"

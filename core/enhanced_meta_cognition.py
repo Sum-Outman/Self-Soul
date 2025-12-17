@@ -1802,7 +1802,7 @@ class EnhancedMetaCognition:
             },
             'creativity': {
                 'suggestion': '提升创造性思维和想法生成',
-                'action': '尝试 brainstorming 或 SCAMPER 技术',
+                'action': '尝试 Soulstorming 或 SCAMPER 技术',
                 'base_priority': 0.7
             },
             'efficiency': {

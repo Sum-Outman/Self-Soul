@@ -36,7 +36,7 @@ AGICoordinator类 - AGI系统核心协调器
 AGICoordinator Class - Core AGI System Coordinator
 """
 class AGICoordinator:
-    """Self Brain  AGI中央协调器，管理和协调所有认知组件"""
+    """Self Soul  AGI中央协调器，管理和协调所有认知组件"""
     
     def __init__(self, from_scratch: bool = False):
         # 延迟导入以避免循环依赖

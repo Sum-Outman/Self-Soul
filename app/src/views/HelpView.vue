@@ -45,6 +45,7 @@
             <li><a href="#core-models" @click.prevent="scrollToSection('core-models')">Core Cognitive Models</a></li>
             <li><a href="#training-methodology" @click.prevent="scrollToSection('training-methodology')">Training Methodology</a></li>
             <li><a href="#advanced-capabilities" @click.prevent="scrollToSection('advanced-capabilities')">Advanced Capabilities</a></li>
+            <li><a href="#page-features" @click.prevent="scrollToSection('page-features')">Page Features Documentation</a></li>
             <li><a href="#troubleshooting" @click.prevent="scrollToSection('troubleshooting')">Troubleshooting & Support</a></li>
             <li><a href="#system-requirements" @click.prevent="scrollToSection('system-requirements')">System Requirements</a></li>
           </ul>
@@ -60,12 +61,36 @@
           <span class="toggle-icon">{{ sectionExpanded.systemOverview ? '−' : '+' }}</span>
         </div>
         <div v-if="sectionExpanded.systemOverview" class="section-content">
-        <p>Self Soul is a revolutionary human-like AGI system designed for autonomous learning, self-optimization, and multimodal intelligence. The system features a sophisticated architecture that integrates multiple cognitive capabilities including language processing, visual recognition, audio analysis, and sensor data interpretation.</p>
+        <p>Self Soul is a revolutionary human-like AGI system designed for autonomous learning, self-optimization, and multimodal intelligence. The system features a sophisticated architecture that integrates multiple cognitive capabilities including language processing, visual recognition, audio analysis, sensor data interpretation, and autonomous decision-making.</p>
+        
+        <div class="architecture-overview">
+          <h3>Architecture Highlights</h3>
+          <p>The system is built on a <strong>Unified Cognitive Architecture</strong> that integrates 19 specialized models working in concert to provide comprehensive AGI capabilities. Each model is assigned a dedicated port within the range 8001-8019, enabling distributed parallel processing while maintaining coordinated operation through the Manager Model (Port 8001).</p>
+          <p>Key components include the <strong>Adaptive Learning Engine</strong> that optimizes training parameters based on model performance and data characteristics, and a <strong>Dual ID System</strong> that ensures seamless communication between frontend (letter IDs A-X) and backend (string IDs like manager, language).</p>
+        </div>
         
         <div class="feature-list">
           <div v-for="feature in features" :key="feature.id" class="feature-item">
             <h3>{{ feature.title }}</h3>
             <p>{{ feature.description }}</p>
+          </div>
+        </div>
+        
+        <div class="system-technology">
+          <h3>Technology Stack</h3>
+          <div class="tech-stack">
+            <div class="tech-item">
+              <h4>Frontend</h4>
+              <p>Vue 3 + Vite for the training interface and help page, using reactive variables (ref, reactive) for state management</p>
+            </div>
+            <div class="tech-item">
+              <h4>Backend</h4>
+              <p>FastAPI providing RESTful API endpoints for model management, training, monitoring, and dataset operations, with interactive documentation at http://localhost:8000/docs</p>
+            </div>
+            <div class="tech-item">
+              <h4>Communication</h4>
+              <p>WebSocket for real-time updates, enabling live training progress, system monitoring, and multimodal stream processing</p>
+            </div>
           </div>
         </div>
         </div>
@@ -255,12 +280,282 @@
         <p>The Self Soul system employs advanced training techniques to continuously improve its capabilities and adapt to new scenarios.</p>
         
         <div class="training-info">
+          <h3>Training Interface Usage Steps</h3>
+          <div class="step-list">
+            <div class="step">
+              <span class="step-number">1</span>
+              <div class="step-content">
+                <h4>Access the Training Interface</h4>
+                <p>Navigate to <code>http://localhost:5175/#/training</code> in your web browser to access the training dashboard.</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">2</span>
+              <div class="step-content">
+                <h4>Select Training Model</h4>
+                <p>In the "Individual" tab, choose the specific model you want to train from the available model list. Each model is represented by a letter ID (A, B, C, etc.) corresponding to different cognitive functions.</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">3</span>
+              <div class="step-content">
+                <h4>Choose Dataset</h4>
+                <p>Select the appropriate dataset from the "Dataset" dropdown menu. The <strong>Multimodal Dataset v1</strong> supports all models and is recommended for comprehensive training.</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">4</span>
+              <div class="step-content">
+                <h4>Configure Training Strategy</h4>
+                <p>From the "Training Strategy" section, select the training approach that best fits your needs (e.g., Standard Training, Pre-trained Fine-tuning).</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">5</span>
+              <div class="step-content">
+                <h4>Set Training Parameters</h4>
+                <p>Configure the specific parameters for your selected strategy, such as epochs, batch size, learning rate, or pre-training settings.</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">6</span>
+              <div class="step-content">
+                <h4>Initiate Training</h4>
+                <p>Click the "Start Training" button to begin the training process. Monitor the progress and status updates in real-time.</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-number">7</span>
+              <div class="step-content">
+                <h4>Review Results</h4>
+                <p>After training completes, review the performance metrics and training logs to evaluate the model's improvement.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="training-info">
+          <h3>Model Selection and ID Mapping</h3>
+          <p>The system uses a dual ID system to manage model selection:</p>
+          <div class="info-box">
+            <h4>Frontend Letter IDs</h4>
+            <p>On the training interface, models are displayed using letter IDs (A, B, C, D, etc.) for simplicity. These letter IDs are mapped to backend model IDs through a conversion system.</p>
+            
+            <h4>Backend Model IDs</h4>
+            <p>The actual backend uses descriptive string IDs for each model. The mapping between frontend letter IDs and backend model IDs is handled automatically by the system:</p>
+            
+            <div class="model-id-mapping">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Frontend Letter ID</th>
+                    <th>Backend Model ID</th>
+                    <th>Model Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>A</td>
+                    <td>manager</td>
+                    <td>Core management model responsible for coordinating all other models</td>
+                  </tr>
+                  <tr>
+                    <td>B</td>
+                    <td>language</td>
+                    <td>Advanced language processing and understanding model</td>
+                  </tr>
+                  <tr>
+                    <td>C</td>
+                    <td>audio</td>
+                    <td>Audio processing and voice recognition model</td>
+                  </tr>
+                  <tr>
+                    <td>D</td>
+                    <td>vision_image</td>
+                    <td>Image vision processing and analysis model</td>
+                  </tr>
+                  <tr>
+                    <td>E</td>
+                    <td>vision_video</td>
+                    <td>Video stream processing and analysis model</td>
+                  </tr>
+                  <tr>
+                    <td>F</td>
+                    <td>spatial</td>
+                    <td>Spatial awareness and positioning model</td>
+                  </tr>
+                  <tr>
+                    <td>G</td>
+                    <td>sensor</td>
+                    <td>Sensor data processing and perception model</td>
+                  </tr>
+                  <tr>
+                    <td>H</td>
+                    <td>computer</td>
+                    <td>Computer control and interface model</td>
+                  </tr>
+                  <tr>
+                    <td>I</td>
+                    <td>motion</td>
+                    <td>Motion control and actuator management model</td>
+                  </tr>
+                  <tr>
+                    <td>J</td>
+                    <td>knowledge</td>
+                    <td>Knowledge base and expert system model</td>
+                  </tr>
+                  <tr>
+                    <td>K</td>
+                    <td>programming</td>
+                    <td>Programming and code generation model</td>
+                  </tr>
+                  <tr>
+                    <td>L</td>
+                    <td>planning</td>
+                    <td>Planning and decision-making model for task execution</td>
+                  </tr>
+                  <tr>
+                    <td>M</td>
+                    <td>autonomous</td>
+                    <td>Autonomous operation and self-governance model</td>
+                  </tr>
+                  <tr>
+                    <td>N</td>
+                    <td>emotion</td>
+                    <td>Emotion recognition and response model</td>
+                  </tr>
+                  <tr>
+                    <td>O</td>
+                    <td>spatial</td>
+                    <td>Spatial Model (duplicate for compatibility)</td>
+                  </tr>
+                  <tr>
+                    <td>P</td>
+                    <td>vision_image</td>
+                    <td>Computer Vision Model (duplicate for compatibility)</td>
+                  </tr>
+                  <tr>
+                    <td>Q</td>
+                    <td>sensor</td>
+                    <td>Sensor Model (duplicate for compatibility)</td>
+                  </tr>
+                  <tr>
+                    <td>R</td>
+                    <td>motion</td>
+                    <td>Motion Model (duplicate for compatibility)</td>
+                  </tr>
+                  <tr>
+                    <td>S</td>
+                    <td>prediction</td>
+                    <td>Predictive analysis and forecasting model</td>
+                  </tr>
+                  <tr>
+                    <td>T</td>
+                    <td>collaboration</td>
+                    <td>Model collaboration and coordination model for joint task execution</td>
+                  </tr>
+                  <tr>
+                    <td>U</td>
+                    <td>optimization</td>
+                    <td>Model optimization and performance enhancement model</td>
+                  </tr>
+                  <tr>
+                    <td>V</td>
+                    <td>finance</td>
+                    <td>Financial analysis and decision-making model</td>
+                  </tr>
+                  <tr>
+                    <td>W</td>
+                    <td>medical</td>
+                    <td>Medical data analysis and healthcare model</td>
+                  </tr>
+                  <tr>
+                    <td>X</td>
+                    <td>value_alignment</td>
+                    <td>Value alignment and ethical decision-making model</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <h4>Supported Models for Datasets</h4>
+            <p>Each dataset specifies which models it supports. When selecting a dataset, only the models compatible with that dataset will be available for training.</p>
+          </div>
+        </div>
+
+        <div class="training-info">
           <h3>Training Approaches</h3>
           <ul>
             <li v-for="approach in trainingApproaches" :key="approach.id">
               <strong>{{ approach.title }}</strong> - {{ approach.description }}
             </li>
           </ul>
+        </div>
+
+        <div class="training-info">
+          <h3>Autonomous Training Capabilities</h3>
+          <p>The Self Soul system features advanced autonomous training functionality that enables models to self-optimize without constant human supervision. This feature leverages the Adaptive Learning Engine to continuously improve model performance through intelligent parameter adjustment and learning strategy optimization.</p>
+          
+          <div class="info-box">
+            <h4>Key Features of Autonomous Training</h4>
+            <ul>
+              <li><strong>Automatic Parameter Tuning:</strong> The system dynamically adjusts training parameters (learning rate, batch size, epochs) based on real-time performance metrics</li>
+              <li><strong>Adaptive Learning Strategies:</strong> Switches between different training approaches (fine-tuning, transfer learning) based on data characteristics and model needs</li>
+              <li><strong>Multi-Model Coordination:</strong> Coordinates training across multiple models to ensure knowledge consistency and interoperability</li>
+              <li><strong>Performance Monitoring:</strong> Continuously monitors model performance and automatically stops training when optimal results are achieved</li>
+              <li><strong>Knowledge Integration:</strong> Automatically integrates newly learned knowledge into the system's knowledge base</li>
+            </ul>
+            
+            <h4>Enabling Autonomous Training</h4>
+            <p>To activate autonomous training:</p>
+            <ol>
+              <li>Navigate to the training interface at <code>http://localhost:5175/#/training</code></li>
+              <li>Select the models you want to train</li>
+              <li>Choose <strong>Multimodal Dataset v1</strong> from the dataset dropdown (supports all models)</li>
+              <li>Select <strong>Autonomous Training</strong> from the training strategy options</li>
+              <li>Configure any additional parameters if needed</li>
+              <li>Click "Start Training" to begin the autonomous training process</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="training-info">
+          <h3>Pre-trained Fine-tuning Detailed Configuration</h3>
+          <p>When selecting the "Pre-trained Fine-tuning" strategy, you can configure the following parameters:</p>
+          
+          <div class="parameter-list">
+            <div class="parameter-item">
+              <h4>Pretrained Model ID</h4>
+              <p>The ID of the pre-trained model to use as the foundation. This should be a valid model ID that has already been pre-trained.</p>
+            </div>
+            <div class="parameter-item">
+              <h4>Freeze Layers</h4>
+              <p>A boolean option to freeze (keep fixed) certain layers of the pre-trained model during training. This is useful when you want to preserve the foundational knowledge of the pre-trained model.</p>
+            </div>
+            <div class="parameter-item">
+              <h4>Freeze Layer Count</h4>
+              <p>If Freeze Layers is enabled, this specifies the number of layers from the bottom of the model to freeze. Only the top layers will be trainable.</p>
+            </div>
+            <div class="parameter-item">
+              <h4>Fine-tuning Mode</h4>
+              <p>Select the fine-tuning approach:</p>
+              <ul>
+                <li><strong>Full Fine-tuning:</strong> All layers are trainable (if Freeze Layers is disabled)</li>
+                <li><strong>Partial Fine-tuning:</strong> Only specific layers are trainable</li>
+                <li><strong>Linear Probing:</strong> Only the final classification layer is trainable</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="info-box">
+            <h4>Use Cases for Pre-trained Fine-tuning</h4>
+            <ul>
+              <li>When you have limited training data but want to leverage existing knowledge</li>
+              <li>For domain adaptation - adapting a general model to a specific domain</li>
+              <li>To speed up training by starting from a model that already has relevant knowledge</li>
+              <li>When you want to preserve the core capabilities of a pre-trained model while adding task-specific knowledge</li>
+            </ul>
+          </div>
         </div>
 
         <div class="training-info">
@@ -273,7 +568,123 @@
             <li>Balance individual model training with collaborative training sessions</li>
             <li>Schedule periodic knowledge integration sessions to maintain model coherence</li>
             <li>Use the built-in performance analytics to identify areas for improvement</li>
+            <li>When using pre-trained models, start with a small learning rate to avoid catastrophic forgetting</li>
+            <li>Consider freezing lower layers when fine-tuning pre-trained models to preserve general knowledge</li>
           </ul>
+        </div>
+
+        <div class="training-info">
+          <h3>Dataset Format Examples</h3>
+          <p>Proper dataset formatting is essential for effective model training. Below are examples of different dataset formats supported by the system:</p>
+          
+          <div class="dataset-format">
+            <h4>Text Dataset Example (JSON Format)</h4>
+            <pre class="code-block">
+{
+  "name": "Text Classification Dataset",
+  "description": "Dataset for text classification tasks",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "1",
+      "text": "The system is performing well.",
+      "label": "positive",
+      "metadata": {
+        "source": "user_feedback",
+        "timestamp": "2024-01-15T10:30:00Z"
+      }
+    },
+    {
+      "id": "2",
+      "text": "There seems to be an issue with the language model.",
+      "label": "negative",
+      "metadata": {
+        "source": "system_log",
+        "timestamp": "2024-01-15T11:15:00Z"
+      }
+    }
+  ],
+  "supportedModels": ["B", "C"]
+}</pre>
+          </div>
+          
+          <div class="dataset-format">
+            <h4>Image Dataset Example (JSON Format)</h4>
+            <pre class="code-block">
+{
+  "name": "Image Recognition Dataset",
+  "description": "Dataset for image classification tasks",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "1",
+      "image_path": "/data/images/cat_001.jpg",
+      "label": "cat",
+      "metadata": {
+        "resolution": "224x224",
+        "color_mode": "RGB"
+      }
+    },
+    {
+      "id": "2",
+      "image_path": "/data/images/dog_001.jpg",
+      "label": "dog",
+      "metadata": {
+        "resolution": "224x224",
+        "color_mode": "RGB"
+      }
+    }
+  ],
+  "supportedModels": ["D"]
+}</pre>
+          </div>
+          
+          <div class="dataset-format">
+            <h4>Multimodal Dataset Example (JSON Format)</h4>
+            <pre class="code-block">
+{
+  "name": "Multimodal Dataset v1",
+  "description": "Comprehensive dataset with text, image, and audio data",
+  "version": "1.0",
+  "data": [
+    {
+      "id": "1",
+      "text": "A person is playing the piano.",
+      "image_path": "/data/images/piano_001.jpg",
+      "audio_path": "/data/audio/piano_001.mp3",
+      "label": "music_performance",
+      "metadata": {
+        "scene": "concert",
+        "duration": "120.5"
+      }
+    },
+    {
+      "id": "2",
+      "text": "A dog is barking at the mailman.",
+      "image_path": "/data/images/dog_barking_001.jpg",
+      "audio_path": "/data/audio/dog_barking_001.wav",
+      "label": "animal_sound",
+      "metadata": {
+        "scene": "residential",
+        "duration": "30.2"
+      }
+    }
+  ],
+  "supportedModels": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"]
+}</pre>
+          </div>
+          
+          <div class="info-box">
+            <h4>Dataset Requirements</h4>
+            <ul>
+              <li>All datasets must be in valid JSON format</li>
+              <li>Each dataset must have a unique name and version</li>
+              <li>The <code>supportedModels</code> field specifies which models can use the dataset</li>
+              <li>Multimodal datasets should include all relevant data types (text, images, audio) for comprehensive training</li>
+              <li>File paths should be relative to the dataset root directory</li>
+              <li>Metadata fields are optional but recommended for better data management</li>
+            </ul>
+          </div>
         </div>
         </div>
       </section>
@@ -313,6 +724,177 @@
             <p>Transparent decision-making processes with clear explanations of reasoning paths</p>
           </div>
         </div>
+        </div>
+      </section>
+
+      <!-- Page Features Documentation -->
+      <section id="page-features" class="help-section">
+        <div class="section-header" @click="toggleSection('pageFeatures')">
+          <h2>Page Features Documentation</h2>
+          <span class="toggle-icon">{{ sectionExpanded.pageFeatures ? '−' : '+' }}</span>
+        </div>
+        <div v-if="sectionExpanded.pageFeatures" class="section-content">
+          <p>This section provides detailed documentation for each page feature in the Self Soul system.</p>
+          
+          <!-- Home View -->
+          <div class="page-docs">
+            <h3>Home View</h3>
+            <p>The Home View serves as the main dashboard for managing cameras and devices in the system.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Multi-camera Management:</strong> View and control multiple cameras with status indicators</li>
+              <li><strong>Device Status Monitoring:</strong> Real-time monitoring of camera status (active/inactive)</li>
+              <li><strong>Camera Controls:</strong> Start, stop, and configure individual cameras</li>
+              <li><strong>Stereo Vision Pairs:</strong> Manage paired cameras for 3D vision capabilities</li>
+              <li><strong>User Guide:</strong> Access system guide for new users</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>View the status of all connected cameras in the device grid</li>
+              <li>Click "Start" to activate a camera or "Stop" to deactivate it</li>
+              <li>Use "Settings" to configure camera parameters like resolution and frame rate</li>
+              <li>Manage stereo vision pairs for advanced computer vision tasks</li>
+            </ol>
+          </div>
+          
+          <!-- Chat From Scratch -->
+          <div class="page-docs">
+            <h3>Chat From Scratch</h3>
+            <p>A specialized chat interface designed for direct interaction with the language model during training.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Real-time Chat:</strong> Interactive conversation with the language model</li>
+              <li><strong>Training Status:</strong> View current model training parameters and progress</li>
+              <li><strong>Clear Chat:</strong> Reset the conversation history</li>
+              <li><strong>Confidence Monitoring:</strong> Track model confidence levels during interactions</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>Type messages in the input field to interact with the language model</li>
+              <li>Toggle "Show Status" to view detailed training information</li>
+              <li>Monitor vocabulary size, training epochs, and last activity timestamps</li>
+              <li>Use "Clear Chat" to start a new conversation</li>
+            </ol>
+          </div>
+          
+          <!-- Conversation View -->
+          <div class="page-docs">
+            <h3>Conversation View</h3>
+            <p>The main conversational interface for interacting with the Self Soul management model.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Natural Language Conversation:</strong> Engage in real-time dialogue with the management model</li>
+              <li><strong>Multimodal Support:</strong> Send and receive text, images, and audio messages</li>
+              <li><strong>Emotional Analysis:</strong> The model analyzes and responds to emotional cues</li>
+              <li><strong>Connection Status:</strong> Real-time monitoring of model connection (Port 8001)</li>
+              <li><strong>Conversation History:</strong> Maintain and clear chat history</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>Type messages in the input field to communicate with the management model</li>
+              <li>Use media buttons to send images or audio files</li>
+              <li>Monitor connection status through the header indicator</li>
+              <li>Click "Clear Conversation" to reset the chat history</li>
+            </ol>
+          </div>
+          
+          <!-- Knowledge View -->
+          <div class="page-docs">
+            <h3>Knowledge View</h3>
+            <p>A comprehensive interface for managing the system's knowledge base.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Knowledge Import:</strong> Upload and import knowledge from various file formats (PDF, DOCX, TXT, JSON, CSV)</li>
+              <li><strong>Browse Knowledge:</strong> Search and explore the existing knowledge base</li>
+              <li><strong>Knowledge Management:</strong> Organize and categorize knowledge entries</li>
+              <li><strong>Statistics:</strong> View knowledge base metrics and analytics</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>Navigate between Import, Browse, Manage, and Statistics tabs</li>
+              <li>Click "Select Files to Import" to upload knowledge documents</li>
+              <li>Use the search functionality to find specific knowledge entries</li>
+              <li>View statistics to understand knowledge base growth and distribution</li>
+            </ol>
+          </div>
+          
+          <!-- Settings View -->
+          <div class="page-docs">
+            <h3>Settings View</h3>
+            <p>Configure system settings and manage models.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Model Statistics:</strong> Overview of total, active, running, and API models</li>
+              <li><strong>API Service Status:</strong> Monitor global API service availability</li>
+              <li><strong>Model Configuration:</strong> Manage model settings and configurations</li>
+              <li><strong>Status Monitoring:</strong> Real-time status updates for all system components</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>View system statistics at the top of the page</li>
+              <li>Check API service status and refresh if needed</li>
+              <li>Configure individual model settings through the interface</li>
+              <li>Monitor model status indicators for each component</li>
+            </ol>
+          </div>
+          
+          <!-- Train View -->
+          <div class="page-docs">
+            <h3>Train View</h3>
+            <p>The training interface for managing model training and dataset selection.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Model Selection:</strong> Choose from 19 specialized models for training</li>
+              <li><strong>Dataset Selection:</strong> Select training datasets including the Multimodal Dataset v1</li>
+              <li><strong>Training Strategy:</strong> Choose from various training strategies including Autonomous Training</li>
+              <li><strong>Parameter Configuration:</strong> Set training parameters like batch size and learning rate</li>
+              <li><strong>Training Progress:</strong> Monitor training progress and status</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>Navigate to the training interface at <code>http://localhost:5175/#/training</code></li>
+              <li>Select one or more models to train</li>
+              <li>Choose Multimodal Dataset v1 for comprehensive training</li>
+              <li>Select a training strategy (e.g., Autonomous Training)</li>
+              <li>Configure training parameters if needed</li>
+              <li>Click "Start Training" to begin the training process</li>
+            </ol>
+          </div>
+          
+          <!-- Help View -->
+          <div class="page-docs">
+            <h3>Help View</h3>
+            <p>A comprehensive help system providing documentation for all system features.</p>
+            
+            <h4>Key Features:</h4>
+            <ul>
+              <li><strong>Search Functionality:</strong> Search for specific help topics</li>
+              <li><strong>Section Navigation:</strong> Browse help content by categories</li>
+              <li><strong>Expand/Collapse:</strong> Manage content visibility with toggle controls</li>
+              <li><strong>System Documentation:</strong> Detailed information about system architecture and features</li>
+              <li><strong>Troubleshooting:</strong> FAQ section for common issues</li>
+            </ul>
+            
+            <h4>Usage:</h4>
+            <ol>
+              <li>Use the search bar to find specific help topics</li>
+              <li>Navigate through sections using the sidebar menu</li>
+              <li>Click section headers to expand or collapse content</li>
+              <li>Use "Expand All" or "Collapse All" for quick content management</li>
+            </ol>
+          </div>
         </div>
       </section>
 
@@ -393,19 +975,44 @@ export default {
       // Feature data for the component
       features: [
         {
+          id: 'unified-cognitive-architecture',
+          title: 'Unified Cognitive Architecture',
+          description: 'Integrated system of 19 specialized models (manager, language, vision, etc.) working synergistically via dedicated ports (8001-8019), coordinated by the Manager Model (Port 8001)'
+        },
+        {
+          id: 'adaptive-learning-engine',
+          title: 'Adaptive Learning Engine',
+          description: 'Backend component that optimizes training parameters (learning rate, batch size) based on model performance and data characteristics in real-time'
+        },
+        {
+          id: 'frontend-backend-mapping',
+          title: 'Frontend-Backend Model ID Mapping',
+          description: 'Dual ID system where frontend uses letter IDs (A-X) for UI display and backend uses string IDs (manager, language), with automatic conversion via modelIdMapper.js'
+        },
+        {
+          id: 'multimodal-dataset',
+          title: 'Multimodal Dataset v1',
+          description: 'Comprehensive dataset supporting all 19 models with formats for text, images, audio, and video data, ensuring alignment between dataset and model capabilities'
+        },
+        {
+          id: 'websocket-communication',
+          title: 'WebSocket Communication',
+          description: 'Enables real-time updates for training progress, system monitoring, autonomous learning status, and audio/video stream processing'
+        },
+        {
+          id: 'distributed-model-architecture',
+          title: 'Distributed Model Architecture',
+          description: 'Each model runs on a dedicated port (8001-8019) for parallel processing, allowing independent optimization and coordinated operation'
+        },
+        {
           id: 'autonomous-learning',
           title: 'Autonomous Learning',
-          description: 'Continuous self-improvement through experience and data analysis'
+          description: 'Continuous self-improvement through experience, data analysis, and intrinsic motivation system'
         },
         {
           id: 'multimodal-integration',
           title: 'Multimodal Integration',
-          description: 'Seamless processing of text, images, audio, and sensor inputs'
-        },
-        {
-          id: 'real-time-adaptation',
-          title: 'Real-time Adaptation',
-          description: 'Dynamic adjustment to changing environments and requirements'
+          description: 'Seamless processing of text, images, audio, sensor inputs, and video streams for comprehensive understanding'
         }
       ],
       // Training approaches data
@@ -429,6 +1036,11 @@ export default {
           id: 'transfer-learning',
           title: 'Transfer Learning',
           description: 'Application of knowledge from one domain to accelerate learning in related areas'
+        },
+        {
+          id: 'pretrained-fine-tuning',
+          title: 'Pre-trained Fine-tuning',
+          description: 'Leveraging existing pre-trained models as a foundation and fine-tuning them for specific tasks with configurable layer freezing and fine-tuning modes'
         }
       ],
       // Search functionality
@@ -441,6 +1053,7 @@ export default {
         coreModels: true,
         trainingMethodology: true,
         advancedCapabilities: true,
+        pageFeatures: true,
         troubleshooting: true,
         systemRequirements: true
       },

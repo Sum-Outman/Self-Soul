@@ -73,10 +73,14 @@ class DatasetManager:
             "knowledge": ["json", "csv", "txt", "pdf", "docx", "html"],
             "programming": ["json", "csv", "txt", "py", "js", "java", "cpp"],
             "planning": ["json", "csv", "txt", "yaml"],
+            "autonomous": ["json", "csv", "txt", "yaml"],
+            "emotion": ["json", "csv", "txt"],
+            "prediction": ["json", "csv", "txt", "parquet"],
+            "collaboration": ["json", "csv", "txt", "jsonl"],
+            "optimization": ["json", "csv", "txt", "xlsx"],
             "finance": ["json", "csv", "xlsx", "txt"],
             "medical": ["json", "csv", "txt", "dicom", "nii"],
-            "prediction": ["json", "csv", "txt", "parquet"],
-            "emotion": ["json", "csv", "txt"],
+            "value_alignment": ["json", "csv", "txt", "pdf"],
             "stereo_vision": ["json", "csv", "txt", "png", "jpg", "bin"]
         }
     

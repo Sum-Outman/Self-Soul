@@ -59,14 +59,41 @@ class ModelServiceManager:
                 redoc_url=None
             )
             
-            # 配置CORS
+            # 配置CORS - 限制为可信来源
+            # 从环境变量获取允许的来源，默认为本地开发环境
+            cors_origins_str = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+            cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+            
             app.add_middleware(
                 CORSMiddleware,
-                allow_origins=["*"],
+                allow_origins=cors_origins,
                 allow_credentials=True,
-                allow_methods=["*"],
-                allow_headers=["*"],
+                allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                allow_headers=["Authorization", "Content-Type", "X-API-Key"],
             )
+            
+            # 添加API密钥验证中间件（可选）
+            @app.middleware("http")
+            async def authenticate_request(request: Request, call_next):
+                # 跳过健康检查端点的认证
+                if request.url.path.endswith("/health") or request.url.path.endswith("/docs") or request.url.path.endswith("/openapi.json"):
+                    return await call_next(request)
+                
+                # 从环境变量获取API密钥
+                api_key = os.environ.get("MODEL_SERVICE_API_KEY")
+                # 如果未设置API密钥，则跳过认证（仅用于开发环境）
+                if not api_key:
+                    return await call_next(request)
+                
+                # 检查请求头中的API密钥
+                request_api_key = request.headers.get("X-API-Key")
+                if request_api_key and request_api_key == api_key:
+                    return await call_next(request)
+                else:
+                    return JSONResponse(
+                        status_code=401,
+                        content={"status": "error", "message": "无效或缺失API密钥"}
+                    )
             
             # 加载模型
             model = self.model_registry.load_model(model_id)

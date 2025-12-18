@@ -265,6 +265,7 @@ Each AI model has a dedicated port and implements complete from-scratch training
 - Standardized `save_model()`, `load_model()` for model persistence
 - Centralized `FromScratchTrainingManager` coordinates all training activities
 - Each model runs on dedicated port for parallel distributed training
+- **Multimodal Dataset v1**: Expanded support for all models, enabling comprehensive training across all 19 AI capabilities
 
 ### Troubleshooting
 

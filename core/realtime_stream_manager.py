@@ -45,14 +45,40 @@ logger = logging.getLogger("RealTimeStreamManager")
 # Create FastAPI app
 app = FastAPI(title="Real-Time Stream Manager", version="1.0")
 
-# Add CORS middleware
+# Add CORS middleware - restrict to trusted origins
+cors_origins_str = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
 )
+
+# Add API key authentication middleware
+@app.middleware("http")
+async def authenticate_request_realtime(request: Request, call_next):
+    # Skip authentication for health check endpoints and documentation
+    if request.url.path.endswith("/health") or request.url.path.endswith("/docs") or request.url.path.endswith("/openapi.json"):
+        return await call_next(request)
+    
+    # Get API key from environment variable
+    api_key = os.environ.get("REALTIME_STREAM_API_KEY")
+    # If no API key is set, skip authentication (for development only)
+    if not api_key:
+        return await call_next(request)
+    
+    # Check API key in request headers
+    request_api_key = request.headers.get("X-API-Key")
+    if request_api_key and request_api_key == api_key:
+        return await call_next(request)
+    else:
+        return JSONResponse(
+            status_code=401,
+            content={"status": "error", "message": "Invalid or missing API key"}
+        )
 
 
 class RealTimeStreamManager:

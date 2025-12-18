@@ -3,7 +3,7 @@
     <!-- Top Menu Bar -->
     <nav class="top-menu-bar">
       <div class="menu-left">
-        <div class="system-title">Self Soul System</div>
+        <div class="system-title">Self Soul   (Email: silencecrowtom@qq.com)</div>
       </div>
       <div class="menu-right">
         <router-link to="/" class="menu-link" active-class="router-link-active">Home</router-link>

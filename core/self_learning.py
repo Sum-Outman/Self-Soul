@@ -1152,8 +1152,13 @@ class AGISelfLearningSystem:
             if isinstance(input_data, dict) and isinstance(output_data, dict):
                 for input_key in input_data.keys():
                     for output_key in output_data.keys():
-                        # 基于共现和变化检测因果关系
-                        causal_strength = random.uniform(0.3, 0.9)  # 简化的因果强度计算
+                        # 基于实际数据关联性计算因果强度，而非随机生成
+                        causal_strength = self._calculate_causal_strength(
+                            input_data[input_key], 
+                            output_data[output_key],
+                            input_key,
+                            output_key
+                        )
                         
                         if causal_strength > 0.6:  # 阈值
                             relation = {

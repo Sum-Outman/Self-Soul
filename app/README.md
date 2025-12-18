@@ -131,7 +131,7 @@ The frontend provides comprehensive training controls:
 
 1. **Model Selection**: Choose any of the 19 model types for training
 2. **Training Parameters**: Configure learning rate, batch size, epochs
-3. **Dataset Management**: Upload and manage custom training datasets
+3. **Dataset Management**: Upload and manage custom training datasets, including support for the Multimodal Dataset v1 that works with all models
 4. **Real-time Monitoring**: Visualize training loss, accuracy, and metrics
 5. **Model Persistence**: Save and load trained model weights
 6. **Performance Analytics**: Track model performance over time

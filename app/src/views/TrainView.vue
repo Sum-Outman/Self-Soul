@@ -224,6 +224,35 @@
             </div>
           </div>
         </div>
+        
+        <!-- Pretrained Fine-tuning Options -->
+        <div class="pretrained-options" v-if="selectedStrategy === 'pretrained'">
+          <h3>Pretrained Fine-tuning Options</h3>
+          <div class="pretrained-options-grid">
+            <div class="pretrained-option">
+              <label>Pretrained Model ID:</label>
+              <input type="text" v-model="parameters.pretrainedModelId" placeholder="Enter pretrained model ID">
+            </div>
+            <div class="pretrained-option">
+              <label>
+                <input type="checkbox" v-model="parameters.freezeLayers">
+                Freeze Layers
+              </label>
+            </div>
+            <div class="pretrained-option" v-if="parameters.freezeLayers">
+              <label>Freeze Layer Count:</label>
+              <input type="number" v-model.number="parameters.freezeLayerCount" min="0" max="100">
+            </div>
+            <div class="pretrained-option">
+              <label>Fine-tuning Mode:</label>
+              <select v-model="parameters.fineTuningMode">
+                <option value="full">Full Fine-tuning</option>
+                <option value="partial">Partial Fine-tuning</option>
+                <option value="linear">Linear Probing</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="action-buttons">
@@ -844,7 +873,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
-import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters } from '@/utils/modelIdMapper';
+import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters, letterIds } from '@/utils/modelIdMapper';
 import TerminalWindow from '@/components/TerminalWindow.vue';
 
 export default {
@@ -915,10 +944,16 @@ export default {
     
     // Datasets
     const datasets = ref([
-      { id: 'multimodal_v1', name: 'Multimodal Dataset v1' },
-      { id: 'language_only', name: 'Language Only Dataset' },
-      { id: 'vision_only', name: 'Vision Only Dataset' },
-      { id: 'sensor_only', name: 'Sensor Only Dataset' }
+      { id: 'multimodal_v1', name: 'Multimodal Dataset v1', supportedModels: letterIds },
+      { id: 'language_only', name: 'Language Only Dataset', supportedModels: ['A', 'B', 'J', 'K', 'L', 'N', 'S', 'T', 'V', 'W', 'X'] },
+      { id: 'vision_only', name: 'Vision Only Dataset', supportedModels: ['A', 'D', 'E', 'F', 'O', 'P'] },
+      { id: 'sensor_only', name: 'Sensor Only Dataset', supportedModels: ['A', 'G', 'I', 'Q', 'R'] },
+      { id: 'audio_text', name: 'Audio-Text Dataset', supportedModels: ['A', 'B', 'C', 'J', 'L', 'N', 'S', 'T'] },
+      { id: 'vision_language', name: 'Vision-Language Dataset', supportedModels: ['A', 'B', 'D', 'E', 'J', 'K', 'L', 'N', 'S', 'T'] },
+      { id: 'sensor_motion', name: 'Sensor-Motion Dataset', supportedModels: ['A', 'G', 'I', 'Q', 'R'] },
+      { id: 'knowledge_programming', name: 'Knowledge-Programming Dataset', supportedModels: ['A', 'J', 'K', 'L', 'S', 'T'] },
+      { id: 'autonomous_collaboration', name: 'Autonomous-Collaboration Dataset', supportedModels: ['A', 'L', 'M', 'T', 'U'] },
+      { id: 'finance_medical', name: 'Finance-Medical Dataset', supportedModels: ['A', 'J', 'L', 'V', 'W'] }
     ]);
     
     // Recommended combinations - includes all 19 system models (A-S)
@@ -942,25 +977,30 @@ export default {
     
     // Model dependencies - dependencies for all 19 system models (A-S)
     const modelDependencies = ref({
-      A: ['B', 'C'], // Manager model depends on language and knowledge models
-      B: ['C'],      // Language model depends on knowledge model
-      C: [],         // Knowledge model has no dependencies
-      D: ['J'],      // Vision model depends on spatial model
-      E: ['B'],      // Audio model depends on language model
-      F: ['A', 'C'], // Autonomous model depends on manager and knowledge models
-      G: ['B', 'C'], // Programming model depends on language and knowledge models
-      H: ['B', 'C'], // Planning model depends on language and knowledge models
-      I: ['B', 'C'], // Emotion model depends on language and knowledge models
-      J: [],         // Spatial model has no dependencies
-      K: ['D', 'C'], // Computer Vision model depends on vision and knowledge models
-      L: [],         // Sensor model has no dependencies
-      M: ['J', 'C'], // Motion model depends on spatial and knowledge models
-      N: ['C'],      // Prediction model depends on knowledge model
-      O: ['B', 'C'], // Advanced Reasoning model depends on language and knowledge models
-      P: ['C'],      // Data Fusion model depends on knowledge model
-      Q: ['B', 'C'], // Creative Problem Solving model depends on language and knowledge models
-      R: ['B', 'C'], // Meta Cognition model depends on language and knowledge models
-      S: ['B', 'C']  // Value Alignment model depends on language and knowledge models
+      A: [],         // Manager model (no dependencies)
+      B: [],         // Language model (no dependencies)
+      C: [],         // Audio model (no dependencies)
+      D: [],         // Vision Image model (no dependencies)
+      E: [],         // Vision Video model (no dependencies)
+      F: [],         // Spatial model (no dependencies)
+      G: [],         // Sensor model (no dependencies)
+      H: [],         // Computer model (no dependencies)
+      I: [],         // Motion model (no dependencies)
+      J: [],         // Knowledge model (no dependencies)
+      K: [],         // Programming model (no dependencies)
+      L: [],         // Planning model (no dependencies)
+      M: [],         // Autonomous model (no dependencies)
+      N: [],         // Emotion model (no dependencies)
+      O: [],         // Spatial model (duplicate, no dependencies)
+      P: [],         // Vision Image model (duplicate, no dependencies)
+      Q: [],         // Sensor model (duplicate, no dependencies)
+      R: [],         // Motion model (duplicate, no dependencies)
+      S: [],         // Prediction model (no dependencies)
+      T: [],         // Collaboration model (no dependencies)
+      U: [],         // Optimization model (no dependencies)
+      V: [],         // Finance model (no dependencies)
+      W: [],         // Medical model (no dependencies)
+      X: []          // Value Alignment model (no dependencies)
     });
     
     // Computed properties
@@ -988,9 +1028,18 @@ export default {
       );
     });
     
-    // Check if model is disabled (missing dependencies)
+    // Check if model is disabled (missing dependencies or not supported by dataset)
     const isModelDisabled = computed(() => (modelId) => {
       if (trainingMode.value === 'individual') return false;
+      
+      // Check if the selected dataset supports this model
+      const selectedDatasetConfig = datasets.value.find(d => d.id === selectedDataset.value);
+      if (selectedDatasetConfig && selectedDatasetConfig.supportedModels) {
+        // If dataset has supportedModels, check if this model is in the list
+        if (!selectedDatasetConfig.supportedModels.includes(modelId)) {
+          return true; // Model not supported by dataset
+        }
+      }
       
       // Check if there are unsatisfied dependencies
       const dependencies = modelDependencies.value[modelId];
@@ -1166,7 +1215,12 @@ export default {
       weightDecay: 0.0001,
       momentum: 0.9,
       optimizer: 'adam',
-      learningRateSchedule: 'constant'
+      learningRateSchedule: 'constant',
+      // Pretraining parameters
+      pretrainedModelId: null,
+      freezeLayers: false,
+      freezeLayerCount: 0,
+      fineTuningMode: 'full'
     });
     
     // Training strategy options
@@ -1174,7 +1228,8 @@ export default {
       { id: 'standard', name: 'Standard Training' },
       { id: 'knowledge_assisted', name: 'Knowledge Assisted Training' },
       { id: 'progressive', name: 'Progressive Training' },
-      { id: 'adaptive', name: 'Adaptive Learning' }
+      { id: 'adaptive', name: 'Adaptive Learning' },
+      { id: 'pretrained', name: 'Pre-trained Fine-tuning' }
     ]);
     
     // Selected training strategy
@@ -1344,7 +1399,14 @@ export default {
           parameters: {
             ...parameters.value,
             strategy: selectedStrategy.value,
-            knowledge_assist: selectedStrategy === 'knowledge_assisted' ? knowledgeAssistOptions.value : null
+            knowledge_assist: selectedStrategy.value === 'knowledge_assisted' ? knowledgeAssistOptions.value : null,
+            // Include pretraining parameters if using pretrained strategy
+            pretraining_params: selectedStrategy.value === 'pretrained' ? {
+              pretrainedModelId: parameters.value.pretrainedModelId,
+              freezeLayers: parameters.value.freezeLayers,
+              freezeLayerCount: parameters.value.freezeLayerCount,
+              fineTuningMode: parameters.value.fineTuningMode
+            } : null
           },
           training_mode: trainingMode.value,
           fromScratch: parameters.value.fromScratch || false

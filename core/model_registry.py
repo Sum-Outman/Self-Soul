@@ -396,10 +396,9 @@ class ModelRegistry:
         self._last_memory_usage_report = time.time()
         self._memory_usage_interval = 1800  # 30分钟报告一次内存使用情况
         
-        # 启动内存清理监控线程
+        # 内存清理监控线程（待实现）
         self._cleanup_thread = None
         self._stop_cleanup_thread = False
-        self._start_cleanup_monitor()
         
     def _start_cleanup_monitor(self):
         """启动内存清理监控线程

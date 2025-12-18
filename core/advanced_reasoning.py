@@ -554,21 +554,59 @@ class EnhancedAdvancedReasoningEngine:
             
     def _initialize_default_knowledge(self):
         """Initialize default logical knowledge in theorem prover"""
-        # Add some default logical axioms
+        # Add comprehensive logical axioms for complete theorem proving
         default_clauses = [
+            # Basic propositional logic axioms
+            # Law of excluded middle: P ∨ ¬P
+            ("?p", "!?p"),
+            # Law of non-contradiction: ¬(P ∧ ¬P) encoded as ¬P ∨ P (same as excluded middle)
+            # Double negation elimination: ¬¬P → P
+            ("!!?p", "?p"),
+            # Modus ponens: (P → Q) ∧ P → Q
+            ("!implies(?p, ?q)", "!?p", "?q"),
+            # Modus tollens: (P → Q) ∧ ¬Q → ¬P
+            ("!implies(?p, ?q)", "?q", "!?p"),
+            # Hypothetical syllogism: (P → Q) ∧ (Q → R) → (P → R)
+            ("!implies(?p, ?q)", "!implies(?q, ?r)", "implies(?p, ?r)"),
+            
+            # First-order logic with equality (if needed)
+            # Reflexivity of equality: x = x
+            ("equals(?x, ?x)",),
+            # Symmetry of equality: x = y → y = x
+            ("!equals(?x, ?y)", "equals(?y, ?x)"),
+            # Transitivity of equality: x = y ∧ y = z → x = z
+            ("!equals(?x, ?y)", "!equals(?y, ?z)", "equals(?x, ?z)"),
+            
+            # Domain-specific axioms for common sense reasoning
             # If something is a mammal, then it is an animal
             ("!is_a(?x, mammal)", "is_a(?x, animal)"),
             # If something requires oxygen, then it is alive
             ("!requires(?x, oxygen)", "alive(?x)"),
             # All humans are mammals
             ("!human(?x)", "is_a(?x, mammal)"),
-            # Modus ponens rule (encoded as a clause)
-            ("!implies(?p, ?q)", "!?p", "?q"),
+            # Transitivity of is_a relationship
+            ("!is_a(?x, ?y)", "!is_a(?y, ?z)", "is_a(?x, ?z)"),
+            # Part-of relationship transitivity
+            ("!part_of(?x, ?y)", "!part_of(?y, ?z)", "part_of(?x, ?z)"),
+            
+            # Causal relationship axioms
+            # Cause precedes effect in time
+            ("!causes(?x, ?y)", "precedes(?x, ?y)"),
+            # Effect cannot precede cause
+            ("!causes(?x, ?y)", "!precedes(?y, ?x)"),
+            
+            # Knowledge and reasoning axioms
+            # Knowledge enables understanding
+            ("!has_knowledge(?x, ?y)", "enables(?x, understanding(?y))"),
+            # Understanding leads to wisdom
+            ("!understands(?x, ?y)", "leads_to(?x, wisdom(?y))"),
         ]
         
         for clause in default_clauses:
             standardized_clause, _ = self.theorem_prover.standardize_variables(clause)
             self.theorem_prover.add_clause(standardized_clause)
+        
+        self.logger.info("Initialized theorem prover with comprehensive logical axioms")
             
     def _get_text_embedding(self, text: str) -> np.ndarray:
         """Generate text embedding using AGI self-learning encoder"""

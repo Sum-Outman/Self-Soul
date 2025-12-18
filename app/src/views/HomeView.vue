@@ -826,7 +826,7 @@ export default {
       
       try {
         // Create real WebSocket connection
-        const wsUrl = `ws://localhost:8766`;
+        const wsUrl = `ws://localhost:8000/ws/device-control`;
         this.deviceControlWebSocket = new WebSocket(wsUrl);
         
         this.deviceControlWebSocket.onopen = () => {

@@ -28,6 +28,7 @@ import asyncio
 import uvicorn
 import threading
 import argparse
+import json
 from datetime import datetime
 import numpy as np
 import uuid
@@ -468,6 +469,61 @@ async def websocket_test_connection(websocket: WebSocket):
         error_handler.handle_error(e, "WebSocket", "WebSocket connection test error")
         connection_manager.disconnect(websocket)
 
+@app.websocket("/ws/device-control")
+async def websocket_device_control(websocket: WebSocket):
+    """
+    Device control WebSocket endpoint
+    
+    Args:
+        websocket: WebSocket connection
+    """
+    await connection_manager.connect(websocket)
+    try:
+        # Send connection success message
+        await websocket.send_json({
+            "type": "connection_status",
+            "status": "connected",
+            "message": "Device control WebSocket connection established"
+        })
+        
+        # Handle messages and keep connection alive
+        while True:
+            # Receive messages from client
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            
+            # Handle different message types
+            if message['type'] == 'request_status':
+                # Get current device status
+                device_status = {
+                    "type": "device_status",
+                    "status": "online",
+                    "devices": {
+                        "cameras": camera_manager.list_available_cameras(),
+                        "serial_ports": external_device_interface.list_serial_ports()
+                    },
+                    "timestamp": datetime.now().isoformat()
+                }
+                await websocket.send_json(device_status)
+            elif message['type'] == 'ping':
+                # Respond to ping
+                await websocket.send_json({
+                    "type": "pong",
+                    "timestamp": datetime.now().isoformat()
+                })
+            elif message['type'] == 'heartbeat':
+                # Respond to heartbeat
+                await websocket.send_json({
+                    "type": "heartbeat",
+                    "timestamp": datetime.now().isoformat()
+                })
+            
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
+    except Exception as e:
+        error_handler.handle_error(e, "WebSocket", "Device control WebSocket error")
+        connection_manager.disconnect(websocket)
+
 @app.websocket("/ws/autonomous-learning/status")
 async def websocket_autonomous_learning_status(websocket: WebSocket):
     """
@@ -744,14 +800,48 @@ async def shutdown_event():
     """
     error_handler.log_info("Self Soul system is shutting down...", "System")
 
-# Configure CORS
+# Configure CORS - 限制为可信来源
+# 从环境变量获取允许的来源，默认为本地开发环境
+cors_origins_str = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:5175")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
 )
+
+# 添加API密钥验证中间件（可选）
+@app.middleware("http")
+async def authenticate_main_api_request(request: Request, call_next):
+    # 调试日志
+    print(f"Middleware request path: {request.url.path}")
+    print(f"Request headers: {dict(request.headers)}")
+    
+    # 跳过健康检查端点、文档和WebSocket端点的认证
+    if request.url.path in ["/health", "/docs", "/openapi.json"] or request.url.path.startswith("/ws/"):
+        print(f"Skipping authentication for path: {request.url.path}")
+        return await call_next(request)
+    
+    # 从环境变量获取API密钥
+    api_key = os.environ.get("MAIN_API_KEY")
+    # 如果未设置API密钥，则跳过认证（仅用于开发环境）
+    if not api_key:
+        print(f"No API key set, skipping authentication for path: {request.url.path}")
+        return await call_next(request)
+    
+    # 检查请求头中的API密钥
+    request_api_key = request.headers.get("X-API-Key")
+    if request_api_key and request_api_key == api_key:
+        return await call_next(request)
+    else:
+        print(f"Invalid API key for path: {request.url.path}")
+        return JSONResponse(
+            status_code=401,
+            content={"status": "error", "message": "无效或缺失API密钥"}
+        )
 
 # Health check endpoint
 @app.get("/health")

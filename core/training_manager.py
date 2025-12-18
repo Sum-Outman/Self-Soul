@@ -127,11 +127,11 @@ class TrainingManager:
         
         # Real-time data queue and processing thread with memory limits
         self.realtime_data_queue = queue.Queue(maxsize=1000)  # 限制队列大小
+        self._realtime_processing_active = True  # 添加控制标志
         self.realtime_thread = threading.Thread(target=self._process_realtime_training_data)
         self.realtime_thread.daemon = True
         self.realtime_thread.start()
         self.realtime_data_source = None
-        self._realtime_processing_active = True  # 添加控制标志
         
         # Dashboard data
         self.dashboard_data = {

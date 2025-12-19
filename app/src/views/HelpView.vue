@@ -519,6 +519,59 @@
         </div>
 
         <div class="training-info">
+          <h3>Training Preparation Workflow</h3>
+          <p>The system implements a comprehensive training preparation process before actual model training begins. This preparation phase covers four core dimensions to ensure optimal training conditions:</p>
+          
+          <div class="info-box">
+            <h4>1. Environment Initialization</h4>
+            <ul>
+              <li><strong>System Environment Checks:</strong> Verification of Python version, operating system compatibility, and required system libraries</li>
+              <li><strong>Hardware Resource Validation:</strong> Detection of GPU/CPU availability, memory sufficiency, and resource utilization</li>
+              <li><strong>PyTorch Environment Setup:</strong> Configuration of device settings (CUDA/cpu), library version validation, and performance optimizations</li>
+            </ul>
+          </div>
+          
+          <div class="info-box">
+            <h4>2. Data Preprocessing</h4>
+            <ul>
+              <li><strong>Data Quality Checks:</strong> Automated validation of data integrity, completeness, and consistency</li>
+              <li><strong>Format Standardization:</strong> Conversion of raw data into model-compatible formats for all modalities (text, image, audio, video)</li>
+              <li><strong>Train/Validation Splits:</strong> Intelligent data partitioning with stratified sampling based on model requirements</li>
+              <li><strong>Domain Adaptation:</strong> Optimization of data characteristics to match model capabilities and training objectives</li>
+            </ul>
+          </div>
+          
+          <div class="info-box">
+            <h4>3. Model Configuration</h4>
+            <ul>
+              <li><strong>Model Loading:</strong> Secure loading of model architectures and weights (if available)</li>
+              <li><strong>State Validation:</strong> Verification of model integrity and compatibility with training data</li>
+              <li><strong>Hyperparameter Initialization:</strong> Setting of default parameters (learning rate, batch size, optimizer) with model-specific optimizations</li>
+              <li><strong>"Train from Scratch" Setup:</strong> Special configuration for models being trained without pre-existing weights</li>
+            </ul>
+          </div>
+          
+          <div class="info-box">
+            <h4>4. Dependency Checking</h4>
+            <ul>
+              <li><strong>Package Validation:</strong> Verification of all required Python packages and their versions</li>
+              <li><strong>Resource Availability:</strong> Confirmation of sufficient memory, storage, and processing power for training</li>
+              <li><strong>Compatibility Checks:</strong> Validation of model dependencies with system environment and training data</li>
+            </ul>
+          </div>
+          
+          <div class="info-box">
+            <h4>Training Preparation Status</h4>
+            <p>During preparation, models transition through specific status states:</p>
+            <ul>
+              <li><strong>PREPARING:</strong> Initial preparation phase is underway</li>
+              <li><strong>PREPARED:</strong> All preparation steps completed successfully, ready for training</li>
+              <li><strong>PREPARATION_FAILED:</strong> One or more preparation steps encountered errors</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="training-info">
           <h3>Autonomous Training Capabilities</h3>
           <p>The Self Soul system features advanced autonomous training functionality that enables models to self-optimize without constant human supervision. This feature leverages the Adaptive Learning Engine to continuously improve model performance through intelligent parameter adjustment and learning strategy optimization.</p>
           

@@ -145,6 +145,17 @@ Ethical guidelines integration to ensure responsible AI behavior. The value alig
 
 **Use Cases**: Ethical AI applications, compliance monitoring, responsible decision-making systems, safe AGI development
 
+#### Extended API Support
+Comprehensive integration with leading AI API providers including international and domestic services. The system now supports seamless switching between local models and external APIs from multiple providers.
+
+- **International API Providers**: OpenAI, Anthropic, Google AI, HuggingFace, Cohere, Mistral
+- **Domestic API Providers**: DeepSeek, SiliconFlow, Zhipu AI, Baidu ERNIE, Alibaba Qwen, Moonshot, Yi, Tencent Hunyuan
+- **Local Model Support**: Ollama integration for running local LLMs with automatic configuration
+- **Unified API Management**: Single interface for configuring API keys, endpoints, and model parameters across all providers
+- **Flexible Switching**: Seamlessly switch between local and external models based on requirements and resource availability
+
+**Use Cases**: Multi-provider AI applications, cost-effective AI solutions, privacy-sensitive deployments, hybrid local-cloud architectures
+
 ## System Architecture
 
 Self Soul employs a layered architecture that separates core AI capabilities from the user interface, enabling modular development and deployment. The architecture is designed to support the coordination of 19 specialized AI models while providing a unified user experience.

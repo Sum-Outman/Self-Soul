@@ -39,3 +39,5 @@ python-dotenv>=1.0.0
 json5>=0.9.11
 chardet>=5.1.0
 click>=8.1.3
+# Optional dependencies (for Bayesian networks)
+pomegranate>=0.14.0

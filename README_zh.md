@@ -156,6 +156,18 @@ Self Soul代表了AGI研究和开发的重大进步，为探索通用人工智�
 
 **使用场景**: 伦理AI应用、合规监控、负责任决策系统、安全AGI开发
 
+#### 扩展API支持
+
+全面集成国内外主流AI API提供商，系统现在支持在本地模型和多个提供商的外部API之间无缝切换。
+
+- **国际API提供商**: OpenAI、Anthropic、Google AI、HuggingFace、Cohere、Mistral
+- **国内API提供商**: DeepSeek、硅基流动(SiliconFlow)、智谱AI(Zhipu AI)、百度文心一言(Baidu ERNIE)、阿里通义千问(Alibaba Qwen)、月之暗面(Moonshot)、零一万物(Yi)、腾讯混元(Tencent Hunyuan)
+- **本地模型支持**: Ollama集成，用于运行本地LLM并自动配置
+- **统一API管理**: 跨所有提供商的API密钥、端点和模型参数的单一接口配置
+- **灵活切换**: 根据需求和资源可用性，在本地和外部模型之间无缝切换
+
+**使用场景**: 多提供商AI应用、经济高效的AI解决方案、隐私敏感的部署、混合本地-云架构
+
 ## 系统架构
 
 Self Soul采用分层架构，将核心AI能力与用户界面分离，支持模块化开发和部署。该架构设计支持19个专业AI模型的协调，同时提供统一的用户体验。

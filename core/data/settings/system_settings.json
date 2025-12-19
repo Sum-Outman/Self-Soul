@@ -4,89 +4,173 @@
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Manager Model",
-      "active": true,
-      "source": "local"
+      "active": false
     },
     "language": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Language Model",
-      "active": true,
-      "source": "local"
+      "active": false
     },
     "audio": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Audio Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
-    "vision_image": {
+    "image": {
       "type": "local",
       "api_url": "",
       "api_key": "",
-      "name": "Vision Image Model",
-      "active": true,
-      "source": "local"
+      "model_name": "",
+      "source": ""
     },
-    "vision_video": {
+    "video": {
       "type": "local",
       "api_url": "",
       "api_key": "",
-      "name": "Vision Video Model",
-      "active": true,
-      "source": "local"
+      "model_name": "",
+      "source": ""
     },
     "spatial": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Spatial Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
     "sensor": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Sensor Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
     "computer": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Computer Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
     "motion": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Motion Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
     "knowledge": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Knowledge Model",
-      "active": true,
-      "source": "local"
+      "active": true
     },
     "programming": {
       "type": "local",
       "api_url": "",
       "api_key": "",
+      "model_name": "",
+      "source": "local",
       "name": "Programming Model",
-      "active": true,
-      "source": "local"
+      "active": true
+    },
+    "vision_image": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": "local",
+      "name": "Vision Image Model",
+      "active": true
+    },
+    "vision_video": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": "local",
+      "name": "Vision Video Model",
+      "active": true
+    },
+    "emotion": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": "",
+      "active": true
+    },
+    "planning": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": "",
+      "active": true
+    },
+    "prediction": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": ""
+    },
+    "advanced_reasoning": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": ""
+    },
+    "data_fusion": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": ""
+    },
+    "creative_problem_solving": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": ""
+    },
+    "meta_cognition": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": ""
+    },
+    "value_alignment": {
+      "type": "local",
+      "api_url": "",
+      "api_key": "",
+      "model_name": "",
+      "source": "",
+      "active": false
     }
   },
   "system": {
@@ -96,5 +180,4 @@
     "max_memory_usage": 80,
     "max_cpu_usage": 90
   }
-
 }

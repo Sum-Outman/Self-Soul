@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
 // 创建axios实例
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, // 增加超时时间，避免请求被过早中止
+  timeout: 30000, // 增加超时时间到30秒，避免请求被过早中止
   headers: {
     'Content-Type': 'application/json',
   },

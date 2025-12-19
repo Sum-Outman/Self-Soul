@@ -1255,9 +1255,24 @@ export default {
     },
     
     // Start Speech Recognition
-    startSpeechRecognition() {
+    async startSpeechRecognition() {
       if (!('webkitSpeechRecognition' in window)) {
         this.showError('Speech recognition is not supported in this browser.');
+        return;
+      }
+      
+      // Request microphone permission first
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (error) {
+        console.error('Microphone permission error:', error);
+        if (error.name === 'NotAllowedError') {
+          this.showError('Microphone permission denied. Please enable microphone access in your browser settings.');
+        } else if (error.name === 'NotFoundError') {
+          this.showError('No microphone found. Please connect a microphone.');
+        } else {
+          this.showError('Failed to access microphone. Please try again.');
+        }
         return;
       }
       
@@ -1285,7 +1300,11 @@ export default {
       
       this.recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        this.showError('Speech recognition error');
+        if (event.error === 'not-allowed') {
+          this.showError('Microphone permission denied. Please enable microphone access in your browser settings.');
+        } else {
+          this.showError('Speech recognition error');
+        }
       };
       
       this.recognition.start();

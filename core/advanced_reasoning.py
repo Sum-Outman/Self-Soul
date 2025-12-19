@@ -55,7 +55,7 @@ import itertools
 from scipy.special import expit
 # Try to import pomegranate for Bayesian networks (optional dependency)
 try:
-    import pomegranate as pm
+    import pomegranate as pm  # type: ignore
     POMEGRANATE_AVAILABLE = True
 except ImportError:
     pm = None

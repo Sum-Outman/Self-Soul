@@ -192,18 +192,27 @@
                     placeholder="e.g., gpt-4, claude-3-opus"
                   />
                 </div>
-                <div class="form-group">
-                  <label :for="`api-source-${model.id}`">API Provider</label>
-                  <select :id="`api-source-${model.id}`" v-model="model.source_provider">
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="google">Google AI</option>
-                    <option value="aws">AWS</option>
-                    <option value="azure">Azure</option>
-                    <option value="huggingface">Hugging Face</option>
-                    <option value="custom">Custom</option>
-                  </select>
-                </div>
+              <div class="form-group">
+                <label :for="`api-source-${model.id}`">API Provider</label>
+                <select :id="`api-source-${model.id}`" v-model="model.sourceProvider">
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="google">Google AI</option>
+                  <option value="aws">AWS</option>
+                  <option value="azure">Azure</option>
+                  <option value="huggingface">Hugging Face</option>
+                  <option value="custom">Custom</option>
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="siliconflow">SiliconFlow</option>
+                  <option value="zhipu">Zhipu AI</option>
+                  <option value="baidu">Baidu ERNIE</option>
+                  <option value="alibaba">Alibaba Qwen</option>
+                  <option value="moonshot">Moonshot</option>
+                  <option value="yi">Yi</option>
+                  <option value="tencent">Tencent Hunyuan</option>
+                  <option value="ollama">Ollama</option>
+                </select>
+              </div>
                 <div class="api-actions">
                   <button 
                     class="test-btn" 
@@ -713,17 +722,26 @@
                 </div>
                 <div class="form-group">
                   <label for="api-provider-{{ model.id }}">API Provider</label>
-                  <select
-                    :id="'api-provider-' + model.id"
-                    v-model="model.sourceProvider"
-                  >
-                    <option value="custom">Custom</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="google">Google AI</option>
-                    <option value="huggingface">Hugging Face</option>
-                    <option value="mistral">Mistral AI</option>
-                  </select>
+                <select
+                  :id="'api-provider-' + model.id"
+                  v-model="model.sourceProvider"
+                >
+                  <option value="custom">Custom</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="google">Google AI</option>
+                  <option value="huggingface">Hugging Face</option>
+                  <option value="mistral">Mistral AI</option>
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="siliconflow">SiliconFlow</option>
+                  <option value="zhipu">Zhipu AI</option>
+                  <option value="baidu">Baidu ERNIE</option>
+                  <option value="alibaba">Alibaba Qwen</option>
+                  <option value="moonshot">Moonshot</option>
+                  <option value="yi">Yi</option>
+                  <option value="tencent">Tencent Hunyuan</option>
+                  <option value="ollama">Ollama</option>
+                </select>
                 </div>
               </div>
               <div class="form-row">
@@ -1202,19 +1220,46 @@ export default {
       // If changing to external, ensure it has necessary API fields
       if (newSource === 'external' && !model.apiUrl) {
         // Set default values based on provider if available
-        if (model.sourceProvider === 'openai') {
-          model.apiUrl = 'https://api.openai.com/v1/chat/completions'
-          model.modelName = 'gpt-4'
-        } else if (model.sourceProvider === 'anthropic') {
-          model.apiUrl = 'https://api.anthropic.com/v1/messages'
-          model.modelName = 'claude-3-opus-20240229'
-        } else if (model.sourceProvider === 'google') {
-          model.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models'
-          model.modelName = 'gemini-pro'
-        } else if (model.sourceProvider === 'huggingface') {
-          model.apiUrl = 'https://api-inference.huggingface.co/models'
-          model.modelName = 'meta-llama/Llama-2-70b-chat-hf'
-        }
+      if (model.sourceProvider === 'openai') {
+        model.apiUrl = 'https://api.openai.com/v1/chat/completions'
+        model.modelName = 'gpt-4'
+      } else if (model.sourceProvider === 'anthropic') {
+        model.apiUrl = 'https://api.anthropic.com/v1/messages'
+        model.modelName = 'claude-3-opus-20240229'
+      } else if (model.sourceProvider === 'google') {
+        model.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models'
+        model.modelName = 'gemini-pro'
+      } else if (model.sourceProvider === 'huggingface') {
+        model.apiUrl = 'https://api-inference.huggingface.co/models'
+        model.modelName = 'meta-llama/Llama-2-70b-chat-hf'
+      } else if (model.sourceProvider === 'deepseek') {
+        model.apiUrl = 'https://api.deepseek.com/v1/chat/completions'
+        model.modelName = 'deepseek-chat'
+      } else if (model.sourceProvider === 'siliconflow') {
+        model.apiUrl = 'https://api.siliconflow.cn/v1/chat/completions'
+        model.modelName = 'Qwen2.5-32B-Instruct'
+      } else if (model.sourceProvider === 'zhipu') {
+        model.apiUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
+        model.modelName = 'glm-4'
+      } else if (model.sourceProvider === 'baidu') {
+        model.apiUrl = 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions'
+        model.modelName = 'ERNIE-4.0-8K'
+      } else if (model.sourceProvider === 'alibaba') {
+        model.apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
+        model.modelName = 'qwen-max'
+      } else if (model.sourceProvider === 'moonshot') {
+        model.apiUrl = 'https://api.moonshot.cn/v1/chat/completions'
+        model.modelName = 'moonshot-v1-8k'
+      } else if (model.sourceProvider === 'yi') {
+        model.apiUrl = 'https://api.01.ai/v1/chat/completions'
+        model.modelName = 'yi-34b-chat'
+      } else if (model.sourceProvider === 'tencent') {
+        model.apiUrl = 'https://hunyuan.tencent.com/api/v1/chat/completions'
+        model.modelName = 'hunyuan-standard'
+      } else if (model.sourceProvider === 'ollama') {
+        model.apiUrl = 'http://localhost:11434/v1/chat/completions'
+        model.modelName = 'llama2'
+      }
       }
       
       try {

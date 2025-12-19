@@ -267,6 +267,32 @@
             <p>Ethical decision making and value alignment</p>
           </div>
         </div>
+        
+        <div class="training-info">
+          <h3>External API Integration</h3>
+          <p>All core cognitive models can be enhanced or replaced with external API providers for extended capabilities. The system supports seamless integration with multiple AI service providers:</p>
+          
+          <div class="info-box">
+            <h4>Supported API Providers</h4>
+            <ul>
+              <li><strong>International Providers:</strong> OpenAI, Anthropic, Google AI, HuggingFace, Cohere, Mistral</li>
+              <li><strong>Domestic Chinese Providers:</strong> DeepSeek, SiliconFlow (硅基流动), Zhipu AI (智谱AI), Baidu ERNIE (百度文心一言), Alibaba Qwen (阿里通义千问), Moonshot (月之暗面), Yi (零一万物), Tencent Hunyuan (腾讯混元)</li>
+              <li><strong>Local Model Support:</strong> Ollama integration for running local LLMs with automatic configuration</li>
+            </ul>
+            
+            <h4>Configuration</h4>
+            <p>API providers can be configured in the Settings View under "Models > API Settings > API Provider API". Each model can be individually configured to use either local processing or external API services.</p>
+            
+            <h4>Benefits</h4>
+            <ul>
+              <li>Access to state-of-the-art AI models from multiple providers</li>
+              <li>Flexibility to switch between local and cloud-based processing</li>
+              <li>Cost optimization by selecting appropriate providers for different tasks</li>
+              <li>Enhanced privacy options through local model execution</li>
+              <li>Automatic fallback between providers for reliability</li>
+            </ul>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -837,6 +863,7 @@
               <li><strong>API Service Status:</strong> Monitor global API service availability</li>
               <li><strong>Model Configuration:</strong> Manage model settings and configurations</li>
               <li><strong>Status Monitoring:</strong> Real-time status updates for all system components</li>
+              <li><strong>Extended API Support:</strong> Configuration for multiple AI service providers including domestic Chinese APIs and local models</li>
             </ul>
             
             <h4>Usage:</h4>
@@ -845,7 +872,74 @@
               <li>Check API service status and refresh if needed</li>
               <li>Configure individual model settings through the interface</li>
               <li>Monitor model status indicators for each component</li>
+              <li>Configure external API providers for enhanced model capabilities</li>
             </ol>
+            
+            <div class="info-box">
+              <h4>API Configuration Details</h4>
+              <p>The Settings View provides comprehensive configuration options for external AI API providers and local models:</p>
+              
+              <h5>Supported API Providers</h5>
+              <p>The system supports a wide range of AI service providers that can be configured under "Models > API Settings > API Provider API":</p>
+              
+              <div class="provider-list">
+                <h6>International Providers:</h6>
+                <ul>
+                  <li><strong>OpenAI:</strong> GPT models including GPT-4, GPT-3.5-Turbo</li>
+                  <li><strong>Anthropic:</strong> Claude models including Claude-3 series</li>
+                  <li><strong>Google AI:</strong> Gemini models and PaLM API</li>
+                  <li><strong>HuggingFace:</strong> Open-source models from HuggingFace Hub</li>
+                  <li><strong>Cohere:</strong> Command models and embedding APIs</li>
+                  <li><strong>Mistral:</strong> Mistral AI models including Mixtral</li>
+                </ul>
+                
+                <h6>Domestic Chinese Providers:</h6>
+                <ul>
+                  <li><strong>DeepSeek:</strong> DeepSeek models including DeepSeek-V2, DeepSeek-Coder</li>
+                  <li><strong>SiliconFlow (硅基流动):</strong> SiliconFlow platform models</li>
+                  <li><strong>Zhipu AI (智谱AI):</strong> GLM models including GLM-4</li>
+                  <li><strong>Baidu ERNIE (百度文心一言):</strong> ERNIE models including ERNIE 4.0</li>
+                  <li><strong>Alibaba Qwen (阿里通义千问):</strong> Qwen models including Qwen2.5</li>
+                  <li><strong>Moonshot (月之暗面):</strong> Moonshot AI models including Kimi</li>
+                  <li><strong>Yi (零一万物):</strong> Yi models including Yi-34B</li>
+                  <li><strong>Tencent Hunyuan (腾讯混元):</strong> Tencent Hunyuan models</li>
+                </ul>
+                
+                <h6>Local Model Support:</h6>
+                <ul>
+                  <li><strong>Ollama:</strong> Run local LLMs with automatic configuration (default: http://localhost:11434/v1/chat/completions, model: llama2)</li>
+                </ul>
+              </div>
+              
+              <h5>Configuration Steps</h5>
+              <ol>
+                <li>Navigate to Settings View > Models section</li>
+                <li>Click on "API Settings" tab</li>
+                <li>Select "API Provider API" configuration</li>
+                <li>Choose the desired provider from the dropdown menu</li>
+                <li>Enter API key, endpoint URL, and model name</li>
+                <li>For Ollama, the system automatically configures default settings but can be customized if needed</li>
+                <li>Save the configuration for each model individually</li>
+              </ol>
+              
+              <h5>Benefits of Multi-Provider Support</h5>
+              <ul>
+                <li><strong>Flexibility:</strong> Choose the best provider for each task based on cost, performance, or specific capabilities</li>
+                <li><strong>Redundancy:</strong> Automatic fallback between providers if one is unavailable</li>
+                <li><strong>Cost Optimization:</strong> Mix and match providers based on pricing models</li>
+                <li><strong>Privacy:</strong> Use local models (Ollama) for sensitive data processing</li>
+                <li><strong>Performance:</strong> Leverage specialized models from different providers for specific tasks</li>
+              </ul>
+              
+              <h5>Automatic Configuration Features</h5>
+              <p>The system includes intelligent auto-configuration for supported providers:</p>
+              <ul>
+                <li><strong>Ollama:</strong> Automatically detects local Ollama instance and configures default settings</li>
+                <li><strong>Provider Detection:</strong> Validates API endpoints and keys before saving configurations</li>
+                <li><strong>Model Compatibility:</strong> Suggests appropriate models based on selected provider</li>
+                <li><strong>Performance Optimization:</strong> Recommends optimal settings based on model capabilities</li>
+              </ul>
+            </div>
           </div>
           
           <!-- Train View -->

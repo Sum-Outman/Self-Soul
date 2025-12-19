@@ -873,7 +873,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import api from '@/utils/api';
 import errorHandler from '@/utils/errorHandler';
-import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters, letterIds } from '@/utils/modelIdMapper';
+import { letterToId, idToLetter, letterToIdMap, idToLetterMap, lettersToIds, idsToLetters, letterIds, getModelDisplayName, getModelDescription } from '@/utils/modelIdMapper';
 import TerminalWindow from '@/components/TerminalWindow.vue';
 
 export default {
@@ -917,7 +917,8 @@ export default {
         showError('Failed to load models from backend. Using default model list.');
         
         // Initialize with default model list based on modelIdMapper
-        availableModels.value = Object.keys(letterToIdMap).map(letterId => {
+        // Create a new array to ensure Vue detects the change
+        const defaultModels = Object.keys(letterToIdMap).map(letterId => {
           const stringId = letterToIdMap[letterId];
           return {
             id: letterId,
@@ -933,6 +934,9 @@ export default {
             }
           };
         });
+        
+        // Update availableModels with the new array
+        availableModels.value = defaultModels;
       } finally {
         modelsLoading.value = false;
       }

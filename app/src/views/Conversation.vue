@@ -69,10 +69,13 @@
           :disabled="isLoading"
         >
         <div class="input-buttons">
-          <button @click="sendMessage" :disabled="!newMessage.trim() || isLoading" class="send-btn">
-            {{ isLoading ? 'Sending...' : 'Send' }}
-          </button>
-        </div>
+        <button @click="sendMessage" :disabled="!newMessage.trim() || isLoading" class="send-btn">
+          {{ isLoading ? 'Sending...' : 'Send' }}
+        </button>
+        <button @click="toggleSpeechRecognition" :disabled="isLoading" class="voice-input-btn" :class="{ 'active': isSpeechRecognitionActive }">
+          {{ isSpeechRecognitionActive ? 'Stop' : 'Voice Input' }}
+        </button>
+      </div>
       </div>
         <div class="multimodal-hint">
           <small>Hint: You can enter image URLs or audio URLs for multimodal interaction</small>
@@ -97,6 +100,11 @@ const newMessage = ref('');
 const modelConnectionStatus = ref('connecting');
 const isLoading = ref(false);
 const error = ref(null);
+
+// Speech recognition
+const recognition = ref(null);
+const transcript = ref('');
+const isSpeechRecognitionActive = ref(false);
 
 // Computed
 const connectionStatusText = computed(() => {
@@ -226,6 +234,184 @@ async function checkModelConnection() {
   } catch (err) {
     console.error('Model connection check failed:', err);
     modelConnectionStatus.value = 'disconnected';
+  }
+}
+
+// Speech recognition methods
+async function startSpeechRecognition() {
+  // 重置之前的错误
+  error.value = null;
+  
+  // 检查浏览器支持
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognitionAPI) {
+    error.value = '语音识别功能在当前浏览器中不被支持，请使用 Chrome 或 Edge 浏览器。';
+    return;
+  }
+  
+  // 检查页面协议（某些浏览器限制HTTP下的麦克风访问）
+  if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    error.value = '语音识别功能在 HTTP 协议下可能受到限制，请使用 HTTPS 访问或在本地环境（localhost/127.0.0.1）下使用。';
+    return;
+  }
+  
+  // 确保之前的识别实例已停止
+  if (recognition.value) {
+    try {
+      recognition.value.stop();
+    } catch (e) {
+      console.log('之前的语音识别实例已停止或不存在');
+    }
+    recognition.value = null;
+  }
+  
+  // 请求麦克风权限
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    console.error('麦克风权限错误:', err);
+    let errorMessage;
+    
+    switch (err.name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        errorMessage = '麦克风权限被拒绝，请在浏览器设置中启用麦克风访问权限后重试。\n\n操作方法：\n1. 点击地址栏左侧的锁定图标\n2. 选择"网站设置"\n3. 在麦克风选项中选择"允许"';
+        break;
+      case 'NotFoundError':
+        errorMessage = '未检测到麦克风设备，请连接麦克风后重试。';
+        break;
+      case 'NotReadableError':
+        errorMessage = '麦克风正在被其他应用使用，请关闭该应用后重试。';
+        break;
+      case 'AbortError':
+        errorMessage = '权限请求被中断，请重试。';
+        break;
+      case 'TypeError':
+        errorMessage = '无法获取麦克风设备，请检查设备连接和浏览器设置。';
+        break;
+      default:
+        errorMessage = `无法访问麦克风：${err.message}。请检查设备设置并重试。`;
+    }
+    
+    error.value = errorMessage;
+    return;
+  }
+  
+  // 初始化语音识别
+  try {
+    recognition.value = new SpeechRecognitionAPI();
+    recognition.value.continuous = true;
+    recognition.value.interimResults = true;
+    recognition.value.lang = 'zh-CN'; // 设置为中文识别
+    recognition.value.maxAlternatives = 1;
+    
+    recognition.value.onresult = (event) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcriptText = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcriptText;
+          // 添加最终转录到输入字段
+          newMessage.value = finalTranscript;
+          transcript.value = '';
+        } else {
+          interimTranscript += transcriptText;
+          transcript.value = interimTranscript;
+        }
+      }
+    };
+    
+    recognition.value.onerror = (event) => {
+      console.error('语音识别错误:', event.error);
+      let errorMessage;
+      
+      switch (event.error) {
+        case 'not-allowed':
+          errorMessage = '麦克风权限被拒绝，请在浏览器设置中启用麦克风访问权限后重试。\n\n操作方法：\n1. 点击地址栏左侧的锁定图标\n2. 选择"网站设置"\n3. 在麦克风选项中选择"允许"';
+          break;
+        case 'no-speech':
+          errorMessage = '未检测到语音，请对着麦克风清晰说话。';
+          break;
+        case 'aborted':
+          errorMessage = '语音识别被中断，请重试。';
+          break;
+        case 'audio-capture':
+          errorMessage = '音频捕获失败，请检查麦克风设置。';
+          break;
+        case 'network':
+          errorMessage = '网络错误，语音识别需要网络连接。请检查您的互联网连接。';
+          break;
+        case 'service-not-allowed':
+          errorMessage = '语音识别服务不可用，可能是由于浏览器设置或网络限制。';
+          break;
+        case 'bad-grammar':
+          errorMessage = '语音识别语法错误，请重试。';
+          break;
+        case 'language-not-supported':
+          errorMessage = '不支持当前语言，请尝试其他语言设置。';
+          break;
+        default:
+          errorMessage = `语音识别错误：${event.error}`;
+      }
+      
+      error.value = errorMessage;
+      isSpeechRecognitionActive.value = false;
+      
+      // 确保识别服务已停止
+      if (recognition.value) {
+        try {
+          recognition.value.stop();
+        } catch (e) {
+          console.log('停止语音识别实例时出错:', e);
+        }
+        recognition.value = null;
+      }
+    };
+    
+    recognition.value.onend = () => {
+      console.log('语音识别已结束');
+      isSpeechRecognitionActive.value = false;
+      recognition.value = null;
+    };
+    
+    recognition.value.onstart = () => {
+      console.log('语音识别已成功启动');
+      isSpeechRecognitionActive.value = true;
+    };
+    
+    recognition.value.start();
+  } catch (err) {
+    console.error('初始化语音识别失败:', err);
+    error.value = `启动语音识别失败：${err.message}。请重试。`;
+    isSpeechRecognitionActive.value = false;
+    
+    // 确保识别服务已停止
+    if (recognition.value) {
+      try {
+        recognition.value.stop();
+      } catch (e) {
+        console.log('清理语音识别实例时出错:', e);
+      }
+      recognition.value = null;
+    }
+  }
+}
+
+function stopSpeechRecognition() {
+  if (recognition.value) {
+    recognition.value.stop();
+    recognition.value = null;
+    isSpeechRecognitionActive.value = false;
+  }
+}
+
+function toggleSpeechRecognition() {
+  if (isSpeechRecognitionActive.value) {
+    stopSpeechRecognition();
+  } else {
+    startSpeechRecognition();
   }
 }
 
@@ -570,6 +756,42 @@ onMounted(() => {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.voice-input-btn {
+  padding: 0.75rem 1.5rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.voice-input-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  background: #218838;
+}
+
+.voice-input-btn:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.voice-input-btn.active {
+  background: #dc3545;
+  animation: pulse 1.5s infinite;
+}
+
+.voice-input-btn.active:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  background: #c82333;
 }
 
 .multimodal-hint {

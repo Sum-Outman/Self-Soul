@@ -161,7 +161,8 @@ class ExternalAPIService:
         
         # 支持的API提供商
         # Supported API providers
-        self.supported_providers = ["openai", "anthropic", "google", "aws", "azure", "huggingface", "cohere", "mistral", "replicate", "ollama"]
+        self.supported_providers = ["openai", "anthropic", "google", "aws", "azure", "huggingface", "cohere", "mistral", "replicate", "ollama",
+                                    "deepseek", "siliconflow", "zhipu", "baidu", "alibaba", "moonshot", "yi", "tencent"]
         
         # API服务状态 | API service status
         self.services = {
@@ -210,6 +211,38 @@ class ExternalAPIService:
             },
             "ollama": {
                 "inference": None,
+                "configured": False
+            },
+            "deepseek": {
+                "chat": None,
+                "configured": False
+            },
+            "siliconflow": {
+                "chat": None,
+                "configured": False
+            },
+            "zhipu": {
+                "chat": None,
+                "configured": False
+            },
+            "baidu": {
+                "chat": None,
+                "configured": False
+            },
+            "alibaba": {
+                "chat": None,
+                "configured": False
+            },
+            "moonshot": {
+                "chat": None,
+                "configured": False
+            },
+            "yi": {
+                "chat": None,
+                "configured": False
+            },
+            "tencent": {
+                "chat": None,
                 "configured": False
             }
         }
@@ -326,6 +359,70 @@ class ExternalAPIService:
                 "base_url": "http://localhost:11434",
                 "model": "llama3",
                 "timeout": 60
+            },
+            "deepseek": {
+                "api_key": "",
+                "base_url": "https://api.deepseek.com",
+                "model": "deepseek-chat",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "siliconflow": {
+                "api_key": "",
+                "base_url": "https://api.siliconflow.cn/v1",
+                "model": "Qwen2.5-7B-Instruct",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "zhipu": {
+                "api_key": "",
+                "base_url": "https://open.bigmodel.cn/api/paas/v4",
+                "model": "glm-4",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "baidu": {
+                "api_key": "",
+                "base_url": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop",
+                "model": "ERNIE-Bot-4",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "alibaba": {
+                "api_key": "",
+                "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                "model": "qwen-max",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "moonshot": {
+                "api_key": "",
+                "base_url": "https://api.moonshot.cn/v1",
+                "model": "moonshot-v1-8k",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "yi": {
+                "api_key": "",
+                "base_url": "https://api.lingyiwanwu.com/v1",
+                "model": "yi-large",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
+            },
+            "tencent": {
+                "api_key": "",
+                "base_url": "https://hunyuan.cloud.tencent.com",
+                "model": "hunyuan-standard",
+                "timeout": 60,
+                "max_tokens": 4096,
+                "temperature": 0.7
             }
         }
         
@@ -385,6 +482,19 @@ class ExternalAPIService:
             
             # 初始化Mistral服务 | Initialize Mistral services
             self._initialize_mistral_services(api_config.get("mistral", {}))
+            
+            # 初始化Ollama服务 | Initialize Ollama services
+            self._initialize_ollama_services(api_config.get("ollama", {}))
+            
+            # 初始化国内供应商服务 | Initialize domestic provider services
+            self._initialize_deepseek_services(api_config.get("deepseek", {}))
+            self._initialize_siliconflow_services(api_config.get("siliconflow", {}))
+            self._initialize_zhipu_services(api_config.get("zhipu", {}))
+            self._initialize_baidu_services(api_config.get("baidu", {}))
+            self._initialize_alibaba_services(api_config.get("alibaba", {}))
+            self._initialize_moonshot_services(api_config.get("moonshot", {}))
+            self._initialize_yi_services(api_config.get("yi", {}))
+            self._initialize_tencent_services(api_config.get("tencent", {}))
             
         except Exception as e:
             self.logger.error(f"初始化API服务失败: {str(e)} | Failed to initialize API services: {str(e)}")
@@ -605,6 +715,166 @@ class ExternalAPIService:
                 
         except Exception as e:
             self.logger.error(f"Mistral服务初始化失败: {str(e)} | Mistral service initialization failed: {str(e)}")
+    
+    def _initialize_ollama_services(self, ollama_config: Dict[str, Any]):
+        """初始化Ollama API服务 | Initialize Ollama API services"""
+        try:
+            # Ollama API
+            if ollama_config.get("base_url") or ollama_config.get("model"):
+                self.services["ollama"]["inference"] = {
+                    "base_url": ollama_config.get("base_url", "http://localhost:11434"),
+                    "model": ollama_config.get("model", "llama3"),
+                    "configured": True
+                }
+                self.services["ollama"]["configured"] = True
+                self.logger.info("Ollama API配置完成 | Ollama API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Ollama服务初始化失败: {str(e)} | Ollama service initialization failed: {str(e)}")
+    
+    def _initialize_deepseek_services(self, deepseek_config: Dict[str, Any]):
+        """初始化DeepSeek API服务 | Initialize DeepSeek API services"""
+        try:
+            # DeepSeek Chat API
+            chat_config = deepseek_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["deepseek"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://api.deepseek.com"),
+                    "model": chat_config.get("model", "deepseek-chat"),
+                    "configured": True
+                }
+                self.services["deepseek"]["configured"] = True
+                self.logger.info("DeepSeek Chat API配置完成 | DeepSeek Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"DeepSeek服务初始化失败: {str(e)} | DeepSeek service initialization failed: {str(e)}")
+    
+    def _initialize_siliconflow_services(self, siliconflow_config: Dict[str, Any]):
+        """初始化SiliconFlow API服务 | Initialize SiliconFlow API services"""
+        try:
+            # SiliconFlow Chat API
+            chat_config = siliconflow_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["siliconflow"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://api.siliconflow.cn/v1"),
+                    "model": chat_config.get("model", "Qwen2.5-7B-Instruct"),
+                    "configured": True
+                }
+                self.services["siliconflow"]["configured"] = True
+                self.logger.info("SiliconFlow Chat API配置完成 | SiliconFlow Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"SiliconFlow服务初始化失败: {str(e)} | SiliconFlow service initialization failed: {str(e)}")
+    
+    def _initialize_zhipu_services(self, zhipu_config: Dict[str, Any]):
+        """初始化Zhipu AI API服务 | Initialize Zhipu AI API services"""
+        try:
+            # Zhipu AI Chat API
+            chat_config = zhipu_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["zhipu"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://open.bigmodel.cn/api/paas/v4"),
+                    "model": chat_config.get("model", "glm-4"),
+                    "configured": True
+                }
+                self.services["zhipu"]["configured"] = True
+                self.logger.info("Zhipu AI Chat API配置完成 | Zhipu AI Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Zhipu AI服务初始化失败: {str(e)} | Zhipu AI service initialization failed: {str(e)}")
+    
+    def _initialize_baidu_services(self, baidu_config: Dict[str, Any]):
+        """初始化Baidu ERNIE API服务 | Initialize Baidu ERNIE API services"""
+        try:
+            # Baidu ERNIE Chat API
+            chat_config = baidu_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["baidu"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop"),
+                    "model": chat_config.get("model", "ERNIE-Bot-4"),
+                    "configured": True
+                }
+                self.services["baidu"]["configured"] = True
+                self.logger.info("Baidu ERNIE Chat API配置完成 | Baidu ERNIE Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Baidu ERNIE服务初始化失败: {str(e)} | Baidu ERNIE service initialization failed: {str(e)}")
+    
+    def _initialize_alibaba_services(self, alibaba_config: Dict[str, Any]):
+        """初始化Alibaba Qwen API服务 | Initialize Alibaba Qwen API services"""
+        try:
+            # Alibaba Qwen Chat API
+            chat_config = alibaba_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["alibaba"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+                    "model": chat_config.get("model", "qwen-max"),
+                    "configured": True
+                }
+                self.services["alibaba"]["configured"] = True
+                self.logger.info("Alibaba Qwen Chat API配置完成 | Alibaba Qwen Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Alibaba Qwen服务初始化失败: {str(e)} | Alibaba Qwen service initialization failed: {str(e)}")
+    
+    def _initialize_moonshot_services(self, moonshot_config: Dict[str, Any]):
+        """初始化Moonshot API服务 | Initialize Moonshot API services"""
+        try:
+            # Moonshot Chat API
+            chat_config = moonshot_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["moonshot"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://api.moonshot.cn/v1"),
+                    "model": chat_config.get("model", "moonshot-v1-8k"),
+                    "configured": True
+                }
+                self.services["moonshot"]["configured"] = True
+                self.logger.info("Moonshot Chat API配置完成 | Moonshot Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Moonshot服务初始化失败: {str(e)} | Moonshot service initialization failed: {str(e)}")
+    
+    def _initialize_yi_services(self, yi_config: Dict[str, Any]):
+        """初始化Yi API服务 | Initialize Yi API services"""
+        try:
+            # Yi Chat API
+            chat_config = yi_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["yi"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://api.lingyiwanwu.com/v1"),
+                    "model": chat_config.get("model", "yi-large"),
+                    "configured": True
+                }
+                self.services["yi"]["configured"] = True
+                self.logger.info("Yi Chat API配置完成 | Yi Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Yi服务初始化失败: {str(e)} | Yi service initialization failed: {str(e)}")
+    
+    def _initialize_tencent_services(self, tencent_config: Dict[str, Any]):
+        """初始化Tencent Hunyuan API服务 | Initialize Tencent Hunyuan API services"""
+        try:
+            # Tencent Hunyuan Chat API
+            chat_config = tencent_config.get("chat", {})
+            if chat_config.get("api_key"):
+                self.services["tencent"]["chat"] = {
+                    "api_key": chat_config["api_key"],
+                    "base_url": chat_config.get("base_url", "https://hunyuan.cloud.tencent.com"),
+                    "model": chat_config.get("model", "hunyuan-standard"),
+                    "configured": True
+                }
+                self.services["tencent"]["configured"] = True
+                self.logger.info("Tencent Hunyuan Chat API配置完成 | Tencent Hunyuan Chat API configured")
+                
+        except Exception as e:
+            self.logger.error(f"Tencent Hunyuan服务初始化失败: {str(e)} | Tencent Hunyuan service initialization failed: {str(e)}")
     
     def _initialize_azure_services(self, azure_config: Dict[str, Any]):
         """初始化Azure API服务 | Initialize Azure API services"""
@@ -992,7 +1262,7 @@ class ExternalAPIService:
         
         Args:
             prompt: 提示文本 | Prompt text
-            api_type: API类型 (openai/anthropic/google_ai/huggingface/cohere/mistral) | API type
+            api_type: API类型 (openai/anthropic/google_ai/huggingface/cohere/mistral/deepseek/siliconflow/zhipu/baidu/alibaba/moonshot/yi/tencent/ollama) | API type
             **kwargs: 额外参数 | Additional parameters
             
         Returns:
@@ -1011,6 +1281,24 @@ class ExternalAPIService:
                 return self._cohere_chat_analyze(prompt, **kwargs)
             elif api_type == "mistral":
                 return self._mistral_chat_analyze(prompt, **kwargs)
+            elif api_type == "deepseek":
+                return self._deepseek_chat_analyze(prompt, **kwargs)
+            elif api_type == "siliconflow":
+                return self._siliconflow_chat_analyze(prompt, **kwargs)
+            elif api_type == "zhipu":
+                return self._zhipu_chat_analyze(prompt, **kwargs)
+            elif api_type == "baidu":
+                return self._baidu_chat_analyze(prompt, **kwargs)
+            elif api_type == "alibaba":
+                return self._alibaba_chat_analyze(prompt, **kwargs)
+            elif api_type == "moonshot":
+                return self._moonshot_chat_analyze(prompt, **kwargs)
+            elif api_type == "yi":
+                return self._yi_chat_analyze(prompt, **kwargs)
+            elif api_type == "tencent":
+                return self._tencent_chat_analyze(prompt, **kwargs)
+            elif api_type == "ollama":
+                return self._ollama_chat_analyze(prompt, **kwargs)
             else:
                 return {"error": f"不支持的API类型: {api_type} | Unsupported API type: {api_type}"}
                 
@@ -1292,6 +1580,418 @@ class ExternalAPIService:
             self.logger.error(f"Mistral Chat API调用失败: {str(e)} | Mistral Chat API call failed: {str(e)}")
             return {"error": str(e)}
     
+    def _deepseek_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用DeepSeek Chat API生成文本 | Generate text using DeepSeek Chat API"""
+        if not self.services["deepseek"]["chat"]:
+            return {"error": "DeepSeek Chat API未配置 | DeepSeek Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["deepseek"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"DeepSeek API错误: {response.status_code} | DeepSeek API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "deepseek_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"DeepSeek Chat API调用失败: {str(e)} | DeepSeek Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _siliconflow_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用SiliconFlow Chat API生成文本 | Generate text using SiliconFlow Chat API"""
+        if not self.services["siliconflow"]["chat"]:
+            return {"error": "SiliconFlow Chat API未配置 | SiliconFlow Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["siliconflow"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"SiliconFlow API错误: {response.status_code} | SiliconFlow API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "siliconflow_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"SiliconFlow Chat API调用失败: {str(e)} | SiliconFlow Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _zhipu_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Zhipu AI Chat API生成文本 | Generate text using Zhipu AI Chat API"""
+        if not self.services["zhipu"]["chat"]:
+            return {"error": "Zhipu AI Chat API未配置 | Zhipu AI Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["zhipu"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Zhipu AI API错误: {response.status_code} | Zhipu AI API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "zhipu_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Zhipu AI Chat API调用失败: {str(e)} | Zhipu AI Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _baidu_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Baidu ERNIE Chat API生成文本 | Generate text using Baidu ERNIE Chat API"""
+        if not self.services["baidu"]["chat"]:
+            return {"error": "Baidu ERNIE Chat API未配置 | Baidu ERNIE Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["baidu"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Baidu ERNIE API错误: {response.status_code} | Baidu ERNIE API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "baidu_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Baidu ERNIE Chat API调用失败: {str(e)} | Baidu ERNIE Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _alibaba_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Alibaba Qwen Chat API生成文本 | Generate text using Alibaba Qwen Chat API"""
+        if not self.services["alibaba"]["chat"]:
+            return {"error": "Alibaba Qwen Chat API未配置 | Alibaba Qwen Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["alibaba"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Alibaba Qwen API错误: {response.status_code} | Alibaba Qwen API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "alibaba_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Alibaba Qwen Chat API调用失败: {str(e)} | Alibaba Qwen Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _moonshot_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Moonshot Chat API生成文本 | Generate text using Moonshot Chat API"""
+        if not self.services["moonshot"]["chat"]:
+            return {"error": "Moonshot Chat API未配置 | Moonshot Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["moonshot"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Moonshot API错误: {response.status_code} | Moonshot API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "moonshot_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Moonshot Chat API调用失败: {str(e)} | Moonshot Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _yi_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Yi Chat API生成文本 | Generate text using Yi Chat API"""
+        if not self.services["yi"]["chat"]:
+            return {"error": "Yi Chat API未配置 | Yi Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["yi"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Yi API错误: {response.status_code} | Yi API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "yi_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Yi Chat API调用失败: {str(e)} | Yi Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _tencent_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Tencent Hunyuan Chat API生成文本 | Generate text using Tencent Hunyuan Chat API"""
+        if not self.services["tencent"]["chat"]:
+            return {"error": "Tencent Hunyuan Chat API未配置 | Tencent Hunyuan Chat API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["tencent"]["chat"]
+            headers = {
+                "Authorization": f"Bearer {config['api_key']}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{config['base_url']}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Tencent Hunyuan API错误: {response.status_code} | Tencent Hunyuan API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "tencent_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Tencent Hunyuan Chat API调用失败: {str(e)} | Tencent Hunyuan Chat API call failed: {str(e)}")
+            return {"error": str(e)}
+
+    def _ollama_chat_analyze(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """使用Ollama API生成文本 | Generate text using Ollama API"""
+        if not self.services["ollama"]["inference"]:
+            return {"error": "Ollama API未配置 | Ollama API not configured"}
+        
+        try:
+            import requests
+            
+            config = self.services["ollama"]["inference"]
+            base_url = config['base_url']
+            # 确保base_url以/v1结尾
+            if not base_url.endswith('/v1'):
+                base_url = base_url.rstrip('/') + '/v1'
+            
+            # Ollama不需要API密钥，但如果有则加上
+            headers = {
+                "Content-Type": "application/json"
+            }
+            if config.get('api_key'):
+                headers['Authorization'] = f"Bearer {config['api_key']}"
+            
+            data = {
+                "model": kwargs.get("model", config["model"]),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": kwargs.get("max_tokens", 1000),
+                "temperature": kwargs.get("temperature", 0.7)
+            }
+            
+            response = requests.post(
+                f"{base_url}/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=kwargs.get("timeout", 30)
+            )
+            
+            if response.status_code != 200:
+                return {"error": f"Ollama API错误: {response.status_code} | Ollama API error: {response.status_code}"}
+            
+            result = response.json()
+            text = result["choices"][0]["message"]["content"]
+            
+            return {
+                "success": True,
+                "text": text,
+                "usage": result.get("usage", {}),
+                "source": "ollama_chat"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Ollama API调用失败: {str(e)} | Ollama API call failed: {str(e)}")
+            return {"error": str(e)}
+
     def get_service_status(self) -> Dict[str, Any]:
         """获取API服务状态 | Get API service status"""
         status = {}

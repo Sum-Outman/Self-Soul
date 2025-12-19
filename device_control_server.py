@@ -27,7 +27,6 @@ def initialize_components():
     # 初始化训练管理器
     training_manager = TrainingManager(
         model_registry=model_registry,
-        knowledge_integrator=knowledge_integrator,
         from_scratch=True  # 设置为从零开始训练
     )
     

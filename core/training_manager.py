@@ -4285,6 +4285,74 @@ class TrainingManager:
         
         return False
 
+    def set_model_status(self, model_id, status):
+        """Set the status of a model
+        
+        Args:
+            model_id: ID of the model to update
+            status: New status for the model (e.g., 'PREPARING', 'PREPARED', 'TRAINING', 'COMPLETED')
+        """
+        try:
+            model = self.model_registry.get_model(model_id)
+            if model:
+                model.status = status
+                error_handler.log_info(f"Model {model_id} status set to {status}", "TrainingManager")
+                return True
+            else:
+                error_handler.log_warning(f"Model {model_id} not found when setting status to {status}", "TrainingManager")
+                return False
+        except Exception as e:
+            error_handler.handle_error(e, "TrainingManager", f"Failed to set status for model {model_id}")
+            return False
+    
+    def prepare_model(self, model_id):
+        """Prepare a model for training
+        
+        Args:
+            model_id: ID of the model to prepare
+            
+        Returns:
+            dict: Preparation result with success status, message, and progress
+        """
+        try:
+            model = self.model_registry.get_model(model_id)
+            if not model:
+                error_handler.log_warning(f"Model {model_id} not found for preparation", "TrainingManager")
+                return {
+                    'success': False,
+                    'message': f"Model {model_id} not found",
+                    'progress': 0
+                }
+            
+            # Set model status to PREPARING
+            self.set_model_status(model_id, 'PREPARING')
+            
+            # Perform model preparation tasks
+            # This could include loading dependencies, checking resources, etc.
+            error_handler.log_info(f"Preparing model {model_id} for training", "TrainingManager")
+            
+            # Simulate preparation work (to be replaced with actual preparation logic)
+            import time
+            time.sleep(1)  # Simulate preparation time
+            
+            # Set model status to PREPARED
+            self.set_model_status(model_id, 'PREPARED')
+            
+            error_handler.log_info(f"Model {model_id} prepared successfully", "TrainingManager")
+            
+            return {
+                'success': True,
+                'message': f"Model {model_id} prepared successfully",
+                'progress': 100
+            }
+        except Exception as e:
+            error_handler.handle_error(e, "TrainingManager", f"Failed to prepare model {model_id}")
+            return {
+                'success': False,
+                'message': f"Model {model_id} preparation failed: {str(e)}",
+                'progress': 0
+            }
+
     def _log_job(self, job_id, message):
         """记录训练任务日志"""
         if job_id in self.training_jobs:

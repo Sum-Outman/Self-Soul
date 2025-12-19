@@ -20,9 +20,18 @@ export const MODEL_TYPES = [
   'Creative Problem Solving Model',
   'Meta Cognition Model',
   'Value Alignment Model',
+  'Ollama Local',
   'OpenAI API',
   'Anthropic API',
-  'Google AI API'
+  'Google AI API',
+  'DeepSeek API',
+  'SiliconFlow API',
+  'Zhipu AI API',
+  'Baidu ERNIE API',
+  'Alibaba Qwen API',
+  'Moonshot API',
+  'Yi API',
+  'Tencent Hunyuan API'
 ];
 
 export const MODEL_STATUS = [
@@ -52,7 +61,8 @@ export const MODEL_PORT_CONFIG = {
   'Data Fusion Model': 8016,
   'Creative Problem Solving Model': 8017,
   'Meta Cognition Model': 8018,
-  'Value Alignment Model': 8019
+  'Value Alignment Model': 8019,
+  'Ollama Local': 8020
 };
 
 // Model class
@@ -108,9 +118,18 @@ export function createDefaultModel(id, name, type) {
     'Creative Problem Solving Model': 'Innovative problem-solving approaches',
     'Meta Cognition Model': 'Self-awareness and cognitive monitoring',
     'Value Alignment Model': 'Ethical decision making and value alignment',
-    'OpenAI API': 'OpenAI language model integration',
-    'Anthropic API': 'Anthropic language model integration',
-    'Google AI API': 'Google AI services integration'
+  'Ollama Local': 'Local Ollama model for running models locally',
+  'OpenAI API': 'OpenAI language model integration',
+  'Anthropic API': 'Anthropic language model integration',
+  'Google AI API': 'Google AI services integration',
+  'DeepSeek API': 'DeepSeek language model integration',
+  'SiliconFlow API': 'SiliconFlow AI services integration',
+  'Zhipu AI API': 'Zhipu AI GLM model integration',
+  'Baidu ERNIE API': 'Baidu ERNIE model integration',
+  'Alibaba Qwen API': 'Alibaba Qwen model integration',
+  'Moonshot API': 'Moonshot AI model integration',
+  'Yi API': 'Yi language model integration',
+  'Tencent Hunyuan API': 'Tencent Hunyuan model integration'
   };
   
   model.description = descriptions[type] || '';

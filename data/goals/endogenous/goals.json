@@ -1,0 +1,49 @@
+[
+  {
+    "id": "endogenous_goal_5912c1ece87c4287",
+    "description": "改进记忆能力",
+    "category": "self_improvement",
+    "source": "endogenous",
+    "priority": 0.8,
+    "difficulty": 0.5240324800668265,
+    "estimated_duration_minutes": 49,
+    "prerequisites": [],
+    "subgoals": [],
+    "progress": 0.0,
+    "status": "pending",
+    "created_at": "2026-03-06T03:15:01.550663",
+    "started_at": null,
+    "completed_at": null,
+    "last_updated": "2026-03-06T03:15:01.550664",
+    "success_criteria": {},
+    "failure_reason": null,
+    "learning_points": [],
+    "metadata": {
+      "generation_reason": "system_idle",
+      "idle_minutes": 2.0916666666666666e-05
+    }
+  },
+  {
+    "id": "goal_17f96899908c4950",
+    "description": "演示内生目标系统功能",
+    "category": "self_improvement",
+    "source": "exogenous",
+    "priority": 0.8,
+    "difficulty": 0.4,
+    "estimated_duration_minutes": 30,
+    "prerequisites": [],
+    "subgoals": [],
+    "progress": 1.0,
+    "status": "completed",
+    "created_at": "2026-03-06T03:15:01.550881",
+    "started_at": "2026-03-06T03:15:01.551880",
+    "completed_at": "2026-03-06T03:15:01.553197",
+    "last_updated": "2026-03-06T04:18:48.990987",
+    "success_criteria": {},
+    "failure_reason": null,
+    "learning_points": [
+      "演示成功"
+    ],
+    "metadata": {}
+  }
+]

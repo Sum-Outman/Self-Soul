@@ -1,0 +1,597 @@
+[
+  {
+    "id": "chain_231606cd93fd409e",
+    "observation": {
+      "id": "obs_a154cdc5689743c6",
+      "source": "user",
+      "data": "用户询问当前时间",
+      "timestamp": "2026-03-06T04:18:54.198073",
+      "confidence": 1.0,
+      "metadata": {
+        "context": {
+          "test": true
+        }
+      }
+    },
+    "retrieved_memories": [
+      {
+        "id": "memory_56b6a041",
+        "content": "相关记忆: 用户询问当前时间...",
+        "relevance": 0.6436673318497863,
+        "type": "related_experience"
+      }
+    ],
+    "reasoning_steps": [
+      {
+        "id": "reason_3f6dcff69986482b",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察: 用户询问当前时间",
+          "来源: user",
+          "相关记忆: 1 个"
+        ],
+        "conclusion": "需要进一步分析和决策",
+        "confidence": 0.8,
+        "evidence": [
+          "观察数据",
+          "相关记忆"
+        ],
+        "assumptions": [
+          "数据可靠",
+          "记忆相关"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:18:54.198231"
+      },
+      {
+        "id": "reason_adb98dd3ce4b4068",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察需要响应",
+          "有相关记忆和经验",
+          "需要制定行动计划"
+        ],
+        "conclusion": "使用演绎推理制定具体行动计划",
+        "confidence": 0.7,
+        "evidence": [
+          "观察性质",
+          "记忆内容"
+        ],
+        "assumptions": [
+          "演绎推理适用"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:18:54.198236"
+      }
+    ],
+    "decision": {
+      "id": "dec_c287beffd13e42a6",
+      "selected_option_id": "opt_38accc017d4d48c5",
+      "options": [
+        {
+          "id": "opt_38accc017d4d48c5",
+          "description": "响应观察: 用户询问当前时间...",
+          "expected_outcome": "用户满意，任务完成",
+          "utility_score": 0.7,
+          "probability_score": 0.9,
+          "risk_score": 0.1,
+          "cost_estimate": 10.0,
+          "time_estimate_minutes": 5,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_55edaa67dd9c415c",
+          "description": "深入分析观察并制定详细计划",
+          "expected_outcome": "全面理解，制定优化方案",
+          "utility_score": 0.8,
+          "probability_score": 0.7,
+          "risk_score": 0.3,
+          "cost_estimate": 30.0,
+          "time_estimate_minutes": 15,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_1e533ff90dfa434b",
+          "description": "将观察关联到现有目标并更新计划",
+          "expected_outcome": "目标对齐，系统优化",
+          "utility_score": 0.9,
+          "probability_score": 0.6,
+          "risk_score": 0.4,
+          "cost_estimate": 50.0,
+          "time_estimate_minutes": 25,
+          "prerequisites": []
+        }
+      ],
+      "decision_criteria": [
+        "utility",
+        "probability"
+      ],
+      "reasoning_steps": [
+        {
+          "id": "reason_3f6dcff69986482b",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察: 用户询问当前时间",
+            "来源: user",
+            "相关记忆: 1 个"
+          ],
+          "conclusion": "需要进一步分析和决策",
+          "confidence": 0.8,
+          "evidence": [
+            "观察数据",
+            "相关记忆"
+          ],
+          "assumptions": [
+            "数据可靠",
+            "记忆相关"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:18:54.198231"
+        },
+        {
+          "id": "reason_adb98dd3ce4b4068",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察需要响应",
+            "有相关记忆和经验",
+            "需要制定行动计划"
+          ],
+          "conclusion": "使用演绎推理制定具体行动计划",
+          "confidence": 0.7,
+          "evidence": [
+            "观察性质",
+            "记忆内容"
+          ],
+          "assumptions": [
+            "演绎推理适用"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:18:54.198236"
+        }
+      ],
+      "timestamp": "2026-03-06T04:18:54.198338",
+      "confidence": 0.8200000000000001
+    },
+    "execution_plan": {
+      "id": "plan_b30835e6bdb144d8",
+      "decision_id": "dec_c287beffd13e42a6",
+      "steps": [
+        {
+          "action": "analyze_input",
+          "description": "分析输入内容"
+        },
+        {
+          "action": "generate_response",
+          "description": "生成响应"
+        },
+        {
+          "action": "deliver_response",
+          "description": "交付响应"
+        }
+      ],
+      "dependencies": {},
+      "estimated_duration_minutes": 5,
+      "start_time": "2026-03-06T04:18:54.198418",
+      "end_time": "2026-03-06T04:18:54.198468",
+      "status": "completed"
+    },
+    "evaluation_result": {
+      "success": true,
+      "execution_time_minutes": 8.333333333333333e-07,
+      "steps_completed": 3,
+      "quality_score": 0.7998520540298181,
+      "efficiency_score": 0.7210094537398193
+    },
+    "learning_points": [
+      "成功处理观察并执行计划",
+      "执行质量: 0.80",
+      "执行效率: 0.72",
+      "成功决策: 响应观察: 用户询问当前时间...",
+      "成功处理观察并执行计划",
+      "执行质量: 0.80",
+      "执行效率: 0.72",
+      "成功决策: 响应观察: 用户询问当前时间..."
+    ],
+    "start_time": "2026-03-06T04:18:54.198082",
+    "end_time": "2026-03-06T04:18:54.198657",
+    "current_stage": "learning",
+    "status": "completed"
+  },
+  {
+    "id": "chain_b9c02f4c1f8a4931",
+    "observation": {
+      "id": "obs_b90b62e797684950",
+      "source": "system",
+      "data": "系统性能下降，请分析原因并提供解决方案",
+      "timestamp": "2026-03-06T04:18:57.201669",
+      "confidence": 1.0,
+      "metadata": {
+        "context": {
+          "complex": true,
+          "priority": "high"
+        }
+      }
+    },
+    "retrieved_memories": [
+      {
+        "id": "memory_80300e07",
+        "content": "相关记忆: 系统性能下降，请分析原因并提供解决方案...",
+        "relevance": 0.7762627800362322,
+        "type": "related_experience"
+      }
+    ],
+    "reasoning_steps": [
+      {
+        "id": "reason_f976c2664f8c49e9",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察: 系统性能下降，请分析原因并提供解决方案",
+          "来源: system",
+          "相关记忆: 1 个"
+        ],
+        "conclusion": "需要进一步分析和决策",
+        "confidence": 0.8,
+        "evidence": [
+          "观察数据",
+          "相关记忆"
+        ],
+        "assumptions": [
+          "数据可靠",
+          "记忆相关"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:18:57.201906"
+      },
+      {
+        "id": "reason_5937d0887555407b",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察需要响应",
+          "有相关记忆和经验",
+          "需要制定行动计划"
+        ],
+        "conclusion": "使用演绎推理制定具体行动计划",
+        "confidence": 0.7,
+        "evidence": [
+          "观察性质",
+          "记忆内容"
+        ],
+        "assumptions": [
+          "演绎推理适用"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:18:57.201910"
+      }
+    ],
+    "decision": {
+      "id": "dec_a85e4e4a43d143dd",
+      "selected_option_id": "opt_c7913e956b69453f",
+      "options": [
+        {
+          "id": "opt_c7913e956b69453f",
+          "description": "响应观察: 系统性能下降，请分析原因并提供解决方案...",
+          "expected_outcome": "用户满意，任务完成",
+          "utility_score": 0.7,
+          "probability_score": 0.9,
+          "risk_score": 0.1,
+          "cost_estimate": 10.0,
+          "time_estimate_minutes": 5,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_609d5cba1f724af3",
+          "description": "深入分析观察并制定详细计划",
+          "expected_outcome": "全面理解，制定优化方案",
+          "utility_score": 0.8,
+          "probability_score": 0.7,
+          "risk_score": 0.3,
+          "cost_estimate": 30.0,
+          "time_estimate_minutes": 15,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_4bbcd71471164625",
+          "description": "将观察关联到现有目标并更新计划",
+          "expected_outcome": "目标对齐，系统优化",
+          "utility_score": 0.9,
+          "probability_score": 0.6,
+          "risk_score": 0.4,
+          "cost_estimate": 50.0,
+          "time_estimate_minutes": 25,
+          "prerequisites": []
+        }
+      ],
+      "decision_criteria": [
+        "utility",
+        "probability"
+      ],
+      "reasoning_steps": [
+        {
+          "id": "reason_f976c2664f8c49e9",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察: 系统性能下降，请分析原因并提供解决方案",
+            "来源: system",
+            "相关记忆: 1 个"
+          ],
+          "conclusion": "需要进一步分析和决策",
+          "confidence": 0.8,
+          "evidence": [
+            "观察数据",
+            "相关记忆"
+          ],
+          "assumptions": [
+            "数据可靠",
+            "记忆相关"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:18:57.201906"
+        },
+        {
+          "id": "reason_5937d0887555407b",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察需要响应",
+            "有相关记忆和经验",
+            "需要制定行动计划"
+          ],
+          "conclusion": "使用演绎推理制定具体行动计划",
+          "confidence": 0.7,
+          "evidence": [
+            "观察性质",
+            "记忆内容"
+          ],
+          "assumptions": [
+            "演绎推理适用"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:18:57.201910"
+        }
+      ],
+      "timestamp": "2026-03-06T04:18:57.202005",
+      "confidence": 0.8200000000000001
+    },
+    "execution_plan": {
+      "id": "plan_bd8669eb5870451e",
+      "decision_id": "dec_a85e4e4a43d143dd",
+      "steps": [
+        {
+          "action": "analyze_input",
+          "description": "分析输入内容"
+        },
+        {
+          "action": "generate_response",
+          "description": "生成响应"
+        },
+        {
+          "action": "deliver_response",
+          "description": "交付响应"
+        }
+      ],
+      "dependencies": {},
+      "estimated_duration_minutes": 5,
+      "start_time": "2026-03-06T04:18:57.202087",
+      "end_time": "2026-03-06T04:18:57.202139",
+      "status": "completed"
+    },
+    "evaluation_result": {
+      "success": true,
+      "execution_time_minutes": 8.666666666666666e-07,
+      "steps_completed": 3,
+      "quality_score": 0.8909966502273851,
+      "efficiency_score": 0.6920314998504906
+    },
+    "learning_points": [
+      "成功处理观察并执行计划",
+      "执行质量: 0.89",
+      "执行效率: 0.69",
+      "成功决策: 响应观察: 系统性能下降，请分析原因并提供解决方案...",
+      "成功处理观察并执行计划",
+      "执行质量: 0.89",
+      "执行效率: 0.69",
+      "成功决策: 响应观察: 系统性能下降，请分析原因并提供解决方案..."
+    ],
+    "start_time": "2026-03-06T04:18:57.201678",
+    "end_time": "2026-03-06T04:18:57.202335",
+    "current_stage": "learning",
+    "status": "completed"
+  },
+  {
+    "id": "chain_f8ff129c3bbe4c8d",
+    "observation": {
+      "id": "obs_27f70fbc47d24d72",
+      "source": "integration_test",
+      "data": "需要制定学习计划提高Python技能",
+      "timestamp": "2026-03-06T04:19:00.205563",
+      "confidence": 1.0,
+      "metadata": {
+        "context": {
+          "integration": true
+        }
+      }
+    },
+    "retrieved_memories": [
+      {
+        "id": "memory_354ad086",
+        "content": "相关记忆: 需要制定学习计划提高Python技能...",
+        "relevance": 0.8923924914813834,
+        "type": "related_experience"
+      }
+    ],
+    "reasoning_steps": [
+      {
+        "id": "reason_a3f038ead9064f6b",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察: 需要制定学习计划提高Python技能",
+          "来源: integration_test",
+          "相关记忆: 1 个"
+        ],
+        "conclusion": "需要进一步分析和决策",
+        "confidence": 0.8,
+        "evidence": [
+          "观察数据",
+          "相关记忆"
+        ],
+        "assumptions": [
+          "数据可靠",
+          "记忆相关"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:19:00.205784"
+      },
+      {
+        "id": "reason_010eb5b865d44a6c",
+        "reasoning_type": "deductive",
+        "premises": [
+          "观察需要响应",
+          "有相关记忆和经验",
+          "需要制定行动计划"
+        ],
+        "conclusion": "使用演绎推理制定具体行动计划",
+        "confidence": 0.7,
+        "evidence": [
+          "观察性质",
+          "记忆内容"
+        ],
+        "assumptions": [
+          "演绎推理适用"
+        ],
+        "alternatives": [],
+        "timestamp": "2026-03-06T04:19:00.205787"
+      }
+    ],
+    "decision": {
+      "id": "dec_9bb36f757c8b4f59",
+      "selected_option_id": "opt_c45d61f6bb014503",
+      "options": [
+        {
+          "id": "opt_c45d61f6bb014503",
+          "description": "响应观察: 需要制定学习计划提高Python技能...",
+          "expected_outcome": "用户满意，任务完成",
+          "utility_score": 0.7,
+          "probability_score": 0.9,
+          "risk_score": 0.1,
+          "cost_estimate": 10.0,
+          "time_estimate_minutes": 5,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_e2b3fe0d844241c3",
+          "description": "深入分析观察并制定详细计划",
+          "expected_outcome": "全面理解，制定优化方案",
+          "utility_score": 0.8,
+          "probability_score": 0.7,
+          "risk_score": 0.3,
+          "cost_estimate": 30.0,
+          "time_estimate_minutes": 15,
+          "prerequisites": []
+        },
+        {
+          "id": "opt_f2b52b43df224e79",
+          "description": "将观察关联到现有目标并更新计划",
+          "expected_outcome": "目标对齐，系统优化",
+          "utility_score": 0.9,
+          "probability_score": 0.6,
+          "risk_score": 0.4,
+          "cost_estimate": 50.0,
+          "time_estimate_minutes": 25,
+          "prerequisites": []
+        }
+      ],
+      "decision_criteria": [
+        "utility",
+        "probability"
+      ],
+      "reasoning_steps": [
+        {
+          "id": "reason_a3f038ead9064f6b",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察: 需要制定学习计划提高Python技能",
+            "来源: integration_test",
+            "相关记忆: 1 个"
+          ],
+          "conclusion": "需要进一步分析和决策",
+          "confidence": 0.8,
+          "evidence": [
+            "观察数据",
+            "相关记忆"
+          ],
+          "assumptions": [
+            "数据可靠",
+            "记忆相关"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:19:00.205784"
+        },
+        {
+          "id": "reason_010eb5b865d44a6c",
+          "reasoning_type": "deductive",
+          "premises": [
+            "观察需要响应",
+            "有相关记忆和经验",
+            "需要制定行动计划"
+          ],
+          "conclusion": "使用演绎推理制定具体行动计划",
+          "confidence": 0.7,
+          "evidence": [
+            "观察性质",
+            "记忆内容"
+          ],
+          "assumptions": [
+            "演绎推理适用"
+          ],
+          "alternatives": [],
+          "timestamp": "2026-03-06T04:19:00.205787"
+        }
+      ],
+      "timestamp": "2026-03-06T04:19:00.205927",
+      "confidence": 0.8200000000000001
+    },
+    "execution_plan": {
+      "id": "plan_c68759204b714f4b",
+      "decision_id": "dec_9bb36f757c8b4f59",
+      "steps": [
+        {
+          "action": "analyze_input",
+          "description": "分析输入内容"
+        },
+        {
+          "action": "generate_response",
+          "description": "生成响应"
+        },
+        {
+          "action": "deliver_response",
+          "description": "交付响应"
+        }
+      ],
+      "dependencies": {},
+      "estimated_duration_minutes": 5,
+      "start_time": "2026-03-06T04:19:00.206007",
+      "end_time": "2026-03-06T04:19:00.206061",
+      "status": "completed"
+    },
+    "evaluation_result": {
+      "success": true,
+      "execution_time_minutes": 9e-07,
+      "steps_completed": 3,
+      "quality_score": 0.8735178739877404,
+      "efficiency_score": 0.7861947051212431
+    },
+    "learning_points": [
+      "成功处理观察并执行计划",
+      "执行质量: 0.87",
+      "执行效率: 0.79",
+      "成功决策: 响应观察: 需要制定学习计划提高Python技能...",
+      "成功处理观察并执行计划",
+      "执行质量: 0.87",
+      "执行效率: 0.79",
+      "成功决策: 响应观察: 需要制定学习计划提高Python技能..."
+    ],
+    "start_time": "2026-03-06T04:19:00.205571",
+    "end_time": "2026-03-06T04:19:00.206252",
+    "current_stage": "learning",
+    "status": "completed"
+  }
+]

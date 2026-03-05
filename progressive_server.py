@@ -52,8 +52,22 @@ except ImportError as e:
     print(f"Warning: Could not import system monitoring: {e}")
     has_monitoring = False
 
+# 导入机器人API增强模块
+try:
+    from core.robot_api_enhanced import router as robot_enhanced_router, initialize_enhanced_robot_api
+    robot_enhanced_available = True
+    print("机器人API增强模块导入成功")
+except ImportError as e:
+    print(f"Warning: Could not import robot enhanced API: {e}")
+    robot_enhanced_available = False
+
 # 创建FastAPI应用
 app = FastAPI(title="AGI System - Progressive Server", version="1.0.0")
+
+# 添加机器人API增强路由
+if robot_enhanced_available:
+    app.include_router(robot_enhanced_router)
+    print("机器人API增强路由已添加")
 
 # 线程安全的共享状态管理
 
@@ -996,6 +1010,19 @@ if __name__ == "__main__":
     print("  - POST /api/explainable-ai/explain (可解释AI决策)")
     print("  - GET /api/explainable-ai/capabilities (可解释AI能力)")
     print("  - GET /api/monitoring/data (实时监控数据)")
+    if robot_enhanced_available:
+        print("  - GET /api/robot/enhanced/status (增强机器人状态)")
+        print("  - POST /api/robot/enhanced/motion/command (机器人运动命令)")
+        print("  - GET /api/robot/enhanced/fusion/status (传感器融合状态)")
+        print("  - POST /api/robot/enhanced/fusion/start (启动传感器融合)")
+        print("  - POST /api/robot/enhanced/fusion/stop (停止传感器融合)")
+        print("  - POST /api/robot/enhanced/fusion/process (传感器数据处理)")
+        print("  - GET /api/robot/enhanced/motion/capabilities (运动控制能力)")
+        print("  - POST /api/robot/enhanced/emergency/stop (紧急停止)")
+        print("  - GET /api/robot/enhanced/multimodal/test (多模态集成测试)")
+        print("  - GET /api/robot/enhanced/hardware/simulated (模拟硬件信息)")
+        print("  - GET /api/robot/enhanced/test/echo (测试连通性)")
+        print("  - GET /api/robot/enhanced/test/integration (增强API集成测试)")
     print("=" * 50)
     print("Server will start with basic functionality")
     print("Components will load gradually in the background")

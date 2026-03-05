@@ -3844,6 +3844,21 @@ class UnifiedSensorModel(UnifiedModelTemplate):
             self.logger.error(f"Model load failed: {e}")
             return False
     
+    def _get_parameter_scale_description(self, param_count: int) -> str:
+        """根据参数数量返回规模描述"""
+        if param_count == 0:
+            return "N/A (not initialized)"
+        elif param_count < 10_000:
+            return "small (<10K)"
+        elif param_count < 100_000:
+            return "medium (<100K)"
+        elif param_count < 1_000_000:
+            return "large (<1M)"
+        elif param_count < 10_000_000:
+            return "very large (<10M)"
+        else:
+            return "huge (>=10M)"
+    
     def _get_model_info_specific(self) -> Dict[str, Any]:
         """
         Get sensor-specific model information
@@ -3851,6 +3866,23 @@ class UnifiedSensorModel(UnifiedModelTemplate):
         Returns:
             Model information dictionary
         """
+        # 计算神经网络参数数量
+        neural_network_params = 0
+        neural_network_layers = 0
+        neural_network_type = "not_initialized"
+        
+        if self.neural_network is not None:
+            try:
+                import torch
+                neural_network_params = sum(p.numel() for p in self.neural_network.parameters() if p.requires_grad)
+                neural_network_layers = len(list(self.neural_network.children()))
+                neural_network_type = self.neural_network.__class__.__name__
+            except Exception as e:
+                self.logger.warning(f"获取传感器神经网络参数失败: {e}")
+                neural_network_params = 0
+                neural_network_layers = 0
+                neural_network_type = f"error: {str(e)[:50]}"
+        
         return {
             "model_type": "sensor",
             "model_subtype": "unified_multi_sensor",
@@ -3881,7 +3913,11 @@ class UnifiedSensorModel(UnifiedModelTemplate):
                 "is_initialized": self.neural_network is not None,
                 "is_trained": self.is_trained,
                 "training_samples": len(self.training_history.get('loss', [])),
-                "architecture": "Hybrid CNN-LSTM-Transformer with AGI reasoning"
+                "architecture": "Hybrid CNN-LSTM-Transformer with AGI reasoning",
+                "parameters": neural_network_params,
+                "layers": neural_network_layers,
+                "type": neural_network_type,
+                "parameter_scale": self._get_parameter_scale_description(neural_network_params)
             },
             "hardware_requirements": {
                 "gpu_recommended": True,

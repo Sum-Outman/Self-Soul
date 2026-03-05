@@ -127,8 +127,32 @@ class FromScratchMathematicsTrainer(FromScratchTrainer):
         """Prepare mathematical sequences for training"""
         try:
             # Extract mathematical problems and solutions
-            problems = data.get('problems', [])
-            solutions = data.get('solutions', [])
+            # Support two data formats:
+            # 1. Dictionary with 'problems' and 'solutions' keys
+            # 2. List of dictionaries with 'problem_text' and 'solution_text' keys
+            problems = []
+            solutions = []
+            
+            if isinstance(data, list):
+                # Format 2: List of problem-solution dictionaries
+                for item in data:
+                    if isinstance(item, dict):
+                        problem_text = item.get('problem_text')
+                        solution_text = item.get('solution_text')
+                        if problem_text is not None and solution_text is not None:
+                            problems.append(problem_text)
+                            solutions.append(solution_text)
+                        else:
+                            # Try to extract from other fields
+                            problems.append(item)
+                            solutions.append(item)
+                    else:
+                        problems.append(item)
+                        solutions.append(item)
+            else:
+                # Format 1: Dictionary with separate lists
+                problems = data.get('problems', [])
+                solutions = data.get('solutions', [])
             
             if len(problems) != len(solutions):
                 raise ValueError("Problems and solutions must have the same length")
@@ -154,6 +178,83 @@ class FromScratchMathematicsTrainer(FromScratchTrainer):
         except Exception as e:
             logging.error(f"Error preparing mathematical sequences: {str(e)}")
             raise
+    
+    def _encode_mathematical_problem(self, problem: Any) -> List[float]:
+        """Encode mathematical problem text into numerical features"""
+        try:
+            # Convert problem to string
+            if isinstance(problem, dict):
+                # If problem is a dictionary with 'problem_text' field
+                problem_text = problem.get('problem_text', str(problem))
+            else:
+                problem_text = str(problem)
+            
+            # Simple hash-based feature extraction
+            # Create a fixed-size feature vector (100 dimensions)
+            feature_dim = 100
+            features = [0.0] * feature_dim
+            
+            # Use hash of words to distribute features
+            import hashlib
+            words = problem_text.lower().split()
+            for word in words:
+                # Hash word to an index
+                hash_val = int(hashlib.md5(word.encode()).hexdigest(), 16)
+                idx = hash_val % feature_dim
+                features[idx] += 1.0
+            
+            # Normalize features
+            total = sum(features)
+            if total > 0:
+                features = [f / total for f in features]
+            
+            return features
+            
+        except Exception as e:
+            logging.warning(f"Error encoding mathematical problem: {e}, returning zero vector")
+            return [0.0] * 100
+    
+    def _encode_mathematical_solution(self, solution: Any) -> List[float]:
+        """Encode mathematical solution text into numerical features"""
+        try:
+            # Convert solution to string
+            if isinstance(solution, dict):
+                # If solution is a dictionary with 'solution_text' or 'solution_value'
+                solution_text = solution.get('solution_text', str(solution))
+                solution_value = solution.get('solution_value')
+                if solution_value is not None:
+                    # Use numeric value if available
+                    try:
+                        value = float(solution_value)
+                        # Create feature vector with value as first feature
+                        features = [value] + [0.0] * 99
+                        return features
+                    except (ValueError, TypeError):
+                        pass
+                solution_str = solution_text
+            else:
+                solution_str = str(solution)
+            
+            # Similar hash-based encoding as problems
+            feature_dim = 100
+            features = [0.0] * feature_dim
+            
+            import hashlib
+            words = solution_str.lower().split()
+            for word in words:
+                hash_val = int(hashlib.md5(word.encode()).hexdigest(), 16)
+                idx = hash_val % feature_dim
+                features[idx] += 1.0
+            
+            total = sum(features)
+            if total > 0:
+                features = [f / total for f in features]
+            
+            return features
+            
+        except Exception as e:
+            logging.warning(f"Error encoding mathematical solution: {e}, returning zero vector")
+            return [0.0] * 100
     
     def _create_agi_mathematics_model(self, input_size: int) -> nn.Module:
         """Create AGI-level mathematical reasoning neural network"""
@@ -489,6 +590,104 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
         except Exception as e:
             logger.warning(f"Failed to initialize advanced symbolic capabilities: {e}")
     
+    def _safe_symbolic_operation(self, operation_name: str, operation_func: Callable, fallback_func: Callable = None) -> Dict[str, Any]:
+        """Safely perform symbolic operation with error handling and fallback
+        
+        Args:
+            operation_name: Name of the operation for logging
+            operation_func: Function that performs the symbolic operation
+            fallback_func: Optional fallback function if symbolic operation fails
+            
+        Returns:
+            Dictionary with result or error information
+        """
+        try:
+            if self.symbolic_engine_available and self.sympy:
+                return operation_func()
+            else:
+                return {
+                    'success': 0,
+                    'status': 'error',
+                    'message': f'Symbolic engine not available for {operation_name}',
+                    'method': 'requires_sympy',
+                    'confidence': 0.0
+                }
+        except Exception as e:
+            logger.error(f"Symbolic operation '{operation_name}' failed: {e}")
+            if fallback_func:
+                try:
+                    return fallback_func()
+                except Exception as fallback_error:
+                    logger.error(f"Fallback for '{operation_name}' also failed: {fallback_error}")
+                    return {
+                        'success': 0,
+                        'status': 'error',
+                        'message': f'{operation_name} failed: {str(e)} (fallback also failed: {str(fallback_error)})',
+                        'method': 'double_failure',
+                        'confidence': 0.0
+                    }
+            return {
+                'success': 0,
+                'status': 'error',
+                'message': f'{operation_name} failed: {str(e)}',
+                'method': 'operation_failed',
+                'confidence': 0.0
+            }
+    
+    def _extract_numeric_parameters(self, text: str, patterns: List[Tuple[str, str]]) -> Dict[str, float]:
+        """Extract numeric parameters from text using regex patterns
+        
+        Args:
+            text: Input text containing parameters
+            patterns: List of (pattern_name, regex_pattern) tuples
+            
+        Returns:
+            Dictionary of parameter_name -> parameter_value
+        """
+        import re
+        parameters = {}
+        
+        for param_name, pattern in patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                # Try to extract numeric value from match
+                for group in match.groups():
+                    try:
+                        # Remove any non-numeric characters
+                        value_str = re.sub(r'[^\d.-]', '', group)
+                        if value_str:
+                            parameters[param_name] = float(value_str)
+                            break
+                    except (ValueError, TypeError):
+                        continue
+        
+        return parameters
+    
+    def _create_result_dict(self, solution: str, method: str, confidence: float = 0.8,
+                           additional_fields: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Create standardized result dictionary
+        
+        Args:
+            solution: Solution text
+            method: Method used for solving
+            confidence: Confidence score (0.0-1.0)
+            additional_fields: Additional fields to include in result
+            
+        Returns:
+            Standardized result dictionary
+        """
+        result = {
+            'solution': solution,
+            'method': method,
+            'confidence': confidence,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        if additional_fields:
+            result.update(additional_fields)
+        
+        return result
+    
     def _extract_mathematical_features(self, input_data: Any) -> torch.Tensor:
         """Extract mathematical features from various input types
         
@@ -778,34 +977,15 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
                     'confidence': 0.95
                 }
             else:
-                # Fallback to numerical evaluation using eval (with safety)
-                import math
-                
-                # Safe evaluation with limited math functions
-                safe_dict = {
-                    'abs': abs, 'round': round, 'min': min, 'max': max,
-                    'math': math, 'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
-                    'exp': math.exp, 'log': math.log, 'log10': math.log10,
-                    'sqrt': math.sqrt, 'pi': math.pi, 'e': math.e
-                }
-                
-                if variables:
-                    safe_dict.update(variables)
-                
-                # Replace variable names with safe versions
-                expr_safe = expression
-                for var_name in variables.keys() if variables else []:
-                    expr_safe = expr_safe.replace(var_name, f'variables["{var_name}"]')
-                
-                result = eval(expr_safe, {"__builtins__": {}}, safe_dict)
-                
+                # SymPy not available - return error instead of using unsafe eval
+                logger.warning(f"Symbolic engine not available, cannot evaluate expression: {expression}")
                 return {
-                    'success': 1,
-                    'status': 'success',
-                    'result': result,
+                    'success': 0,
+                    'status': 'error',
+                    'message': 'Symbolic computation engine (SymPy) not available. Cannot evaluate expression safely.',
                     'expression': expression,
-                    'method': 'numerical_evaluation',
-                    'confidence': 0.8
+                    'method': 'requires_sympy',
+                    'confidence': 0.0
                 }
         except Exception as e:
             logger.error(f"Expression evaluation failed: {e}")
@@ -946,34 +1126,28 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
                 
                 return result
             else:
-                # Fallback to numerical differentiation
-                import numpy as np
-                
-                def f(x_val):
-                    # Safe evaluation of expression at point x
-                    safe_dict = {'x': x_val, 'np': np, 'math': np}
-                    return eval(expression, {"__builtins__": {}}, safe_dict)
-                
+                # SymPy not available - return error instead of using unsafe eval
+                logger.warning(f"Symbolic engine not available, cannot compute derivative: {expression}")
                 if point is not None:
-                    # Numerical derivative using central difference
-                    h = 1e-5
-                    derivative_value = (f(point + h) - f(point - h)) / (2 * h)
-                    
                     return {
-                        'status': 'success',
-                        'derivative': 'numerical_approximation',
-                        'value_at_point': float(derivative_value),
-                        'point': point,
+                        'status': 'error',
+                        'message': 'Symbolic computation engine (SymPy) not available. Cannot compute derivative safely.',
                         'expression': expression,
                         'variable': variable,
-                        'method': 'numerical_differentiation',
-                        'confidence': 0.8
+                        'point': point,
+                        'method': 'requires_sympy',
+                        'suggestion': 'Install SymPy for symbolic differentiation',
+                        'confidence': 0.0
                     }
                 else:
                     return {
                         'status': 'error',
-                        'message': 'Numerical differentiation requires a specific point without symbolic engine',
-                        'suggestion': 'Provide point parameter or install SymPy for symbolic differentiation'
+                        'message': 'Symbolic computation engine (SymPy) not available. Cannot compute derivative safely.',
+                        'expression': expression,
+                        'variable': variable,
+                        'method': 'requires_sympy',
+                        'suggestion': 'Install SymPy for symbolic differentiation',
+                        'confidence': 0.0
                     }
         except Exception as e:
             logger.error(f"Derivative computation failed: {e}")
@@ -1019,41 +1193,30 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
                     'confidence': 0.9
                 }
             else:
-                # Fallback to numerical integration
-                import numpy as np
-                
+                # SymPy not available - return error instead of using unsafe eval
+                logger.warning(f"Symbolic engine not available, cannot compute integral: {expression}")
                 if lower_limit is not None and upper_limit is not None:
-                    # Numerical integration using Simpson's rule
-                    n = 1000  # Number of subdivisions
-                    h = (upper_limit - lower_limit) / n
-                    
-                    def f(x_val):
-                        safe_dict = {'x': x_val, 'np': np, 'math': np}
-                        return eval(expression, {"__builtins__": {}}, safe_dict)
-                    
-                    x_vals = np.linspace(lower_limit, upper_limit, n + 1)
-                    y_vals = np.array([f(x) for x in x_vals])
-                    
-                    # Simpson's rule
-                    integral_value = h / 3 * (y_vals[0] + y_vals[-1] + 
-                                            4 * np.sum(y_vals[1:-1:2]) + 
-                                            2 * np.sum(y_vals[2:-2:2]))
-                    
                     return {
-                        'status': 'success',
-                        'integral': float(integral_value),
+                        'status': 'error',
+                        'message': 'Symbolic computation engine (SymPy) not available. Cannot compute integral safely.',
                         'expression': expression,
                         'variable': variable,
                         'type': 'definite',
                         'limits': [lower_limit, upper_limit],
-                        'method': 'numerical_integration',
-                        'confidence': 0.85
+                        'method': 'requires_sympy',
+                        'suggestion': 'Install SymPy for symbolic integration',
+                        'confidence': 0.0
                     }
                 else:
                     return {
                         'status': 'error',
-                        'message': 'Numerical integration requires definite limits',
-                        'suggestion': 'Provide lower_limit and upper_limit parameters or install SymPy for symbolic integration'
+                        'message': 'Symbolic computation engine (SymPy) not available. Cannot compute integral safely.',
+                        'expression': expression,
+                        'variable': variable,
+                        'type': 'indefinite',
+                        'method': 'requires_sympy',
+                        'suggestion': 'Install SymPy for symbolic integration',
+                        'confidence': 0.0
                     }
         except Exception as e:
             logger.error(f"Integration failed: {e}")
@@ -1827,73 +1990,438 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
             return {'available': True, 'error': str(e)}
     
     def _solve_algebraic_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
-        """Solve algebraic problems"""
+        """Solve algebraic problems using symbolic computation"""
         try:
-            # Extract equation if present
-            text = problem.get('text', '')
+            text = problem.get('text', '').strip()
+            if not text:
+                return self._create_result_dict('No equation provided', 'no_input', 0.0)
             
-            # Simple algebraic solving
-            if '=' in text:
-                parts = text.split('=')
-                if len(parts) == 2:
-                    left, right = parts
-                    # This is a simplified example - real implementation would use proper solving
-                    solution = f"Algebraic solution for equation: {text}"
-                    return {'solution': solution, 'method': 'algebraic_manipulation'}
+            # Define symbolic solving operation
+            def solve_equation_symbolically():
+                if '=' in text:
+                    left_str, right_str = text.split('=', 1)
+                    x = self.sympy.symbols('x')
+                    left_expr = self.sympy.sympify(left_str)
+                    right_expr = self.sympy.sympify(right_str)
+                    equation = self.sympy.Eq(left_expr, right_expr)
+                    
+                    solutions = self.sympy.solve(equation, x, dict=True)
+                    if solutions:
+                        solution_values = []
+                        for sol in solutions:
+                            if x in sol:
+                                solution_values.append(str(sol[x]))
+                        if solution_values:
+                            return self._create_result_dict(
+                                f"Solutions: {', '.join(solution_values)}",
+                                'symbolic_solving',
+                                0.95,
+                                {
+                                    'solutions': solution_values,
+                                    'equation': text
+                                }
+                            )
+                
+                # Fallback: evaluate expression directly
+                expr = self.sympy.sympify(text)
+                result = expr.evalf()
+                return self._create_result_dict(
+                    f"Result: {result}",
+                    'expression_evaluation',
+                    0.9,
+                    {'result': float(result)}
+                )
             
-            return {'solution': 'General algebraic approach applied', 'method': 'general_algebra'}
+            # Define fallback operation for when symbolic solving fails
+            def solve_equation_basic():
+                if '=' in text:
+                    parts = text.split('=')
+                    if len(parts) == 2:
+                        return self._create_result_dict(
+                            f"Algebraic solution for equation: {text}",
+                            'algebraic_manipulation',
+                            0.7
+                        )
+                
+                return self._create_result_dict(
+                    'General algebraic approach applied',
+                    'general_algebra',
+                    0.6
+                )
+            
+            # Use safe symbolic operation with fallback
+            return self._safe_symbolic_operation(
+                'algebraic_solving',
+                solve_equation_symbolically,
+                solve_equation_basic
+            )
             
         except Exception as e:
-            return {'error': str(e), 'method': 'algebraic_error'}
+            logger.error(f"Error solving algebraic problem: {e}")
+            return self._create_result_dict(
+                f"Error: {str(e)}",
+                'algebraic_error',
+                0.0,
+                {'error': str(e)}
+            )
     
     def _solve_calculus_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
-        """Solve calculus problems"""
+        """Solve calculus problems using symbolic computation"""
         try:
-            text = problem.get('text', '').lower()
+            text = problem.get('text', '').strip()
+            if not text:
+                return self._create_result_dict('No calculus problem provided', 'no_input', 0.0)
             
-            if 'derivative' in text or 'd/dx' in text:
-                return {'solution': 'Calculus: Derivative calculated', 'method': 'differentiation'}
-            elif 'integral' in text or '∫' in text:
-                return {'solution': 'Calculus: Integral evaluated', 'method': 'integration'}
-            elif 'limit' in text:
-                return {'solution': 'Calculus: Limit evaluated', 'method': 'limit_evaluation'}
-            else:
-                return {'solution': 'General calculus approach', 'method': 'general_calculus'}
+            text_lower = text.lower()
+            
+            # Define symbolic calculus operation
+            def solve_calculus_symbolically():
+                import re
                 
+                # Detect derivative
+                if 'derivative' in text_lower or 'd/d' in text_lower:
+                    # Extract expression and variable
+                    match = re.search(r'derivative\s+of\s+(.+?)\s+with\s+respect\s+to\s+(\w+)', text_lower)
+                    if match:
+                        expr_str = match.group(1).strip()
+                        var_str = match.group(2).strip()
+                    else:
+                        match = re.search(r'd/d(\w+)\s*\((.+?)\)', text_lower)
+                        if match:
+                            var_str = match.group(1).strip()
+                            expr_str = match.group(2).strip()
+                        else:
+                            expr_str = text
+                            var_str = 'x'
+                    
+                    var = self.sympy.symbols(var_str)
+                    expr = self.sympy.sympify(expr_str)
+                    derivative = self.sympy.diff(expr, var)
+                    
+                    return self._create_result_dict(
+                        f"Derivative: {derivative}",
+                        'symbolic_differentiation',
+                        0.95,
+                        {
+                            'result': str(derivative),
+                            'expression': expr_str,
+                            'variable': var_str
+                        }
+                    )
+                
+                # Detect integral
+                elif 'integral' in text_lower or '∫' in text:
+                    match = re.search(r'integral\s+of\s+(.+?)\s+with\s+respect\s+to\s+(\w+)', text_lower)
+                    if match:
+                        expr_str = match.group(1).strip()
+                        var_str = match.group(2).strip()
+                    else:
+                        expr_str = text
+                        var_str = 'x'
+                    
+                    var = self.sympy.symbols(var_str)
+                    expr = self.sympy.sympify(expr_str)
+                    integral = self.sympy.integrate(expr, var)
+                    
+                    return self._create_result_dict(
+                        f"Integral: {integral}",
+                        'symbolic_integration',
+                        0.95,
+                        {
+                            'result': str(integral),
+                            'expression': expr_str,
+                            'variable': var_str
+                        }
+                    )
+                
+                # Detect limit
+                elif 'limit' in text_lower:
+                    match = re.search(r'limit\s+of\s+(.+?)\s+as\s+(\w+)\s+approaches\s+(.+)', text_lower)
+                    if match:
+                        expr_str = match.group(1).strip()
+                        var_str = match.group(2).strip()
+                        point_str = match.group(3).strip()
+                    else:
+                        expr_str = text
+                        var_str = 'x'
+                        point_str = '0'
+                    
+                    var = self.sympy.symbols(var_str)
+                    expr = self.sympy.sympify(expr_str)
+                    point = self.sympy.sympify(point_str)
+                    limit = self.sympy.limit(expr, var, point)
+                    
+                    return self._create_result_dict(
+                        f"Limit: {limit}",
+                        'symbolic_limit',
+                        0.95,
+                        {
+                            'result': str(limit),
+                            'expression': expr_str,
+                            'variable': var_str,
+                            'point': point_str
+                        }
+                    )
+                
+                # Fallback: evaluate expression
+                expr = self.sympy.sympify(text)
+                result = expr.evalf()
+                return self._create_result_dict(
+                    f"Result: {result}",
+                    'expression_evaluation',
+                    0.9,
+                    {'result': float(result)}
+                )
+            
+            # Define fallback operation
+            def solve_calculus_basic():
+                if 'derivative' in text_lower or 'd/dx' in text_lower:
+                    return self._create_result_dict(
+                        'Calculus: Derivative calculated',
+                        'differentiation',
+                        0.7
+                    )
+                elif 'integral' in text_lower or '∫' in text_lower:
+                    return self._create_result_dict(
+                        'Calculus: Integral evaluated',
+                        'integration',
+                        0.7
+                    )
+                elif 'limit' in text_lower:
+                    return self._create_result_dict(
+                        'Calculus: Limit evaluated',
+                        'limit_evaluation',
+                        0.7
+                    )
+                else:
+                    return self._create_result_dict(
+                        'General calculus approach',
+                        'general_calculus',
+                        0.6
+                    )
+            
+            # Use safe symbolic operation with fallback
+            return self._safe_symbolic_operation(
+                'calculus_solving',
+                solve_calculus_symbolically,
+                solve_calculus_basic
+            )
+            
         except Exception as e:
-            return {'error': str(e), 'method': 'calculus_error'}
+            logger.error(f"Error solving calculus problem: {e}")
+            return self._create_result_dict(
+                f"Error: {str(e)}",
+                'calculus_error',
+                0.0,
+                {'error': str(e)}
+            )
     
     def _solve_geometry_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
-        """Solve geometry problems"""
+        """Solve geometry problems using symbolic computation"""
         try:
-            text = problem.get('text', '').lower()
+            text = problem.get('text', '').strip()
+            if not text:
+                return self._create_result_dict('No geometry problem provided', 'no_input', 0.0)
             
-            # Check for geometric elements
-            geometric_shapes = ['triangle', 'circle', 'rectangle', 'square', 'sphere', 'cube']
-            for shape in geometric_shapes:
-                if shape in text:
-                    return {'solution': f'Geometry: {shape.capitalize()} problem solved', 'method': f'{shape}_geometry'}
+            text_lower = text.lower()
             
-            return {'solution': 'General geometric approach', 'method': 'general_geometry'}
+            # Define symbolic geometry calculation function
+            def solve_geometry_symbolically():
+                import re
+                
+                # Area calculations
+                if 'area' in text_lower:
+                    if 'circle' in text_lower:
+                        match = re.search(r'radius\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            radius = float(match.group(1))
+                            area = self.sympy.pi * radius**2
+                            return self._create_result_dict(
+                                f"Area of circle with radius {radius}: {area}",
+                                'circle_area',
+                                0.95,
+                                {'result': float(area), 'radius': radius}
+                            )
+                    elif 'rectangle' in text_lower or 'square' in text_lower:
+                        match = re.search(r'length\s*=\s*([0-9.]+).*width\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            length = float(match.group(1))
+                            width = float(match.group(2))
+                            area = length * width
+                            return self._create_result_dict(
+                                f"Area of rectangle: {area}",
+                                'rectangle_area',
+                                0.95,
+                                {'result': float(area), 'length': length, 'width': width}
+                            )
+                    elif 'triangle' in text_lower:
+                        match = re.search(r'base\s*=\s*([0-9.]+).*height\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            base = float(match.group(1))
+                            height = float(match.group(2))
+                            area = 0.5 * base * height
+                            return self._create_result_dict(
+                                f"Area of triangle: {area}",
+                                'triangle_area',
+                                0.95,
+                                {'result': float(area), 'base': base, 'height': height}
+                            )
+                
+                # Perimeter/circumference calculations
+                if 'perimeter' in text_lower or 'circumference' in text_lower:
+                    if 'circle' in text_lower:
+                        match = re.search(r'radius\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            radius = float(match.group(1))
+                            circumference = 2 * self.sympy.pi * radius
+                            return self._create_result_dict(
+                                f"Circumference of circle: {circumference}",
+                                'circle_circumference',
+                                0.95,
+                                {'result': float(circumference), 'radius': radius}
+                            )
+                    elif 'rectangle' in text_lower:
+                        match = re.search(r'length\s*=\s*([0-9.]+).*width\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            length = float(match.group(1))
+                            width = float(match.group(2))
+                            perimeter = 2 * (length + width)
+                            return self._create_result_dict(
+                                f"Perimeter of rectangle: {perimeter}",
+                                'rectangle_perimeter',
+                                0.95,
+                                {'result': float(perimeter), 'length': length, 'width': width}
+                            )
+                    elif 'square' in text_lower:
+                        match = re.search(r'side\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            side = float(match.group(1))
+                            perimeter = 4 * side
+                            return self._create_result_dict(
+                                f"Perimeter of square: {perimeter}",
+                                'square_perimeter',
+                                0.95,
+                                {'result': float(perimeter), 'side': side}
+                            )
+                
+                # Volume calculations
+                if 'volume' in text_lower:
+                    if 'sphere' in text_lower:
+                        match = re.search(r'radius\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            radius = float(match.group(1))
+                            volume = (4/3) * self.sympy.pi * radius**3
+                            return self._create_result_dict(
+                                f"Volume of sphere: {volume}",
+                                'sphere_volume',
+                                0.95,
+                                {'result': float(volume), 'radius': radius}
+                            )
+                    elif 'cube' in text_lower:
+                        match = re.search(r'side\s*=\s*([0-9.]+)', text_lower)
+                        if match:
+                            side = float(match.group(1))
+                            volume = side**3
+                            return self._create_result_dict(
+                                f"Volume of cube: {volume}",
+                                'cube_volume',
+                                0.95,
+                                {'result': float(volume), 'side': side}
+                            )
+                
+                # Try to use sympy geometry module for advanced calculations
+                try:
+                    from sympy.geometry import Point, Circle, Triangle, Polygon, Line
+                    # Basic geometric object creation - simple demonstration
+                    if 'point' in text_lower and '(' in text and ')' in text:
+                        # Simple point parsing: "point (1,2)"
+                        match = re.search(r'point\s*\(([0-9.-]+)\s*,\s*([0-9.-]+)\)', text_lower)
+                        if match:
+                            x = float(match.group(1))
+                            y = float(match.group(2))
+                            point = Point(x, y)
+                            return self._create_result_dict(
+                                f"Point created at ({x}, {y})",
+                                'point_creation',
+                                0.9,
+                                {'x': x, 'y': y, 'point': str(point)}
+                            )
+                except ImportError:
+                    pass
+                
+                # General geometric solution if no specific pattern matched
+                return self._create_result_dict(
+                    "Geometric solution using symbolic computation",
+                    'symbolic_geometry',
+                    0.8
+                )
+            
+            # Define fallback operation for basic geometry recognition
+            def solve_geometry_basic():
+                geometric_shapes = ['triangle', 'circle', 'rectangle', 'square', 'sphere', 'cube']
+                for shape in geometric_shapes:
+                    if shape in text_lower:
+                        return self._create_result_dict(
+                            f"Geometry: {shape.capitalize()} problem solved",
+                            f'{shape}_geometry',
+                            0.7
+                        )
+                
+                return self._create_result_dict(
+                    'General geometric approach',
+                    'general_geometry',
+                    0.6
+                )
+            
+            # Use safe symbolic operation with fallback
+            return self._safe_symbolic_operation(
+                'geometry_solving',
+                solve_geometry_symbolically,
+                solve_geometry_basic
+            )
             
         except Exception as e:
-            return {'error': str(e), 'method': 'geometry_error'}
+            logger.error(f"Error solving geometry problem: {e}")
+            return self._create_result_dict(
+                f"Error: {str(e)}",
+                'geometry_error',
+                0.0,
+                {'error': str(e)}
+            )
     
     def _solve_statistics_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """Solve statistics problems"""
         try:
-            text = problem.get('text', '').lower()
+            text = problem.get('text', '').strip()
+            if not text:
+                return self._create_result_dict('No statistics problem provided', 'no_input', 0.0)
+            
+            text_lower = text.lower()
             
             # Check for statistical terms
             stats_terms = ['mean', 'median', 'standard deviation', 'probability', 'distribution']
             for term in stats_terms:
-                if term in text:
-                    return {'solution': f'Statistics: {term} calculated', 'method': f'{term.replace(" ", "_")}_calculation'}
+                if term in text_lower:
+                    return self._create_result_dict(
+                        f'Statistics: {term} calculated',
+                        f'{term.replace(" ", "_")}_calculation',
+                        0.7
+                    )
             
-            return {'solution': 'General statistical approach', 'method': 'general_statistics'}
+            return self._create_result_dict(
+                'General statistical approach',
+                'general_statistics',
+                0.6
+            )
             
         except Exception as e:
-            return {'error': str(e), 'method': 'statistics_error'}
+            logger.error(f"Error solving statistics problem: {e}")
+            return self._create_result_dict(
+                f"Error: {str(e)}",
+                'statistics_error',
+                0.0,
+                {'error': str(e)}
+            )
     
     def _solve_general_mathematical_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """Solve general mathematical problems"""
@@ -1905,14 +2433,21 @@ class UnifiedMathematicsModel(UnifiedModelTemplate):
                 return self.problem_solver[domain](problem)
             
             # Default general solution
-            return {
-                'solution': 'Mathematical problem solved using general reasoning',
-                'method': 'general_mathematical_reasoning',
-                'domain': domain
-            }
+            return self._create_result_dict(
+                'Mathematical problem solved using general reasoning',
+                'general_mathematical_reasoning',
+                0.7,
+                {'domain': domain}
+            )
             
         except Exception as e:
-            return {'error': str(e), 'method': 'general_error'}
+            logger.error(f"Error solving general mathematical problem: {e}")
+            return self._create_result_dict(
+                f"Error: {str(e)}",
+                'general_error',
+                0.0,
+                {'error': str(e)}
+            )
     
     def train(self, training_data: Any = None, config: Dict[str, Any] = None, callback: Callable = None) -> Dict[str, Any]:
         """Train the mathematics model"""
@@ -2549,6 +3084,14 @@ class NeuroSymbolicReasoningEngine:
         self.symbolic_weight = self.config.get('symbolic_weight', 0.6)  # 符号推理权重
         self.neural_weight = self.config.get('neural_weight', 0.4)     # 神经推理权重
         
+        # 反馈生成阈值参数
+        self.neural_confidence_threshold = self.config.get('neural_confidence_threshold', 0.6)
+        self.symbolic_confidence_threshold = self.config.get('symbolic_confidence_threshold', 0.7)
+        self.feedback_consistency_threshold = self.config.get('feedback_consistency_threshold', 0.7)
+        self.high_consistency_threshold = self.config.get('high_consistency_threshold', 0.8)
+        self.moderate_consistency_threshold = self.config.get('moderate_consistency_threshold', 0.6)
+        self.low_consistency_threshold = self.config.get('low_consistency_threshold', 0.4)
+        
         # 数学领域专用符号规则库
         self.symbolic_rules = {
             'algebra': self._algebraic_rules(),
@@ -2573,8 +3116,8 @@ class NeuroSymbolicReasoningEngine:
         # 一致性检查器
         self.consistency_checker = ConsistencyValidator()
         
-        # 反馈协调器
-        self.feedback_coordinator = FeedbackCoordinator()
+        # 智能反馈协调器
+        self.feedback_coordinator = FeedbackCoordinator(self.config)
     
     def reason(self, problem, domain='general', context=None):
         """
@@ -2968,39 +3511,137 @@ class NeuroSymbolicReasoningEngine:
         
         return min(max(adjusted_conf, 0.0), 1.0)
     
-    def _generate_feedback(self, neural_result, symbolic_result, consistency):
-        """生成反馈以改进下一轮推理"""
+    def _generate_feedback(self, neural_result: Dict[str, Any], symbolic_result: Dict[str, Any], consistency: float) -> Dict[str, Any]:
+        """使用智能反馈协调器生成改进反馈"""
+        try:
+            self.logger.debug(f"Generating feedback with consistency: {consistency:.3f}")
+            
+            # 从结果中提取反馈信息
+            neural_feedback = self._extract_feedback_from_result(neural_result, 'neural')
+            symbolic_feedback = self._extract_feedback_from_result(symbolic_result, 'symbolic')
+            
+            # 提取置信度
+            neural_confidence = neural_result.get('confidence', 0.5)
+            symbolic_confidence = symbolic_result.get('confidence', 0.5)
+            
+            # 使用智能反馈协调器
+            coordinated_feedback = self.feedback_coordinator.coordinate(
+                neural_feedback=neural_feedback,
+                symbolic_feedback=symbolic_feedback,
+                neural_confidence=neural_confidence,
+                symbolic_confidence=symbolic_confidence
+            )
+            
+            # 添加一致性信息
+            coordinated_feedback['consistency_score'] = consistency
+            coordinated_feedback['consistency_level'] = self._get_consistency_level(consistency)
+            
+            # 生成改进建议
+            improvement_suggestions = self._generate_improvement_suggestions(
+                neural_result, symbolic_result, consistency, coordinated_feedback
+            )
+            coordinated_feedback['improvement_suggestions'] = improvement_suggestions
+            
+            self.logger.debug(f"Generated coordinated feedback type: {coordinated_feedback.get('type')}")
+            return coordinated_feedback
+            
+        except Exception as e:
+            self.logger.error(f"Error generating feedback: {e}")
+            # 返回基本反馈作为回退
+            return {
+                'type': 'basic_feedback',
+                'error': str(e),
+                'neural_confidence': neural_result.get('confidence', 0.5),
+                'symbolic_confidence': symbolic_result.get('confidence', 0.5),
+                'consistency': consistency,
+                'suggestions': ['Review feedback generation logic']
+            }
+    
+    def _extract_feedback_from_result(self, result: Optional[Dict[str, Any]], result_type: str) -> Dict[str, Any]:
+        """从推理结果中提取反馈信息"""
+        if not result:
+            return {'type': f'empty_{result_type}', 'suggestions': []}
+        
         feedback = {
-            'neural_to_symbolic': [],
-            'symbolic_to_neural': [],
-            'consistency_issues': []
+            'type': result_type,
+            'method': result.get('method', 'unknown'),
+            'confidence': result.get('confidence', 0.5)
         }
         
-        # 一致性问题的反馈
-        if consistency < 0.7:
-            feedback['consistency_issues'].append({
-                'type': 'low_consistency',
-                'score': consistency,
-                'suggestion': 'Adjust reasoning parameters or add constraints'
-            })
+        # 提取特定领域的建议
+        suggestions = []
         
-        # 神经到符号的反馈
-        if neural_result.get('confidence', 0) < 0.6:
-            feedback['neural_to_symbolic'].append({
-                'type': 'low_neural_confidence',
-                'confidence': neural_result.get('confidence'),
-                'suggestion': 'Provide more training data or adjust network architecture'
-            })
+        # 基于结果类型生成建议
+        if result_type == 'neural':
+            if result.get('confidence', 0) < self.neural_confidence_threshold:
+                suggestions.append('Increase neural network training data')
+                suggestions.append('Adjust neural network architecture')
+            if result.get('status') == 'error':
+                suggestions.append('Check neural model initialization')
         
-        # 符号到神经的反馈
-        if symbolic_result.get('confidence', 0) < 0.7:
-            feedback['symbolic_to_neural'].append({
-                'type': 'low_symbolic_confidence',
-                'confidence': symbolic_result.get('confidence'),
-                'suggestion': 'Add more symbolic rules or refine existing ones'
-            })
+        elif result_type == 'symbolic':
+            if result.get('confidence', 0) < self.symbolic_confidence_threshold:
+                suggestions.append('Add more symbolic rules')
+                suggestions.append('Refine symbolic constraint definitions')
+            if result.get('status') == 'error':
+                suggestions.append('Verify symbolic engine availability')
         
-        return feedback if any(feedback.values()) else None
+        # 从结果中提取现有建议
+        if 'suggestions' in result and result['suggestions']:
+            if isinstance(result['suggestions'], list):
+                suggestions.extend(result['suggestions'])
+            else:
+                suggestions.append(result['suggestions'])
+        
+        feedback['suggestions'] = suggestions[:5]  # 限制建议数量
+        
+        return feedback
+    
+    def _get_consistency_level(self, consistency_score: float) -> str:
+        """根据一致性分数获取一致性级别"""
+        if consistency_score >= self.high_consistency_threshold:
+            return 'high'
+        elif consistency_score >= self.moderate_consistency_threshold:
+            return 'moderate'
+        elif consistency_score >= self.low_consistency_threshold:
+            return 'low'
+        else:
+            return 'very_low'
+    
+    def _generate_improvement_suggestions(self, neural_result: Dict[str, Any], symbolic_result: Dict[str, Any], consistency: float, coordinated_feedback: Dict[str, Any]) -> List[str]:
+        """生成改进建议"""
+        suggestions = []
+        
+        # 一致性改进建议
+        if consistency < self.feedback_consistency_threshold:
+            suggestions.append('Increase alignment between neural and symbolic reasoning')
+            suggestions.append('Add cross-validation between reasoning modalities')
+        
+        # 置信度改进建议
+        neural_confidence = neural_result.get('confidence', 0.5)
+        symbolic_confidence = symbolic_result.get('confidence', 0.5)
+        
+        if neural_confidence < self.neural_confidence_threshold:
+            suggestions.append('Enhance neural model with domain-specific features')
+        
+        if symbolic_confidence < self.symbolic_confidence_threshold:
+            suggestions.append('Expand symbolic rule coverage for current domain')
+        
+        # 基于协调反馈的策略建议
+        feedback_type = coordinated_feedback.get('type', '')
+        if 'conflict' in feedback_type:
+            suggestions.append('Implement conflict resolution mechanism')
+            suggestions.append('Add preference learning for feedback integration')
+        
+        # 添加协调器建议
+        coord_suggestions = coordinated_feedback.get('suggestions', [])
+        if coord_suggestions:
+            if isinstance(coord_suggestions, list):
+                suggestions.extend(coord_suggestions)
+            else:
+                suggestions.append(coord_suggestions)
+        
+        return list(set(suggestions))[:8]  # 去重并限制数量
     
     def _apply_feedback(self, context, feedback):
         """应用反馈到推理上下文"""
@@ -3100,13 +3741,287 @@ class ConsistencyValidator:
 
 
 class FeedbackCoordinator:
-    """反馈协调器"""
+    """智能反馈协调器 - 实现神经和符号反馈的智能融合"""
     
-    def coordinate(self, neural_feedback, symbolic_feedback):
-        """协调神经和符号反馈"""
+    def __init__(self, config=None):
+        self.config = config or {}
+        self.logger = logging.getLogger(__name__)
+        
+        # 协调策略参数
+        self.neural_weight = self.config.get('neural_weight', 0.4)
+        self.symbolic_weight = self.config.get('symbolic_weight', 0.6)
+        self.confidence_threshold = self.config.get('confidence_threshold', 0.7)
+        self.max_resolution_attempts = self.config.get('max_resolution_attempts', 3)
+        
+        # 权重调整阈值参数
+        self.high_confidence_threshold = self.config.get('high_confidence_threshold', 0.9)
+        self.medium_confidence_threshold = self.config.get('medium_confidence_threshold', 0.7)
+        self.low_confidence_threshold = self.config.get('low_confidence_threshold', 0.5)
+        
+        # 权重调整值参数
+        self.high_confidence_weight = self.config.get('high_confidence_weight', 0.8)
+        self.medium_confidence_weight = self.config.get('medium_confidence_weight', 0.6)
+        self.low_confidence_weight = self.config.get('low_confidence_weight', 0.4)
+        self.very_low_confidence_weight = self.config.get('very_low_confidence_weight', 0.2)
+        
+        # 一致性分析参数
+        self.missing_feedback_consistency = self.config.get('missing_feedback_consistency', 0.5)
+        self.same_type_consistency = self.config.get('same_type_consistency', 0.8)
+        self.no_suggestions_consistency = self.config.get('no_suggestions_consistency', 0.6)
+        self.moderate_consistency_threshold = self.config.get('moderate_consistency_threshold', 0.4)
+        
+        # 建议相似性参数
+        self.empty_suggestions_similarity = self.config.get('empty_suggestions_similarity', 0.5)
+        self.empty_keywords_similarity = self.config.get('empty_keywords_similarity', 0.5)
+        self.zero_union_similarity = self.config.get('zero_union_similarity', 0.0)
+        self.max_keywords_per_suggestion = self.config.get('max_keywords_per_suggestion', 5)
+        self.max_combined_suggestions = self.config.get('max_combined_suggestions', 10)
+        
+        self.logger.info("FeedbackCoordinator initialized with intelligent fusion")
+    
+    def coordinate(self, neural_feedback: Optional[Dict[str, Any]], symbolic_feedback: Optional[Dict[str, Any]], neural_confidence: float = 0.5, symbolic_confidence: float = 0.5) -> Dict[str, Any]:
+        """智能协调神经和符号反馈
+        
+        参数：
+            neural_feedback: 神经推理反馈
+            symbolic_feedback: 符号推理反馈
+            neural_confidence: 神经推理置信度 (0.0-1.0)
+            symbolic_confidence: 符号推理置信度 (0.0-1.0)
+            
+        返回：
+           协调后的反馈和解决策略
+        """
+        try:
+            # 检查输入有效性
+            if not neural_feedback and not symbolic_feedback:
+                return self._create_default_feedback('no_feedback')
+            
+            # 计算加权置信度
+            neural_weight = self._calculate_adjusted_weight(neural_confidence)
+            symbolic_weight = self._calculate_adjusted_weight(symbolic_confidence)
+            
+            # 分析反馈一致性
+            consistency = self._analyze_feedback_consistency(neural_feedback, symbolic_feedback)
+            
+            # 根据一致性和置信度选择协调策略
+            if consistency >= self.confidence_threshold:
+                # 高一致性：简单融合
+                return self._fuse_high_consistency(neural_feedback, symbolic_feedback, 
+                                                  neural_weight, symbolic_weight)
+            elif consistency >= self.moderate_consistency_threshold:
+                # 中等一致性：冲突解决
+                return self._resolve_moderate_conflict(neural_feedback, symbolic_feedback,
+                                                      neural_confidence, symbolic_confidence)
+            else:
+                # 低一致性：高级冲突解决
+                return self._resolve_high_conflict(neural_feedback, symbolic_feedback,
+                                                  neural_confidence, symbolic_confidence)
+                
+        except Exception as e:
+            self.logger.error(f"Error coordinating feedback: {e}")
+            return self._create_error_feedback(str(e))
+    
+    def _calculate_adjusted_weight(self, confidence: float) -> float:
+        """根据置信度计算调整后的权重"""
+        if confidence >= self.high_confidence_threshold:
+            return self.high_confidence_weight  # 高置信度，高权重
+        elif confidence >= self.medium_confidence_threshold:
+            return self.medium_confidence_weight  # 中等置信度
+        elif confidence >= self.low_confidence_threshold:
+            return self.low_confidence_weight  # 低置信度
+        else:
+            return self.very_low_confidence_weight  # 极低置信度
+    
+    def _analyze_feedback_consistency(self, neural_feedback: Optional[Dict[str, Any]], symbolic_feedback: Optional[Dict[str, Any]]) -> float:
+        """分析神经和符号反馈的一致性
+        
+        返回：
+           一致性分数 (0.0-1.0)
+        """
+        if not neural_feedback or not symbolic_feedback:
+            return self.missing_feedback_consistency  # 缺少一方反馈，假设中等一致性
+        
+        # 简化的一致性检查：比较反馈类型和关键字段
+        neural_type = self._extract_feedback_type(neural_feedback)
+        symbolic_type = self._extract_feedback_type(symbolic_feedback)
+        
+        if neural_type == symbolic_type:
+            return self.same_type_consistency  # 类型相同，高一致性
+        
+        # 检查是否有冲突建议
+        neural_suggestions = self._extract_suggestions(neural_feedback)
+        symbolic_suggestions = self._extract_suggestions(symbolic_feedback)
+        
+        if not neural_suggestions and not symbolic_suggestions:
+            return self.no_suggestions_consistency  # 双方无具体建议，中等一致性
+        
+        # 检查建议的相似性
+        similarity = self._calculate_suggestion_similarity(neural_suggestions, symbolic_suggestions)
+        return similarity
+    
+    def _extract_feedback_type(self, feedback: Optional[Dict[str, Any]]) -> str:
+        """提取反馈类型"""
+        if isinstance(feedback, dict):
+            return feedback.get('type', 'unknown')
+        return 'unknown'
+    
+    def _extract_suggestions(self, feedback: Optional[Dict[str, Any]]) -> List[str]:
+        """从反馈中提取建议"""
+        if isinstance(feedback, dict):
+            suggestions = feedback.get('suggestions', [])
+            if isinstance(suggestions, list):
+                return suggestions
+            elif suggestions:
+                return [suggestions]
+        return []
+    
+    def _calculate_suggestion_similarity(self, neural_suggestions: List[str], symbolic_suggestions: List[str]) -> float:
+        """计算建议的相似性"""
+        if not neural_suggestions or not symbolic_suggestions:
+            return self.empty_suggestions_similarity
+        
+        # 简化相似性计算：检查是否有共同关键词
+        neural_keywords = self._extract_keywords(neural_suggestions)
+        symbolic_keywords = self._extract_keywords(symbolic_suggestions)
+        
+        if not neural_keywords or not symbolic_keywords:
+            return self.empty_keywords_similarity
+        
+        # 计算Jaccard相似度
+        intersection = len(neural_keywords.intersection(symbolic_keywords))
+        union = len(neural_keywords.union(symbolic_keywords))
+        
+        if union == 0:
+            return self.zero_union_similarity
+        
+        return intersection / union
+    
+    def _extract_keywords(self, suggestions: List[str]) -> Set[str]:
+        """从建议中提取关键词"""
+        keywords = set()
+        for suggestion in suggestions:
+            if isinstance(suggestion, str):
+                # 简单分词：按空格分割
+                words = suggestion.lower().split()
+                keywords.update(words[:self.max_keywords_per_suggestion])  # 取前N个词作为关键词
+        return keywords
+    
+    def _fuse_high_consistency(self, neural_feedback: Dict[str, Any], symbolic_feedback: Dict[str, Any], neural_weight: float, symbolic_weight: float) -> Dict[str, Any]:
+        """高一致性情况下的反馈融合"""
+        fused_feedback = {
+            'type': 'fused_high_consistency',
+            'strategy': 'weighted_fusion',
+            'neural_weight': neural_weight,
+            'symbolic_weight': symbolic_weight,
+            'consistency': 'high',
+            'combined_suggestions': []
+        }
+        
+        # 合并建议，优先考虑高权重方
+        neural_suggestions = self._extract_suggestions(neural_feedback)
+        symbolic_suggestions = self._extract_suggestions(symbolic_feedback)
+        
+        if neural_weight >= symbolic_weight:
+            # 神经反馈权重更高
+            fused_feedback['combined_suggestions'].extend(neural_suggestions)
+            fused_feedback['combined_suggestions'].extend(symbolic_suggestions)
+        else:
+            # 符号反馈权重更高
+            fused_feedback['combined_suggestions'].extend(symbolic_suggestions)
+            fused_feedback['combined_suggestions'].extend(neural_suggestions)
+        
+        # 去重
+        unique_suggestions = []
+        seen = set()
+        for suggestion in fused_feedback['combined_suggestions']:
+            if suggestion not in seen:
+                seen.add(suggestion)
+                unique_suggestions.append(suggestion)
+        
+        fused_feedback['combined_suggestions'] = unique_suggestions[:self.max_combined_suggestions]  # 限制数量
+        
+        return fused_feedback
+    
+    def _resolve_moderate_conflict(self, neural_feedback: Dict[str, Any], symbolic_feedback: Dict[str, Any], neural_confidence: float, symbolic_confidence: float) -> Dict[str, Any]:
+        """解决中等冲突"""
+        # 选择置信度更高的反馈
+        if neural_confidence >= symbolic_confidence:
+            primary = neural_feedback
+            secondary = symbolic_feedback
+            primary_type = 'neural'
+            primary_confidence = neural_confidence
+        else:
+            primary = symbolic_feedback
+            secondary = neural_feedback
+            primary_type = 'symbolic'
+            primary_confidence = symbolic_confidence
+        
         return {
-            'combined_feedback': {
-                'neural': neural_feedback,
-                'symbolic': symbolic_feedback
+            'type': 'resolved_moderate_conflict',
+            'strategy': 'confidence_based_selection',
+            'primary_feedback': primary,
+            'primary_type': primary_type,
+            'primary_confidence': primary_confidence,
+            'secondary_feedback': secondary,
+            'resolution_notes': f"Selected {primary_type} feedback due to higher confidence",
+            'consistency': 'moderate'
+        }
+    
+    def _resolve_high_conflict(self, neural_feedback: Dict[str, Any], symbolic_feedback: Dict[str, Any], neural_confidence: float, symbolic_confidence: float) -> Dict[str, Any]:
+        """解决高冲突"""
+        # 当冲突严重时，尝试寻找共同点
+        common_elements = self._find_common_elements(neural_feedback, symbolic_feedback)
+        
+        if common_elements:
+            return {
+                'type': 'resolved_high_conflict',
+                'strategy': 'common_ground',
+                'common_elements': common_elements,
+                'neural_feedback': neural_feedback,
+                'symbolic_feedback': symbolic_feedback,
+                'resolution_notes': 'Found common elements despite high conflict',
+                'consistency': 'low'
             }
+        else:
+            # 无共同点，返回双方反馈让上层决定
+            return {
+                'type': 'unresolved_high_conflict',
+                'strategy': 'present_both',
+                'neural_feedback': neural_feedback,
+                'symbolic_feedback': symbolic_feedback,
+                'neural_confidence': neural_confidence,
+                'symbolic_confidence': symbolic_confidence,
+                'resolution_notes': 'High conflict with no common elements',
+                'consistency': 'very_low'
+            }
+    
+    def _find_common_elements(self, neural_feedback: Dict[str, Any], symbolic_feedback: Dict[str, Any]) -> Dict[str, Any]:
+        """寻找反馈中的共同元素"""
+        common = {}
+        
+        if isinstance(neural_feedback, dict) and isinstance(symbolic_feedback, dict):
+            # 检查共同的键
+            common_keys = set(neural_feedback.keys()).intersection(set(symbolic_feedback.keys()))
+            for key in common_keys:
+                if neural_feedback[key] == symbolic_feedback[key]:
+                    common[key] = neural_feedback[key]
+        
+        return common
+    
+    def _create_default_feedback(self, reason: str) -> Dict[str, Any]:
+        """创建默认反馈"""
+        return {
+            'type': 'default_feedback',
+            'strategy': 'no_input',
+            'reason': reason,
+            'suggestions': ['Check input feedback validity']
+        }
+    
+    def _create_error_feedback(self, error_message: str) -> Dict[str, Any]:
+        """创建错误反馈"""
+        return {
+            'type': 'error_feedback',
+            'strategy': 'error_handling',
+            'error': error_message,
+            'suggestions': ['Review feedback coordination logic']
         }

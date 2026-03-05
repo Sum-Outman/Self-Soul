@@ -2653,24 +2653,45 @@ class UnifiedSpatialModel(UnifiedModelTemplate):
         try:
             # 获取神经网络信息
             nn_info = {}
-            if hasattr(self, 'spatial_nn') and self.spatial_nn is not None:
-                import torch
-                total_params = sum(p.numel() for p in self.spatial_nn.parameters() if p.requires_grad)
-                nn_info["spatial_neural_network"] = {
-                    "parameters": total_params,
-                    "layers": len(list(self.spatial_nn.children())),
-                    "type": self.spatial_nn.__class__.__name__,
-                    "device": str(next(self.spatial_nn.parameters()).device) if total_params > 0 else "cpu"
-                }
             
-            if hasattr(self, 'feature_extractor') and self.feature_extractor is not None:
-                import torch
-                feature_params = sum(p.numel() for p in self.feature_extractor.parameters() if p.requires_grad)
-                nn_info["feature_extractor"] = {
-                    "parameters": feature_params,
-                    "layers": len(list(self.feature_extractor.children())),
-                    "type": self.feature_extractor.__class__.__name__,
-                    "device": str(next(self.feature_extractor.parameters()).device) if feature_params > 0 else "cpu"
+            # 检查所有可能的神经网络属性
+            neural_network_candidates = [
+                ('spatial_nn', 'spatial_neural_network'),
+                ('neural_network', 'neural_network'),
+                ('feature_extractor', 'feature_extractor')
+            ]
+            
+            for attr_name, info_key in neural_network_candidates:
+                if hasattr(self, attr_name):
+                    nn = getattr(self, attr_name)
+                    if nn is not None:
+                        try:
+                            import torch
+                            total_params = sum(p.numel() for p in nn.parameters() if p.requires_grad)
+                            nn_info[info_key] = {
+                                "parameters": total_params,
+                                "layers": len(list(nn.children())),
+                                "type": nn.__class__.__name__,
+                                "device": str(next(nn.parameters()).device) if total_params > 0 else "cpu"
+                            }
+                        except Exception as e:
+                            self.logger.warning(f"获取神经网络 {attr_name} 参数失败: {e}")
+                            nn_info[info_key] = {
+                                "parameters": 0,
+                                "layers": 0,
+                                "type": nn.__class__.__name__ if hasattr(nn, '__class__') else 'unknown',
+                                "device": "unknown",
+                                "error": str(e)
+                            }
+            
+            # 如果没有找到任何神经网络，添加占位信息
+            if not nn_info:
+                nn_info["neural_networks"] = {
+                    "parameters": 0,
+                    "layers": 0,
+                    "type": "not_initialized",
+                    "device": "unknown",
+                    "status": "neural_networks_not_initialized"
                 }
             
             # 获取空间特定统计信息

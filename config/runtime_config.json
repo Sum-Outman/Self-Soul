@@ -1,0 +1,24 @@
+{
+  "mode": "development",
+  "logging": {
+    "level": "INFO",
+    "file": "development.log",
+    "max_size_mb": 10,
+    "backup_count": 5
+  },
+  "monitoring": {
+    "enabled": true,
+    "interval_seconds": 60,
+    "memory_threshold_mb": 512,
+    "cpu_threshold_percent": 80.0
+  },
+  "retry": {
+    "max_retries": 3,
+    "initial_delay_seconds": 1.0,
+    "max_delay_seconds": 60.0
+  },
+  "cleanup": {
+    "gc_interval_seconds": 300,
+    "log_retention_days": 30
+  }
+}

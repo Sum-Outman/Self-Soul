@@ -78,3 +78,7 @@ pydantic-settings>=2.0.0
 # Scientific and mathematical computing
 scipy>=1.10.0
 sympy>=1.12.0
+
+# Vector database and embeddings
+chromadb>=0.4.0
+sentence-transformers>=2.2.0

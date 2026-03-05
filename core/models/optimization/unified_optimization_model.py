@@ -3368,6 +3368,44 @@ class UnifiedOptimizationModel(UnifiedModelTemplate):
         Returns:
             Model information dictionary
         """
+        # 计算优化模型参数信息
+        optimization_params_info = {
+            "parameter_count": 0,  # 优化模型通常没有传统神经网络参数
+            "parameter_scale": "N/A (optimization model)",
+            "description": "优化模型参数包括算法超参数、配置参数和策略参数，而非传统神经网络权重",
+            "optimization_components": [
+                {
+                    "component": "policy_network",
+                    "parameters": 0,
+                    "type": "heuristic/algorithmic"
+                },
+                {
+                    "component": "parameter_network", 
+                    "parameters": 0,
+                    "type": "heuristic/algorithmic"
+                },
+                {
+                    "component": "resource_network",
+                    "parameters": 0,
+                    "type": "heuristic/algorithmic"
+                },
+                {
+                    "component": "performance_predictor",
+                    "parameters": 0,
+                    "type": "heuristic/algorithmic"
+                }
+            ],
+            "configurable_parameters": len(getattr(self, 'model_config', {})) + len(getattr(self, 'optimization_algorithms', {})),
+            "hyperparameters": {
+                "max_iterations": getattr(self, 'max_iterations', 1000),
+                "learning_rate": getattr(self, 'learning_rate', 0.001),
+                "population_size": getattr(self, 'population_size', 50),
+                "mutation_rate": getattr(self, 'mutation_rate', 0.1),
+                "crossover_rate": getattr(self, 'crossover_rate', 0.8),
+                "temperature": getattr(self, 'temperature', 1.0)
+            }
+        }
+        
         return {
             "model_type": "optimization",
             "model_subtype": "unified_agi_optimization",
@@ -3396,6 +3434,14 @@ class UnifiedOptimizationModel(UnifiedModelTemplate):
                 "cpu_cores_recommended": 16,
                 "ram_gb_recommended": 32,
                 "storage_space_gb": 40
+            },
+            "parameter_information": optimization_params_info,
+            "parameter_summary": {
+                "total_parameters": optimization_params_info["parameter_count"],
+                "parameter_scale": optimization_params_info["parameter_scale"],
+                "has_neural_network_parameters": False,
+                "has_algorithmic_parameters": True,
+                "configurable_parameters_count": optimization_params_info["configurable_parameters"]
             }
         }
     

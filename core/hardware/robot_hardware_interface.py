@@ -220,16 +220,22 @@ class RobotHardwareInterface:
            return {"success": False, "error": str(e), "initialized": False}
     
     def _register_default_sensors(self):
-       """Register default sensors - real hardware only"""
-       # Real AGI robot implementation - no simulated sensors allowed
+       """Register default sensors - real hardware preferred, simulation allowed in development"""
        import os
        environment = os.environ.get('ENVIRONMENT', 'production').lower()
+       robot_test_mode = os.environ.get('ROBOT_HARDWARE_TEST_MODE', 'false').lower() == 'true'
+       allow_simulation = os.environ.get('ALLOW_ROBOT_SIMULATION', 'false').lower() == 'true'
        
-       # AGI robot requires real hardware in all environments
-       if environment != 'production':
-           logger.warning(f"Environment '{environment}' detected - AGI robot requires real hardware regardless of environment")
+       # Check if simulation is allowed in current environment
+       simulation_allowed = environment != 'production' or robot_test_mode or allow_simulation
        
-       logger.info("AGI robot requires real hardware sensors - simulation not supported")
+       if simulation_allowed:
+           logger.warning(f"Simulation mode enabled for environment: {environment}")
+           logger.info("Registering simulated sensors for development/testing purposes")
+           return self._register_simulated_sensors_for_development()
+       
+       # Production environment or simulation not allowed - require real hardware
+       logger.info("AGI robot requires real hardware sensors - checking hardware availability")
        
        # Check if device interface is available
        if not self.device_interface:
@@ -245,7 +251,12 @@ Required hardware for AGI robot control:
 5. Battery management system
 6. Communication interfaces (USB, Serial, Ethernet, CAN bus)
 
-Installation steps:
+For development/testing without real hardware, set environment variables:
+- ENVIRONMENT=development
+- ALLOW_ROBOT_SIMULATION=true
+- ROBOT_HARDWARE_TEST_MODE=true
+
+Installation steps for real hardware:
 1. Install robot hardware drivers for your specific robot model
 2. Configure hardware communication protocols
 3. Initialize the robot hardware interface
@@ -385,14 +396,108 @@ Please ensure:
            f"Remove any environment variables that enable test mode (ROBOT_HARDWARE_TEST_MODE) and set ENVIRONMENT=production."
        )
     
+    def _register_simulated_sensors_for_development(self):
+       """Register simulated sensors for development/testing purposes"""
+       import os
+       import time
+       
+       logger.info("Registering simulated sensors for development/testing")
+       
+       # Define simulated sensor configuration
+       simulated_sensors = [
+           {
+               "id": "imu_9dof_sim",
+               "type": "imu",
+               "protocol": "simulated",
+               "params": {"simulation": True, "update_rate": "100Hz", "noise_level": "low"}
+           },
+           {
+               "id": "foot_pressure_left_sim",
+               "type": "force_sensor",
+               "protocol": "simulated",
+               "params": {"simulation": True, "channels": 4, "range": "0-100kg", "noise": 0.1}
+           },
+           {
+               "id": "foot_pressure_right_sim",
+               "type": "force_sensor",
+               "protocol": "simulated",
+               "params": {"simulation": True, "channels": 4, "range": "0-100kg", "noise": 0.1}
+           },
+           {
+               "id": "joint_torque_hip_left_sim",
+               "type": "torque_sensor",
+               "protocol": "simulated",
+               "params": {"simulation": True, "range": "±50Nm", "update_rate": "1kHz"}
+           },
+           {
+               "id": "battery_system_sim",
+               "type": "battery",
+               "protocol": "simulated",
+               "params": {"simulation": True, "cells": 6, "capacity": "4000mAh", "voltage": 24.0}
+           },
+           {
+               "id": "proximity_front_sim",
+               "type": "proximity",
+               "protocol": "simulated",
+               "params": {"simulation": True, "range": "0.1-5m", "resolution": "1mm"}
+           }
+       ]
+       
+       registered_sensors = []
+       for sensor_config in simulated_sensors:
+           try:
+               # Add to sensors registry
+               self.sensors[sensor_config["id"]] = {
+                   "id": sensor_config["id"],
+                   "type": sensor_config["type"],
+                   "protocol": sensor_config["protocol"],
+                   "params": sensor_config["params"],
+                   "simulated": True,
+                   "registered_at": time.time(),
+                   "status": "active"
+               }
+               
+               # Initialize simulated data
+               self.sensor_data[sensor_config["id"]] = {
+                   "value": 0.0,
+                   "timestamp": time.time(),
+                   "quality": 1.0,
+                   "simulated": True
+               }
+               
+               registered_sensors.append(sensor_config["id"])
+               logger.info(f"Registered simulated sensor: {sensor_config['id']} ({sensor_config['type']})")
+               
+           except Exception as e:
+               logger.warning(f"Failed to register simulated sensor {sensor_config['id']}: {e}")
+       
+       logger.info(f"Successfully registered {len(registered_sensors)} simulated sensors for development")
+       return registered_sensors
+    
     def _register_default_servos(self):
-       """Register default servo motors - real hardware only (simulation not supported)"""
+       """Register default servo motors - real hardware preferred, simulation allowed in development"""
+       import os
+       environment = os.environ.get('ENVIRONMENT', 'production').lower()
+       robot_test_mode = os.environ.get('ROBOT_HARDWARE_TEST_MODE', 'false').lower() == 'true'
+       allow_simulation = os.environ.get('ALLOW_ROBOT_SIMULATION', 'false').lower() == 'true'
+       
+       # Check if simulation is allowed in current environment
+       simulation_allowed = environment != 'production' or robot_test_mode or allow_simulation
+       
+       if simulation_allowed:
+           logger.warning(f"Simulation mode enabled for environment: {environment}")
+           logger.info("Registering simulated servos for development/testing purposes")
+           return self._register_simulated_servos_for_development()
+       
+       # Production environment or simulation not allowed - require real hardware
+       logger.info("AGI robot requires real servo motors - checking hardware availability")
+       
        # Check if device interface is available - simulation mode not supported
        if not self.device_interface:
            raise RuntimeError(
                "Robot hardware interface unavailable: External device interface not initialized. "
                "Please ensure robot joint controller drivers are installed and connect real hardware. "
-               "Simulation mode is not supported for AGI robot operations."
+               "Simulation mode is not supported for AGI robot operations in production environment."
            )
        
        try:
@@ -462,6 +567,64 @@ Please ensure:
             "Please connect real servo motor hardware and use real hardware interface. "
             "Remove any environment variables that enable test mode (ROBOT_HARDWARE_TEST_MODE) and set ENVIRONMENT=production."
         )
+    
+    def _register_simulated_servos_for_development(self):
+        """Register simulated servo motors for development/testing purposes"""
+        import time
+        
+        logger.info("Registering simulated servo motors for development/testing")
+        
+        # Define simulated servo configuration
+        simulated_servos = [
+            {"id": "servo_1_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -90, "max_angle": 90}},
+            {"id": "servo_2_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -90, "max_angle": 90}},
+            {"id": "servo_3_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -90, "max_angle": 90}},
+            {"id": "servo_4_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -45, "max_angle": 45}},
+            {"id": "servo_5_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -45, "max_angle": 45}},
+            {"id": "servo_6_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -30, "max_angle": 30}},
+            {"id": "servo_7_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -30, "max_angle": 30}},
+            {"id": "servo_8_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -60, "max_angle": 60}},
+            {"id": "servo_9_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -60, "max_angle": 60}},
+            {"id": "servo_10_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -90, "max_angle": 90}},
+            {"id": "servo_11_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -90, "max_angle": 90}},
+            {"id": "servo_12_sim", "type": "standard", "protocol": "simulated", "params": {"simulation": True, "min_angle": -120, "max_angle": 120}}
+        ]
+        
+        registered_servos = []
+        for servo_config in simulated_servos:
+            try:
+                # Add to servos registry
+                self.servos[servo_config["id"]] = {
+                    "id": servo_config["id"],
+                    "type": servo_config["type"],
+                    "protocol": servo_config["protocol"],
+                    "params": servo_config["params"],
+                    "simulated": True,
+                    "registered_at": time.time(),
+                    "status": "active",
+                    "position": 0.0,
+                    "velocity": 0.0,
+                    "torque": 0.0
+                }
+                
+                # Initialize servo position
+                self.servo_positions[servo_config["id"]] = {
+                    "position": 0.0,
+                    "target_position": 0.0,
+                    "velocity": 0.0,
+                    "torque": 0.0,
+                    "timestamp": time.time(),
+                    "simulated": True
+                }
+                
+                registered_servos.append(servo_config["id"])
+                logger.info(f"Registered simulated servo: {servo_config['id']}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to register simulated servo {servo_config['id']}: {e}")
+        
+        logger.info(f"Successfully registered {len(registered_servos)} simulated servos for development")
+        return registered_servos
     
     def register_sensor(self, sensor_id: str, sensor_type: str, 
                       protocol: str, params: Dict[str, Any]) -> Dict[str, Any]:

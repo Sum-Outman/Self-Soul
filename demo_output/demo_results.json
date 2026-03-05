@@ -1,0 +1,9 @@
+{
+  "identity": true,
+  "runtime_mode": "development",
+  "capabilities_available": true,
+  "full_demo_success": true,
+  "runtime": "development",
+  "capabilities": true,
+  "integration_success": true
+}

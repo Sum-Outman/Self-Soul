@@ -1,0 +1,17 @@
+{
+  "identity": {
+    "enabled": true,
+    "data_dir": "data/identity",
+    "auto_create": true
+  },
+  "memory": {
+    "max_working_memory": 100,
+    "max_long_term_memory": 1000,
+    "cleanup_interval_hours": 24
+  },
+  "performance": {
+    "max_threads": 10,
+    "task_timeout_seconds": 300,
+    "queue_size": 100
+  }
+}

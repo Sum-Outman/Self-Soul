@@ -40,6 +40,7 @@ class DeterministicRandom:
 random = DeterministicRandom(seed=42)
 import time
 import numpy as np
+import sympy
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -447,6 +448,180 @@ def create_synthetic_programming_data(size: int) -> List[Dict[str, Any]]:
     
     return data
 
+def create_synthetic_mathematics_data(size: int) -> List[Dict[str, Any]]:
+    """生成合成数学数据
+    Generate synthetic mathematics data
+    
+    Args:
+        size: 数据规模
+        
+    Returns:
+        List[Dict[str, Any]]: 数学数据列表，包含问题、解决方案和元数据
+    """
+    data = []
+    
+    # 数学问题类型
+    problem_types = [
+        "algebraic_equation",  # 代数方程
+        "calculus_differentiation",  # 微积分求导
+        "calculus_integration",  # 微积分积分
+        "geometry_area",  # 几何面积
+        "geometry_volume",  # 几何体积
+        "trigonometry",  # 三角函数
+        "statistics",  # 统计
+        "linear_algebra"  # 线性代数
+    ]
+    
+    for i in range(size):
+        problem_type = random.choice(problem_types)
+        
+        # 根据问题类型生成具体问题
+        if problem_type == "algebraic_equation":
+            # 生成线性方程: ax + b = c
+            a = random.randint(1, 10)
+            b = random.randint(1, 20)
+            c = random.randint(b + 1, 50)
+            # 解: x = (c - b) / a
+            x_solution = (c - b) / a
+            problem_text = f"Solve for x: {a}x + {b} = {c}"
+            solution_text = f"x = {x_solution}"
+            solution_value = x_solution
+            
+        elif problem_type == "calculus_differentiation":
+            # 生成求导问题
+            functions = ["x^2", "sin(x)", "cos(x)", "e^x", "ln(x)"]
+            func = random.choice(functions)
+            problem_text = f"Find the derivative of {func} with respect to x"
+            # 使用sympy计算导数
+            try:
+                x = sympy.symbols('x')
+                if func == "x^2":
+                    derivative = "2*x"
+                elif func == "sin(x)":
+                    derivative = "cos(x)"
+                elif func == "cos(x)":
+                    derivative = "-sin(x)"
+                elif func == "e^x":
+                    derivative = "e^x"
+                elif func == "ln(x)":
+                    derivative = "1/x"
+                else:
+                    derivative = "unknown"
+                solution_text = f"Derivative: {derivative}"
+                solution_value = derivative
+            except Exception:
+                solution_text = "Derivative calculation failed"
+                solution_value = None
+                
+        elif problem_type == "calculus_integration":
+            # 生成积分问题
+            functions = ["2*x", "x^2", "sin(x)", "cos(x)", "e^x"]
+            func = random.choice(functions)
+            problem_text = f"Find the integral of {func} with respect to x"
+            # 使用sympy计算积分
+            try:
+                x = sympy.symbols('x')
+                if func == "2*x":
+                    integral = "x^2"
+                elif func == "x^2":
+                    integral = "x^3/3"
+                elif func == "sin(x)":
+                    integral = "-cos(x)"
+                elif func == "cos(x)":
+                    integral = "sin(x)"
+                elif func == "e^x":
+                    integral = "e^x"
+                else:
+                    integral = "unknown"
+                solution_text = f"Integral: {integral}"
+                solution_value = integral
+            except Exception:
+                solution_text = "Integration calculation failed"
+                solution_value = None
+                
+        elif problem_type == "geometry_area":
+            # 几何面积问题
+            shapes = ["circle", "rectangle", "triangle", "square"]
+            shape = random.choice(shapes)
+            if shape == "circle":
+                radius = random.uniform(1.0, 10.0)
+                area = sympy.pi * radius**2
+                problem_text = f"Calculate the area of a circle with radius {radius:.2f}"
+                solution_text = f"Area = {area:.4f}"
+                solution_value = float(area)
+            elif shape == "rectangle":
+                length = random.uniform(2.0, 15.0)
+                width = random.uniform(2.0, 10.0)
+                area = length * width
+                problem_text = f"Calculate the area of a rectangle with length {length:.2f} and width {width:.2f}"
+                solution_text = f"Area = {area:.4f}"
+                solution_value = float(area)
+            elif shape == "triangle":
+                base = random.uniform(3.0, 12.0)
+                height = random.uniform(2.0, 8.0)
+                area = 0.5 * base * height
+                problem_text = f"Calculate the area of a triangle with base {base:.2f} and height {height:.2f}"
+                solution_text = f"Area = {area:.4f}"
+                solution_value = float(area)
+            else:  # square
+                side = random.uniform(2.0, 10.0)
+                area = side**2
+                problem_text = f"Calculate the area of a square with side length {side:.2f}"
+                solution_text = f"Area = {area:.4f}"
+                solution_value = float(area)
+                
+        elif problem_type == "geometry_volume":
+            # 几何体积问题
+            shapes = ["sphere", "cube", "cylinder", "cone"]
+            shape = random.choice(shapes)
+            if shape == "sphere":
+                radius = random.uniform(1.0, 8.0)
+                volume = (4/3) * sympy.pi * radius**3
+                problem_text = f"Calculate the volume of a sphere with radius {radius:.2f}"
+                solution_text = f"Volume = {volume:.4f}"
+                solution_value = float(volume)
+            elif shape == "cube":
+                side = random.uniform(2.0, 10.0)
+                volume = side**3
+                problem_text = f"Calculate the volume of a cube with side length {side:.2f}"
+                solution_text = f"Volume = {volume:.4f}"
+                solution_value = float(volume)
+            elif shape == "cylinder":
+                radius = random.uniform(1.0, 5.0)
+                height = random.uniform(3.0, 12.0)
+                volume = sympy.pi * radius**2 * height
+                problem_text = f"Calculate the volume of a cylinder with radius {radius:.2f} and height {height:.2f}"
+                solution_text = f"Volume = {volume:.4f}"
+                solution_value = float(volume)
+            else:  # cone
+                radius = random.uniform(1.0, 5.0)
+                height = random.uniform(3.0, 12.0)
+                volume = (1/3) * sympy.pi * radius**2 * height
+                problem_text = f"Calculate the volume of a cone with radius {radius:.2f} and height {height:.2f}"
+                solution_text = f"Volume = {volume:.4f}"
+                solution_value = float(volume)
+                
+        else:
+            # 其他类型使用通用问题
+            problem_text = f"Solve this mathematical problem (type: {problem_type})"
+            solution_text = f"Solution for {problem_type} problem"
+            solution_value = None
+        
+        # 创建数据条目
+        math_data = {
+            "math_id": f"math_{i}",
+            "problem_type": problem_type,
+            "problem_text": problem_text,
+            "solution_text": solution_text,
+            "solution_value": solution_value,
+            "difficulty": random.uniform(0.1, 1.0),
+            "domain": random.choice(["algebra", "calculus", "geometry", "trigonometry", "statistics"]),
+            "source": "synthetic"
+        }
+        data.append(math_data)
+    
+    return data
+
 def create_synthetic_emotion_data(size: int) -> List[Dict[str, Any]]:
     """生成合成情感数据
     Generate synthetic emotion data
@@ -780,6 +955,12 @@ def generate_training_data_for_all_models() -> Dict[str, Any]:
             "data": create_synthetic_programming_data(1000),  # 1000条编程数据
             "source": "synthetic",
             "size": 1000
+        },
+        "mathematics": {
+            "type": "problem_solution",
+            "data": create_synthetic_mathematics_data(5000),  # 5000条数学数据
+            "source": "synthetic",
+            "size": 5000
         },
         
         # 高级认知与决策模型

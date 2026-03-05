@@ -153,7 +153,7 @@ class UnifiedMultimodalProcessor:
         batch_size = 1
         seq_len = 10
         embedding_dim = self.config.get("embedding_dim", 768)
-        return _deterministic_randn((batch_size, seq_len, embedding_dim, device=self.device), seed_prefix="randn_default")
+        return _deterministic_randn((batch_size, seq_len, embedding_dim), seed_prefix="randn_default")
     
     def _encode_image(self, image_data: Any) -> torch.Tensor:
         """编码图像数据"""
@@ -161,7 +161,7 @@ class UnifiedMultimodalProcessor:
         batch_size = 1
         seq_len = 14 * 14  # 假设图像特征网格
         embedding_dim = self.config.get("embedding_dim", 768)
-        return _deterministic_randn((batch_size, seq_len, embedding_dim, device=self.device), seed_prefix="randn_default")
+        return _deterministic_randn((batch_size, seq_len, embedding_dim), seed_prefix="randn_default")
     
     def _encode_audio(self, audio_data: Any) -> torch.Tensor:
         """编码音频数据"""
@@ -169,7 +169,7 @@ class UnifiedMultimodalProcessor:
         batch_size = 1
         seq_len = 50  # 假设音频帧数
         embedding_dim = self.config.get("embedding_dim", 768)
-        return _deterministic_randn((batch_size, seq_len, embedding_dim, device=self.device), seed_prefix="randn_default")
+        return _deterministic_randn((batch_size, seq_len, embedding_dim), seed_prefix="randn_default")
     
     def _encode_generic(self, data: Any) -> torch.Tensor:
         """编码通用模态数据"""
@@ -177,7 +177,7 @@ class UnifiedMultimodalProcessor:
         batch_size = 1
         seq_len = 5
         embedding_dim = self.config.get("embedding_dim", 768)
-        return _deterministic_randn((batch_size, seq_len, embedding_dim, device=self.device), seed_prefix="randn_default")
+        return _deterministic_randn((batch_size, seq_len, embedding_dim), seed_prefix="randn_default")
     
     def align_multimodal_features(self, modality_features: Dict[str, torch.Tensor]) -> Dict[str, Any]:
         """

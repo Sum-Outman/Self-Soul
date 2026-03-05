@@ -1,0 +1,93 @@
+{
+  "openai": {
+    "name": "openai",
+    "api_type": "openai",
+    "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.openai.com/v1",
+    "model_name": "gpt-4",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "anthropic": {
+    "name": "anthropic",
+    "api_type": "anthropic",
+    "api_key": "sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.anthropic.com",
+    "model_name": "claude-3-opus-20240229",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "google_genai": {
+    "name": "google_genai",
+    "api_type": "google_genai",
+    "api_key": "AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://generativelanguage.googleapis.com/v1",
+    "model_name": "gemini-pro",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "replicate": {
+    "name": "replicate",
+    "api_type": "replicate",
+    "api_token": "r8_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.replicate.com/v1",
+    "model_name": "stability-ai/sdxl",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "huggingface": {
+    "name": "huggingface",
+    "api_type": "huggingface",
+    "token": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api-inference.huggingface.co",
+    "model_name": "runwayml/stable-diffusion-v1-5",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "azure_openai": {
+    "name": "azure_openai",
+    "api_type": "azure_openai",
+    "api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "azure_endpoint": "https://your-resource.openai.azure.com/",
+    "api_version": "2024-02-01",
+    "model_name": "gpt-4",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "deepseek": {
+    "name": "deepseek",
+    "api_type": "openai",
+    "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.deepseek.com",
+    "model_name": "deepseek-chat",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  },
+  "stability_ai": {
+    "name": "stability_ai",
+    "api_type": "stability_ai",
+    "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.stability.ai/v1",
+    "model_name": "stable-diffusion-xl-1024-v1-0",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "6-03-06T00:00:00"
+  },
+  "elevenlabs": {
+    "name": "elevenlabs",
+    "api_type": "elevenlabs",
+    "api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_url": "https://api.elevenlabs.io/v1",
+    "model_name": "eleven_monolingual_v1",
+    "source": "external",
+    "created_at": "2026-03-06T00:00:00",
+    "updated_at": "2026-03-06T00:00:00"
+  }
+}

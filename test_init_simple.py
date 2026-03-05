@@ -18,14 +18,21 @@ def test_model_init(model_name, model_class, config):
     print(f"Testing {model_name}...")
     
     try:
-        # Time the import
+        # Safely construct class name based on actual class names in modules
+        # Format: "Unified" + first_part.title() + second_part.title()
+        # Example: "language_model" -> "UnifiedLanguageModel"
+        parts = model_name.split('_')
+        class_name = "Unified" + parts[0].title() + parts[1].title()
+        
+        # Time the import using importlib (safe alternative to exec)
         import_start = time.time()
-        exec(f"from {model_class} import {model_name.split('_')[0].title() + model_name.split('_')[1]}")
+        import importlib
+        module = importlib.import_module(model_class)
+        model_class_obj = getattr(module, class_name)
         import_time = time.time() - import_start
         
         # Time the initialization
         init_start = time.time()
-        model_class_obj = eval(model_name.split('_')[0].title() + model_name.split('_')[1])
         model = model_class_obj(config)
         init_time = time.time() - init_start
         

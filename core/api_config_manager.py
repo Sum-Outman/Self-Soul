@@ -55,10 +55,25 @@ except ImportError:
     class OpenAIPlaceholder:
         """Placeholder that raises error when OpenAI library is not installed"""
         def __init__(self, *args, **kwargs):
-            raise MissingOpenAIError()
+            # Don't raise error in __init__ to allow module import
+            # Error will be raised when actually trying to use the API
+            pass
         
         def __getattr__(self, name):
-            raise MissingOpenAIError()
+            # Create a nested placeholder for attributes like ChatCompletion
+            class NestedPlaceholder:
+                def __init__(self, parent_name):
+                    self.parent_name = parent_name
+                
+                def __getattr__(self, name):
+                    def method_placeholder(*args, **kwargs):
+                        raise MissingOpenAIError()
+                    return method_placeholder
+                
+                def __call__(self, *args, **kwargs):
+                    raise MissingOpenAIError()
+            
+            return NestedPlaceholder(name)
         
         def __call__(self, *args, **kwargs):
             raise MissingOpenAIError()

@@ -29,8 +29,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("true_multimodal_generator")
 
 
-@dataclass
-
 def _deterministic_randn(size, seed_prefix="default"):
     """Generate deterministic normal distribution using numpy RandomState"""
     import math
@@ -59,6 +57,7 @@ def _deterministic_randn(size, seed_prefix="default"):
     
     return result.view(*size)
 
+@dataclass
 class GenerationInput:
     """生成输入"""
     source_modality: str  # 源模态：text, image, audio

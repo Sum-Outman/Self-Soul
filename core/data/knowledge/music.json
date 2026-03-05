@@ -1,0 +1,404 @@
+{
+  "knowledge_base": {
+    "domain": "music",
+    "name": {
+      "en": "Music",
+      "zh": "音乐",
+      "de": "Musik",
+      "ja": "音楽",
+      "ru": "Музыка"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for music fundamentals and advanced topics",
+      "zh": "音乐基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Musik Grundlagen und fortgeschrittene Themen",
+      "ja": "音楽の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам музыки и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "music_theory",
+        "name": {
+          "en": "Music Theory",
+          "zh": "音乐理论",
+          "de": "Musiktheorie",
+          "ja": "音楽理論",
+          "ru": "Музыкальная теория"
+        },
+        "concepts": [
+          {
+            "id": "music_theory_fundamentals",
+            "name": {
+              "en": "Music Theory Fundamentals",
+              "zh": "音乐理论基础",
+              "de": "Musiktheorie Grundlagen",
+              "ja": "音楽理論の基礎",
+              "ru": "Основы музыкальной теории"
+            },
+            "description": {
+              "en": "The basic elements and principles of music composition and analysis",
+              "zh": "音乐创作和分析的基本要素和原则",
+              "de": "Die grundlegenden Elemente und Prinzipien der Musikkomposition und -analyse",
+              "ja": "音楽の作曲と分析の基本的な要素と原則",
+              "ru": "Основные элементы и принципы музыкальной композиции и анализа"
+            },
+            "key_elements": [
+              "Pitch",
+              "Rhythm",
+              "Melody",
+              "Harmony",
+              "Texture",
+              "Form",
+              "Timbre",
+              "Dynamics"
+            ],
+            "notation_system": [
+              "Staff Notation",
+              "Clefs",
+              "Key Signatures",
+              "Time Signatures",
+              "Note Values",
+              "Rests"
+            ]
+          },
+          {
+            "id": "music_harmony_counterpoint",
+            "name": {
+              "en": "Music Harmony & Counterpoint",
+              "zh": "音乐和声与对位",
+              "de": "Musik Harmonielehre und Kontrapunkt",
+              "ja": "音楽の和声と対位法",
+              "ru": "Музыкальная гармония и контрапункт"
+            },
+            "description": {
+              "en": "The study of chord progressions, voice leading, and multiple melodic lines",
+              "zh": "和弦进行、声部进行和多旋律线的研究",
+              "de": "Das Studium von Akkordfolgen, Stimmführung und mehrfachen melodischen Linien",
+              "ja": "コード進行、声部進行、複数のメロディラインの研究",
+              "ru": "Изучение аккордовых прогрессий, ведения голосов и нескольких мелодических линий"
+            },
+            "harmony_concepts": [
+              "Triads",
+              "Seventh Chords",
+              "Tonality",
+              "Modulation",
+              "Functional Harmony",
+              "Atonality"
+            ],
+            "counterpoint_principles": [
+              "Species Counterpoint",
+              "Inversion",
+              "Canon",
+              "Fugue",
+              "Imitation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "western_music_history",
+        "name": {
+          "en": "Western Music History",
+          "zh": "西方音乐史",
+          "de": "Geschichte der westlichen Musik",
+          "ja": "西洋音楽史",
+          "ru": "История западной музыки"
+        },
+        "concepts": [
+          {
+            "id": "classical_baroque_music",
+            "name": {
+              "en": "Classical & Baroque Music",
+              "zh": "古典与巴洛克音乐",
+              "de": "Klassische und barocke Musik",
+              "ja": "古典派とバロック音楽",
+              "ru": "Классическая и барочная музыка"
+            },
+            "description": {
+              "en": "Western music from the Baroque, Classical, and Romantic periods",
+              "zh": "巴洛克、古典和浪漫时期的西方音乐",
+              "de": "Westliche Musik aus der Barock-, Klassik- und Romantikzeit",
+              "ja": "バロック、クラシック、ロマン派の西洋音楽",
+              "ru": "Западная музыка из барочного, классического и романтического периодов"
+            },
+            "major_periods": [
+              "Medieval",
+              "Renaissance",
+              "Baroque",
+              "Classical",
+              "Romantic"
+            ],
+            "key_composers": [
+              "Johann Sebastian Bach",
+              "Wolfgang Amadeus Mozart",
+              "Ludwig van Beethoven",
+              "Franz Schubert",
+              "Pyotr Ilyich Tchaikovsky"
+            ]
+          },
+          {
+            "id": "modern_contemporary_western_music",
+            "name": {
+              "en": "Modern & Contemporary Western Music",
+              "zh": "西方现代与当代音乐",
+              "de": "Moderne und zeitgenössische westliche Musik",
+              "ja": "西洋現代・当代音楽",
+              "ru": "Современная и современная западная музыка"
+            },
+            "description": {
+              "en": "Western music from the late 19th century to the present",
+              "zh": "19世纪后期至今的西方音乐",
+              "de": "Westliche Musik vom späten 19. Jahrhundert bis heute",
+              "ja": "19世紀後半から現在に至る西洋音楽",
+              "ru": "Западная музыка со второй половины XIX века до настоящего времени"
+            },
+            "key_movements": [
+              "Impressionism",
+              "Expressionism",
+              "Neoclassicism",
+              "Serialism",
+              "Minimalism",
+              "Electronic Music"
+            ],
+            "major_composers": [
+              "Claude Debussy",
+              "Arnold Schoenberg",
+              "Igor Stravinsky",
+              "John Cage",
+              "Philip Glass"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chinese_music_history",
+        "name": {
+          "en": "Chinese Music History",
+          "zh": "中国音乐史",
+          "de": "Geschichte der chinesischen Musik",
+          "ja": "中国音楽史",
+          "ru": "История китайской музыки"
+        },
+        "concepts": [
+          {
+            "id": "ancient_chinese_music",
+            "name": {
+              "en": "Ancient Chinese Music",
+              "zh": "中国古代音乐",
+              "de": "Alte chinesische Musik",
+              "ja": "中国古代音楽",
+              "ru": "Древняя китайская музыка"
+            },
+            "description": {
+              "en": "Music from ancient China, spanning thousands of years",
+              "zh": "中国古代数千年来的音乐",
+              "de": "Musik aus dem alten China, die Jahrtausende umfassen",
+              "ja": "中国古代の数千年にわたる音楽",
+              "ru": "Китайская музыка, охватывающая тысячелетия"
+            },
+            "traditional_instruments": [
+              "Guqin",
+              "Erhu",
+              "Pipa",
+              "Dizi",
+              "Guzheng",
+              "Sheng"
+            ],
+            "musical_forms": [
+              "Court Music",
+              "Folk Music",
+              "Religious Music",
+              "Literati Music",
+              "Opera Music"
+            ]
+          },
+          {
+            "id": "modern_contemporary_chinese_music",
+            "name": {
+              "en": "Modern & Contemporary Chinese Music",
+              "zh": "中国现代与当代音乐",
+              "de": "Moderne und zeitgenössische chinesische Musik",
+              "ja": "中国現代・当代音楽",
+              "ru": "Современная и современная китайская музыка"
+            },
+            "description": {
+              "en": "Chinese music from the late Qing Dynasty to the present",
+              "zh": "从晚清至今的中国音乐",
+              "de": "Chinesische Musik vom späten Qing-Dynastie bis heute",
+              "ja": "清朝末期から現在に至る中国音楽",
+              "ru": "Китайская музыка от позднего периода династии Цинга до настоящего времени"
+            },
+            "key_movements": [
+              "New Culture Movement Music",
+              "Revolutionary Music",
+              "Popular Music",
+              "Contemporary Classical Music"
+            ],
+            "major_composers": [
+              "Xiao Youmei",
+              "Xian Xinghai",
+              "He Luting",
+              "Tan Dun",
+              "Qu Xiaosong"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "music_genres_styles",
+        "name": {
+          "en": "Music Genres & Styles",
+          "zh": "音乐类型与风格",
+          "de": "Musikgenres und -stile",
+          "ja": "音楽のジャンルとスタイル",
+          "ru": "Музыкальные жанры и стили"
+        },
+        "concepts": [
+          {
+            "id": "classical_traditional_music",
+            "name": {
+              "en": "Classical & Traditional Music",
+              "zh": "古典与传统音乐",
+              "de": "Klassische und traditionelle Musik",
+              "ja": "クラシックと伝統音楽",
+              "ru": "Классическая и традиционная музыка"
+            },
+            "description": {
+              "en": "Formal and traditional music forms from various cultures",
+              "zh": "来自不同文化的正式和传统音乐形式",
+              "de": "Formelle und traditionelle Musikformen aus verschiedenen Kulturen",
+              "ja": "さまざまな文化からの正式で伝統的な音楽形式",
+              "ru": "Формальные и традициональные музыкальные формы из разных культур"
+            },
+            "western_classical": [
+              "Symphony",
+              "Concerto",
+              "Sonata",
+              "Opera",
+              "Chamber Music",
+              "Oratorio"
+            ],
+            "world_traditional": [
+              "Chinese Traditional Music",
+              "Indian Classical Music",
+              "Japanese Traditional Music",
+              "African Traditional Music",
+              "Middle Eastern Traditional Music"
+            ]
+          },
+          {
+            "id": "popular_jazz_music",
+            "name": {
+              "en": "Popular & Jazz Music",
+              "zh": "流行与爵士音乐",
+              "de": "Populäre und Jazzmusik",
+              "ja": "ポピュラー音楽とジャズ",
+              "ru": "Популярная и джазовая музыка"
+            },
+            "description": {
+              "en": "Contemporary popular music genres and jazz styles",
+              "zh": "当代流行音乐类型和爵士风格",
+              "de": "Zeitgenössische populäre Musikgenres und Jazzstile",
+              "ja": "現代のポピュラー音楽のジャンルとジャズスタイル",
+              "ru": "Современные популярные музыкальные жанры и джазовые стили"
+            },
+            "popular_genres": [
+              "Pop",
+              "Rock",
+              "Hip Hop",
+              "Electronic Dance Music",
+              "Country",
+              "R&B"
+            ],
+            "jazz_styles": [
+              "New Orleans Jazz",
+              "Swing",
+              "Bebop",
+              "Cool Jazz",
+              "Modal Jazz",
+              "Fusion"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "music_technology_production",
+        "name": {
+          "en": "Music Technology & Production",
+          "zh": "音乐技术与制作",
+          "de": "Musiktechnologie und -produktion",
+          "ja": "音楽技術と制作",
+          "ru": "Музыкальная техника и продюсирование"
+        },
+        "concepts": [
+          {
+            "id": "music_production_recording",
+            "name": {
+              "en": "Music Production & Recording",
+              "zh": "音乐制作与录音",
+              "de": "Musikproduktion und -aufnahme",
+              "ja": "音楽制作と録音",
+              "ru": "Музыкальное продюсирование и запись"
+            },
+            "description": {
+              "en": "The process of creating, recording, and producing music",
+              "zh": "创作、录音和制作音乐的过程",
+              "de": "Der Prozess der Schaffung, Aufnahme und Produktion von Musik",
+              "ja": "音楽の創造、録音、制作のプロセス",
+              "ru": "Процесс создания, записи и продюсирования музыки"
+            },
+            "production_process": [
+              "Songwriting",
+              "Arranging",
+              "Recording",
+              "Mixing",
+              "Mastering"
+            ],
+            "recording_equipment": [
+              "Microphones",
+              "Audio Interfaces",
+              "DAWs",
+              "Studio Monitors",
+              "MIDI Controllers",
+              "Signal Processors"
+            ]
+          },
+          {
+            "id": "electronic_music_technology",
+            "name": {
+              "en": "Electronic Music Technology",
+              "zh": "电子音乐技术",
+              "de": "Elektronische Musiktechnologie",
+              "ja": "電子音楽技術",
+              "ru": "Электронная музыкальная техника"
+            },
+            "description": {
+              "en": "The technology and techniques used in electronic music production",
+              "zh": "电子音乐制作中使用的技术和方法",
+              "de": "Die Technik und Methoden, die in der elektronischen Musikproduktion verwendet werden",
+              "ja": "電子音楽制作で使用される技術と方法",
+              "ru": "Техника и методы, используемые в электронном музыкальном продюсировании"
+            },
+            "electronic_instruments": [
+              "Synthesizers",
+              "Drum Machines",
+              "Samplers",
+              "Effects Processors"
+            ],
+            "production_techniques": [
+              "Sound Design",
+              "Sequencing",
+              "Sampling",
+              "DSP",
+              "Live Electronics"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.633736Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

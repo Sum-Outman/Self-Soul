@@ -1,0 +1,51 @@
+{
+  "vocabulary": [
+    "hello", "world", "good", "morning", "afternoon", "evening", "night",
+    "how", "are", "you", "i", "am", "fine", "thank", "and", "what", "about",
+    "this", "is", "a", "test", "sentence", "for", "language", "model",
+    "training", "ai", "machine", "learning", "deep", "neural", "network",
+    "transformer", "attention", "mechanism", "natural", "processing",
+    "computer", "vision", "audio", "text", "data", "science", "programming",
+    "python", "java", "javascript", "code", "algorithm", "function"
+  ],
+  "training_samples": [
+    {"input": "hello world", "target": "greeting"},
+    {"input": "good morning", "target": "greeting"},
+    {"input": "how are you", "target": "question"},
+    {"input": "i am fine", "target": "response"},
+    {"input": "thank you", "target": "gratitude"},
+    {"input": "what is this", "target": "question"},
+    {"input": "this is a test", "target": "statement"},
+    {"input": "machine learning", "target": "topic"},
+    {"input": "neural network", "target": "topic"},
+    {"input": "natural language processing", "target": "topic"},
+    {"input": "computer vision", "target": "topic"},
+    {"input": "data science", "target": "topic"},
+    {"input": "python programming", "target": "topic"},
+    {"input": "deep learning", "target": "topic"},
+    {"input": "ai system", "target": "topic"}
+  ],
+  "test_samples": [
+    {"input": "good afternoon", "expected": "greeting"},
+    {"input": "how is the weather", "expected": "question"},
+    {"input": "artificial intelligence", "expected": "topic"},
+    {"input": "thank you very much", "expected": "gratitude"}
+  ],
+  "language_categories": {
+    "greeting": ["hello", "hi", "good morning", "good afternoon", "good evening"],
+    "question": ["how", "what", "when", "where", "why", "who"],
+    "response": ["i am", "yes", "no", "maybe", "ok", "fine"],
+    "gratitude": ["thank", "thanks", "appreciate", "grateful"],
+    "statement": ["this is", "that is", "it is", "there is"],
+    "topic": ["machine learning", "ai", "neural network", "deep learning", "nlp", "computer vision"]
+  },
+  "training_config": {
+    "vocab_size": 50,
+    "embedding_dim": 32,
+    "hidden_size": 64,
+    "window_size": 3,
+    "num_epochs": 10,
+    "batch_size": 4,
+    "learning_rate": 0.01
+  }
+}

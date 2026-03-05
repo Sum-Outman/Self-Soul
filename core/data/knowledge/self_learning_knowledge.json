@@ -1,0 +1,15 @@
+{
+  "semantic_memory": {
+    "concepts": {},
+    "patterns": {}
+  },
+  "episodic_memory": "deque([], maxlen=10000)",
+  "procedural_memory": {
+    "rules": {}
+  },
+  "meta_memory": {
+    "insights": {}
+  },
+  "causal_models": {},
+  "mental_models": {}
+}

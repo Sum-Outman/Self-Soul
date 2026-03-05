@@ -1,0 +1,3980 @@
+{
+  "symptom_analysis": [
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8,
+      "severity": "mild",
+      "patient_age": 28,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8500000000000001,
+      "severity": "mild",
+      "patient_age": 28,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9,
+      "severity": "mild",
+      "patient_age": 60,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9500000000000001,
+      "severity": "mild",
+      "patient_age": 34,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 1.0,
+      "severity": "mild",
+      "patient_age": 54,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8,
+      "severity": "moderate",
+      "patient_age": 57,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8500000000000001,
+      "severity": "moderate",
+      "patient_age": 34,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9,
+      "severity": "moderate",
+      "patient_age": 35,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9500000000000001,
+      "severity": "moderate",
+      "patient_age": 55,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 1.0,
+      "severity": "moderate",
+      "patient_age": 25,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8,
+      "severity": "severe",
+      "patient_age": 68,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8500000000000001,
+      "severity": "severe",
+      "patient_age": 72,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9,
+      "severity": "severe",
+      "patient_age": 51,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9500000000000001,
+      "severity": "severe",
+      "patient_age": 58,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fever",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 1.0,
+      "severity": "severe",
+      "patient_age": 42,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8,
+      "severity": "mild",
+      "patient_age": 36,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8500000000000001,
+      "severity": "mild",
+      "patient_age": 50,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9,
+      "severity": "mild",
+      "patient_age": 34,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9500000000000001,
+      "severity": "mild",
+      "patient_age": 65,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 1.0,
+      "severity": "mild",
+      "patient_age": 62,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8,
+      "severity": "moderate",
+      "patient_age": 58,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8500000000000001,
+      "severity": "moderate",
+      "patient_age": 49,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9,
+      "severity": "moderate",
+      "patient_age": 45,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9500000000000001,
+      "severity": "moderate",
+      "patient_age": 53,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 1.0,
+      "severity": "moderate",
+      "patient_age": 77,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8,
+      "severity": "severe",
+      "patient_age": 65,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8500000000000001,
+      "severity": "severe",
+      "patient_age": 21,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9,
+      "severity": "severe",
+      "patient_age": 29,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9500000000000001,
+      "severity": "severe",
+      "patient_age": 72,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 1.0,
+      "severity": "severe",
+      "patient_age": 31,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "confidence": 0.8,
+      "severity": "moderate",
+      "patient_age": 74,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "confidence": 0.8500000000000001,
+      "severity": "moderate",
+      "patient_age": 38,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "confidence": 0.9,
+      "severity": "moderate",
+      "patient_age": 38,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "confidence": 0.9500000000000001,
+      "severity": "moderate",
+      "patient_age": 50,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "confidence": 1.0,
+      "severity": "moderate",
+      "patient_age": 62,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8,
+      "severity": "mild",
+      "patient_age": 56,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.8500000000000001,
+      "severity": "mild",
+      "patient_age": 35,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9,
+      "severity": "mild",
+      "patient_age": 29,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 0.9500000000000001,
+      "severity": "mild",
+      "patient_age": 67,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "headache",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "confidence": 1.0,
+      "severity": "mild",
+      "patient_age": 25,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "abdominal_pain",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "confidence": 0.8,
+      "severity": "severe",
+      "patient_age": 18,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "abdominal_pain",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "confidence": 0.8500000000000001,
+      "severity": "severe",
+      "patient_age": 54,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "abdominal_pain",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "confidence": 0.9,
+      "severity": "severe",
+      "patient_age": 36,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "abdominal_pain",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "confidence": 0.9500000000000001,
+      "severity": "severe",
+      "patient_age": 40,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "abdominal_pain",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "confidence": 1.0,
+      "severity": "severe",
+      "patient_age": 18,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8,
+      "severity": "moderate",
+      "patient_age": 58,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8500000000000001,
+      "severity": "moderate",
+      "patient_age": 25,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9,
+      "severity": "moderate",
+      "patient_age": 22,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9500000000000001,
+      "severity": "moderate",
+      "patient_age": 72,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 1.0,
+      "severity": "moderate",
+      "patient_age": 40,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8,
+      "severity": "moderate",
+      "patient_age": 40,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.8500000000000001,
+      "severity": "moderate",
+      "patient_age": 68,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9,
+      "severity": "moderate",
+      "patient_age": 22,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 0.9500000000000001,
+      "severity": "moderate",
+      "patient_age": 64,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "confidence": 1.0,
+      "severity": "moderate",
+      "patient_age": 65,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8,
+      "severity": "severe",
+      "patient_age": 79,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.8500000000000001,
+      "severity": "severe",
+      "patient_age": 68,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9,
+      "severity": "severe",
+      "patient_age": 18,
+      "patient_gender": "female"
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 0.9500000000000001,
+      "severity": "severe",
+      "patient_age": 39,
+      "patient_gender": "male"
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "confidence": 1.0,
+      "severity": "severe",
+      "patient_age": 79,
+      "patient_gender": "male"
+    }
+  ],
+  "disease_diagnosis": [
+    {
+      "symptoms": [
+        "runny_nose",
+        "sore_throat",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 27,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "sore_throat",
+        "runny_nose",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 30,
+        "gender": "female",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "cough",
+        "runny_nose",
+        "sore_throat"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 43,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "cough",
+        "sore_throat",
+        "runny_nose",
+        "fever"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 76,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "cough",
+        "runny_nose",
+        "sore_throat"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 20,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "cough",
+        "runny_nose",
+        "sore_throat"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 74,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "runny_nose",
+        "fever",
+        "cough",
+        "sore_throat"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 58,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "cough",
+        "sore_throat",
+        "runny_nose"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 79,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "runny_nose",
+        "sore_throat"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 19,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "runny_nose",
+        "sore_throat",
+        "fever",
+        "cough"
+      ],
+      "disease": "common_cold",
+      "severity": "mild",
+      "patient_info": {
+        "age": 70,
+        "gender": "male",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 58,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "cough",
+        "fatigue",
+        "fever"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 40,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "fever",
+        "cough",
+        "body_aches"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 30,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "cough",
+        "fever",
+        "fatigue"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 25,
+        "gender": "female",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 33,
+        "gender": "female",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fever",
+        "cough",
+        "fatigue"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 75,
+        "gender": "male",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "body_aches",
+        "fatigue",
+        "fever",
+        "cough"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 19,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fatigue",
+        "cough",
+        "body_aches",
+        "fever"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 20,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "body_aches",
+        "fatigue",
+        "cough"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 62,
+        "gender": "male",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "body_aches",
+        "fatigue",
+        "cough"
+      ],
+      "disease": "influenza",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 42,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "fever",
+        "chest_pain",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 60,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "chest_pain",
+        "fever",
+        "cough",
+        "shortness_of_breath"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 38,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "shortness_of_breath",
+        "chest_pain",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 23,
+        "gender": "male",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "chest_pain",
+        "fever",
+        "cough"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 32,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "chest_pain",
+        "cough",
+        "shortness_of_breath",
+        "fever"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 56,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "shortness_of_breath",
+        "cough",
+        "chest_pain",
+        "fever"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 72,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "chest_pain",
+        "cough",
+        "fever",
+        "shortness_of_breath"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 54,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "chest_pain",
+        "cough",
+        "shortness_of_breath"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 62,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "cough",
+        "fever",
+        "shortness_of_breath",
+        "chest_pain"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 43,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "cough",
+        "shortness_of_breath",
+        "fever",
+        "chest_pain"
+      ],
+      "disease": "pneumonia",
+      "severity": "severe",
+      "patient_info": {
+        "age": 49,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "sensitivity_to_light",
+        "headache",
+        "nausea",
+        "aura"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 76,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "sensitivity_to_light",
+        "aura",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 47,
+        "gender": "female",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "aura",
+        "sensitivity_to_light",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 78,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "aura",
+        "headache",
+        "nausea",
+        "sensitivity_to_light"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 73,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "sensitivity_to_light",
+        "aura",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 22,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "sensitivity_to_light",
+        "aura",
+        "nausea",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 24,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "sensitivity_to_light",
+        "aura",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 39,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "aura",
+        "sensitivity_to_light",
+        "headache",
+        "nausea"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 58,
+        "gender": "male",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "sensitivity_to_light",
+        "nausea",
+        "aura",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 21,
+        "gender": "female",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "sensitivity_to_light",
+        "aura",
+        "headache"
+      ],
+      "disease": "migraine",
+      "severity": "moderate",
+      "patient_info": {
+        "age": 75,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "nausea",
+        "vomiting",
+        "fever"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 28,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "abdominal_pain",
+        "nausea",
+        "vomiting"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 69,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "vomiting",
+        "nausea",
+        "fever",
+        "abdominal_pain"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 48,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "nausea",
+        "fever",
+        "vomiting"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 21,
+        "gender": "female",
+        "medical_history": "none"
+      }
+    },
+    {
+      "symptoms": [
+        "abdominal_pain",
+        "nausea",
+        "vomiting",
+        "fever"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 40,
+        "gender": "female",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "nausea",
+        "abdominal_pain",
+        "vomiting"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 66,
+        "gender": "male",
+        "medical_history": "asthma"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "abdominal_pain",
+        "vomiting",
+        "nausea"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 31,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "nausea",
+        "vomiting",
+        "fever",
+        "abdominal_pain"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 72,
+        "gender": "male",
+        "medical_history": "hypertension"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "abdominal_pain",
+        "nausea",
+        "vomiting"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 69,
+        "gender": "male",
+        "medical_history": "diabetes"
+      }
+    },
+    {
+      "symptoms": [
+        "fever",
+        "nausea",
+        "vomiting",
+        "abdominal_pain"
+      ],
+      "disease": "appendicitis",
+      "severity": "severe",
+      "patient_info": {
+        "age": 72,
+        "gender": "female",
+        "medical_history": "hypertension"
+      }
+    }
+  ],
+  "health_advice": [
+    {
+      "patient_profile": {
+        "age": 55,
+        "condition": "hypertension",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 48,
+        "condition": "hypertension",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "hypertension",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 44,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "hypertension",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 69,
+        "condition": "hypertension",
+        "lifestyle_factors": "active",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 33,
+        "condition": "hypertension",
+        "lifestyle_factors": "active",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 31,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 63,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 33,
+        "condition": "hypertension",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 56,
+        "condition": "hypertension",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 33,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 36,
+        "condition": "hypertension",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 68,
+        "condition": "hypertension",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "hypertension",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "hypertension",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "hypertension",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 44,
+        "condition": "hypertension",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 41,
+        "condition": "hypertension",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 57,
+        "condition": "diabetes",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 63,
+        "condition": "diabetes",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "diabetes",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 47,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 69,
+        "condition": "diabetes",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 60,
+        "condition": "diabetes",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 58,
+        "condition": "diabetes",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 41,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 58,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 60,
+        "condition": "diabetes",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 54,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "diabetes",
+        "lifestyle_factors": "active",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "diabetes",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 60,
+        "condition": "diabetes",
+        "lifestyle_factors": "active",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 39,
+        "condition": "diabetes",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 63,
+        "condition": "diabetes",
+        "lifestyle_factors": "active",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 41,
+        "condition": "diabetes",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 42,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "diabetes",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 48,
+        "condition": "diabetes",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 36,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "obesity",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 38,
+        "condition": "obesity",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 39,
+        "condition": "obesity",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "obesity",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 58,
+        "condition": "obesity",
+        "lifestyle_factors": "active",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 44,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 38,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 36,
+        "condition": "obesity",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 43,
+        "condition": "obesity",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 68,
+        "condition": "obesity",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 60,
+        "condition": "obesity",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "obesity",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 34,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 54,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 38,
+        "condition": "obesity",
+        "lifestyle_factors": "active",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 65,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 63,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "obesity",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 68,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 57,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 60,
+        "condition": "asthma",
+        "lifestyle_factors": "active",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 62,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 46,
+        "condition": "asthma",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "asthma",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 44,
+        "condition": "asthma",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 34,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 37,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 69,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 66,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 54,
+        "condition": "asthma",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 55,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 40,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 45,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 48,
+        "condition": "asthma",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "asthma",
+        "lifestyle_factors": "active",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 54,
+        "condition": "asthma",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 47,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 30,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 34,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 30,
+        "condition": "arthritis",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 50,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 53,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 58,
+        "condition": "arthritis",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 42,
+        "condition": "arthritis",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 46,
+        "condition": "arthritis",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 33,
+        "condition": "arthritis",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 59,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 64,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 42,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 32,
+        "condition": "arthritis",
+        "lifestyle_factors": "smoker",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 35,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "healthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 40,
+        "condition": "arthritis",
+        "lifestyle_factors": "sedentary",
+        "dietary_habits": "balanced"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 68,
+        "condition": "arthritis",
+        "lifestyle_factors": "non_smoker",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    },
+    {
+      "patient_profile": {
+        "age": 62,
+        "condition": "arthritis",
+        "lifestyle_factors": "active",
+        "dietary_habits": "unhealthy"
+      },
+      "advice_categories": {
+        "nutrition": [
+          "reduce_salt",
+          "increase_fiber",
+          "balanced_diet"
+        ],
+        "exercise": [
+          "aerobic",
+          "strength_training",
+          "flexibility"
+        ],
+        "lifestyle": [
+          "stress_management",
+          "sleep_hygiene",
+          "smoking_cessation"
+        ]
+      }
+    }
+  ],
+  "medical_consultation": [],
+  "treatment_recommendation": []
+}

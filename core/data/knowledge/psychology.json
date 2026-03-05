@@ -1,0 +1,418 @@
+{
+  "knowledge_base": {
+    "domain": "psychology",
+    "name": {
+      "en": "Psychology",
+      "zh": "心理学",
+      "de": "Psychologie",
+      "ja": "心理学",
+      "ru": "Психология"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for psychology fundamentals and advanced topics",
+      "zh": "心理学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Psychologie Grundlagen und fortgeschrittene Themen",
+      "ja": "心理学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам психологии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "cognitive_psychology",
+        "name": {
+          "en": "Cognitive Psychology",
+          "zh": "认知心理学",
+          "de": "Kognitive Psychologie",
+          "ja": "認知心理学",
+          "ru": "Когнитивная психология"
+        },
+        "concepts": [
+          {
+            "id": "memory",
+            "name": {
+              "en": "Memory",
+              "zh": "记忆",
+              "de": "Gedächtnis",
+              "ja": "記憶",
+              "ru": "Память"
+            },
+            "description": {
+              "en": "The cognitive process of encoding, storing, and retrieving information",
+              "zh": "编码、存储和检索信息的认知过程",
+              "de": "Der kognitive Prozess der Kodierung, Speicherung und Wiederabruf von Informationen",
+              "ja": "情報の符号化、記憶、および検索という認知プロセス",
+              "ru": "Когнитивный процесс кодирования, хранения и извлечения информации"
+            },
+            "types": [
+              "Sensory memory",
+              "Short-term memory",
+              "Long-term memory",
+              "Working memory"
+            ],
+            "key_processes": [
+              "Encoding",
+              "Storage",
+              "Retrieval",
+              "Forgetting"
+            ],
+            "applications": [
+              "Education",
+              "Cognitive therapy",
+              "Artificial intelligence",
+              "Neuroscience"
+            ]
+          },
+          {
+            "id": "attention",
+            "name": {
+              "en": "Attention",
+              "zh": "注意力",
+              "de": "Aufmerksamkeit",
+              "ja": "注意力",
+              "ru": "Внимание"
+            },
+            "description": {
+              "en": "The cognitive process of selectively focusing on specific stimuli while ignoring others",
+              "zh": "选择性地关注特定刺激而忽略其他刺激的认知过程",
+              "de": "Der kognitive Prozess des selektiven Fokussierens auf bestimmte Reize, während andere ignoriert werden",
+              "ja": "特定の刺激に選択的に焦点を当て、他の刺激を無視する認知プロセス",
+              "ru": "Когнитивный процесс селективного фокусирования на определенных стимулах при игнорировании других"
+            },
+            "key_concepts": [
+              "Selective attention",
+              "Divided attention",
+              "Sustained attention",
+              "Attentional blink"
+            ],
+            "theories": [
+              "Filter theory",
+              "Resource theory",
+              "Feature integration theory"
+            ],
+            "applications": [
+              "User experience design",
+              "Education",
+              "Attention deficit disorder treatment",
+              "Human factors engineering"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "developmental_psychology",
+        "name": {
+          "en": "Developmental Psychology",
+          "zh": "发展心理学",
+          "de": "Entwicklungspsychologie",
+          "ja": "発達心理学",
+          "ru": "Развивающая психология"
+        },
+        "concepts": [
+          {
+            "id": "cognitive_development",
+            "name": {
+              "en": "Cognitive Development",
+              "zh": "认知发展",
+              "de": "Kognitive Entwicklung",
+              "ja": "認知発達",
+              "ru": "Когнитивное развитие"
+            },
+            "description": {
+              "en": "The study of how thought processes develop from infancy through adulthood",
+              "zh": "研究思维过程从婴儿期到成年期的发展",
+              "de": "Die Untersuchung der Entwicklung von Denkprozessen von der Kindheit bis ins Erwachsenenalter",
+              "ja": "乳幼児期から成人期までの思考プロセスの発展を研究する学問",
+              "ru": "Изучение развития мыслительных процессов от младенчества до взрослого возраста"
+            },
+            "theories": [
+              "Piaget's cognitive developmental theory",
+              "Vygotsky's sociocultural theory",
+              "Information processing theory"
+            ],
+            "key_stages": [
+              "Sensorimotor stage",
+              "Preoperational stage",
+              "Concrete operational stage",
+              "Formal operational stage"
+            ],
+            "applications": [
+              "Education",
+              "Child development programs",
+              "Special education",
+              "Parenting advice"
+            ]
+          },
+          {
+            "id": "emotional_development",
+            "name": {
+              "en": "Emotional Development",
+              "zh": "情绪发展",
+              "de": "Emotionale Entwicklung",
+              "ja": "情緒発達",
+              "ru": "Эмоциональное развитие"
+            },
+            "description": {
+              "en": "The development of emotional awareness, regulation, and expression throughout the lifespan",
+              "zh": "贯穿一生的情绪意识、调节和表达的发展",
+              "de": "Die Entwicklung von emotionalem Bewusstsein, Regulation und Ausdruck im Laufe des Lebens",
+              "ja": "生涯を通じた感情の意識、調整、および表現の発達",
+              "ru": "Развитие эмоционального осознания, регуляции и выражения на протяжении всей жизни"
+            },
+            "key_concepts": [
+              "Emotional intelligence",
+              "Attachment theory",
+              "Self-regulation",
+              "Empathy development"
+            ],
+            "applications": [
+              "Child rearing",
+              "Mental health",
+              "Education",
+              "Relationship counseling"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "social_psychology",
+        "name": {
+          "en": "Social Psychology",
+          "zh": "社会心理学",
+          "de": "Sozialpsychologie",
+          "ja": "社会心理学",
+          "ru": "Социальная психология"
+        },
+        "concepts": [
+          {
+            "id": "social_influence",
+            "name": {
+              "en": "Social Influence",
+              "zh": "社会影响",
+              "de": "Soziale Einflussnahme",
+              "ja": "社会的影響",
+              "ru": "Социальное влияние"
+            },
+            "description": {
+              "en": "The ways in which individuals' thoughts, feelings, and behaviors are influenced by others",
+              "zh": "个体的思想、情感和行为受他人影响的方式",
+              "de": "Die Arten, wie Gedanken, Gefühle und Verhaltensweisen von Individuen durch andere beeinflusst werden",
+              "ja": "個人の思考、感情、行動が他者によって影響を受ける方法",
+              "ru": "Способы, которыми мысли, чувства и поведение индивидов влияют друг на друга"
+            },
+            "key_types": [
+              "Conformity",
+              "Compliance",
+              "Obedience",
+              "Persuasion"
+            ],
+            "theories": [
+              "Social identity theory",
+              "Self-perception theory",
+              "Cognitive dissonance theory"
+            ],
+            "applications": [
+              "Advertising",
+              "Leadership",
+              "Group dynamics",
+              "Conflict resolution"
+            ]
+          },
+          {
+            "id": "attitudes_and_stereotypes",
+            "name": {
+              "en": "Attitudes and Stereotypes",
+              "zh": "态度与刻板印象",
+              "de": "Einstellungen und Stereotype",
+              "ja": "態度とステレオタイプ",
+              "ru": "Оценки и стереотипы"
+            },
+            "description": {
+              "en": "The study of how individuals form opinions and beliefs about groups and how these affect behavior",
+              "zh": "研究个体如何形成对群体的观点和信念，以及这些如何影响行为",
+              "de": "Die Untersuchung, wie Individuen Meinungen und Überzeugungen über Gruppen bilden und wie diese das Verhalten beeinflussen",
+              "ja": "個人がグループに関する意見や信念を形成する方法、およびこれらが行動にどのように影響するかを研究する学問",
+              "ru": "Изучение того, как индивиды формируют мнения и убеждения о группах и как это влияет на поведение"
+            },
+            "key_concepts": [
+              "Implicit bias",
+              "Prejudice",
+              "Discrimination",
+              "Attitude change"
+            ],
+            "applications": [
+              "Diversity training",
+              "Social justice",
+              "Intergroup relations",
+              "Education"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "clinical_psychology",
+        "name": {
+          "en": "Clinical Psychology",
+          "zh": "临床心理学",
+          "de": "Klinische Psychologie",
+          "ja": "臨床心理学",
+          "ru": "Клиническая психология"
+        },
+        "concepts": [
+          {
+            "id": "psychopathology",
+            "name": {
+              "en": "Psychopathology",
+              "zh": "精神病理学",
+              "de": "Psychopathologie",
+              "ja": "精神病理学",
+              "ru": "Психопатология"
+            },
+            "description": {
+              "en": "The study of mental disorders, their causes, symptoms, and treatment",
+              "zh": "研究精神障碍的原因、症状和治疗的学科",
+              "de": "Die Untersuchung von psychischen Störungen, ihren Ursachen, Symptomen und Behandlungen",
+              "ja": "精神障害の原因、症状、および治療を研究する学問",
+              "ru": "Изучение психических расстройств, их причин, симптомов и лечения"
+            },
+            "classification_systems": [
+              "DSM-5",
+              "ICD-11"
+            ],
+            "common_disorders": [
+              "Depression",
+              "Anxiety disorders",
+              "Schizophrenia",
+              "Bipolar disorder"
+            ],
+            "applications": [
+              "Diagnosis",
+              "Treatment planning",
+              "Research",
+              "Policy development"
+            ]
+          },
+          {
+            "id": "psychotherapy",
+            "name": {
+              "en": "Psychotherapy",
+              "zh": "心理治疗",
+              "de": "Psychotherapie",
+              "ja": "心理療法",
+              "ru": "Психотерапия"
+            },
+            "description": {
+              "en": "The use of psychological methods to treat mental health disorders and emotional problems",
+              "zh": "使用心理方法治疗心理健康障碍和情绪问题",
+              "de": "Die Anwendung psychologischer Methoden zur Behandlung psychischer Störungen und emotionaler Probleme",
+              "ja": "精神的健康障害や感情的問題を治療するための心理学的方法の使用",
+              "ru": "Использование психологических методов для лечения психических расстройств и эмоциональных проблем"
+            },
+            "approaches": [
+              "Cognitive-behavioral therapy",
+              "Psychodynamic therapy",
+              "Humanistic therapy",
+              "Family therapy"
+            ],
+            "key_techniques": [
+              "Cognitive restructuring",
+              "Exposure therapy",
+              "Mindfulness",
+              "Interpersonal skills training"
+            ],
+            "applications": [
+              "Mental health treatment",
+              "Counseling",
+              "Stress management",
+              "Behavior change"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "personality_psychology",
+        "name": {
+          "en": "Personality Psychology",
+          "zh": "人格心理学",
+          "de": "Persönlichkeitspsychologie",
+          "ja": "人格心理学",
+          "ru": "Психология личности"
+        },
+        "concepts": [
+          {
+            "id": "personality_theories",
+            "name": {
+              "en": "Personality Theories",
+              "zh": "人格理论",
+              "de": "Persönlichkeitstheorien",
+              "ja": "人格理論",
+              "ru": "Теории личности"
+            },
+            "description": {
+              "en": "The study of different approaches to understanding and explaining personality development and structure",
+              "zh": "研究理解和解释人格发展和结构的不同方法",
+              "de": "Die Untersuchung verschiedener Ansätze zum Verständnis und zur Erklärung von Persönlichkeitsentwicklung und -struktur",
+              "ja": "人格の発達と構造を理解し説明するためのさまざまなアプローチを研究する学問",
+              "ru": "Изучение различных подходов к пониманию и объяснению развития и структуры личности"
+            },
+            "major_theories": [
+              "Trait theory",
+              "Psychodynamic theory",
+              "Humanistic theory",
+              "Social cognitive theory"
+            ],
+            "key_concepts": [
+              "Personality traits",
+              "Self-concept",
+              "Motivation",
+              "Defense mechanisms"
+            ],
+            "applications": [
+              "Career counseling",
+              "Relationship advice",
+              "Leadership development",
+              "Mental health assessment"
+            ]
+          },
+          {
+            "id": "personality_assessment",
+            "name": {
+              "en": "Personality Assessment",
+              "zh": "人格评估",
+              "de": "Persönlichkeitsbewertung",
+              "ja": "人格評価",
+              "ru": "Оценка личности"
+            },
+            "description": {
+              "en": "The process of measuring and evaluating personality traits, characteristics, and patterns",
+              "zh": "测量和评估人格特质、特征和模式的过程",
+              "de": "Der Prozess der Messung und Bewertung von Persönlichkeitsmerkmalen, -eigenschaften und -mustern",
+              "ja": "人格特性、特徴、およびパターンを測定および評価するプロセス",
+              "ru": "Процесс измерения и оценки личностных черт, характеристик и паттернов"
+            },
+            "assessment_methods": [
+              "Self-report inventories",
+              "Projective tests",
+              "Interviews",
+              "Behavioral observation"
+            ],
+            "common_tests": [
+              "Myers-Briggs Type Indicator",
+              "Big Five Personality Traits",
+              "MMPI",
+              "Rorschach test"
+            ],
+            "applications": [
+              "Clinical diagnosis",
+              "Employment selection",
+              "Research",
+              "Personal development"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.590283Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

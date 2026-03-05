@@ -1,0 +1,189 @@
+{
+  "timestamp": 1772499984.2103143,
+  "summary": {
+    "total_tests": 24,
+    "passed_tests": 24,
+    "failed_tests": 0,
+    "pass_rate": 1.0,
+    "total_time": 0,
+    "average_test_duration": 0.022228002548217773,
+    "phase_results": {
+      "phase1": {
+        "total": 4,
+        "passed": 4
+      },
+      "phase2": {
+        "total": 5,
+        "passed": 5
+      },
+      "phase3": {
+        "total": 6,
+        "passed": 6
+      },
+      "phase4": {
+        "total": 4,
+        "passed": 4
+      },
+      "phase5": {
+        "total": 3,
+        "passed": 3
+      },
+      "end_to_end": {
+        "total": 2,
+        "passed": 2
+      }
+    },
+    "test_details": [
+      {
+        "name": "语义编码器初始化",
+        "success": true,
+        "duration": 0.06452250480651855,
+        "error": null
+      },
+      {
+        "name": "跨模态注意力",
+        "success": true,
+        "duration": 0.0717165470123291,
+        "error": null
+      },
+      {
+        "name": "语义关系图谱",
+        "success": true,
+        "duration": 0.0012104511260986328,
+        "error": null
+      },
+      {
+        "name": "语义相似度计算",
+        "success": true,
+        "duration": 1.430511474609375e-06,
+        "error": null
+      },
+      {
+        "name": "混合模态解析",
+        "success": true,
+        "duration": 9.822845458984375e-05,
+        "error": null
+      },
+      {
+        "name": "意图融合",
+        "success": true,
+        "duration": 0.0024433135986328125,
+        "error": null
+      },
+      {
+        "name": "容错处理",
+        "success": true,
+        "duration": 0.00013256072998046875,
+        "error": null
+      },
+      {
+        "name": "质量评估",
+        "success": true,
+        "duration": 1.430511474609375e-06,
+        "error": null
+      },
+      {
+        "name": "一致性生成",
+        "success": true,
+        "duration": 0.32102513313293457,
+        "error": null
+      },
+      {
+        "name": "输出优化",
+        "success": true,
+        "duration": 0.0002620220184326172,
+        "error": null
+      },
+      {
+        "name": "反馈循环",
+        "success": true,
+        "duration": 0.0002167224884033203,
+        "error": null
+      },
+      {
+        "name": "跨模态对齐",
+        "success": true,
+        "duration": 2.384185791015625e-06,
+        "error": null
+      },
+      {
+        "name": "并行处理",
+        "success": true,
+        "duration": 0.005907297134399414,
+        "error": null
+      },
+      {
+        "name": "格式转换",
+        "success": true,
+        "duration": 0.06124401092529297,
+        "error": null
+      },
+      {
+        "name": "鲁棒性增强",
+        "success": true,
+        "duration": 0.0014603137969970703,
+        "error": null
+      },
+      {
+        "name": "性能基准",
+        "success": true,
+        "duration": 2.86102294921875e-06,
+        "error": null
+      },
+      {
+        "name": "自然混合输入",
+        "success": true,
+        "duration": 0.0020580291748046875,
+        "error": null
+      },
+      {
+        "name": "智能输出选择",
+        "success": true,
+        "duration": 0.000583648681640625,
+        "error": null
+      },
+      {
+        "name": "可解释性系统",
+        "success": true,
+        "duration": 0.000576019287109375,
+        "error": null
+      },
+      {
+        "name": "用户体验流程",
+        "success": true,
+        "duration": 1.6689300537109375e-06,
+        "error": null
+      },
+      {
+        "name": "完整多模态流程",
+        "success": true,
+        "duration": 2.1457672119140625e-06,
+        "error": null
+      },
+      {
+        "name": "错误恢复流程",
+        "success": true,
+        "duration": 7.152557373046875e-07,
+        "error": null
+      },
+      {
+        "name": "性能优化流程",
+        "success": true,
+        "duration": 1.430511474609375e-06,
+        "error": null
+      },
+      {
+        "name": "用户体验优化流程",
+        "success": true,
+        "duration": 1.1920928955078125e-06,
+        "error": null
+      }
+    ]
+  },
+  "config": {
+    "test_timeout": 30.0,
+    "enable_visual_tests": false,
+    "enable_performance_tests": true,
+    "enable_error_handling_tests": true
+  }
+}

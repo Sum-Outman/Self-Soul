@@ -1,0 +1,379 @@
+{
+  "knowledge_base": {
+    "domain": "geography",
+    "name": {
+      "en": "Geography",
+      "zh": "地理学",
+      "de": "Geographie",
+      "ja": "地理学",
+      "ru": "География"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for geography fundamentals and advanced topics",
+      "zh": "地理学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Geographie Grundlagen und fortgeschrittene Themen",
+      "ja": "地理学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам географии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "physical_geography",
+        "name": {
+          "en": "Physical Geography",
+          "zh": "物理地理学",
+          "de": "Physische Geographie",
+          "ja": "自然地理学",
+          "ru": "Физическая география"
+        },
+        "concepts": [
+          {
+            "id": "geomorphology",
+            "name": {
+              "en": "Geomorphology",
+              "zh": "地貌学",
+              "de": "Geomorphologie",
+              "ja": "地形学",
+              "ru": "Геоморфология"
+            },
+            "description": {
+              "en": "Study of the Earth's physical features, their formation, and evolution",
+              "zh": "研究地球物理特征、形成和演化的学科",
+              "de": "Studium der physischen Merkmale der Erde, ihrer Entstehung und Evolution",
+              "ja": "地球の物理的特徴、その形成と進化を研究する学問",
+              "ru": "Исследование физических особенностей Земли, их формирования и эволюции"
+            },
+            "major_processes": [
+              "Weathering",
+              "Erosion",
+              "Deposition",
+              "Tectonic Activity",
+              "Volcanism"
+            ],
+            "landform_types": [
+              "Mountains",
+              "Plateaus",
+              "Plains",
+              "Rivers",
+              "Glaciers",
+              "Coasts"
+            ]
+          },
+          {
+            "id": "climatology",
+            "name": {
+              "en": "Climatology",
+              "zh": "气候学",
+              "de": "Klimatologie",
+              "ja": "気候学",
+              "ru": "Климатоология"
+            },
+            "description": {
+              "en": "Study of climate patterns and processes over time scales",
+              "zh": "研究气候模式和长时间尺度过程的学科",
+              "de": "Studium der Klimamuster und Prozesse über Zeiträume",
+              "ja": "気候パターンと長期的なプロセスを研究する学問",
+              "ru": "Исследование климатических режимов и процессов на долгие периоды времени"
+            },
+            "climate_factors": [
+              "Solar Radiation",
+              "Atmospheric Circulation",
+              "Ocean Currents",
+              "Topography",
+              "Human Activity"
+            ],
+            "climate_classification": [
+              "Köppen Climate Classification",
+              "Tropical",
+              "Temperate",
+              "Polar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "human_geography",
+        "name": {
+          "en": "Human Geography",
+          "zh": "人文地理学",
+          "de": "Humangeographie",
+          "ja": "人文地理学",
+          "ru": "Гуманитарная география"
+        },
+        "concepts": [
+          {
+            "id": "urban_geography",
+            "name": {
+              "en": "Urban Geography",
+              "zh": "城市地理学",
+              "de": "Stadtgeographie",
+              "ja": "都市地理学",
+              "ru": "Городская география"
+            },
+            "description": {
+              "en": "Study of cities, urban processes, and urban landscapes",
+              "zh": "研究城市、城市过程和城市景观的学科",
+              "de": "Studium von Städten, städtischen Prozessen und städtischen Landschaften",
+              "ja": "都市、都市プロセス、都市景観を研究する学問",
+              "ru": "Исследование городов, городских процессов и городских ландшафтов"
+            },
+            "urban_structures": [
+              "Central Business District",
+              "Suburbs",
+              "Exurbs",
+              "Urban Sprawl",
+              "Smart Cities"
+            ],
+            "urbanization_trends": [
+              "Rapid Urbanization",
+              "Megacities",
+              "Urban Decay",
+              "Gentrification"
+            ]
+          },
+          {
+            "id": "economic_geography",
+            "name": {
+              "en": "Economic Geography",
+              "zh": "经济地理学",
+              "de": "Wirtschaftsgeographie",
+              "ja": "経済地理学",
+              "ru": "Экономическая география"
+            },
+            "description": {
+              "en": "Study of the spatial distribution of economic activities",
+              "zh": "研究经济活动空间分布的学科",
+              "de": "Studium der räumlichen Verteilung wirtschaftlicher Aktivitäten",
+              "ja": "経済活動の空間的分布を研究する学問",
+              "ru": "Исследование пространственного распределения экономических активностей"
+            },
+            "economic_sectors": [
+              "Primary Sector",
+              "Secondary Sector",
+              "Tertiary Sector",
+              "Quaternary Sector"
+            ],
+            "spatial_patterns": [
+              "Industrial Agglomeration",
+              "Global Supply Chains",
+              "Special Economic Zones"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "gis",
+        "name": {
+          "en": "Geographic Information Systems",
+          "zh": "地理信息系统",
+          "de": "Geographische Informationssysteme",
+          "ja": "地理情報システム",
+          "ru": "Географические информационные системы"
+        },
+        "concepts": [
+          {
+            "id": "geospatial_data",
+            "name": {
+              "en": "Geospatial Data",
+              "zh": "地理空间数据",
+              "de": "Georäumliche Daten",
+              "ja": "地理空間データ",
+              "ru": "Геоинформационные данные"
+            },
+            "description": {
+              "en": "Data that identifies the geographic location and characteristics of natural or human-made features",
+              "zh": "标识自然或人造特征地理位置和特性的数据",
+              "de": "Daten, die die geografische Lage und Merkmale natürlicher oder künstlicher Merkmale identifizieren",
+              "ja": "自然または人工の特徴の地理的位置と特性を特定するデータ",
+              "ru": "Данные, которые определяют географическое положение и характеристики естественных или искусственных объектов"
+            },
+            "data_types": [
+              "Vector Data",
+              "Raster Data",
+              "Remote Sensing",
+              "GPS Data",
+              "LiDAR Data"
+            ],
+            "data_sources": [
+              "Satellites",
+              "Aerial Photography",
+              "Ground Surveys",
+              "Government Databases"
+            ]
+          },
+          {
+            "id": "gis_analysis",
+            "name": {
+              "en": "GIS Analysis Methods",
+              "zh": "GIS分析方法",
+              "de": "GIS-Analysemethoden",
+              "ja": "GIS解析方法",
+              "ru": "Методы анализа ГИС"
+            },
+            "description": {
+              "en": "Techniques used to analyze spatial relationships and patterns in geospatial data",
+              "zh": "用于分析地理空间数据中空间关系和模式的技术",
+              "de": "Techniken zur Analyse räumlicher Beziehungen und Muster in georäumlichen Daten",
+              "ja": "地理空間データの空間関係とパターンを分析するための技術",
+              "ru": "Техники анализа пространственных отношений и паттернов в геоинформационных данных"
+            },
+            "analysis_types": [
+              "Spatial Analysis",
+              "Network Analysis",
+              "Geostatistical Analysis",
+              "Modeling and Simulation"
+            ],
+            "applications": [
+              "Urban Planning",
+              "Environmental Management",
+              "Disaster Response",
+              "Transportation Planning"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "regional_geography",
+        "name": {
+          "en": "Regional Geography",
+          "zh": "区域地理学",
+          "de": "Regionalgeographie",
+          "ja": "地域地理学",
+          "ru": "Региональная география"
+        },
+        "concepts": [
+          {
+            "id": "chinese_geography",
+            "name": {
+              "en": "Chinese Geography",
+              "zh": "中国地理",
+              "de": "Chinesische Geographie",
+              "ja": "中国地理",
+              "ru": "География Китая"
+            },
+            "description": {
+              "en": "Study of China's physical and human geographic features",
+              "zh": "研究中国物理和人文地理特征的学科",
+              "de": "Studium der physischen und menschlichen geografischen Merkmale Chinas",
+              "ja": "中国の物理的・人文的地理的特徴を研究する学問",
+              "ru": "Исследование физических и человеческих географических особенностей Китая"
+            },
+            "major_regions": [
+              "North China Plain",
+              "Yangtze River Delta",
+              "Pearl River Delta",
+              "Tibetan Plateau",
+              "Xinjiang"
+            ]
+          },
+          {
+            "id": "world_geography",
+            "name": {
+              "en": "World Geography",
+              "zh": "世界地理",
+              "de": "Weltgeographie",
+              "ja": "世界地理",
+              "ru": "Мировая география"
+            },
+            "description": {
+              "en": "Study of the Earth's regions and their geographic characteristics",
+              "zh": "研究地球区域及其地理特征的学科",
+              "de": "Studium der Regionen der Erde und ihrer geografischen Merkmale",
+              "ja": "地球の地域とその地理的特徴を研究する学問",
+              "ru": "Исследование регионов Земли и их географических особенностей"
+            },
+            "major_continent": [
+              "Asia",
+              "Africa",
+              "North America",
+              "South America",
+              "Europe",
+              "Australia",
+              "Antarctica"
+            ],
+            "major_oceans": [
+              "Pacific Ocean",
+              "Atlantic Ocean",
+              "Indian Ocean",
+              "Southern Ocean",
+              "Arctic Ocean"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "environmental_geography",
+        "name": {
+          "en": "Environmental Geography",
+          "zh": "环境地理学",
+          "de": "Umweltgeographie",
+          "ja": "環境地理学",
+          "ru": "Экологическая география"
+        },
+        "concepts": [
+          {
+            "id": "landscape_ecology",
+            "name": {
+              "en": "Landscape Ecology",
+              "zh": "景观生态学",
+              "de": "Landschaftsökologie",
+              "ja": "景観生態学",
+              "ru": "Ландшафтная экология"
+            },
+            "description": {
+              "en": "Study of the relationships between ecological processes and landscape patterns",
+              "zh": "研究生态过程与景观格局之间关系的学科",
+              "de": "Studium der Beziehungen zwischen ökologischen Prozessen und Landschaftsmustern",
+              "ja": "生態学的プロセスと景観パターンの関係を研究する学問",
+              "ru": "Исследование отношений между экологическими процессами и ландшафтными структурами"
+            },
+            "key_concepts": [
+              "Patch Dynamics",
+              "Corridors",
+              "Matrix",
+              "Landscape Connectivity",
+              "Biodiversity"
+            ],
+            "applications": [
+              "Conservation Planning",
+              "Habitat Restoration",
+              "Land Management"
+            ]
+          },
+          {
+            "id": "resource_management",
+            "name": {
+              "en": "Resource Management",
+              "zh": "资源管理",
+              "de": "Ressourcenmanagement",
+              "ja": "資源管理",
+              "ru": "Управление ресурсами"
+            },
+            "description": {
+              "en": "Study of the sustainable use and conservation of natural resources",
+              "zh": "研究自然资源可持续利用和保护的学科",
+              "de": "Studium der nachhaltigen Nutzung und Erhaltung natürlicher Ressourcen",
+              "ja": "天然資源の持続可能な利用と保全を研究する学問",
+              "ru": "Исследование устойчивого использования и сохранения природных ресурсов"
+            },
+            "resource_types": [
+              "Water Resources",
+              "Forest Resources",
+              "Mineral Resources",
+              "Energy Resources",
+              "Land Resources"
+            ],
+            "management_approaches": [
+              "Sustainable Development",
+              "Ecosystem-Based Management",
+              "Integrated Resource Management"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.634734Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

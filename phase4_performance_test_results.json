@@ -1,0 +1,347 @@
+{
+  "test_config": {
+    "num_iterations": 3,
+    "timestamp": 1772460315.645433,
+    "targets": {
+      "processing_time_ratio": 1.5,
+      "error_rate": 0.15,
+      "conversion_quality": 0.8
+    }
+  },
+  "parallel_pipeline_tests": {
+    "单模态文本": {
+      "sequential_times": [
+        0.0003910000014002435,
+        0.0005519000005733687,
+        0.0003741000000445638
+      ],
+      "parallel_times": [
+        0.00042039999971166253,
+        0.0004351999996288214,
+        0.0003635000030044466
+      ],
+      "adaptive_times": [
+        0.00039590000233147293,
+        0.0004880999986198731,
+        0.00045450000106939115
+      ],
+      "avg_sequential_time": 0.0004390000006727253,
+      "avg_parallel_time": 0.0004063666674483102,
+      "avg_adaptive_time": 0.00044616666734024574,
+      "performance_ratio": 0.925664389124356,
+      "modality_count": 1,
+      "input_size_total": 210,
+      "meets_target": true
+    },
+    "双模态文本图像": {
+      "sequential_times": [
+        0.000559599997359328,
+        0.0004545999981928617,
+        0.00040890000309445895
+      ],
+      "parallel_times": [
+        0.0005405999982031062,
+        0.0004924999993818346,
+        0.00047929999709594995
+      ],
+      "adaptive_times": [
+        0.0006987000015215017,
+        0.0006547000011778437,
+        0.0008540999988326803
+      ],
+      "avg_sequential_time": 0.0004743666662155495,
+      "avg_parallel_time": 0.0005041333315602969,
+      "avg_adaptive_time": 0.0007358333338440085,
+      "performance_ratio": 1.0627503310513424,
+      "modality_count": 2,
+      "input_size_total": 16093,
+      "meets_target": true
+    },
+    "三模态混合": {
+      "sequential_times": [
+        0.0004650000009860378,
+        0.0005190999982005451,
+        0.0004302000015741214
+      ],
+      "parallel_times": [
+        0.0007614999994984828,
+        0.0006134000032034237,
+        0.0006296999999904074
+      ],
+      "adaptive_times": [
+        0.0006630999996559694,
+        0.0006365999979607295,
+        0.0008183999998436775
+      ],
+      "avg_sequential_time": 0.0004714333335869014,
+      "avg_parallel_time": 0.0006682000008974379,
+      "avg_adaptive_time": 0.0007060333324867921,
+      "performance_ratio": 1.4173796235693326,
+      "modality_count": 3,
+      "input_size_total": 22469,
+      "meets_target": true
+    },
+    "多模态大文件": {
+      "sequential_times": [
+        0.0011675999994622543,
+        0.0011556999997992534,
+        0.001185799999802839
+      ],
+      "parallel_times": [
+        0.001627800000278512,
+        0.0015114999987417832,
+        0.0017819000022427645
+      ],
+      "adaptive_times": [
+        0.0017416000009689014,
+        0.0016269000007014256,
+        0.001680999997915933
+      ],
+      "avg_sequential_time": 0.0011696999996881157,
+      "avg_parallel_time": 0.00164040000042102,
+      "avg_adaptive_time": 0.0016831666665287532,
+      "performance_ratio": 1.4024108753170983,
+      "modality_count": 3,
+      "input_size_total": 136506,
+      "meets_target": true
+    }
+  },
+  "format_conversion_tests": {
+    "WebP转JPEG高质量": {
+      "conversion_times": [
+        0.0008034999991650693,
+        0.0008108000001811888,
+        0.000663800001348136
+      ],
+      "avg_conversion_time": 0.0007593666668981314,
+      "conversion_quality": 0.7999999999999999,
+      "conversion_success": true,
+      "original_format": "avi",
+      "target_format": "jpeg",
+      "original_size": 1020,
+      "converted_size": 53,
+      "compression_ratio": 0.05196078431372549,
+      "meets_target": false,
+      "test_type": "conversion"
+    },
+    "WebP转PNG无损": {
+      "conversion_times": [
+        0.0005869999986316543,
+        0.0006001000001560897,
+        0.0006157999996503349
+      ],
+      "avg_conversion_time": 0.0006009666661460263,
+      "conversion_quality": 0.9,
+      "conversion_success": true,
+      "original_format": "avi",
+      "target_format": "png",
+      "original_size": 820,
+      "converted_size": 52,
+      "compression_ratio": 0.06341463414634146,
+      "meets_target": true,
+      "test_type": "conversion"
+    },
+    "AMR转MP3中等质量": {
+      "conversion_times": [
+        0.0005362000010791235,
+        0.0006286999996518716,
+        0.0006614000012632459
+      ],
+      "avg_conversion_time": 0.0006087666673314137,
+      "conversion_quality": 0.7999999999999999,
+      "conversion_success": true,
+      "original_format": "amr",
+      "target_format": "mp3",
+      "original_size": 509,
+      "converted_size": 123,
+      "compression_ratio": 0.24165029469548133,
+      "meets_target": false,
+      "test_type": "conversion"
+    },
+    "损坏JPEG修复": {
+      "repair_times": [
+        0.0011618000025919173,
+        0.0005044000026828144,
+        0.00047080000149435364
+      ],
+      "avg_repair_time": 0.0007123333355896951,
+      "repair_quality": 0.8,
+      "repair_success": true,
+      "original_size": 334,
+      "repaired_size": 250,
+      "test_type": "repair"
+    }
+  },
+  "robustness_tests": {
+    "正常输入": {
+      "plain_times": [
+        1.5999976312741637e-06,
+        1.1000010999850929e-06,
+        2.00001522898674e-07
+      ],
+      "robust_times": [
+        0.000305800000205636,
+        0.000271100001555169,
+        0.00023409999994328246
+      ],
+      "avg_plain_time": 9.666667513859768e-07,
+      "avg_robust_time": 0.0002703333339013625,
+      "plain_success_rate": 1.0,
+      "robust_success_rate": 1.0,
+      "plain_error_rate": 0.0,
+      "robust_error_rate": 0.0,
+      "error_reduction": 0,
+      "time_overhead": 0.00026936666714997653,
+      "current_robustness_level": "medium",
+      "meets_target": true,
+      "disturbance_type": "none"
+    },
+    "带噪声输入": {
+      "plain_times": [
+        5.999972927384079e-07,
+        1.9999788491986692e-07,
+        2.00001522898674e-07
+      ],
+      "robust_times": [
+        0.0003890999978466425,
+        0.00033649999750196,
+        0.00039119999928516336
+      ],
+      "avg_plain_time": 3.3333223351898294e-07,
+      "avg_robust_time": 0.000372266664877922,
+      "plain_success_rate": 1.0,
+      "robust_success_rate": 1.0,
+      "plain_error_rate": 0.0,
+      "robust_error_rate": 0.0,
+      "error_reduction": 0,
+      "time_overhead": 0.000371933332644403,
+      "current_robustness_level": "medium",
+      "meets_target": true,
+      "disturbance_type": "noise"
+    },
+    "不完整输入": {
+      "plain_times": [
+        1.7999991541728377e-06,
+        6.000009307172149e-07,
+        3.00002284348011e-07
+      ],
+      "robust_times": [
+        0.00028730000121868216,
+        0.0003542000013112556,
+        0.0004275999999663327
+      ],
+      "avg_plain_time": 9.000007897460213e-07,
+      "avg_robust_time": 0.00035636666749875684,
+      "plain_success_rate": 1.0,
+      "robust_success_rate": 1.0,
+      "plain_error_rate": 0.0,
+      "robust_error_rate": 0.0,
+      "error_reduction": 0,
+      "time_overhead": 0.00035546666670901084,
+      "current_robustness_level": "medium",
+      "meets_target": true,
+      "disturbance_type": "corruption"
+    },
+    "空输入": {
+      "plain_times": [
+        4.499997885432094e-06,
+        1.400003384333104e-06,
+        5.000001692678779e-07
+      ],
+      "robust_times": [
+        0.00031650000164518133,
+        0.0002227000004495494,
+        0.0001953999999386724
+      ],
+      "avg_plain_time": 2.1333338130110255e-06,
+      "avg_robust_time": 0.0002448666673444677,
+      "plain_success_rate": 0.0,
+      "robust_success_rate": 1.0,
+      "plain_error_rate": 1.0,
+      "robust_error_rate": 0.0,
+      "error_reduction": 1.0,
+      "time_overhead": 0.00024273333353145668,
+      "current_robustness_level": "medium",
+      "meets_target": true,
+      "disturbance_type": "missing_data"
+    }
+  },
+  "integration_tests": {
+    "轻度集成": {
+      "integration_times": [
+        0.010715399999753572,
+        0.010946599999442697,
+        0.011082599998189835
+      ],
+      "baseline_times": [
+        0.010513700002775295,
+        0.0100577000011981,
+        0.010528599999815924
+      ],
+      "avg_integration_time": 0.010914866665795367,
+      "avg_baseline_time": 0.010366666667929772,
+      "efficiency_ratio": 0.9497749249119529,
+      "modality_count": 2,
+      "input_size_total": 24,
+      "meets_target": true
+    },
+    "重度集成": {
+      "integration_times": [
+        0.011295500000414904,
+        0.01103299999886076,
+        0.011123799999040784
+      ],
+      "baseline_times": [
+        0.015287199999875156,
+        0.01543630000014673,
+        0.015356700001575518
+      ],
+      "avg_integration_time": 0.011150766666105483,
+      "avg_baseline_time": 0.015360066667199135,
+      "efficiency_ratio": 1.3774897392381533,
+      "modality_count": 3,
+      "input_size_total": 6046,
+      "meets_target": true
+    }
+  },
+  "summary": {
+    "statistics": {
+      "avg_processing_ratio": 1.2020513047655323,
+      "avg_error_rate": 0.0,
+      "avg_quality_score": 0.825,
+      "test_pass_rate": 0.8461538461538461,
+      "total_tests": 13,
+      "passed_tests": 11
+    },
+    "targets": {
+      "processing_ratio_under_1.5x": {
+        "target": 1.5,
+        "actual": 1.2020513047655323,
+        "met": true
+      },
+      "error_rate_under_15%": {
+        "target": 0.15,
+        "actual": 0.0,
+        "met": true
+      },
+      "quality_score_over_80%": {
+        "target": 0.8,
+        "actual": 0.825,
+        "met": true
+      }
+    },
+    "overall_assessment": {
+      "passed": true,
+      "performance_level": "good",
+      "recommendations": [
+        "性能良好，保持当前优化水平"
+      ]
+    },
+    "component_summary": {
+      "parallel_pipeline_tests": 4,
+      "format_conversion_tests": 4,
+      "robustness_tests": 4,
+      "integration_tests": 2
+    }
+  }
+}

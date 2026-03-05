@@ -1,0 +1,436 @@
+{
+  "knowledge_base": {
+    "domain": "sociology",
+    "name": {
+      "en": "Sociology",
+      "zh": "社会学",
+      "de": "Soziologie",
+      "ja": "社会学",
+      "ru": "Социология"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for sociology fundamentals and advanced topics",
+      "zh": "社会学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Soziologie Grundlagen und fortgeschrittene Themen",
+      "ja": "社会学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам социологии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "sociological_theory",
+        "name": {
+          "en": "Sociological Theory",
+          "zh": "社会学理论",
+          "de": "Soziologische Theorie",
+          "ja": "社会学理論",
+          "ru": "Социологическая теория"
+        },
+        "concepts": [
+          {
+            "id": "sociological_theory_schools",
+            "name": {
+              "en": "Sociological Theory Schools",
+              "zh": "社会学理论流派",
+              "de": "Soziologische Theorienschulen",
+              "ja": "社会学理論流派",
+              "ru": "Школы социологической теории"
+            },
+            "description": {
+              "en": "Major theoretical perspectives that have shaped the discipline of sociology",
+              "zh": "塑造社会学学科的主要理论视角",
+              "de": "Wichtige theoretische Perspektiven, die die Disziplin Soziologie geprägt haben",
+              "ja": "社会学の分野を形成した主要な理論的視点",
+              "ru": "Основные теоретические подходы, которые сформировали дисциплину социологии"
+            },
+            "major_schools": [
+              "Functionalism",
+              "Conflict theory",
+              "Symbolic interactionism",
+              "Structuralism",
+              "Postmodernism"
+            ],
+            "key_theorists": [
+              "Emile Durkheim",
+              "Karl Marx",
+              "Max Weber",
+              "George Herbert Mead",
+              "Pierre Bourdieu"
+            ],
+            "applications": [
+              "Social analysis",
+              "Policy development",
+              "Cultural studies",
+              "Social change"
+            ]
+          },
+          {
+            "id": "social_constructionism",
+            "name": {
+              "en": "Social Constructionism",
+              "zh": "社会建构主义",
+              "de": "Soziale Konstruktionismus",
+              "ja": "社会的構成主義",
+              "ru": "Социальный конструктивизм"
+            },
+            "description": {
+              "en": "The theory that meaning and knowledge are created through social interaction",
+              "zh": "认为意义和知识是通过社会互动创造的理论",
+              "de": "Die Theorie, dass Bedeutung und Wissen durch soziale Interaktion geschaffen werden",
+              "ja": "意味と知識が社会的相互作用を通じて創造されるという理論",
+              "ru": "Теория, согласно которой смысл и знание создаются через социальное взаимодействие"
+            },
+            "key_concepts": [
+              "Social reality",
+              "Symbolic systems",
+              "Language",
+              "Power relations",
+              "Cultural contexts"
+            ],
+            "applications": [
+              "Gender studies",
+              "Race and ethnicity",
+              "Media studies",
+              "Social problems"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "social_structure_and_stratification",
+        "name": {
+          "en": "Social Structure and Stratification",
+          "zh": "社会结构与分层",
+          "de": "Soziale Struktur und Stratifikation",
+          "ja": "社会構造と階層化",
+          "ru": "Социальная структура и стратификация"
+        },
+        "concepts": [
+          {
+            "id": "social_stratification",
+            "name": {
+              "en": "Social Stratification",
+              "zh": "社会分层",
+              "de": "Soziale Stratifikation",
+              "ja": "社会階層化",
+              "ru": "Социальная стратификация"
+            },
+            "description": {
+              "en": "The hierarchical arrangement of individuals into social classes based on factors like wealth, power, and prestige",
+              "zh": "根据财富、权力和声望等因素将个人分为社会阶层的等级排列",
+              "de": "Die hierarchische Anordnung von Individuen in soziale Klassen basierend auf Faktoren wie Reichtum, Macht und Prestige",
+              "ja": "富、権力、権威などの要因に基づいて個人を社会階級に階層化すること",
+              "ru": "Иерархическая структура индивидов в социальные классы на основе таких факторов, как богатство, власть и престиж"
+            },
+            "stratification_dimensions": [
+              "Economic",
+              "Social",
+              "Political",
+              "Cultural"
+            ],
+            "key_concepts": [
+              "Social class",
+              "Social mobility",
+              "Inequality",
+              "Poverty",
+              "Privilege"
+            ],
+            "applications": [
+              "Social policy",
+              "Economic development",
+              "Education",
+              "Healthcare"
+            ]
+          },
+          {
+            "id": "social_groups_and_organizations",
+            "name": {
+              "en": "Social Groups and Organizations",
+              "zh": "社会群体与组织",
+              "de": "Soziale Gruppen und Organisationen",
+              "ja": "社会グループと組織",
+              "ru": "Социальные группы и организации"
+            },
+            "description": {
+              "en": "The study of how people form groups and organizations and how these structures influence behavior",
+              "zh": "研究人们如何形成群体和组织，以及这些结构如何影响行为",
+              "de": "Die Untersuchung, wie Menschen Gruppen und Organisationen bilden und wie diese Strukturen das Verhalten beeinflussen",
+              "ja": "人々がどのようにグループや組織を形成し、これらの構造が行動にどのように影響するかを研究する学問",
+              "ru": "Изучение того, как люди формируют группы и организации, и как эти структуры влияют на поведение"
+            },
+            "group_types": [
+              "Primary groups",
+              "Secondary groups",
+              "Reference groups",
+              "In-groups vs out-groups"
+            ],
+            "organizational_theories": [
+              "Bureaucracy theory",
+              "Systems theory",
+              "Contingency theory",
+              "Network theory"
+            ],
+            "applications": [
+              "Organizational behavior",
+              "Leadership",
+              "Team dynamics",
+              "Community development"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "social_institutions",
+        "name": {
+          "en": "Social Institutions",
+          "zh": "社会制度",
+          "de": "Soziale Institutionen",
+          "ja": "社会制度",
+          "ru": "Социальные институты"
+        },
+        "concepts": [
+          {
+            "id": "family_institution",
+            "name": {
+              "en": "Family as a Social Institution",
+              "zh": "家庭作为社会制度",
+              "de": "Familie als soziale Institution",
+              "ja": "社会制度としての家族",
+              "ru": "Семья как социальный институт"
+            },
+            "description": {
+              "en": "The study of family structures, functions, and changes across different societies and time periods",
+              "zh": "研究不同社会和时期的家庭结构、功能和变化",
+              "de": "Die Untersuchung von Familienstrukturen, Funktionen und Veränderungen in verschiedenen Gesellschaften und Zeiträumen",
+              "ja": "異なる社会や時代における家族の構造、機能、変化を研究する学問",
+              "ru": "Изучение семейных структур, функций и изменений в разных обществах и периодах времени"
+            },
+            "key_aspects": [
+              "Family structure",
+              "Marriage patterns",
+              "Parenting",
+              "Family violence",
+              "Family policy"
+            ],
+            "contemporary_issues": [
+              "Changing gender roles",
+              "Divorce rates",
+              "Same-sex marriage",
+              "Single parenting"
+            ],
+            "applications": [
+              "Social work",
+              "Family therapy",
+              "Public policy",
+              "Education"
+            ]
+          },
+          {
+            "id": "education_institution",
+            "name": {
+              "en": "Education as a Social Institution",
+              "zh": "教育作为社会制度",
+              "de": "Bildung als soziale Institution",
+              "ja": "社会制度としての教育",
+              "ru": "Образование как социальный институт"
+            },
+            "description": {
+              "en": "The study of how education systems function, their role in society, and issues of inequality",
+              "zh": "研究教育系统如何运作、它们在社会中的作用以及不平等问题",
+              "de": "Die Untersuchung, wie Bildungssysteme funktionieren, ihre Rolle in der Gesellschaft und Fragen der Ungleichheit",
+              "ja": "教育システムがどのように機能し、社会における役割、不平等の問題を研究する学問",
+              "ru": "Изучение функционирования образовательных систем, их роли в обществе и проблем неравенства"
+            },
+            "key_functions": [
+              "Socialization",
+              "Skill development",
+              "Social stratification",
+              "Cultural transmission"
+            ],
+            "contemporary_issues": [
+              "Educational inequality",
+              "Standardized testing",
+              "Technology in education",
+              "Globalization of education"
+            ],
+            "applications": [
+              "Educational policy",
+              "Curriculum design",
+              "Teacher training",
+              "Social justice"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "social_change_and_development",
+        "name": {
+          "en": "Social Change and Development",
+          "zh": "社会变迁与发展",
+          "de": "Soziale Veränderung und Entwicklung",
+          "ja": "社会変容と発展",
+          "ru": "Социальные изменения и развитие"
+        },
+        "concepts": [
+          {
+            "id": "modernization_and_globalization",
+            "name": {
+              "en": "Modernization and Globalization",
+              "zh": "现代化与全球化",
+              "de": "Modernisierung und Globalisierung",
+              "ja": "近代化とグローバリゼーション",
+              "ru": "Модернизация и глобализация"
+            },
+            "description": {
+              "en": "The study of how societies modernize and the impacts of global interconnectedness",
+              "zh": "研究社会如何现代化以及全球相互联系的影响",
+              "de": "Die Untersuchung, wie Gesellschaften modernisieren und die Auswirkungen globaler Verflechtung",
+              "ja": "社会がどのように近代化し、グローバルな相互関連性の影響を研究する学問",
+              "ru": "Изучение процесса модернизации обществ и влияния глобального взаимосвязи"
+            },
+            "modernization_theories": [
+              "Classical modernization theory",
+              "Dependency theory",
+              "World systems theory",
+              "Alternative modernities"
+            ],
+            "globalization_dimensions": [
+              "Economic",
+              "Cultural",
+              "Political",
+              "Social"
+            ],
+            "applications": [
+              "International development",
+              "Global governance",
+              "Cultural policy",
+              "Economic planning"
+            ]
+          },
+          {
+            "id": "social_movements",
+            "name": {
+              "en": "Social Movements",
+              "zh": "社会运动",
+              "de": "Soziale Bewegungen",
+              "ja": "社会運動",
+              "ru": "Социальные движения"
+            },
+            "description": {
+              "en": "The study of collective action aimed at social, political, or cultural change",
+              "zh": "研究旨在实现社会、政治或文化变革的集体行动",
+              "de": "Die Untersuchung kollektiven Handelns, das auf soziale, politische oder kulturelle Veränderung abzielt",
+              "ja": "社会的、政治的、または文化的変革を目的とした集団行動を研究する学問",
+              "ru": "Изучение коллективных действий, нацеленных на социальные, политические или культурные изменения"
+            },
+            "movement_types": [
+              "Revolutionary movements",
+              "Reform movements",
+              "Conservative movements",
+              "New social movements"
+            ],
+            "key_concepts": [
+              "Collective identity",
+              "Resource mobilization",
+              "Political opportunity structure",
+              "Framing processes"
+            ],
+            "applications": [
+              "Political science",
+              "Social policy",
+              "Activism",
+              "Conflict resolution"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "social_research_methods",
+        "name": {
+          "en": "Social Research Methods",
+          "zh": "社会研究方法",
+          "de": "Soziale Forschungsmethoden",
+          "ja": "社会調査方法",
+          "ru": "Методы социальных исследований"
+        },
+        "concepts": [
+          {
+            "id": "quantitative_research_methods",
+            "name": {
+              "en": "Quantitative Research Methods",
+              "zh": "定量研究方法",
+              "de": "Quantitative Forschungsmethoden",
+              "ja": "定量的調査方法",
+              "ru": "Количественные методы исследований"
+            },
+            "description": {
+              "en": "Research methods that use numerical data and statistical analysis to study social phenomena",
+              "zh": "使用数值数据和统计分析研究社会现象的研究方法",
+              "de": "Forschungsmethoden, die numerische Daten und statistische Analysen verwenden, um soziale Phänomene zu untersuchen",
+              "ja": "数値データと統計分析を使用して社会現象を研究する調査方法",
+              "ru": "Методы исследования, использующие числовые данные и статистический анализ для изучения социальных явлений"
+            },
+            "method_types": [
+              "Surveys",
+              "Experiments",
+              "Content analysis",
+              "Secondary data analysis"
+            ],
+            "key_concepts": [
+              "Sampling",
+              "Validity",
+              "Reliability",
+              "Statistical significance",
+              "Generalization"
+            ],
+            "applications": [
+              "Public opinion research",
+              "Market research",
+              "Policy evaluation",
+              "Demography"
+            ]
+          },
+          {
+            "id": "qualitative_research_methods",
+            "name": {
+              "en": "Qualitative Research Methods",
+              "zh": "定性研究方法",
+              "de": "Qualitative Forschungsmethoden",
+              "ja": "定性的調査方法",
+              "ru": "Качественные методы исследований"
+            },
+            "description": {
+              "en": "Research methods that focus on understanding social phenomena through non-numerical data",
+              "zh": "专注于通过非数值数据理解社会现象的研究方法",
+              "de": "Forschungsmethoden, die sich darauf konzentrieren, soziale Phänomene durch nicht-numerische Daten zu verstehen",
+              "ja": "数値以外のデータを通じて社会現象を理解することに焦点を当てた調査方法",
+              "ru": "Методы исследования, сосредоточенные на понимании социальных явлений через нечисловые данные"
+            },
+            "method_types": [
+              "Interviews",
+              "Participant observation",
+              "Focus groups",
+              "Ethnography"
+            ],
+            "key_concepts": [
+              "Thick description",
+              "Reflexivity",
+              "Context",
+              "Interpretation",
+              "Theoretical saturation"
+            ],
+            "applications": [
+              "Cultural studies",
+              "Anthropology",
+              "Social work",
+              "Education research"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.600256Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

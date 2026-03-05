@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Engineering Knowledge Base Schema",
+  "description": "Schema for engineering knowledge JSON files",
+  "type": "object",
+  "required": ["knowledge_base"],
+  "properties": {
+    "knowledge_base": {
+      "type": "object",
+      "required": ["domain", "name", "description", "categories"],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Unique domain identifier (e.g., chemical_engineering)"
+        },
+        "name": {
+          "type": "object",
+          "description": "Multilingual name of the domain",
+          "required": ["en"],
+          "patternProperties": {
+            "^[a-z]{2}$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": {
+          "type": "object",
+          "description": "Multilingual description of the domain",
+          "required": ["en"],
+          "patternProperties": {
+            "^[a-z]{2}$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "categories": {
+          "type": "array",
+          "description": "Categories within this domain",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "concepts"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique category identifier"
+              },
+              "name": {
+                "type": "object",
+                "description": "Multilingual category name",
+                "required": ["en"],
+                "patternProperties": {
+                  "^[a-z]{2}$": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "concepts": {
+                "type": "array",
+                "description": "Concepts within this category",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["id", "name", "description"],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique concept identifier"
+                    },
+                    "name": {
+                      "type": "object",
+                      "description": "Multilingual concept name",
+                      "required": ["en"],
+                      "patternProperties": {
+                        "^[a-z]{2}$": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "description": {
+                      "type": "object",
+                      "description": "Multilingual concept description",
+                      "required": ["en"],
+                      "patternProperties": {
+                        "^[a-z]{2}$": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "formula": {
+                      "type": "string",
+                      "description": "Mathematical or chemical formula (optional)"
+                    },
+                    "applications": {
+                      "type": "array",
+                      "description": "List of applications (optional)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "description": "List of prerequisite concept IDs (optional)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "related_concepts": {
+                      "type": "array",
+                      "description": "List of related concept IDs (optional)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "enum": ["beginner", "intermediate", "advanced"],
+                      "description": "Difficulty level (optional)"
+                    },
+                    "importance": {
+                      "type": "string",
+                      "enum": ["low", "medium", "high", "critical"],
+                      "description": "Importance level (optional)"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

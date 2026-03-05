@@ -1,0 +1,386 @@
+{
+  "knowledge_base": {
+    "domain": "economics",
+    "name": {
+      "en": "Economics",
+      "zh": "经济学",
+      "de": "Wirtschaftswissenschaften",
+      "ja": "経済学",
+      "ru": "Экономика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for economics fundamentals and advanced topics",
+      "zh": "经济学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Wirtschaftswissenschaften Grundlagen und fortgeschrittene Themen",
+      "ja": "経済学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам экономики и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "macroeconomics",
+        "name": {
+          "en": "Macroeconomics",
+          "zh": "宏观经济学",
+          "de": "Makroökonomik",
+          "ja": "マクロ経済学",
+          "ru": "Макроэкономика"
+        },
+        "concepts": [
+          {
+            "id": "gross_domestic_product",
+            "name": {
+              "en": "Gross Domestic Product (GDP)",
+              "zh": "国内生产总值",
+              "de": "Bruttoinlandsprodukt (BIP)",
+              "ja": "国内総生産 (GDP)",
+              "ru": "Валовой внутренний продукт (ВВП)"
+            },
+            "description": {
+              "en": "The total monetary value of all finished goods and services produced within a country's borders in a specific time period",
+              "zh": "在特定时期内一个国家境内生产的所有成品和服务的总货币价值",
+              "de": "Der gesamte monetäre Wert aller fertigen Waren und Dienstleistungen, die innerhalb der Grenzen eines Landes in einem bestimmten Zeitraum produziert werden",
+              "ja": "特定の期間内に一国の国境以内で生産されたすべての完成品とサービスの総貨幣価値",
+              "ru": "Общая денежная стоимость всех готовых товаров и услуг, произведенных в пределах государственных границ страны за определенный период времени"
+            },
+            "measurement_methods": [
+              "Expenditure approach",
+              "Income approach",
+              "Production approach"
+            ],
+            "components": [
+              "Consumption",
+              "Investment",
+              "Government spending",
+              "Net exports"
+            ],
+            "applications": [
+              "Economic growth measurement",
+              "Policy evaluation",
+              "International comparison"
+            ]
+          },
+          {
+            "id": "monetary_policy",
+            "name": {
+              "en": "Monetary Policy",
+              "zh": "货币政策",
+              "de": "Geldpolitik",
+              "ja": "金融政策",
+              "ru": "Денежная политика"
+            },
+            "description": {
+              "en": "The process by which a central bank manages the money supply and interest rates to achieve macroeconomic objectives",
+              "zh": "中央银行管理货币供应和利率以实现宏观经济目标的过程",
+              "de": "Der Prozess, bei dem eine Zentralbank die Geldmenge und Zinssätze verwaltet, um makroökonomische Ziele zu erreichen",
+              "ja": "中央銀行がマクロ経済目標を達成するために貨幣供給と金利を管理するプロセス",
+              "ru": "Процесс, при котором центральный банк управляет денежным предложением и процентными ставками для достижения макроэкономических целей"
+            },
+            "tools": [
+              "Interest rate adjustments",
+              "Open market operations",
+              "Reserve requirements"
+            ],
+            "objectives": [
+              "Price stability",
+              "Full employment",
+              "Economic growth",
+              "Financial stability"
+            ],
+            "applications": [
+              "Inflation control",
+              "Economic stimulus",
+              "Financial crisis management"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "microeconomics",
+        "name": {
+          "en": "Microeconomics",
+          "zh": "微观经济学",
+          "de": "Mikroökonomik",
+          "ja": "ミクロ経済学",
+          "ru": "Микроэкономика"
+        },
+        "concepts": [
+          {
+            "id": "supply_and_demand",
+            "name": {
+              "en": "Supply and Demand",
+              "zh": "供给与需求",
+              "de": "Angebot und Nachfrage",
+              "ja": "供給と需要",
+              "ru": "Предложение и спрос"
+            },
+            "description": {
+              "en": "The fundamental economic model explaining how prices are determined in a market economy",
+              "zh": "解释市场经济中价格如何确定的基本经济模型",
+              "de": "Das grundlegende ökonomische Modell, das erklärt, wie Preise in einer Marktwirtschaft bestimmt werden",
+              "ja": "市場経済において価格がどのように決定されるかを説明する基本的な経済モデル",
+              "ru": "Фундаментальная экономическая модель, объясняющая, как цены определяются в рыночной экономике"
+            },
+            "key_concepts": [
+              "Equilibrium price",
+              "Law of supply",
+              "Law of demand",
+              "Elasticity"
+            ],
+            "applications": [
+              "Price determination",
+              "Market analysis",
+              "Policy impact assessment"
+            ]
+          },
+          {
+            "id": "market_structures",
+            "name": {
+              "en": "Market Structures",
+              "zh": "市场结构",
+              "de": "Marktstrukturen",
+              "ja": "市場構造",
+              "ru": "Рынковые структуры"
+            },
+            "description": {
+              "en": "The classification of markets based on the number of firms, product differentiation, and entry barriers",
+              "zh": "根据企业数量、产品差异化和进入壁垒对市场进行分类",
+              "de": "Die Klassifizierung von Märkten basierend auf der Anzahl von Unternehmen, Produktdifferenzierung und Markteintrittsbarrieren",
+              "ja": "企業の数、製品の差別化、および参入障壁に基づく市場の分類",
+              "ru": "Классификация рынков на основе количества фирм, дифференциации продукции и барьеров для входа"
+            },
+            "types": [
+              "Perfect competition",
+              "Monopoly",
+              "Oligopoly",
+              "Monopolistic competition"
+            ],
+            "applications": [
+              "Industry analysis",
+              "Antitrust policy",
+              "Strategic decision making"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "international_economics",
+        "name": {
+          "en": "International Economics",
+          "zh": "国际经济学",
+          "de": "Internationalwirtschaftslehre",
+          "ja": "国際経済学",
+          "ru": "Международная экономика"
+        },
+        "concepts": [
+          {
+            "id": "international_trade",
+            "name": {
+              "en": "International Trade",
+              "zh": "国际贸易",
+              "de": "Internationaler Handel",
+              "ja": "国際貿易",
+              "ru": "Международная торговля"
+            },
+            "description": {
+              "en": "The exchange of goods and services across international borders",
+              "zh": "跨越国际边界的商品和服务交换",
+              "de": "Der Austausch von Waren und Dienstleistungen über internationale Grenzen hinweg",
+              "ja": "国境を越えた商品とサービスの交換",
+              "ru": "Обмен товарами и услугами через международные границы"
+            },
+            "theories": [
+              "Comparative advantage",
+              "Absolute advantage",
+              "Heckscher-Ohlin model",
+              "New trade theory"
+            ],
+            "instruments": [
+              "Tariffs",
+              "Quotas",
+              "Free trade agreements",
+              "Exchange rates"
+            ],
+            "applications": [
+              "Trade policy",
+              "Global supply chain",
+              "Economic development"
+            ]
+          },
+          {
+            "id": "foreign_exchange",
+            "name": {
+              "en": "Foreign Exchange",
+              "zh": "外汇",
+              "de": "Devisen",
+              "ja": "外国為替",
+              "ru": "Валютный обмен"
+            },
+            "description": {
+              "en": "The trading of currencies and the determination of exchange rates",
+              "zh": "货币交易和汇率决定",
+              "de": "Der Handel mit Währungen und die Bestimmung von Wechselkursen",
+              "ja": "通貨の取引と為替レートの決定",
+              "ru": "Торговля валютами и определение обменных курсов"
+            },
+            "key_concepts": [
+              "Exchange rate systems",
+              "Currency markets",
+              "Balance of payments",
+              "Purchasing power parity"
+            ],
+            "applications": [
+              "International finance",
+              "Import/export business",
+              "Monetary policy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "financial_economics",
+        "name": {
+          "en": "Financial Economics",
+          "zh": "金融经济学",
+          "de": "Finanzökonomik",
+          "ja": "金融経済学",
+          "ru": "Финансовая экономика"
+        },
+        "concepts": [
+          {
+            "id": "risk_and_return",
+            "name": {
+              "en": "Risk and Return",
+              "zh": "风险与收益",
+              "de": "Risiko und Rendite",
+              "ja": "リスクとリターン",
+              "ru": "Риск и доходность"
+            },
+            "description": {
+              "en": "The fundamental relationship between the level of risk taken and the potential return on an investment",
+              "zh": "投资所承担的风险水平与潜在回报之间的基本关系",
+              "de": "Die grundlegende Beziehung zwischen dem Risikoniveau und der potenziellen Rendite einer Investition",
+              "ja": "投資のリスクレベルと潜在的なリターンの間の基本的な関係",
+              "ru": "Фундаментальная связь между уровнем принимаемого риска и потенциальной доходностью инвестиции"
+            },
+            "key_concepts": [
+              "Portfolio diversification",
+              "Capital asset pricing model",
+              "Efficient market hypothesis",
+              "Risk management"
+            ],
+            "applications": [
+              "Investment decision making",
+              "Portfolio management",
+              "Financial planning"
+            ]
+          },
+          {
+            "id": "financial_markets",
+            "name": {
+              "en": "Financial Markets",
+              "zh": "金融市场",
+              "de": "Finanzmärkte",
+              "ja": "金融市場",
+              "ru": "Финансовые рынки"
+            },
+            "description": {
+              "en": "Platforms where financial instruments are traded between buyers and sellers",
+              "zh": "金融工具在买卖双方之间交易的平台",
+              "de": "Plattformen, auf denen Finanzinstrumente zwischen Käufern und Verkäufern gehandelt werden",
+              "ja": "金融商品が買い手と売り手の間で取引されるプラットフォーム",
+              "ru": "Платформы, где торговляются финансовые инструменты между покупателями и продавцами"
+            },
+            "types": [
+              "Stock markets",
+              "Bond markets",
+              "Derivatives markets",
+              "Foreign exchange markets"
+            ],
+            "applications": [
+              "Capital allocation",
+              "Risk management",
+              "Price discovery"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "development_economics",
+        "name": {
+          "en": "Development Economics",
+          "zh": "发展经济学",
+          "de": "Entwicklungswirtschaftslehre",
+          "ja": "開発経済学",
+          "ru": "Экономика развития"
+        },
+        "concepts": [
+          {
+            "id": "economic_development",
+            "name": {
+              "en": "Economic Development",
+              "zh": "经济发展",
+              "de": "Wirtschaftliche Entwicklung",
+              "ja": "経済発展",
+              "ru": "Экономическое развитие"
+            },
+            "description": {
+              "en": "The process by which a nation improves the economic, political, and social well-being of its people",
+              "zh": "一个国家改善其人民经济、政治和社会福祉的过程",
+              "de": "Der Prozess, bei dem eine Nation das wirtschaftliche, politische und soziale Wohlergehen ihrer Menschen verbessert",
+              "ja": "国家が国民の経済的、政治的、社会的福祉を改善するプロセス",
+              "ru": "Процесс, при котором нация улучшает экономическое, политическое и социальное благополучие своего народа"
+            },
+            "key_factors": [
+              "Human capital",
+              "Infrastructure",
+              "Technology",
+              "Institutions"
+            ],
+            "theories": [
+              "Harrod-Domar model",
+              "Solow growth model",
+              "Endogenous growth theory",
+              "Dependency theory"
+            ],
+            "applications": [
+              "Poverty reduction",
+              "Sustainable development",
+              "Policy formulation"
+            ]
+          },
+          {
+            "id": "poverty_and_inequality",
+            "name": {
+              "en": "Poverty and Inequality",
+              "zh": "贫困与不平等",
+              "de": "Armut und Ungleichheit",
+              "ja": "貧困と不平等",
+              "ru": "Бедность и неравенство"
+            },
+            "description": {
+              "en": "The study of the distribution of income and wealth in society and the causes and consequences of poverty",
+              "zh": "研究社会中收入和财富的分配以及贫困的原因和后果",
+              "de": "Die Untersuchung der Verteilung von Einkommen und Reichtum in der Gesellschaft sowie der Ursachen und Folgen von Armut",
+              "ja": "社会における所得と富の分配、および貧困の原因と結果の研究",
+              "ru": "Изучение распределения дохода и богатства в обществе, а также причин и последствий бедности"
+            },
+            "measurement": [
+              "Gini coefficient",
+              "Poverty line",
+              "Human Development Index (HDI)"
+            ],
+            "applications": [
+              "Social policy",
+              "Development aid",
+              "Income redistribution"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.589286Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "knowledge_base": {
+    "domain": "computer_science",
+    "name": {
+      "en": "Computer Science",
+      "zh": "计算机科学",
+      "de": "Informatik",
+      "ja": "コンピュータ科学",
+      "ru": "Информатика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for computer science fundamentals, algorithms, and systems",
+      "zh": "计算机科学基础、算法和系统的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Informatikgrundlagen, Algorithmen und Systeme",
+      "ja": "コンピュータ科学の基礎、アルゴリズム、システムに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам информатики, алгоритмам и системам"
+    },
+    "categories": [
+      {
+        "id": "algorithms_data_structures",
+        "name": {
+          "en": "Algorithms & Data Structures",
+          "zh": "算法与数据结构",
+          "de": "Algorithmen & Datenstrukturen",
+          "ja": "アルゴリズムとデータ構造",
+          "ru": "Алгоритмы и структуры данных"
+        },
+        "concepts": [
+          {
+            "id": "sorting_algorithms",
+            "name": {
+              "en": "Sorting Algorithms",
+              "zh": "排序算法",
+              "de": "Sortieralgorithmen",
+              "ja": "ソートアルゴリズム",
+              "ru": "Алгоритмы сортировки"
+            },
+            "description": {
+              "en": "Methods for arranging elements in a specific order",
+              "zh": "按特定顺序排列元素的方法",
+              "de": "Methoden zum Anordnen von Elementen in einer bestimmten Reihenfolge",
+              "ja": "要素を特定の順序で配置する方法",
+              "ru": "Методы упорядочивания элементов в определенном порядке"
+            },
+            "types": [
+              "Bubble Sort",
+              "Quick Sort",
+              "Merge Sort",
+              "Heap Sort",
+              "Insertion Sort",
+              "Selection Sort",
+              "Radix Sort",
+              "Bucket Sort"
+            ],
+            "time_complexity": {
+              "best": "O(n log n)",
+              "average": "O(n log n)",
+              "worst": "O(n²)"
+            },
+            "space_complexity": "O(n)"
+          },
+          {
+            "id": "graph_algorithms",
+            "name": {
+              "en": "Graph Algorithms",
+              "zh": "图算法",
+              "de": "Graphalgorithmen",
+              "ja": "グラフアルゴリズム",
+              "ru": "Алгоритмы на графах"
+            },
+            "description": {
+              "en": "Algorithms for solving problems on graphs and networks",
+              "zh": "解决图和网络问题的算法",
+              "de": "Algorithmen zur Lösung von Problemen auf Graphen und Netzwerken",
+              "ja": "グラフとネットワーク上の問題を解決するアルゴリズム",
+              "ru": "Алгоритмы решения задач на графах и сетях"
+            },
+            "algorithms": [
+              "Breadth-First Search",
+              "Depth-First Search",
+              "Dijkstra's Algorithm",
+              "A* Search",
+              "Minimum Spanning Tree",
+              "Bellman-Ford Algorithm",
+              "Floyd-Warshall Algorithm",
+              "Topological Sorting"
+            ],
+            "applications": [
+              "Shortest Path",
+              "Network Flow",
+              "Social Network Analysis",
+              "Routing",
+              "Recommendation Systems"
+            ]
+          },
+          {
+            "id": "data_structures",
+            "name": {
+              "en": "Data Structures",
+              "zh": "数据结构",
+              "de": "Datenstrukturen",
+              "ja": "データ構造",
+              "ru": "Структуры данных"
+            },
+            "description": {
+              "en": "Organized ways to store and access data efficiently",
+              "zh": "高效存储和访问数据的组织方式",
+              "de": "Organisierte Weisen, um Daten effizient zu speichern und zuzugreifen",
+              "ja": "データを効率的に保存およびアクセスするための組織化された方法",
+              "ru": "Организованные способы эффективного хранения и доступа к данным"
+            },
+            "types": [
+              "Arrays",
+              "Linked Lists",
+              "Stacks",
+              "Queues",
+              "Trees",
+              "Graphs",
+              "Hash Tables",
+              "Heaps"
+            ],
+            "classification": [
+              "Linear",
+              "Non-linear",
+              "Static",
+              "Dynamic"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "programming_languages",
+        "name": {
+          "en": "Programming Languages",
+          "zh": "编程语言",
+          "de": "Programmiersprachen",
+          "ja": "プログラミング言語",
+          "ru": "Языки программирования"
+        },
+        "concepts": [
+          {
+            "id": "python",
+            "name": {
+              "en": "Python",
+              "zh": "Python",
+              "de": "Python",
+              "ja": "Python",
+              "ru": "Python"
+            },
+            "description": {
+              "en": "High-level, interpreted programming language with dynamic typing",
+              "zh": "具有动态类型的高级解释型编程语言",
+              "de": "Hochrangige, interpretierte Programmiersprache mit dynamischer Typisierung",
+              "ja": "動的型付けを持つ高水準のインタプリタ型プログラミング言語",
+              "ru": "Высокоуровневый интерпретируемый язык программирования с динамической типизацией"
+            },
+            "features": [
+              "Easy to learn",
+              "Extensive libraries",
+              "Cross-platform",
+              "Object-oriented",
+              "Functional programming support",
+              "Dynamic typing",
+              "Automatic memory management"
+            ],
+            "applications": [
+              "Web development",
+              "Data science",
+              "Machine learning",
+              "Automation",
+              "Scientific computing",
+              "Artificial intelligence",
+              "Game development"
+            ],
+            "libraries": [
+              "NumPy",
+              "Pandas",
+              "TensorFlow",
+              "PyTorch",
+              "Django",
+              "Flask",
+              "Matplotlib"
+            ]
+          },
+          {
+            "id": "javascript",
+            "name": {
+              "en": "JavaScript",
+              "zh": "JavaScript",
+              "de": "JavaScript",
+              "ja": "JavaScript",
+              "ru": "JavaScript"
+            },
+            "description": {
+              "en": "High-level, dynamic programming language for web development",
+              "zh": "用于Web开发的高级动态编程语言",
+              "de": "Hochrangige, dynamische Programmiersprache für Webentwicklung",
+              "ja": "Web開発のための高水準の動的プログラミング言語",
+              "ru": "Высокоуровневый динамический язык программирования для веб-разработки"
+            },
+            "features": [
+              "Client-side scripting",
+              "Asynchronous programming",
+              "Event-driven",
+              "Prototype-based",
+              "First-class functions",
+              "Cross-platform"
+            ],
+            "frameworks": [
+              "React",
+              "Vue",
+              "Angular",
+              "Node.js",
+              "Express",
+              "Next.js",
+              "Nuxt.js"
+            ],
+            "applications": [
+              "Web development",
+              "Mobile development",
+              "Server-side development",
+              "Game development",
+              "IoT"
+            ]
+          },
+          {
+            "id": "java",
+            "name": {
+              "en": "Java",
+              "zh": "Java",
+              "de": "Java",
+              "ja": "Java",
+              "ru": "Java"
+            },
+            "description": {
+              "en": "Object-oriented, class-based programming language designed for cross-platform use",
+              "zh": "面向对象、基于类的编程语言，专为跨平台使用而设计",
+              "de": "Objektorientierte, klassenbasierte Programmiersprache, die für plattformübergreifende Nutzung entwickelt wurde",
+              "ja": "オブジェクト指向、クラスベースのプログラミング言語で、クロスプラットフォーム使用のために設計されています",
+              "ru": "Объектно-ориентированный, классовый язык программирования, разработанный для кроссплатформенного использования"
+            },
+            "features": [
+              "Write once, run anywhere",
+              "Object-oriented",
+              "Robust",
+              "Secure",
+              "Multithreaded",
+              "Platform-independent"
+            ],
+            "frameworks": [
+              "Spring",
+              "Hibernate",
+              "Struts",
+              "Java EE",
+              "Maven"
+            ],
+            "applications": [
+              "Enterprise applications",
+              "Android development",
+              "Web applications",
+              "Desktop applications",
+              "Big data processing"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "artificial_intelligence",
+        "name": {
+          "en": "Artificial Intelligence",
+          "zh": "人工智能",
+          "de": "Künstliche Intelligenz",
+          "ja": "人工知能",
+          "ru": "Искусственный интеллект"
+        },
+        "concepts": [
+          {
+            "id": "machine_learning",
+            "name": {
+              "en": "Machine Learning",
+              "zh": "机器学习",
+              "de": "Maschinelles Lernen",
+              "ja": "機械学習",
+              "ru": "Машинное обучение"
+            },
+            "description": {
+              "en": "Field of study that gives computers the ability to learn without being explicitly programmed",
+              "zh": "使计算机能够在没有明确编程的情况下学习的研究领域",
+              "de": "Forschungsgebiet, das Computern die Fähigkeit verleiht, ohne explizite Programmierung zu lernen",
+              "ja": "明示的にプログラムしなくてもコンピュータが学習できるようにする研究分野",
+              "ru": "Область исследований, которая дает компьютерам возможность учиться без явного программирования"
+            },
+            "types": [
+              "Supervised Learning",
+              "Unsupervised Learning",
+              "Reinforcement Learning",
+              "Deep Learning",
+              "Semi-supervised Learning",
+              "Self-supervised Learning"
+            ],
+            "algorithms": [
+              "Linear Regression",
+              "Decision Trees",
+              "Neural Networks",
+              "Support Vector Machines",
+              "K-Means Clustering",
+              "Random Forest",
+              "Gradient Boosting",
+              "Naive Bayes"
+            ],
+            "applications": [
+              "Image recognition",
+              "Natural language processing",
+              "Recommendation systems",
+              "Fraud detection",
+              "Autonomous vehicles"
+            ]
+          },
+          {
+            "id": "deep_learning",
+            "name": {
+              "en": "Deep Learning",
+              "zh": "深度学习",
+              "de": "Tiefes Lernen",
+              "ja": "ディープラーニング",
+              "ru": "Глубокое обучение"
+            },
+            "description": {
+              "en": "Subset of machine learning based on artificial neural networks with multiple layers",
+              "zh": "基于多层人工神经网络的机器学习子集",
+              "de": "Teilmenge des maschinellen Lernens, basierend auf künstlichen neuronalen Netzen mit mehreren Ebenen",
+              "ja": "複数層の人工ニューラルネットワークに基づく機械学習のサブセット",
+              "ru": "Подмножество машинного обучения, основанное на искусственных нейронных сетях с несколькими слоями"
+            },
+            "architectures": [
+              "Convolutional Neural Networks",
+              "Recurrent Neural Networks",
+              "Transformers",
+              "Autoencoders",
+              "Generative Adversarial Networks",
+              "Recurrent Neural Networks",
+              "Long Short-Term Memory",
+              "Gated Recurrent Units"
+            ],
+            "applications": [
+              "Computer vision",
+              "Natural language processing",
+              "Speech recognition",
+              "Image generation",
+              "Drug discovery"
+            ]
+          },
+          {
+            "id": "natural_language_processing",
+            "name": {
+              "en": "Natural Language Processing",
+              "zh": "自然语言处理",
+              "de": "Natürliche Sprachverarbeitung",
+              "ja": "自然言語処理",
+              "ru": "Обработка естественного языка"
+            },
+            "description": {
+              "en": "Field focused on enabling computers to understand, interpret, and generate human language",
+              "zh": "专注于使计算机能够理解、解释和生成人类语言的领域",
+              "de": "Feld, das sich darauf konzentriert, Computern zu ermöglichen, menschliche Sprache zu verstehen, zu interpretieren und zu generieren",
+              "ja": "コンピュータが人間の言語を理解、解釈、生成できるようにすることに焦点を当てた分野",
+              "ru": "Область, ориентированная на то, чтобы компьютеры могли понимать, интерпретировать и генерировать человеческий язык"
+            },
+            "techniques": [
+              "Tokenization",
+              "Part-of-Speech Tagging",
+              "Named Entity Recognition",
+              "Sentiment Analysis",
+              "Machine Translation",
+              "Text Summarization",
+              "Question Answering",
+              "Dialogue Systems"
+            ],
+            "applications": [
+              "Chatbots",
+              "Text summarization",
+              "Speech recognition",
+              "Language translation",
+              "Text generation",
+              "Sentiment analysis",
+              "Information extraction"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.566348Z",
+    "version": "2.0.0",
+    "total_concepts": 9,
+    "total_categories": 3
+  }
+}

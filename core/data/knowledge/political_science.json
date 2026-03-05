@@ -1,0 +1,374 @@
+{
+  "knowledge_base": {
+    "domain": "political_science",
+    "name": {
+      "en": "Political Science",
+      "zh": "政治科学",
+      "de": "Politikwissenschaft",
+      "ja": "政治学",
+      "ru": "Политические науки"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for political science fundamentals and advanced topics",
+      "zh": "政治科学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Politikwissenschaft Grundlagen und fortgeschrittene Themen",
+      "ja": "政治学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам политических наук и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "political_theory",
+        "name": {
+          "en": "Political Theory",
+          "zh": "政治理论",
+          "de": "Politische Theorie",
+          "ja": "政治理論",
+          "ru": "Политическая теория"
+        },
+        "concepts": [
+          {
+            "id": "democracy",
+            "name": {
+              "en": "Democracy",
+              "zh": "民主",
+              "de": "Demokratie",
+              "ja": "民主主義",
+              "ru": "Демократия"
+            },
+            "description": {
+              "en": "System of government in which power is vested in the people, who rule either directly or through elected representatives",
+              "zh": "权力属于人民，人民直接或通过选举产生的代表进行统治的政府制度",
+              "de": "Regierungssystem, bei dem die Macht bei den Menschen liegt, die entweder direkt oder durch gewählte Vertreter regieren",
+              "ja": "権力が国民に帰属し、国民が直接または選出された代表者を通じて統治する政治体制",
+              "ru": "Система правления, при которой власть принадлежит народу, который правит либо напрямую, либо через избранных представителей"
+            },
+            "types": [
+              "Direct Democracy",
+              "Representative Democracy",
+              "Liberal Democracy",
+              "Social Democracy"
+            ],
+            "key_features": [
+              "Popular Sovereignty",
+              "Political Equality",
+              "Rule of Law",
+              "Protection of Rights"
+            ]
+          },
+          {
+            "id": "authoritarianism",
+            "name": {
+              "en": "Authoritarianism",
+              "zh": "威权主义",
+              "de": "Autoritarismus",
+              "ja": "権威主義",
+              "ru": "Авторитаризм"
+            },
+            "description": {
+              "en": "System of government characterized by concentration of power, limited political pluralism, and lack of democratic processes",
+              "zh": "以权力集中、政治多元化有限和缺乏民主进程为特征的政府制度",
+              "de": "Regierungssystem, das durch Konzentration von Macht, begrenzten politischen Pluralismus und Mangel an demokratischen Prozessen gekennzeichnet ist",
+              "ja": "権力の集中、政治的多元主義の制限、民主的プロセスの欠如を特徴とする政治体制",
+              "ru": "Система правления, характеризующаяся концентрацией власти, ограниченным политическим плюрализмом и отсутствием демократических процессов"
+            },
+            "types": [
+              "Dictatorship",
+              "Totalitarianism",
+              "Military Junta",
+              "One-party State"
+            ],
+            "key_features": [
+              "Centralized Power",
+              "Suppression of Opposition",
+              "Limited Civil Liberties",
+              "State Control"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "comparative_politics",
+        "name": {
+          "en": "Comparative Politics",
+          "zh": "比较政治学",
+          "de": "Vergleichende Politikwissenschaft",
+          "ja": "比較政治学",
+          "ru": "Сравнительная политика"
+        },
+        "concepts": [
+          {
+            "id": "political_systems",
+            "name": {
+              "en": "Political Systems",
+              "zh": "政治制度",
+              "de": "Politische Systeme",
+              "ja": "政治システム",
+              "ru": "Политические системы"
+            },
+            "description": {
+              "en": "Study of different forms of government and their structures, processes, and functions across countries",
+              "zh": "研究不同国家的政府形式及其结构、过程和功能",
+              "de": "Studium verschiedener Regierungsformen und ihrer Strukturen, Prozesse und Funktionen in verschiedenen Ländern",
+              "ja": "異なる国の政府の形態とその構造、プロセス、機能を研究する学問",
+              "ru": "Изучение различных форм правления и их структур, процессов и функций в разных странах"
+            },
+            "system_types": [
+              "Presidential System",
+              "Parliamentary System",
+              "Semi-presidential System",
+              "Monarchy"
+            ],
+            "key_dimensions": [
+              "Executive-Legislative Relations",
+              "Party System",
+              "Electoral System",
+              "Federalism"
+            ]
+          },
+          {
+            "id": "state_formation",
+            "name": {
+              "en": "State Formation",
+              "zh": "国家形成",
+              "de": "Staatsbildung",
+              "ja": "国家形成",
+              "ru": "Формирование государства"
+            },
+            "description": {
+              "en": "Process of establishing a sovereign state with defined territory, population, and government",
+              "zh": "建立具有明确领土、人口和政府的主权国家的过程",
+              "de": "Prozess der Gründung eines souveränen Staates mit festgelegter Territorie, Bevölkerung und Regierung",
+              "ja": "明確な領土、人口、政府を持つ主権国家を確立するプロセス",
+              "ru": "Процесс создания суверенного государства с определенной территорией, населением и правительством"
+            },
+            "formation_theories": [
+              "Social Contract Theory",
+              "War Making and State Making",
+              "Nation-Building",
+              "Colonial Legacy"
+            ],
+            "key_elements": [
+              "Territorial Integrity",
+              "Population",
+              "Sovereignty",
+              "Governance"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "international_relations",
+        "name": {
+          "en": "International Relations",
+          "zh": "国际关系",
+          "de": "International Beziehungen",
+          "ja": "国際関係",
+          "ru": "Международные отношения"
+        },
+        "concepts": [
+          {
+            "id": "international_law",
+            "name": {
+              "en": "International Law",
+              "zh": "国际法",
+              "de": "Völkerrecht",
+              "ja": "国際法",
+              "ru": "Международное право"
+            },
+            "description": {
+              "en": "Set of rules and norms governing relations between states and other international actors",
+              "zh": "规范国家和其他国际行为体之间关系的一套规则和准则",
+              "de": "Satz von Regeln und Normen, die die Beziehungen zwischen Staaten und anderen internationalen Akteuren regeln",
+              "ja": "国家と他の国際的な行為体の間の関係を規制する一連の規則と規範",
+              "ru": "Набор правил и норм, регулирующих отношения между государствами и другими международными субъектами"
+            },
+            "sources": [
+              "Treaties",
+              "Customary International Law",
+              "General Principles of Law",
+              "Judicial Decisions"
+            ],
+            "key_institutions": [
+              "United Nations",
+              "International Court of Justice",
+              "World Trade Organization",
+              "International Criminal Court"
+            ]
+          },
+          {
+            "id": "globalization",
+            "name": {
+              "en": "Globalization",
+              "zh": "全球化",
+              "de": "Globalisierung",
+              "ja": "グローバリゼーション",
+              "ru": "Глобализация"
+            },
+            "description": {
+              "en": "Process of increasing interconnectedness and interdependence among countries through economic, political, cultural, and technological exchange",
+              "zh": "通过经济、政治、文化和技术交流，国家之间日益相互联系和相互依赖的过程",
+              "de": "Prozess der zunehmenden Vernetzung und Interdependenz zwischen Ländern durch wirtschaftlichen, politischen, kulturellen und technologischen Austausch",
+              "ja": "経済的、政治的、文化的、技術的な交流を通じて、国々の相互連結性と相互依存性が高まるプロセス",
+              "ru": "Процесс увеличения взаимосвязи и взаимозависимости между странами через экономический, политический, культурный и технологический обмен"
+            },
+            "dimensions": [
+              "Economic Globalization",
+              "Political Globalization",
+              "Cultural Globalization",
+              "Technological Globalization"
+            ],
+            "impacts": [
+              "Economic Growth",
+              "Cultural Exchange",
+              "Income Inequality",
+              "Environmental Challenges"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "political_institutions",
+        "name": {
+          "en": "Political Institutions",
+          "zh": "政治制度",
+          "de": "Politische Institutionen",
+          "ja": "政治制度",
+          "ru": "Политические институты"
+        },
+        "concepts": [
+          {
+            "id": "executive_branch",
+            "name": {
+              "en": "Executive Branch",
+              "zh": "行政分支",
+              "de": "Exekutive",
+              "ja": "行政部門",
+              "ru": "Исполнительная власть"
+            },
+            "description": {
+              "en": "Branch of government responsible for implementing and enforcing laws and policies",
+              "zh": "负责执行和实施法律与政策的政府分支",
+              "de": "Regierungsbereich, der für die Umsetzung und Durchsetzung von Gesetzen und Politik verantwortlich ist",
+              "ja": "法律と政策の実施と執行を担当する政府の部門",
+              "ru": "Ветвь власти, отвечающая за выполнение и применение законов и политик"
+            },
+            "key_roles": [
+              "Head of State",
+              "Head of Government",
+              "Cabinet",
+              "Bureaucracy"
+            ],
+            "powers": [
+              "Executive Orders",
+              "Veto Power",
+              "Appointment Power",
+              "Foreign Policy"
+            ]
+          },
+          {
+            "id": "legislative_branch",
+            "name": {
+              "en": "Legislative Branch",
+              "zh": "立法分支",
+              "de": "Gesetzgebung",
+              "ja": "立法部門",
+              "ru": "Законодательная власть"
+            },
+            "description": {
+              "en": "Branch of government responsible for making and passing laws",
+              "zh": "负责制定和通过法律的政府分支",
+              "de": "Regierungsbereich, der für die Erstellung und Verabschiedung von Gesetzen verantwortlich ist",
+              "ja": "法律の作成と可決を担当する政府の部門",
+              "ru": "Ветвь власти, отвечающая за принятие и утверждение законов"
+            },
+            "structure_types": [
+              "Unicameral",
+              "Bicameral"
+            ],
+            "key_functions": [
+              "Lawmaking",
+              "Oversight",
+              "Budget Approval",
+              "Representation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "public_policy",
+        "name": {
+          "en": "Public Policy",
+          "zh": "公共政策",
+          "de": "Öffentliche Politik",
+          "ja": "公共政策",
+          "ru": "Государственная политика"
+        },
+        "concepts": [
+          {
+            "id": "policy_process",
+            "name": {
+              "en": "Policy Process",
+              "zh": "政策过程",
+              "de": "Politikprozess",
+              "ja": "政策プロセス",
+              "ru": "Политический процесс"
+            },
+            "description": {
+              "en": "Sequence of steps involved in formulating, implementing, and evaluating public policies",
+              "zh": "制定、实施和评估公共政策所涉及的一系列步骤",
+              "de": "Reihe von Schritten, die bei der Formulierung, Umsetzung und Bewertung öffentlicher Politiken beteiligt sind",
+              "ja": "公共政策の策定、実施、評価に関与する一連のステップ",
+              "ru": "Последовательность шагов, связанных с разработкой, реализацией и оценкой государственной политики"
+            },
+            "stages": [
+              "Agenda Setting",
+              "Policy Formulation",
+              "Policy Adoption",
+              "Policy Implementation",
+              "Policy Evaluation"
+            ],
+            "key_actors": [
+              "Government",
+              "Interest Groups",
+              "Media",
+              "Public"
+            ]
+          },
+          {
+            "id": "welfare_policy",
+            "name": {
+              "en": "Welfare Policy",
+              "zh": "福利政策",
+              "de": "Sozialpolitik",
+              "ja": "福祉政策",
+              "ru": "Социальная политика"
+            },
+            "description": {
+              "en": "Policies designed to provide social protection and assistance to individuals and families in need",
+              "zh": "旨在为有需要的个人和家庭提供社会保护和援助的政策",
+              "de": "Politiken, die darauf ausgelegt sind, soziale Schutz und Unterstützung für bedürftige Einzelpersonen und Familien bereitzustellen",
+              "ja": "困窮している個人や家族に社会的保護と支援を提供することを目的とした政策",
+              "ru": "Политика, направленная на предоставление социальной защиты и помощи нуждающимся лицам и семьям"
+            },
+            "program_types": [
+              "Social Security",
+              "Healthcare",
+              "Unemployment Benefits",
+              "Public Housing"
+            ],
+            "policy_approaches": [
+              "Universal Benefits",
+              "Means-tested Benefits",
+              "Social Insurance",
+              "Workfare"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.636729Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

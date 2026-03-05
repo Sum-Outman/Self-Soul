@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self Soul 系统概览</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        .module {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .feature {
+            background-color: #e8f4f8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .file-path {
+            font-family: monospace;
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 90%;
+        }
+        .note {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            margin: 20px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .terminal {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Self Soul - 类人AGI人工智能系统</h1>
+        
+        <div class="note">
+            <strong>注意：</strong>这是一个系统概览页面，由于缺少Node.js环境，无法运行完整的Vue应用。如果需要完整体验，请安装Node.js并在app目录下运行<code>npm run dev</code>。
+        </div>
+        
+        <h2>系统架构</h2>
+        <div class="module">
+            <h3>前端技术栈</h3>
+            <ul>
+                <li>Vue 3 + Vite - 现代化前端框架</li>
+                <li>Vue Router 4 - 路由管理</li>
+                <li>Pinia - 状态管理</li>
+                <li>WebSocket - 实时通信</li>
+            </ul>
+        </div>
+        
+        <div class="module">
+            <h3>后端技术栈</h3>
+            <ul>
+                <li>FastAPI - 高性能Web框架</li>
+                <li>UnifiedManagerModel - 核心模型管理</li>
+                <li>11个专业子模型 - 覆盖不同领域功能</li>
+                <li>内存优化系统 - 智能内存管理</li>
+            </ul>
+        </div>
+        
+        <h2>核心功能模块</h2>
+        
+        <div class="feature">
+            <h3>1. 聊天系统</h3>
+            <p><strong>文件位置：</strong><span class="file-path">app/src/views/ChatFromScratch.vue</span></p>
+            <p><strong>功能：</strong></p>
+            <ul>
+                <li>智能对话交互</li>
+                <li>多轮对话管理</li>
+                <li>上下文理解</li>
+                <li>支持多模态输入</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>2. 知识管理</h3>
+            <p><strong>文件位置：</strong><span class="file-path">app/src/views/KnowledgeView.vue</span></p>
+            <p><strong>功能：</strong></p>
+            <ul>
+                <li>知识导入与管理</li>
+                <li>知识库查询</li>
+                <li>知识图谱构建</li>
+                <li>知识更新与维护</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>3. 系统监控</h3>
+            <p><strong>文件位置：</strong><span class="file-path">app/src/views/MonitorDashboard.vue</span></p>
+            <p><strong>功能：</strong></p>
+            <ul>
+                <li>实时内存监控</li>
+                <li>CPU使用率跟踪</li>
+                <li>模型状态监控</li>
+                <li>系统负载分析</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>4. 训练控制台</h3>
+            <p><strong>文件位置：</strong><span class="file-path">app/src/views/TrainingControlPanel.vue</span></p>
+            <p><strong>功能：</strong></p>
+            <ul>
+                <li>模型训练管理</li>
+                <li>参数调优</li>
+                <li>训练进度跟踪</li>
+                <li>训练结果分析</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>5. 情感识别</h3>
+            <p><strong>文件位置：</strong><span class="file-path">app/src/models/EmotionModel.js</span></p>
+            <p><strong>功能：</strong></p>
+            <ul>
+                <li>情感分析</li>
+                <li>情绪识别</li>
+                <li>情感反馈</li>
+                <li>情感记忆</li>
+            </ul>
+        </div>
+        
+        <h2>后端API测试</h2>
+        <div class="module">
+            <p>虽然前端无法完全运行，但后端服务已在端口8000和8001启动。您可以使用Python脚本测试API功能：</p>
+            <div class="terminal">
+# 测试聊天API
+import requests
+
+url = "http://localhost:8001/api/models/8001/chat"
+headers = {
+    "Content-Type": "application/json"
+}
+data = {
+    "message": "四大发明是什么？",
+    "session_id": "test_session_123"
+}
+
+response = requests.post(url, json=data)
+print(response.json())
+            </div>
+        </div>
+        
+        <h2>文件结构</h2>
+        <div class="module">
+            <pre>
+app/
+├── public/               # 静态资源
+│   ├── fallback.html    # 备用页面
+│   └── site.webmanifest
+├── src/
+│   ├── assets/          # 样式文件
+│   ├── components/      # 组件
+│   ├── models/          # 前端模型
+│   ├── plugins/         # 插件
+│   ├── router/          # 路由
+│   ├── utils/           # 工具函数
+│   ├── views/           # 页面组件
+│   ├── App.vue          # 根组件
+│   └── main.js          # 入口文件
+├── index.html           # HTML模板
+├── package.json         # 项目配置
+└── vite.config.js       # Vite配置
+            </pre>
+        </div>
+        
+        <h2>启动指南</h2>
+        <div class="module">
+            <ol>
+                <li>安装Node.js：<a href="https://nodejs.org/" target="_blank">https://nodejs.org/</a></li>
+                <li>打开命令行，进入app目录</li>
+                <li>运行 <code>npm install</code> 安装依赖</li>
+                <li>运行 <code>npm run dev</code> 启动开发服务器</li>
+                <li>访问 <code>http://localhost:5173</code></li>
+            </ol>
+        </div>
+        
+        <div class="note">
+            <strong>当前HTTP服务器：</strong>已在端口5000启动，您可以通过以下地址访问：
+            <ul>
+                <li>系统概览：<a href="http://localhost:5000/system_overview.html">http://localhost:5000/system_overview.html</a></li>
+                <li>原始HTML：<a href="http://localhost:5000/index.html">http://localhost:5000/index.html</a>（功能受限）</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

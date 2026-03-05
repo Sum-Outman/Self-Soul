@@ -1,0 +1,371 @@
+{
+  "knowledge_base": {
+    "domain": "law",
+    "name": {
+      "en": "Law",
+      "zh": "法学",
+      "de": "Rechtswissenschaft",
+      "ja": "法学",
+      "ru": "Правовые науки"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for law fundamentals and advanced topics",
+      "zh": "法学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Rechtswissenschaft Grundlagen und fortgeschrittene Themen",
+      "ja": "法学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам правовых наук и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "jurisprudence",
+        "name": {
+          "en": "Jurisprudence",
+          "zh": "法理学",
+          "de": "Rechtswissenschaftstheorie",
+          "ja": "法理学",
+          "ru": "Юриспруденция"
+        },
+        "concepts": [
+          {
+            "id": "legal_positivism",
+            "name": {
+              "en": "Legal Positivism",
+              "zh": "法律实证主义",
+              "de": "Rechtspositivismus",
+              "ja": "法実証主義",
+              "ru": "Позитвизм права"
+            },
+            "description": {
+              "en": "Legal theory that emphasizes law as a social construct created by human authority, rather than based on natural or moral principles",
+              "zh": "强调法律是由人类权威创建的社会建构，而非基于自然或道德原则的法律理论",
+              "de": "Rechtstheorie, die das Recht als soziales Konstrukt betont, das durch menschliche Autorität geschaffen wird, und nicht auf natürlichen oder moralischen Prinzipien basiert",
+              "ja": "法律が人間の権威によって創造された社会的構成物であり、自然的または道徳的原則に基づくのではないと強調する法理論",
+              "ru": "Юридическая теория, которая подчеркивает, что право является социальным конструктом, созданным человеческой властью, а не основанным на естественных или моральных принципах"
+            },
+            "key_proponents": [
+              "Jeremy Bentham",
+              "John Austin",
+              "Hans Kelsen"
+            ],
+            "core_principles": [
+              "Separation of Law and Morals",
+              "Legal Validity",
+              "Rule of Recognition"
+            ]
+          },
+          {
+            "id": "natural_law",
+            "name": {
+              "en": "Natural Law",
+              "zh": "自然法",
+              "de": "Naturrecht",
+              "ja": "自然法",
+              "ru": "Природное право"
+            },
+            "description": {
+              "en": "Legal theory that posits law as derived from inherent moral principles that are discoverable through reason",
+              "zh": "主张法律源于可通过理性发现的内在道德原则的法律理论",
+              "de": "Rechtstheorie, die das Recht als abgeleitet von inhärenten moralischen Prinzipien ansieht, die durch Vernunft entdeckt werden können",
+              "ja": "法律が理性を通して発見可能な固有の道徳的原則から導き出されると主張する法理論",
+              "ru": "Юридическая теория, которая рассматривает право как выведенное из присущих моральных принципов, открываемых через разум"
+            },
+            "key_proponents": [
+              "Aristotle",
+              "Thomas Aquinas",
+              "John Locke"
+            ],
+            "core_principles": [
+              "Moral Objectivity",
+              "Higher Law",
+              "Natural Rights"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "constitutional_law",
+        "name": {
+          "en": "Constitutional Law",
+          "zh": "宪法学",
+          "de": "Verfassungsrecht",
+          "ja": "憲法学",
+          "ru": "Конституционное право"
+        },
+        "concepts": [
+          {
+            "id": "separation_of_powers",
+            "name": {
+              "en": "Separation of Powers",
+              "zh": "三权分立",
+              "de": "Gewaltenteilung",
+              "ja": "三権分立",
+              "ru": "Разделение властей"
+            },
+            "description": {
+              "en": "Doctrine that divides government authority into legislative, executive, and judicial branches to prevent concentration of power",
+              "zh": "将政府权力分为立法、行政和司法三个分支以防止权力集中的学说",
+              "de": "Lehre, die die Regierungsgewalt in legislative, exekutive und richterliche Ämter teilt, um die Konzentration von Macht zu verhindern",
+              "ja": "政府の権力を立法、行政、司法の3つの部門に分割して権力の集中を防ぐ学説",
+              "ru": "Доктрина, которая разделяет правительственную власть на законодательную, исполнительную и судебную ветви для предотвращения концентрации власти"
+            },
+            "branch_functions": [
+              {
+                "name": "Legislative",
+                "function": "Makes laws"
+              },
+              {
+                "name": "Executive",
+                "function": "Enforces laws"
+              },
+              {
+                "name": "Judicial",
+                "function": "Interprets laws"
+              }
+            ],
+            "key_features": [
+              "Checks and Balances",
+              "Limited Government",
+              "Accountability"
+            ]
+          },
+          {
+            "id": "fundamental_rights",
+            "name": {
+              "en": "Fundamental Rights",
+              "zh": "基本权利",
+              "de": "Grundrechte",
+              "ja": "基本的人権",
+              "ru": "Основные права"
+            },
+            "description": {
+              "en": "Inalienable rights guaranteed to individuals by constitutional law, protecting them from arbitrary government actions",
+              "zh": "宪法保障的不可剥夺的个人权利，保护个人免受政府任意行为的侵害",
+              "de": "Unveräußerliche Rechte, die den Menschen durch das Verfassungsrecht garantiert werden und sie vor willkürlichen Regierungsmaßnahmen schützen",
+              "ja": "憲法によって保証される不可譲の個人の権利で、政府の恣意的な行為から個人を保護する",
+              "ru": "Непреносимые права, гарантированные лицам конституционным правом, защищающие их от произвольных действий правительства"
+            },
+            "key_rights": [
+              "Right to Life",
+              "Freedom of Speech",
+              "Right to Equality",
+              "Right to Privacy"
+            ],
+            "enforcement_mechanisms": [
+              "Judicial Review",
+              "Constitutional Courts",
+              "Human Rights Commissions"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "criminal_law",
+        "name": {
+          "en": "Criminal Law",
+          "zh": "刑法学",
+          "de": "Strafrecht",
+          "ja": "刑法学",
+          "ru": "Уголовное право"
+        },
+        "concepts": [
+          {
+            "id": "criminal_intent",
+            "name": {
+              "en": "Criminal Intent",
+              "zh": "犯罪故意",
+              "de": "Strafbare Absicht",
+              "ja": "犯罪意思",
+              "ru": "Уголовная вина"
+            },
+            "description": {
+              "en": "Mental state required for a person to be held criminally responsible for their actions",
+              "zh": "要求一个人对其行为承担刑事责任所需的精神状态",
+              "de": "Geisteszustand, der erforderlich ist, damit eine Person für ihre Handlungen strafrechtlich verantwortlich gemacht werden kann",
+              "ja": "人がその行為について刑事責任を負うために必要な精神状態",
+              "ru": "Психическое состояние, необходимое для того, чтобы лицо было признано уголовно ответственным за свои действия"
+            },
+            "intent_types": [
+              "Purposeful",
+              "Knowledgeable",
+              "Reckless",
+              "Negligent"
+            ],
+            "legal_requirements": [
+              "Actus Reus",
+              "Mens Rea",
+              "Concurrence"
+            ]
+          },
+          {
+            "id": "punishment_theories",
+            "name": {
+              "en": "Punishment Theories",
+              "zh": "刑罚理论",
+              "de": "Straftheorien",
+              "ja": "刑罰理論",
+              "ru": "Теории наказания"
+            },
+            "description": {
+              "en": "Philosophical approaches to justifying punishment in criminal law",
+              "zh": "刑法中为惩罚辩护的哲学方法",
+              "de": "Philosophische Ansätze zur Rechtfertigung von Strafe im Strafrecht",
+              "ja": "刑法における刑罰の正当化のための哲学的アプローチ",
+              "ru": "Философские подходы к оправданию наказания в уголовном праве"
+            },
+            "theories": [
+              "Retribution",
+              "Deterrence",
+              "Rehabilitation",
+              "Incapacitation"
+            ],
+            "key_punishments": [
+              "Imprisonment",
+              "Fines",
+              "Probation",
+              "Community Service"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "civil_commercial_law",
+        "name": {
+          "en": "Civil and Commercial Law",
+          "zh": "民商法学",
+          "de": "Zivil- und Handelsrecht",
+          "ja": "民事商法",
+          "ru": "Гражданское и торговое право"
+        },
+        "concepts": [
+          {
+            "id": "contract_law",
+            "name": {
+              "en": "Contract Law",
+              "zh": "合同法",
+              "de": "Vertragsrecht",
+              "ja": "契約法",
+              "ru": "Договорное право"
+            },
+            "description": {
+              "en": "Body of law governing agreements between parties that create obligations enforceable by law",
+              "zh": "规范当事人之间创建可依法执行的义务的协议的法律体系",
+              "de": "Rechtsgebiet, das Vereinbarungen zwischen Parteien regelt, die rechtlich durchsetzbare Verpflichtungen schaffen",
+              "ja": "当事者間の協定を規制し、法的に執行可能な義務を創出する法律体系",
+              "ru": "Отрасль права, регулирующая соглашения между сторонами, создающие юридически обязательные обязательства"
+            },
+            "essential_elements": [
+              "Offer",
+              "Acceptance",
+              "Consideration",
+              "Intention to Create Legal Relations"
+            ],
+            "contract_types": [
+              "Express Contracts",
+              "Implied Contracts",
+              "Unilateral Contracts",
+              "Bilateral Contracts"
+            ]
+          },
+          {
+            "id": "tort_law",
+            "name": {
+              "en": "Tort Law",
+              "zh": "侵权法",
+              "de": "Deliktsrecht",
+              "ja": "不法行為法",
+              "ru": "Деликтное право"
+            },
+            "description": {
+              "en": "Body of law that provides remedies for civil wrongs that cause harm to individuals or property",
+              "zh": "为对个人或财产造成伤害的民事侵权行为提供补救的法律体系",
+              "de": "Rechtsgebiet, das Rechtsbehelfe für zivile Unrechtshandlungen bietet, die Menschen oder Eigentum schädigen",
+              "ja": "個人や財産に損害を与える民事上の不法行為に対する救済を提供する法律体系",
+              "ru": "Отрасль права, которая предоставляет средства правовой защиты для гражданских правонарушений, причиняющих вред лицам или имуществу"
+            },
+            "tort_types": [
+              "Negligence",
+              "Intentional Torts",
+              "Strict Liability"
+            ],
+            "remedies": [
+              "Compensatory Damages",
+              "Punitive Damages",
+              "Injunctions",
+              "Restitution"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "international_law",
+        "name": {
+          "en": "International Law",
+          "zh": "国际法学",
+          "de": "Völkerrecht",
+          "ja": "国際法学",
+          "ru": "Международное право"
+        },
+        "concepts": [
+          {
+            "id": "international_humanitarian_law",
+            "name": {
+              "en": "International Humanitarian Law",
+              "zh": "国际人道法",
+              "de": "Internationales humanitäres Recht",
+              "ja": "国際人道法",
+              "ru": "Международное гуманитарное право"
+            },
+            "description": {
+              "en": "Body of law that seeks to limit the effects of armed conflict by protecting non-combatants and regulating the means and methods of warfare",
+              "zh": "旨在通过保护非战斗人员和规范战争手段与方法来限制武装冲突影响的法律体系",
+              "de": "Rechtsgebiet, das darauf abzielt, die Auswirkungen bewaffneter Konflikte zu begrenzen, indem es Nichtkombattanten schützt und Mittel und Methoden der Kriegsführung regelt",
+              "ja": "非戦闘員を保護し、戦争の手段と方法を規制することで武力紛争の影響を制限しようとする法律体系",
+              "ru": "Отрасль права, которая стремится ограничить последствия вооруженных конфликтов за счет защиты небоевых участников и регулирования средств и методов ведения войны"
+            },
+            "key_treaties": [
+              "Geneva Conventions",
+              "Hague Conventions"
+            ],
+            "protected_persons": [
+              "Civilians",
+              "Prisoners of War",
+              "Medical Personnel",
+              "Humanitarian Workers"
+            ]
+          },
+          {
+            "id": "international_trade_law",
+            "name": {
+              "en": "International Trade Law",
+              "zh": "国际贸易法",
+              "de": "Internationales Handelsrecht",
+              "ja": "国際貿易法",
+              "ru": "Международное торговое право"
+            },
+            "description": {
+              "en": "Body of law governing trade between nations, including treaties, agreements, and international organizations",
+              "zh": "规范国家间贸易的法律体系，包括条约、协议和国际组织",
+              "de": "Rechtsgebiet, das den Handel zwischen Nationen regelt, einschließlich Verträgen, Abkommen und internationalen Organisationen",
+              "ja": "条約、協定、国際機関を含む、国家間の貿易を規制する法律体系",
+              "ru": "Отрасль права, регулирующая торговлю между нациями, включая договоры, соглашения и международные организации"
+            },
+            "key_institutions": [
+              "World Trade Organization",
+              "International Chamber of Commerce"
+            ],
+            "core_principles": [
+              "Most-Favored-Nation Treatment",
+              "National Treatment",
+              "Free Trade",
+              "Dispute Settlement"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.637917Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

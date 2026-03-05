@@ -1,0 +1,370 @@
+{
+  "knowledge_base": {
+    "domain": "education",
+    "name": {
+      "en": "Education",
+      "zh": "教育学",
+      "de": "Pädagogik",
+      "ja": "教育学",
+      "ru": "Педагогика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for education fundamentals and advanced topics",
+      "zh": "教育学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Pädagogik Grundlagen und fortgeschrittene Themen",
+      "ja": "教育学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам педагогики и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "educational_theory",
+        "name": {
+          "en": "Educational Theory",
+          "zh": "教育理论",
+          "de": "Pädagogische Theorie",
+          "ja": "教育理論",
+          "ru": "Педагогическая теория"
+        },
+        "concepts": [
+          {
+            "id": "constructivism",
+            "name": {
+              "en": "Constructivism",
+              "zh": "建构主义",
+              "de": "Konstruktivismus",
+              "ja": "構成主義",
+              "ru": "Конструктивизм"
+            },
+            "description": {
+              "en": "Educational theory that emphasizes active learning through the construction of knowledge by learners, rather than passive reception",
+              "zh": "强调学习者通过构建知识而不是被动接受来进行主动学习的教育理论",
+              "de": "Pädagogische Theorie, die aktives Lernen durch die Konstruktion von Wissen durch Lernende betont, und nicht passive Aufnahme",
+              "ja": "学習者が知識を構築することで能動的に学ぶことを強調し、受動的な受容ではない教育理論",
+              "ru": "Педагогическая теория, которая подчеркивает активное обучение через построение знаний учащимися, а не пассивное восприятие"
+            },
+            "key_proponents": [
+              "Jean Piaget",
+              "Lev Vygotsky",
+              "John Dewey"
+            ],
+            "core_principles": [
+              "Active Learning",
+              "Social Interaction",
+              "Zone of Proximal Development",
+              "Prior Knowledge"
+            ]
+          },
+          {
+            "id": "behaviorism",
+            "name": {
+              "en": "Behaviorism",
+              "zh": "行为主义",
+              "de": "Behaviorismus",
+              "ja": "行動主義",
+              "ru": "Бехавиоризм"
+            },
+            "description": {
+              "en": "Educational theory that focuses on observable behaviors and emphasizes the role of conditioning in learning",
+              "zh": "关注可观察行为并强调条件反射在学习中作用的教育理论",
+              "de": "Pädagogische Theorie, die sich auf beobachtbare Verhaltensweisen konzentriert und die Rolle der Konditionierung im Lernen betont",
+              "ja": "観察可能な行動に焦点を当て、学習における条件づけの役割を強調する教育理論",
+              "ru": "Педагогическая теория, которая фокусируется на наблюдаемых поведениях и подчеркивает роль условного рефлекса в обучении"
+            },
+            "key_proponents": [
+              "B.F. Skinner",
+              "Ivan Pavlov",
+              "Edward Thorndike"
+            ],
+            "core_principles": [
+              "Operant Conditioning",
+              "Classical Conditioning",
+              "Reinforcement",
+              "Repetition"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "curriculum_and_instruction",
+        "name": {
+          "en": "Curriculum and Instruction",
+          "zh": "课程与教学",
+          "de": "Curriculum und Unterricht",
+          "ja": "カリキュラムと教育指導",
+          "ru": "Курс и обучение"
+        },
+        "concepts": [
+          {
+            "id": "curriculum_design",
+            "name": {
+              "en": "Curriculum Design",
+              "zh": "课程设计",
+              "de": "Curriculumgestaltung",
+              "ja": "カリキュラム設計",
+              "ru": "Конструирование учебного плана"
+            },
+            "description": {
+              "en": "Process of creating educational programs and courses that define learning objectives, content, and assessment methods",
+              "zh": "创建定义学习目标、内容和评估方法的教育计划和课程的过程",
+              "de": "Prozess der Erstellung von Bildungsprogrammen und Kursen, die Lernziele, Inhalte und Bewertungsmethoden definieren",
+              "ja": "学習目標、内容、評価方法を定義する教育プログラムとコースを作成するプロセス",
+              "ru": "Процесс создания образовательных программ и курсов, которые определяют учебные цели, содержание и методы оценки"
+            },
+            "design_models": [
+              "Tyler Model",
+              "Wheeler Model",
+              "Backward Design",
+              "Spiral Curriculum"
+            ],
+            "key_components": [
+              "Learning Objectives",
+              "Content Selection",
+              "Instructional Strategies",
+              "Assessment"
+            ]
+          },
+          {
+            "id": "instructional_strategies",
+            "name": {
+              "en": "Instructional Strategies",
+              "zh": "教学策略",
+              "de": "Unterrichtsstrategien",
+              "ja": "教育戦略",
+              "ru": "Методики обучения"
+            },
+            "description": {
+              "en": "Methods and techniques used by teachers to facilitate student learning and achieve educational objectives",
+              "zh": "教师用来促进学生学习和实现教育目标的方法和技术",
+              "de": "Methoden und Techniken, die von Lehrern verwendet werden, um das Lernen der Schüler zu fördern und Bildungsziele zu erreichen",
+              "ja": "教師が生徒の学習を促進し、教育目標を達成するために使用する方法と技術",
+              "ru": "Методы и техники, используемые учителями для стимулирования обучения учащихся и достижения образовательных целей"
+            },
+            "strategy_types": [
+              "Lecture",
+              "Collaborative Learning",
+              "Problem-Based Learning",
+              "Inquiry-Based Learning"
+            ],
+            "key_factors": [
+              "Student Needs",
+              "Learning Environment",
+              "Content Complexity",
+              "Assessment Alignment"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "educational_psychology",
+        "name": {
+          "en": "Educational Psychology",
+          "zh": "教育心理学",
+          "de": "Erziehungspsychologie",
+          "ja": "教育心理学",
+          "ru": "Педагогическая психология"
+        },
+        "concepts": [
+          {
+            "id": "cognitive_development",
+            "name": {
+              "en": "Cognitive Development",
+              "zh": "认知发展",
+              "de": "Kognitive Entwicklung",
+              "ja": "認知発達",
+              "ru": "Когнитивное развитие"
+            },
+            "description": {
+              "en": "Study of how thinking, reasoning, memory, and problem-solving abilities develop over time in learners",
+              "zh": "研究学习者的思维、推理、记忆和解决问题能力随时间发展的学科",
+              "de": "Untersuchung der Entwicklung von Denken, Schlussfolgerung, Gedächtnis und Problemlösungsfähigkeiten bei Lernenden im Laufe der Zeit",
+              "ja": "学習者の思考、推論、記憶、問題解決能力が時間とともに発達する様子を研究する学問",
+              "ru": "Изучение того, как развиваются мышление, рассуждения, память и способности к решению проблем у учащихся со временем"
+            },
+            "developmental_stages": [
+              "Sensorimotor",
+              "Preoperational",
+              "Concrete Operational",
+              "Formal Operational"
+            ],
+            "key_theorists": [
+              "Jean Piaget",
+              "Lev Vygotsky",
+              "Jerome Bruner"
+            ]
+          },
+          {
+            "id": "motivation_in_learning",
+            "name": {
+              "en": "Motivation in Learning",
+              "zh": "学习动机",
+              "de": "Lernmotivation",
+              "ja": "学習モチベーション",
+              "ru": "Мотивация к обучению"
+            },
+            "description": {
+              "en": "Study of factors that drive and sustain student engagement and effort in learning activities",
+              "zh": "研究驱动和维持学生参与学习活动的动机和努力的因素",
+              "de": "Untersuchung der Faktoren, die das Engagement und die Anstrengung von Schülern in Lernaktivitäten antreiben und aufrechterhalten",
+              "ja": "生徒の学習活動への関与と努力を駆動し、維持する要因を研究する学問",
+              "ru": "Изучение факторов, которые стимулируют и поддерживают вовлеченность учащихся и усилия в учебной деятельности"
+            },
+            "motivation_theories": [
+              "Self-Determination Theory",
+              "Expectancy-Value Theory",
+              "Achievement Motivation Theory"
+            ],
+            "key_factors": [
+              "Intrinsic Motivation",
+              "Extrinsic Motivation",
+              "Goal Setting",
+              "Feedback"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "educational_administration",
+        "name": {
+          "en": "Educational Administration",
+          "zh": "教育管理",
+          "de": "Bildungsverwaltung",
+          "ja": "教育行政",
+          "ru": "Педагогическое управление"
+        },
+        "concepts": [
+          {
+            "id": "school_leadership",
+            "name": {
+              "en": "School Leadership",
+              "zh": "学校领导",
+              "de": "Schulleitung",
+              "ja": "学校経営",
+              "ru": "Школьное руководство"
+            },
+            "description": {
+              "en": "Study of leadership roles and practices in educational institutions to improve student outcomes",
+              "zh": "研究教育机构中的领导角色和实践以提高学生成果的学科",
+              "de": "Untersuchung von Führungsrollen und Praktiken in Bildungsinstitutionen zur Verbesserung der Lernergebnisse",
+              "ja": "学生の成果を向上させるための教育機関におけるリーダーシップの役割と実践を研究する学問",
+              "ru": "Изучение руководящих ролей и практик в образовательных учреждениях для улучшения результатов обучения"
+            },
+            "leadership_styles": [
+              "Transformational Leadership",
+              "Instructional Leadership",
+              "Distributed Leadership"
+            ],
+            "key_responsibilities": [
+              "Vision Setting",
+              "Teacher Support",
+              "Resource Management",
+              "Accountability"
+            ]
+          },
+          {
+            "id": "educational_policy",
+            "name": {
+              "en": "Educational Policy",
+              "zh": "教育政策",
+              "de": "Bildungspolitik",
+              "ja": "教育政策",
+              "ru": "Педагогическая политика"
+            },
+            "description": {
+              "en": "Study of laws, regulations, and guidelines that shape educational systems and practices",
+              "zh": "研究塑造教育系统和实践的法律、法规和指导方针的学科",
+              "de": "Untersuchung von Gesetzen, Vorschriften und Richtlinien, die Bildungssysteme und Praktiken gestalten",
+              "ja": "教育システムと実践を形成する法律、規制、ガイドラインを研究する学問",
+              "ru": "Изучение законов, правил и руководящих принципов, которые формируют образовательные системы и практики"
+            },
+            "policy_levels": [
+              "National",
+              "State/Provincial",
+              "Local",
+              "Institutional"
+            ],
+            "key_areas": [
+              "Curriculum Standards",
+              "Teacher Certification",
+              "Funding",
+              "Accountability"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "special_education",
+        "name": {
+          "en": "Special Education",
+          "zh": "特殊教育",
+          "de": "Sonderpädagogik",
+          "ja": "特別支援教育",
+          "ru": "Специальная педагогика"
+        },
+        "concepts": [
+          {
+            "id": "inclusive_education",
+            "name": {
+              "en": "Inclusive Education",
+              "zh": "全纳教育",
+              "de": "Inklusive Bildung",
+              "ja": "包括的教育",
+              "ru": "Инклюзивное образование"
+            },
+            "description": {
+              "en": "Educational approach that promotes the participation of students with disabilities in regular classrooms alongside their peers",
+              "zh": "促进残疾学生与同龄人一起在普通教室参与学习的教育方法",
+              "de": "Bildungsansatz, der die Teilhabe von Schülern mit Behinderungen in regulären Klassenräumen neben ihren Gleichaltrigen fördert",
+              "ja": "障害を持つ生徒が同年代の生徒とともに通常の教室で学習に参加することを促進する教育アプローチ",
+              "ru": "Образовательный подход, который способствует участию детей с ограниченными возможностями здоровья в обычных классах вместе с их сверстниками"
+            },
+            "key_principles": [
+              "Access",
+              "Participation",
+              "Support",
+              "Belonging"
+            ],
+            "benefits": [
+              "Social Inclusion",
+              "Diversity Appreciation",
+              "Higher Academic Achievement",
+              "Positive Attitudes"
+            ]
+          },
+          {
+            "id": "learning_disabilities",
+            "name": {
+              "en": "Learning Disabilities",
+              "zh": "学习障碍",
+              "de": "Lernschwierigkeiten",
+              "ja": "学習障害",
+              "ru": "Обучение с трудностями"
+            },
+            "description": {
+              "en": "Neurological disorders that affect a person's ability to acquire and use language, mathematical skills, or information processing",
+              "zh": "影响一个人获取和使用语言、数学技能或信息处理能力的神经系统障碍",
+              "de": "Neurologische Störungen, die die Fähigkeit einer Person beeinträchtigen, Sprache, mathematische Fähigkeiten oder Informationsverarbeitung zu erwerben und zu nutzen",
+              "ja": "言語、数学的スキル、または情報処理を獲得して使用する能力に影響を与える神経障害",
+              "ru": "Неврологические расстройства, которые затрудняют человеку овладение языком, математическими навыками или обработкой информации"
+            },
+            "common_types": [
+              "Dyslexia",
+              "Dyscalculia",
+              "Dysgraphia",
+              "Attention Deficit Hyperactivity Disorder (ADHD)"
+            ],
+            "intervention_strategies": [
+              "Multisensory Teaching",
+              "Assistive Technology",
+              "Accommodations",
+              "Individualized Education Programs (IEPs)"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.638945Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

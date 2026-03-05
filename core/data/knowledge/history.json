@@ -1,0 +1,507 @@
+{
+  "knowledge_base": {
+    "domain": "history",
+    "name": {
+      "en": "History",
+      "zh": "历史学",
+      "de": "Geschichte",
+      "ja": "歴史学",
+      "ru": "История"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for history fundamentals and advanced topics",
+      "zh": "历史学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Geschichte Grundlagen und fortgeschrittene Themen",
+      "ja": "歴史学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам истории и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "ancient_civilizations",
+        "name": {
+          "en": "Ancient Civilizations",
+          "zh": "古代文明",
+          "de": "Antike Zivilisationen",
+          "ja": "古代文明",
+          "ru": "Древние цивилизации"
+        },
+        "concepts": [
+          {
+            "id": "ancient_egypt",
+            "name": {
+              "en": "Ancient Egyptian Civilization",
+              "zh": "古埃及文明",
+              "de": "Antike Ägyptische Zivilisation",
+              "ja": "古代エジプト文明",
+              "ru": "Древняя египетская цивилизация"
+            },
+            "description": {
+              "en": "One of the earliest and longest-lasting civilizations in the world, known for its pyramids, pharaohs, and hieroglyphic writing",
+              "zh": "世界上最早和持续时间最长的文明之一，以金字塔、法老和象形文字闻名",
+              "de": "Eine der frühesten und langlebigsten Zivilisationen der Welt, bekannt für ihre Pyramiden, Pharaonen und Hieroglyphen",
+              "ja": "世界で最も初期で長く続いた文明の一つで、ピラミッド、ファラオ、象形文字で知られています",
+              "ru": "Одна из самых ранних и долгоживущих цивилизаций мира, известная своими пирамидами, фараонами и иероглифами"
+            },
+            "key_periods": [
+              "Old Kingdom",
+              "Middle Kingdom",
+              "New Kingdom"
+            ],
+            "major_achievements": [
+              "Pyramids of Giza",
+              "Hieroglyphic writing",
+              "Calendar system",
+              "Medical knowledge"
+            ],
+            "important_figures": [
+              "King Tutankhamun",
+              "Cleopatra",
+              "Ramses II",
+              "Imhotep"
+            ],
+            "applications": [
+              "Archaeology",
+              "Anthropology",
+              "Art history",
+              "Religious studies"
+            ]
+          },
+          {
+            "id": "ancient_greece_rome",
+            "name": {
+              "en": "Ancient Greek and Roman Civilizations",
+              "zh": "古希腊罗马文明",
+              "de": "Antike Griechische und Römische Zivilisationen",
+              "ja": "古代ギリシャ・ローマ文明",
+              "ru": "Древнегреческая и древнеримская цивилизации"
+            },
+            "description": {
+              "en": "Foundational Western civilizations that laid the groundwork for modern Western culture, politics, and philosophy",
+              "zh": "奠定现代西方文化、政治和哲学基础的西方文明",
+              "de": "Grundlegende westliche Zivilisationen, die die Grundlage für moderne westliche Kultur, Politik und Philosophie legten",
+              "ja": "現代の西洋文化、政治、哲学の基礎を築いた西洋文明の礎となる文明",
+              "ru": "Основополагающие западные цивилизации, которые заложили основу современной западной культуры, политики и философии"
+            },
+            "key_periods": [
+              "Archaic Greece",
+              "Classical Greece",
+              "Hellenistic Period",
+              "Roman Republic",
+              "Roman Empire"
+            ],
+            "major_achievements": [
+              "Democracy",
+              "Philosophy",
+              "Literature",
+              "Architecture",
+              "Law"
+            ],
+            "important_figures": [
+              "Socrates",
+              "Plato",
+              "Aristotle",
+              "Julius Caesar",
+              "Augustus"
+            ],
+            "applications": [
+              "Political science",
+              "Philosophy",
+              "Classics",
+              "Art history",
+              "Law"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "middle_ages_early_modern",
+        "name": {
+          "en": "Middle Ages and Early Modern Period",
+          "zh": "中世纪与近代早期",
+          "de": "Mittelalter und Frühe Neuzeit",
+          "ja": "中世と近世初期",
+          "ru": "Средние века и раннее Новое время"
+        },
+        "concepts": [
+          {
+            "id": "medieval_europe",
+            "name": {
+              "en": "Medieval Europe",
+              "zh": "中世纪欧洲",
+              "de": "Mittelalterliches Europa",
+              "ja": "中世ヨーロッパ",
+              "ru": "Средневековое Европа"
+            },
+            "description": {
+              "en": "A period of European history from the fall of the Western Roman Empire to the Renaissance",
+              "zh": "从西罗马帝国灭亡到文艺复兴时期的欧洲历史",
+              "de": "Eine Periode der europäischen Geschichte vom Untergang des Weströmischen Reiches bis zur Renaissance",
+              "ja": "西ローマ帝国の滅亡からルネサンスまでのヨーロッパの歴史の時代",
+              "ru": "Период европейской истории от падения Западной Римской империи до Возрождения"
+            },
+            "key_features": [
+              "Feudalism",
+              "Manorial system",
+              "Catholic Church",
+              "Crusades"
+            ],
+            "major_events": [
+              "Norman Conquest",
+              "Magna Carta",
+              "Black Death",
+              "Hundred Years' War"
+            ],
+            "important_figures": [
+              "Charlemagne",
+              "William the Conqueror",
+              "Thomas Aquinas",
+              "Joan of Arc"
+            ],
+            "applications": [
+              "Religious studies",
+              "Political science",
+              "Social history",
+              "Art history"
+            ]
+          },
+          {
+            "id": "renaissance_reformation",
+            "name": {
+              "en": "Renaissance and Reformation",
+              "zh": "文艺复兴与宗教改革",
+              "de": "Renaissance und Reformation",
+              "ja": "ルネサンスと宗教改革",
+              "ru": "Возрождение и Реформация"
+            },
+            "description": {
+              "en": "Cultural and religious movements that transformed Europe from the 14th to the 17th centuries",
+              "zh": "从14世纪到17世纪改变欧洲的文化和宗教运动",
+              "de": "Kulturelle und religiöse Bewegungen, die Europa vom 14. bis 17. Jahrhundert transformierten",
+              "ja": "14世紀から17世紀にかけてヨーロッパを変革した文化的・宗教的運動",
+              "ru": "Культурные и религиозные движения, которые преобразовали Европу с XIV по XVII века"
+            },
+            "key_features": [
+              "Humanism",
+              "Artistic innovation",
+              "Protestantism",
+              "Religious conflict"
+            ],
+            "major_events": [
+              "Italian Renaissance",
+              "Protestant Reformation",
+              "Counter-Reformation",
+              "Thirty Years' War"
+            ],
+            "important_figures": [
+              "Leonardo da Vinci",
+              "Michelangelo",
+              "Martin Luther",
+              "John Calvin",
+              "Erasmus"
+            ],
+            "applications": [
+              "Art history",
+              "Religious studies",
+              "Cultural history",
+              "Political science"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "modern_contemporary_history",
+        "name": {
+          "en": "Modern and Contemporary History",
+          "zh": "近代与现代历史",
+          "de": "Moderne und Zeitgeschichte",
+          "ja": "近代と現代史",
+          "ru": "Современная и новейшая история"
+        },
+        "concepts": [
+          {
+            "id": "industrial_revolution",
+            "name": {
+              "en": "Industrial Revolution",
+              "zh": "工业革命",
+              "de": "Industrielle Revolution",
+              "ja": "産業革命",
+              "ru": "Промышленная революция"
+            },
+            "description": {
+              "en": "A period of rapid industrialization, technological innovation, and social transformation that began in Britain in the 18th century",
+              "zh": "18世纪始于英国的快速工业化、技术创新和社会变革时期",
+              "de": "Eine Periode der schnellen Industrialisierung, technologischen Innovation und sozialen Transformation, die im 18. Jahrhundert in Großbritannien begann",
+              "ja": "18世紀に英国で始まった急速な工業化、技術革新、社会変革の時代",
+              "ru": "Период быстрой индустриализации, технологических инноваций и социальных преобразований, начавшийся в XVIII веке в Великобритании"
+            },
+            "key_periods": [
+              "First Industrial Revolution",
+              "Second Industrial Revolution"
+            ],
+            "major_innovations": [
+              "Steam engine",
+              "Textile machinery",
+              "Railways",
+              "Electricity",
+              "Telegraph"
+            ],
+            "social_impacts": [
+              "Urbanization",
+              "Working class",
+              "Capitalism",
+              "Labor movements"
+            ],
+            "applications": [
+              "Economic history",
+              "Sociology",
+              "Environmental history",
+              "Technology studies"
+            ]
+          },
+          {
+            "id": "world_wars",
+            "name": {
+              "en": "World War I and World War II",
+              "zh": "两次世界大战",
+              "de": "Erster und Zweiter Weltkrieg",
+              "ja": "第一次・第二次世界大戦",
+              "ru": "Первая и вторая мировые войны"
+            },
+            "description": {
+              "en": "Two global conflicts that reshaped the political landscape, caused massive loss of life, and led to the emergence of the modern world order",
+              "zh": "两次重塑政治格局、造成巨大生命损失并导致现代世界秩序出现的全球冲突",
+              "de": "Zwei globale Konflikte, die die politische Landschaft umgestalteten, massive Opfer verursachten und zur Entstehung der modernen Weltordnung führten",
+              "ja": "政治的な景観を再形成し、大量の死者を出し、現代の世界秩序の出現につながった2つの世界的な紛争",
+              "ru": "Два глобальных конфликта, которые переформировали политический ландшафт, привели к массовой потере жизней и способствовали появлению современного мирового порядка"
+            },
+            "key_periods": [
+              "World War I (1914-1918)",
+              "Interwar Period",
+              "World War II (1939-1945)"
+            ],
+            "major_events": [
+              "Assassination of Archduke Franz Ferdinand",
+              "Treaty of Versailles",
+              "Great Depression",
+              "Pearl Harbor",
+              "D-Day",
+              "Holocaust"
+            ],
+            "postwar_changes": [
+              "Formation of United Nations",
+              "Cold War",
+              "Decolonization",
+              "Human rights movement"
+            ],
+            "applications": [
+              "International relations",
+              "Political science",
+              "Military history",
+              "Social history"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chinese_history",
+        "name": {
+          "en": "Chinese History",
+          "zh": "中国历史",
+          "de": "Chinesische Geschichte",
+          "ja": "中国史",
+          "ru": "Китайская история"
+        },
+        "concepts": [
+          {
+            "id": "ancient_china",
+            "name": {
+              "en": "Ancient China",
+              "zh": "古代中国",
+              "de": "Antikes China",
+              "ja": "古代中国",
+              "ru": "Древний Китай"
+            },
+            "description": {
+              "en": "The early history of China from its origins to the end of the imperial period",
+              "zh": "从起源到帝制结束的中国早期历史",
+              "de": "Die frühe Geschichte Chinas von seinen Anfängen bis zum Ende der Kaiserzeit",
+              "ja": "起源から帝国時代の終わりまでの中国の初期の歴史",
+              "ru": "Ранняя история Китая от его происхождения до конца имперского периода"
+            },
+            "key_dynasties": [
+              "Xia",
+              "Shang",
+              "Zhou",
+              "Qin",
+              "Han",
+              "Tang",
+              "Song",
+              "Yuan",
+              "Ming",
+              "Qing"
+            ],
+            "major_achievements": [
+              "Confucianism",
+              "Chinese writing",
+              "Great Wall",
+              "Silk Road",
+              "Inventions (paper, gunpowder, compass, printing)"
+            ],
+            "important_figures": [
+              "Confucius",
+              "Laozi",
+              "Qin Shi Huang",
+              "Han Wudi",
+              "Genghis Khan"
+            ],
+            "applications": [
+              "Asian studies",
+              "Philosophy",
+              "Archaeology",
+              "Cultural studies"
+            ]
+          },
+          {
+            "id": "modern_china",
+            "name": {
+              "en": "Modern and Contemporary China",
+              "zh": "近代与现代中国",
+              "de": "Moderne und Zeitgenössische China",
+              "ja": "近代と現代中国",
+              "ru": "Современный и новейший Китай"
+            },
+            "description": {
+              "en": "The history of China from the late Qing dynasty to the present, including political, social, and economic transformations",
+              "zh": "从晚清到现在的中国历史，包括政治、社会和经济变革",
+              "de": "Die Geschichte Chinas von der späten Qing-Dynastie bis heute, einschließlich politischer, sozialer und wirtschaftlicher Transformationen",
+              "ja": "清代後期から現在までの中国の歴史で、政治的、社会的、経済的変革を含む",
+              "ru": "История Китая от поздней династии Цин до настоящего времени, включая политические, социальные и экономические преобразования"
+            },
+            "key_periods": [
+              "Late Qing Dynasty",
+              "Republic of China",
+              "People's Republic of China"
+            ],
+            "major_events": [
+              "Opium Wars",
+              "Xinhai Revolution",
+              "Cultural Revolution",
+              "Economic reforms",
+              "Opening up"
+            ],
+            "important_figures": [
+              "Sun Yat-sen",
+              "Mao Zedong",
+              "Deng Xiaoping",
+              "Xi Jinping"
+            ],
+            "applications": [
+              "International relations",
+              "Political science",
+              "Economic history",
+              "Asian studies"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "historical_methods",
+        "name": {
+          "en": "Historical Research Methods",
+          "zh": "历史研究方法",
+          "de": "Historische Forschungsmethoden",
+          "ja": "歴史研究法",
+          "ru": "Методы исторических исследований"
+        },
+        "concepts": [
+          {
+            "id": "historiography_archaeology",
+            "name": {
+              "en": "Historiography and Archaeology",
+              "zh": "史料学与考古学",
+              "de": "Historiographie und Archäologie",
+              "ja": "歴史学と考古学",
+              "ru": "Историография и археология"
+            },
+            "description": {
+              "en": "The methods and techniques used to study and interpret historical evidence",
+              "zh": "用于研究和解释历史证据的方法和技术",
+              "de": "Die Methoden und Techniken, die zur Untersuchung und Interpretation historischer Beweise verwendet werden",
+              "ja": "歴史的証拠を研究・解釈するために使用される方法と技術",
+              "ru": "Методы и техники, используемые для изучения и интерпретации исторических источников"
+            },
+            "source_types": [
+              "Written sources",
+              "Archaeological evidence",
+              "Oral history",
+              "Visual sources"
+            ],
+            "research_techniques": [
+              "Critical source analysis",
+              "Chronological dating",
+              "Stratigraphy",
+              "Artifact analysis"
+            ],
+            "key_concepts": [
+              "Historical evidence",
+              "Bias",
+              "Authenticity",
+              "Context"
+            ],
+            "applications": [
+              "Archaeology",
+              "Anthropology",
+              "Archival science",
+              "Librarianship"
+            ]
+          },
+          {
+            "id": "historical_theory",
+            "name": {
+              "en": "Historical Theory and Interpretation",
+              "zh": "历史理论与解释",
+              "de": "Historische Theorie und Interpretation",
+              "ja": "歴史理論と解釈",
+              "ru": "Историческая теория и интерпретация"
+            },
+            "description": {
+              "en": "The theoretical frameworks and approaches used to interpret historical events and processes",
+              "zh": "用于解释历史事件和过程的理论框架和方法",
+              "de": "Die theoretischen Rahmenwerke und Ansätze, die zur Interpretation historischer Ereignisse und Prozesse verwendet werden",
+              "ja": "歴史的事件やプロセスを解釈するために使用される理論的枠組みとアプローチ",
+              "ru": "Теоретические рамки и подходы, используемые для интерпретации исторических событий и процессов"
+            },
+            "major_approaches": [
+              "Marxist history",
+              "Cultural history",
+              "Social history",
+              "Gender history",
+              "Global history"
+            ],
+            "key_concepts": [
+              "Causation",
+              "Continuity and change",
+              "Agency and structure",
+              "Periodization"
+            ],
+            "theoretical_debates": [
+              "Objectivity vs. subjectivity",
+              "Great man theory vs. structuralism",
+              "National history vs. global history"
+            ],
+            "applications": [
+              "Philosophy of history",
+              "Sociology",
+              "Political science",
+              "Cultural studies"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.628750Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

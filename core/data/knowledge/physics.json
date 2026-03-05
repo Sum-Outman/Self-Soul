@@ -1,0 +1,208 @@
+{
+  "knowledge_base": {
+    "domain": "physics",
+    "name": {
+      "en": "Physics",
+      "zh": "物理学",
+      "de": "Physik",
+      "ja": "物理学",
+      "ru": "Физика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for physics fundamentals and advanced topics",
+      "zh": "物理学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Physikgrundlagen und fortgeschrittene Themen",
+      "ja": "物理学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам физики и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "classical_mechanics",
+        "name": {
+          "en": "Classical Mechanics",
+          "zh": "经典力学",
+          "de": "Klassische Mechanik",
+          "ja": "古典力学",
+          "ru": "Классическая механика"
+        },
+        "concepts": [
+          {
+            "id": "newtons_laws",
+            "name": {
+              "en": "Newton's Laws of Motion",
+              "zh": "牛顿运动定律",
+              "de": "Newtonsche Bewegungsgesetze",
+              "ja": "ニュートンの運動法則",
+              "ru": "Законы движения Ньютона"
+            },
+            "description": {
+              "en": "Three fundamental laws describing the relationship between motion and forces",
+              "zh": "描述运动与力之间关系的三条基本定律",
+              "de": "Drei grundlegende Gesetze, die das Verhältnis zwischen Bewegung und Kräften beschreiben",
+              "ja": "運動と力の関係を記述する3つの基本法則",
+              "ru": "Три фундаментальных закона, описывающих отношение между движением и силами"
+            },
+            "laws": [
+              "First Law (Inertia): An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.",
+              "Second Law: Force equals mass times acceleration (F = ma)",
+              "Third Law: For every action, there is an equal and opposite reaction."
+            ],
+            "applications": [
+              "Engineering",
+              "Astronomy",
+              "Everyday motion",
+              "Vehicle design"
+            ]
+          },
+          {
+            "id": "thermodynamics_laws",
+            "name": {
+              "en": "Laws of Thermodynamics",
+              "zh": "热力学定律",
+              "de": "Gesetze der Thermodynamik",
+              "ja": "熱力学の法則",
+              "ru": "Законы термодинамики"
+            },
+            "description": {
+              "en": "Laws governing energy transfer and transformation",
+              "zh": "支配能量传递和转换的定律",
+              "de": "Gesetze, die den Energieübertrag und die Energieumwandlung regeln",
+              "ja": "エネルギーの伝達と変換を支配する法則",
+              "ru": "Законы, регулирующие передачу и преобразование энергии"
+            },
+            "laws": [
+              "Zeroth Law: If two systems are in thermal equilibrium with a third, they are in thermal equilibrium with each other.",
+              "First Law (Conservation of Energy): Energy cannot be created or destroyed, only transferred or transformed.",
+              "Second Law: The entropy of an isolated system always increases over time.",
+              "Third Law: As temperature approaches absolute zero, the entropy of a system approaches a minimum value."
+            ],
+            "applications": [
+              "Heat engines",
+              "Refrigeration",
+              "Power plants",
+              "Climate science"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "electromagnetism",
+        "name": {
+          "en": "Electromagnetism",
+          "zh": "电磁学",
+          "de": "Elektromagnetismus",
+          "ja": "電磁気学",
+          "ru": "Электромагнетизм"
+        },
+        "concepts": [
+          {
+            "id": "maxwell_equations",
+            "name": {
+              "en": "Maxwell's Equations",
+              "zh": "麦克斯韦方程组",
+              "de": "Maxwell-Gleichungen",
+              "ja": "マクスウェルの方程式",
+              "ru": "Уравнения Максвелла"
+            },
+            "description": {
+              "en": "Set of four equations describing electric and magnetic fields and their interactions",
+              "zh": "描述电场和磁场及其相互作用的四个方程组",
+              "de": "Vier Gleichungen, die elektrische und magnetische Felder sowie ihre Wechselwirkungen beschreiben",
+              "ja": "電場と磁場、およびそれらの相互作用を記述する4つの方程式",
+              "ru": "Набор из четырех уравнений, описывающих электрические и магнитные поля и их взаимодействие"
+            },
+            "equations": [
+              "Gauss's law for electricity: ∇·E = ρ/ε₀",
+              "Gauss's law for magnetism: ∇·B = 0",
+              "Faraday's law of induction: ∇×E = -∂B/∂t",
+              "Ampère-Maxwell law: ∇×B = μ₀J + μ₀ε₀∂E/∂t"
+            ],
+            "applications": [
+              "Electronics",
+              "Communications",
+              "Electric power",
+              "MRI"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "modern_physics",
+        "name": {
+          "en": "Modern Physics",
+          "zh": "近代物理",
+          "de": "Moderne Physik",
+          "ja": "近代物理学",
+          "ru": "Современная физика"
+        },
+        "concepts": [
+          {
+            "id": "special_relativity",
+            "name": {
+              "en": "Special Relativity",
+              "zh": "狭义相对论",
+              "de": "Spezielle Relativitätstheorie",
+              "ja": "特殊相対性理論",
+              "ru": "Специальная теория относительности"
+            },
+            "description": {
+              "en": "Theory describing the relationship between space and time at high speeds",
+              "zh": "描述高速运动下时空关系的理论",
+              "de": "Theorie, die das Verhältnis zwischen Raum und Zeit bei hohen Geschwindigkeiten beschreibt",
+              "ja": "高速での空間と時間の関係を記述する理論",
+              "ru": "Теория, описывающая отношение между пространством и временем при высоких скоростях"
+            },
+            "postulates": [
+              "The laws of physics are the same in all inertial frames of reference.",
+              "The speed of light in a vacuum is constant for all observers, regardless of the motion of the light source or observer."
+            ],
+            "key_equations": [
+              "Time dilation: Δt = Δt₀ / √(1 - v²/c²)",
+              "Length contraction: L = L₀√(1 - v²/c²)",
+              "Mass-energy equivalence: E = mc²"
+            ],
+            "applications": [
+              "GPS systems",
+              "Nuclear energy",
+              "Particle accelerators"
+            ]
+          },
+          {
+            "id": "quantum_mechanics",
+            "name": {
+              "en": "Quantum Mechanics",
+              "zh": "量子力学",
+              "de": "Quantenmechanik",
+              "ja": "量子力学",
+              "ru": "Квантовая механика"
+            },
+            "description": {
+              "en": "Theory describing the behavior of matter and energy at the atomic and subatomic scale",
+              "zh": "描述原子和亚原子尺度下物质和能量行为的理论",
+              "de": "Theorie, die das Verhalten von Materie und Energie im atomaren und subatomaren Maßstab beschreibt",
+              "ja": "原子および亜原子スケールでの物質とエネルギーの振る舞いを記述する理論",
+              "ru": "Теория, описывающая поведение материи и энергии в атомарном и субатомарном масштабе"
+            },
+            "key_concepts": [
+              "Wave-particle duality",
+              "Uncertainty principle",
+              "Quantization",
+              "Superposition",
+              "Entanglement"
+            ],
+            "applications": [
+              "Semiconductors",
+              "Quantum computing",
+              "Lasers",
+              "MRI"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.568343Z",
+    "version": "2.0.0",
+    "total_concepts": 5,
+    "total_categories": 3
+  }
+}

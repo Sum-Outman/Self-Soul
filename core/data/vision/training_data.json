@@ -1,0 +1,105 @@
+{
+  "categories": [
+    "animal",
+    "vehicle", 
+    "person",
+    "building",
+    "nature",
+    "object",
+    "food",
+    "text",
+    "symbol",
+    "other"
+  ],
+  "category_descriptions": {
+    "animal": "Living creatures including mammals, birds, fish, insects",
+    "vehicle": "Transportation devices like cars, bikes, planes, ships",
+    "person": "Human beings, faces, body parts",
+    "building": "Structures like houses, offices, bridges, monuments",
+    "nature": "Natural scenes, landscapes, plants, skies, water",
+    "object": "Man-made items like furniture, tools, electronics",
+    "food": "Edible items, meals, fruits, vegetables, drinks",
+    "text": "Written or printed words, letters, numbers",
+    "symbol": "Icons, logos, signs, marks",
+    "other": "Uncategorized or complex scenes"
+  },
+  "sample_images": [
+    {
+      "description": "cat on grass",
+      "category": "animal",
+      "features": ["animal", "outdoor", "green background", "small creature"]
+    },
+    {
+      "description": "car on road",
+      "category": "vehicle", 
+      "features": ["vehicle", "transportation", "road", "machine"]
+    },
+    {
+      "description": "person smiling",
+      "category": "person",
+      "features": ["human", "face", "emotion", "portrait"]
+    },
+    {
+      "description": "house with garden",
+      "category": "building",
+      "features": ["building", "residential", "outdoor", "structure"]
+    },
+    {
+      "description": "mountain landscape",
+      "category": "nature",
+      "features": ["nature", "landscape", "outdoor", "scenery"]
+    },
+    {
+      "description": "chair in room",
+      "category": "object",
+      "features": ["furniture", "indoor", "object", "wood"]
+    },
+    {
+      "description": "apple on table",
+      "category": "food",
+      "features": ["food", "fruit", "red", "healthy"]
+    },
+    {
+      "description": "text sign",
+      "category": "text",
+      "features": ["text", "letters", "signage", "information"]
+    },
+    {
+      "description": "company logo",
+      "category": "symbol",
+      "features": ["symbol", "logo", "brand", "graphic"]
+    },
+    {
+      "description": "abstract pattern",
+      "category": "other",
+      "features": ["abstract", "pattern", "colorful", "design"]
+    }
+  ],
+  "training_config": {
+    "image_size": [64, 64],
+    "channels": 3,
+    "num_classes": 10,
+    "batch_size": 4,
+    "learning_rate": 0.001,
+    "epochs": 20,
+    "validation_split": 0.2
+  },
+  "color_palettes": {
+    "animal": ["brown", "green", "gray", "black", "white"],
+    "vehicle": ["red", "blue", "black", "white", "silver"],
+    "person": ["skin tones", "black", "white", "brown", "gray"],
+    "building": ["gray", "brown", "white", "blue", "red"],
+    "nature": ["green", "blue", "brown", "yellow", "white"],
+    "object": ["brown", "black", "white", "gray", "blue"],
+    "food": ["red", "green", "yellow", "brown", "orange"],
+    "text": ["black", "white", "red", "blue", "yellow"],
+    "symbol": ["red", "blue", "green", "yellow", "black"],
+    "other": ["mixed", "various", "rainbow", "gradient"]
+  },
+  "feature_patterns": {
+    "edges": ["horizontal", "vertical", "diagonal", "curved"],
+    "textures": ["smooth", "rough", "patterned", "gradient"],
+    "shapes": ["round", "square", "triangular", "irregular"],
+    "colors": ["monochrome", "contrasting", "harmonious", "vibrant"]
+  }
+}

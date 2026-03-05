@@ -1,0 +1,399 @@
+{
+  "knowledge_base": {
+    "domain": "art",
+    "name": {
+      "en": "Art",
+      "zh": "艺术",
+      "de": "Kunst",
+      "ja": "芸術",
+      "ru": "Искусство"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for art fundamentals and advanced topics",
+      "zh": "艺术基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Kunst Grundlagen und fortgeschrittene Themen",
+      "ja": "芸術の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам искусства и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "art_theory_criticism",
+        "name": {
+          "en": "Art Theory & Criticism",
+          "zh": "艺术理论与批评",
+          "de": "Kunsttheorie und Kritik",
+          "ja": "芸術理論と批評",
+          "ru": "Теория и критика искусства"
+        },
+        "concepts": [
+          {
+            "id": "art_theory",
+            "name": {
+              "en": "Art Theory",
+              "zh": "艺术理论",
+              "de": "Kunsttheorie",
+              "ja": "芸術理論",
+              "ru": "Теория искусства"
+            },
+            "description": {
+              "en": "The systematic study of the nature, forms, and principles of art",
+              "zh": "对艺术的性质、形式和原则的系统研究",
+              "de": "Die systematische Untersuchung der Natur, Formen und Prinzipien der Kunst",
+              "ja": "芸術の性質、形式、原則に関する体系的研究",
+              "ru": "Системное изучение природы, форм и принципов искусства"
+            },
+            "major_schools": [
+              "Aesthetics",
+              "Formalism",
+              "Expressionism",
+              "Structuralism",
+              "Post-structuralism",
+              "Marxist Art Theory"
+            ],
+            "key_concepts": [
+              "Form",
+              "Content",
+              "Style",
+              "Medium",
+              "Technique",
+              "Aesthetic Value"
+            ]
+          },
+          {
+            "id": "art_criticism",
+            "name": {
+              "en": "Art Criticism",
+              "zh": "艺术批评",
+              "de": "Kunstkritik",
+              "ja": "芸術批評",
+              "ru": "Критика искусства"
+            },
+            "description": {
+              "en": "The evaluation, analysis, and interpretation of works of art",
+              "zh": "对艺术作品的评价、分析和解释",
+              "de": "Die Bewertung, Analyse und Interpretation von Kunstwerken",
+              "ja": "芸術作品の評価、分析、解釈",
+              "ru": "Оценка, анализ и интерпретация произведений искусства"
+            },
+            "approaches": [
+              "Formal Analysis",
+              "Iconography",
+              "Contextual Analysis",
+              "Psychoanalytic Criticism",
+              "Feminist Art Criticism",
+              "Postcolonial Criticism"
+            ],
+            "purposes": [
+              "Evaluation",
+              "Interpretation",
+              "Cultural Analysis",
+              "Historical Contextualization"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "western_art_history",
+        "name": {
+          "en": "Western Art History",
+          "zh": "西方艺术史",
+          "de": "Westeuropäische Kunstgeschichte",
+          "ja": "西洋美術史",
+          "ru": "История западного искусства"
+        },
+        "concepts": [
+          {
+            "id": "classical_renaissance_art",
+            "name": {
+              "en": "Classical & Renaissance Art",
+              "zh": "古典与文艺复兴艺术",
+              "de": "Klassische und Renaissance-Kunst",
+              "ja": "古典とルネサンス美術",
+              "ru": "Классическое и ренессансное искусство"
+            },
+            "description": {
+              "en": "Art from ancient Greece, Rome, and the Renaissance period",
+              "zh": "古希腊、罗马和文艺复兴时期的艺术",
+              "de": "Kunst aus dem antiken Griechenland, Rom und der Renaissance",
+              "ja": "古代ギリシャ、ローマ、ルネサンス時代の美術",
+              "ru": "Искусство древней Греции, Рима и эпохи Возрождения"
+            },
+            "key_characteristics": [
+              "Humanism",
+              "Perspective",
+              "Naturalism",
+              "Symmetry",
+              "Idealized Forms"
+            ],
+            "major_artists": [
+              "Leonardo da Vinci",
+              "Michelangelo",
+              "Raphael",
+              "Donatello",
+              "Botticelli"
+            ]
+          },
+          {
+            "id": "modern_contemporary_western_art",
+            "name": {
+              "en": "Modern & Contemporary Western Art",
+              "zh": "西方现代与当代艺术",
+              "de": "Moderne und zeitgenössische westliche Kunst",
+              "ja": "西洋現代・当代美術",
+              "ru": "Современное и современное западное искусство"
+            },
+            "description": {
+              "en": "Western art from the late 19th century to the present",
+              "zh": "19世纪后期至今的西方艺术",
+              "de": "Westliche Kunst vom späten 19. Jahrhundert bis heute",
+              "ja": "19世紀後半から現在に至る西洋美術",
+              "ru": "Западное искусство со второй половины XIX века до настоящего времени"
+            },
+            "key_movements": [
+              "Impressionism",
+              "Cubism",
+              "Surrealism",
+              "Abstract Expressionism",
+              "Pop Art",
+              "Conceptual Art"
+            ],
+            "major_artists": [
+              "Claude Monet",
+              "Pablo Picasso",
+              "Salvador Dalí",
+              "Jackson Pollock",
+              "Andy Warhol"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chinese_art_history",
+        "name": {
+          "en": "Chinese Art History",
+          "zh": "中国艺术史",
+          "de": "Chinesische Kunstgeschichte",
+          "ja": "中国美術史",
+          "ru": "История китайского искусства"
+        },
+        "concepts": [
+          {
+            "id": "ancient_chinese_art",
+            "name": {
+              "en": "Ancient Chinese Art",
+              "zh": "中国古代艺术",
+              "de": "Alte chinesische Kunst",
+              "ja": "中国古代美術",
+              "ru": "Древнее китайское искусство"
+            },
+            "description": {
+              "en": "Art from ancient China, spanning thousands of years",
+              "zh": "中国古代数千年来的艺术",
+              "de": "Kunst aus dem alten China, die Jahrtausende umfassen",
+              "ja": "中国古代の数千年にわたる美術",
+              "ru": "Китайское искусство, охватывающее тысячелетия"
+            },
+            "major_forms": [
+              "Chinese Painting",
+              "Calligraphy",
+              "Ceramics",
+              "Sculpture",
+              "Bronze Ware"
+            ],
+            "key_characteristics": [
+              "Spiritual Expression",
+              "Harmony with Nature",
+              "Symbolism",
+              "Brushwork",
+              "Empty Space"
+            ]
+          },
+          {
+            "id": "modern_contemporary_chinese_art",
+            "name": {
+              "en": "Modern & Contemporary Chinese Art",
+              "zh": "中国现代与当代艺术",
+              "de": "Moderne und zeitgenössische chinesische Kunst",
+              "ja": "中国現代・当代美術",
+              "ru": "Современное и современное китайское искусство"
+            },
+            "description": {
+              "en": "Chinese art from the late Qing Dynasty to the present",
+              "zh": "从晚清至今的中国艺术",
+              "de": "Chinesische Kunst vom späten Qing-Dynastie bis heute",
+              "ja": "清朝末期から現在に至る中国美術",
+              "ru": "Китайское искусство от позднего периода династии Цинга до настоящего времени"
+            },
+            "key_movements": [
+              "New Culture Movement Art",
+              "Socialist Realism",
+              "85 New Wave",
+              "Contemporary Chinese Art"
+            ],
+            "major_artists": [
+              "Qi Baishi",
+              "Xu Beihong",
+              "Zhang Daqian",
+              "Cai Guo-Qiang",
+              "Ai Weiwei"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "art_forms_media",
+        "name": {
+          "en": "Art Forms & Media",
+          "zh": "艺术形式与媒介",
+          "de": "Kunstformen und Medien",
+          "ja": "芸術形式とメディア",
+          "ru": "Формы и медиа искусства"
+        },
+        "concepts": [
+          {
+            "id": "visual_arts",
+            "name": {
+              "en": "Visual Arts",
+              "zh": "视觉艺术",
+              "de": "Bildende Künste",
+              "ja": "視覚芸術",
+              "ru": "Изобразительное искусство"
+            },
+            "description": {
+              "en": "Art forms that create works that are primarily visual in nature",
+              "zh": "主要以视觉形式呈现的艺术形式",
+              "de": "Kunstformen, die Werke schaffen, die hauptsächlich visueller Natur sind",
+              "ja": "主に視覚的な性質を持つ作品を創造する芸術形式",
+              "ru": "Формы искусства, создающие работы, преимущественно визуального характера"
+            },
+            "major_forms": [
+              "Painting",
+              "Drawing",
+              "Sculpture",
+              "Printmaking",
+              "Photography",
+              "Graphic Design"
+            ],
+            "key_media": [
+              "Oil Paint",
+              "Acrylic",
+              "Watercolor",
+              "Charcoal",
+              "Clay",
+              "Metal",
+              "Digital Media"
+            ]
+          },
+          {
+            "id": "performing_media_arts",
+            "name": {
+              "en": "Performing & Media Arts",
+              "zh": "表演与媒体艺术",
+              "de": "Darstellende und Medienkunst",
+              "ja": "パフォーミング・メディア芸術",
+              "ru": "Выступающее и медийное искусство"
+            },
+            "description": {
+              "en": "Art forms that involve performance or digital/electronic media",
+              "zh": "涉及表演或数字/电子媒体的艺术形式",
+              "de": "Kunstformen, die Performance oder digitale/elektronische Medien beinhalten",
+              "ja": "パフォーマンスまたはデジタル/電子メディアを含む芸術形式",
+              "ru": "Формы искусства, связанные с выступлениями или цифровыми/электронными медиа"
+            },
+            "major_forms": [
+              "Performance Art",
+              "Installation Art",
+              "Video Art",
+              "Digital Art",
+              "Interactive Art"
+            ],
+            "key_characteristics": [
+              "Temporality",
+              "Viewer Participation",
+              "Technology Integration",
+              "Site-specificity"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "global_contemporary_art",
+        "name": {
+          "en": "Global Contemporary Art",
+          "zh": "全球当代艺术",
+          "de": "Globale zeitgenössische Kunst",
+          "ja": "グローバル現代芸術",
+          "ru": "Глобальное современное искусство"
+        },
+        "concepts": [
+          {
+            "id": "contemporary_art_movements",
+            "name": {
+              "en": "Contemporary Art Movements",
+              "zh": "当代艺术运动",
+              "de": "Zeitgenössische Kunstbewegungen",
+              "ja": "現代芸術運動",
+              "ru": "Современные художественные движения"
+            },
+            "description": {
+              "en": "Major artistic movements and trends from the late 20th century to present",
+              "zh": "20世纪后期至今的主要艺术运动和趋势",
+              "de": "Wichtige künstlerische Bewegungen und Trends vom späten 20. Jahrhundert bis heute",
+              "ja": "20世紀後半から現在に至る主要な芸術運動とトレンド",
+              "ru": "Основные художественные движения и тенденции со второй половины XX века до настоящего времени"
+            },
+            "key_movements": [
+              "Postmodernism",
+              "Neo-expressionism",
+              "Minimalism",
+              "Street Art",
+              "New Media Art",
+              "Environmental Art"
+            ],
+            "major_artists": [
+              "Jeff Koons",
+              "Damien Hirst",
+              "Banksy",
+              "Yayoi Kusama",
+              "Marina Abramović"
+            ]
+          },
+          {
+            "id": "global_art_perspectives",
+            "name": {
+              "en": "Global Art Perspectives",
+              "zh": "全球艺术视角",
+              "de": "Globale Kunstperspektiven",
+              "ja": "グローバルな芸術の視点",
+              "ru": "Глобальные художественные перспективы"
+            },
+            "description": {
+              "en": "Diverse artistic expressions and cultural perspectives from around the world",
+              "zh": "来自世界各地的多样化艺术表达和文化视角",
+              "de": "Vielfältige künstlerische Ausdrucksformen und kulturelle Perspektiven aus der ganzen Welt",
+              "ja": "世界中の多様な芸術的表現と文化的視点",
+              "ru": "Разнообразные художественные выражения и культурные перспективы со всего мира"
+            },
+            "regional_traditions": [
+              "African Contemporary Art",
+              "Latin American Art",
+              "Asian Contemporary Art",
+              "Middle Eastern Art"
+            ],
+            "key_themes": [
+              "Cultural Identity",
+              "Globalization",
+              "Social Justice",
+              "Environmental Concerns",
+              "Technological Impact"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.631742Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

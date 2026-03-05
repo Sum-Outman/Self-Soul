@@ -1,0 +1,376 @@
+{
+  "knowledge_base": {
+    "domain": "environmental_science",
+    "name": {
+      "en": "Environmental Science",
+      "zh": "环境科学",
+      "de": "Umweltwissenschaften",
+      "ja": "環境科学",
+      "ru": "Экологические науки"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for environmental science fundamentals and advanced topics",
+      "zh": "环境科学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Umweltwissenschaften Grundlagen und fortgeschrittene Themen",
+      "ja": "環境科学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам экологических наук и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "environmental_science_fundamentals",
+        "name": {
+          "en": "Environmental Science Fundamentals",
+          "zh": "环境科学基础",
+          "de": "Grundlagen der Umweltwissenschaften",
+          "ja": "環境科学の基礎",
+          "ru": "Основы экологических наук"
+        },
+        "concepts": [
+          {
+            "id": "environmental_chemistry",
+            "name": {
+              "en": "Environmental Chemistry",
+              "zh": "环境化学",
+              "de": "Umweltchemie",
+              "ja": "環境化学",
+              "ru": "Экологическая химия"
+            },
+            "description": {
+              "en": "Study of chemical processes in the environment and their impact on living organisms",
+              "zh": "研究环境中的化学过程及其对生物的影响",
+              "de": "Studium chemischer Prozesse in der Umwelt und ihre Auswirkungen auf lebende Organismen",
+              "ja": "環境中の化学プロセスと生物への影響を研究する学問",
+              "ru": "Исследование химических процессов в окружающей среде и их влияния на живые организмы"
+            },
+            "key_processes": [
+              "Biogeochemical Cycles",
+              "Pollutant Transformation",
+              "Toxicology",
+              "Risk Assessment"
+            ],
+            "major_pollutants": [
+              "Heavy Metals",
+              "Organic Compounds",
+              "Air Pollutants",
+              "Water Contaminants"
+            ]
+          },
+          {
+            "id": "environmental_physics",
+            "name": {
+              "en": "Environmental Physics",
+              "zh": "环境物理学",
+              "de": "Umweltphysik",
+              "ja": "環境物理学",
+              "ru": "Экологическая физика"
+            },
+            "description": {
+              "en": "Study of physical processes in the environment and their interactions",
+              "zh": "研究环境中的物理过程及其相互作用",
+              "de": "Studium physikalischer Prozesse in der Umwelt und ihre Wechselwirkungen",
+              "ja": "環境中の物理プロセスとその相互作用を研究する学問",
+              "ru": "Исследование физических процессов в окружающей среде и их взаимодействий"
+            },
+            "physical_processes": [
+              "Energy Transfer",
+              "Climate Dynamics",
+              "Hydrological Cycle",
+              "Soil Physics"
+            ],
+            "measurement_techniques": [
+              "Remote Sensing",
+              "Modeling",
+              "Field Measurements",
+              "Laboratory Analysis"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ecosystems",
+        "name": {
+          "en": "Ecosystems",
+          "zh": "生态系统",
+          "de": "Ökosysteme",
+          "ja": "生態系",
+          "ru": "Экосистемы"
+        },
+        "concepts": [
+          {
+            "id": "ecosystem_dynamics",
+            "name": {
+              "en": "Ecosystem Dynamics",
+              "zh": "生态系统动力学",
+              "de": "Ökosystemdynamik",
+              "ja": "生態系ダイナミクス",
+              "ru": "Динамика экосистем"
+            },
+            "description": {
+              "en": "Study of the structure, function, and change in ecosystems over time",
+              "zh": "研究生态系统的结构、功能和随时间的变化",
+              "de": "Studium der Struktur, Funktion und Veränderung von Ökosystemen im Laufe der Zeit",
+              "ja": "生態系の構造、機能、および時間の経過に伴う変化を研究する学問",
+              "ru": "Исследование структуры, функции и изменений экосистем во времени"
+            },
+            "ecosystem_components": [
+              "Producers",
+              "Consumers",
+              "Decomposers",
+              "Abiotic Factors"
+            ],
+            "key_processes": [
+              "Energy Flow",
+              "Nutrient Cycling",
+              "Succession",
+              "Trophic Relationships"
+            ]
+          },
+          {
+            "id": "biodiversity",
+            "name": {
+              "en": "Biodiversity",
+              "zh": "生物多样性",
+              "de": "Biodiversität",
+              "ja": "生物多様性",
+              "ru": "Биологическое разнообразие"
+            },
+            "description": {
+              "en": "Study of the variety of life on Earth and its importance",
+              "zh": "研究地球上生命的多样性及其重要性",
+              "de": "Studium der Vielfalt des Lebens auf der Erde und ihrer Bedeutung",
+              "ja": "地球上の生命の多様性とその重要性を研究する学問",
+              "ru": "Исследование разнообразия жизни на Земле и его значения"
+            },
+            "biodiversity_levels": [
+              "Genetic Diversity",
+              "Species Diversity",
+              "Ecosystem Diversity"
+            ],
+            "threats": [
+              "Habitat Loss",
+              "Climate Change",
+              "Invasive Species",
+              "Overexploitation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "environmental_issues",
+        "name": {
+          "en": "Environmental Issues",
+          "zh": "环境问题",
+          "de": "Umweltprobleme",
+          "ja": "環境問題",
+          "ru": "Экологические проблемы"
+        },
+        "concepts": [
+          {
+            "id": "climate_change",
+            "name": {
+              "en": "Climate Change",
+              "zh": "气候变化",
+              "de": "Klimawandel",
+              "ja": "気候変動",
+              "ru": "Изменение климата"
+            },
+            "description": {
+              "en": "Study of long-term changes in Earth's climate patterns",
+              "zh": "研究地球气候模式的长期变化",
+              "de": "Studium langfristiger Veränderungen der Klimamuster der Erde",
+              "ja": "地球の気候パターンの長期的な変化を研究する学問",
+              "ru": "Исследование долгосрочных изменений климатических режимов Земли"
+            },
+            "causes": [
+              "Greenhouse Gas Emissions",
+              "Deforestation",
+              "Industrial Activities",
+              "Agricultural Practices"
+            ],
+            "impacts": [
+              "Rising Temperatures",
+              "Sea Level Rise",
+              "Extreme Weather Events",
+              "Ecosystem Disruption"
+            ]
+          },
+          {
+            "id": "pollution",
+            "name": {
+              "en": "Pollution",
+              "zh": "污染",
+              "de": "Verschmutzung",
+              "ja": "汚染",
+              "ru": "Загрязнение"
+            },
+            "description": {
+              "en": "Study of the introduction of contaminants into the natural environment",
+              "zh": "研究污染物进入自然环境的现象",
+              "de": "Studium der Einbringung von Schadstoffen in die natürliche Umwelt",
+              "ja": "汚染物質が自然環境に導入される現象を研究する学問",
+              "ru": "Исследование введения загрязняющих веществ в естественную среду"
+            },
+            "pollution_types": [
+              "Air Pollution",
+              "Water Pollution",
+              "Soil Pollution",
+              "Noise Pollution",
+              "Plastic Pollution"
+            ],
+            "mitigation_strategies": [
+              "Emission Controls",
+              "Waste Management",
+              "Clean Energy",
+              "Sustainable Practices"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "environmental_policy",
+        "name": {
+          "en": "Environmental Policy & Management",
+          "zh": "环境政策与管理",
+          "de": "Umweltpolitik und -management",
+          "ja": "環境政策と管理",
+          "ru": "Экологическая политика и управление"
+        },
+        "concepts": [
+          {
+            "id": "environmental_regulation",
+            "name": {
+              "en": "Environmental Regulation",
+              "zh": "环境法规",
+              "de": "Umweltregulierung",
+              "ja": "環境規制",
+              "ru": "Экологическое регулирование"
+            },
+            "description": {
+              "en": "Study of laws and policies aimed at protecting the environment",
+              "zh": "研究旨在保护环境的法律和政策",
+              "de": "Studium von Gesetzen und Politiken zum Schutz der Umwelt",
+              "ja": "環境保護を目的とした法律と政策を研究する学問",
+              "ru": "Исследование законов и политик, направленных на защиту окружающей среды"
+            },
+            "key_regulations": [
+              "Clean Air Act",
+              "Clean Water Act",
+              "Endangered Species Act",
+              "Paris Agreement"
+            ],
+            "regulatory_frameworks": [
+              "International Conventions",
+              "National Laws",
+              "Regional Policies",
+              "Local Ordinances"
+            ]
+          },
+          {
+            "id": "environmental_management",
+            "name": {
+              "en": "Environmental Management",
+              "zh": "环境管理",
+              "de": "Umweltmanagement",
+              "ja": "環境管理",
+              "ru": "Экологическое управление"
+            },
+            "description": {
+              "en": "Study of practices and strategies for managing environmental resources",
+              "zh": "研究管理环境资源的实践和策略",
+              "de": "Studium von Praktiken und Strategien für das Management von Umweltressourcen",
+              "ja": "環境資源を管理するための実践と戦略を研究する学問",
+              "ru": "Исследование практик и стратегий управления экологическими ресурсами"
+            },
+            "management_approaches": [
+              "Environmental Impact Assessment",
+              "Life Cycle Assessment",
+              "Pollution Prevention",
+              "Resource Efficiency"
+            ],
+            "certification_standards": [
+              "ISO 14001",
+              "LEED",
+              "BREEAM",
+              "Green Star"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sustainability",
+        "name": {
+          "en": "Sustainability & Renewable Energy",
+          "zh": "可持续发展与可再生能源",
+          "de": "Nachhaltigkeit und Erneuerbare Energien",
+          "ja": "持続可能性と再生可能エネルギー",
+          "ru": "Устойчивое развитие и возобновляемые источники энергии"
+        },
+        "concepts": [
+          {
+            "id": "sustainable_development",
+            "name": {
+              "en": "Sustainable Development",
+              "zh": "可持续发展",
+              "de": "Nachhaltige Entwicklung",
+              "ja": "持続可能な開発",
+              "ru": "Устойчивое развитие"
+            },
+            "description": {
+              "en": "Study of development that meets the needs of the present without compromising future generations",
+              "zh": "研究满足当代需求而不损害后代需求的发展",
+              "de": "Studium der Entwicklung, die die Bedürfnisse der Gegenwart erfüllt, ohne zukünftige Generationen zu beeinträchtigen",
+              "ja": "現在のニーズを満たしつつ、将来の世代に損害を与えない開発を研究する学問",
+              "ru": "Исследование развития, которое удовлетворяет потребности настоящего без ущерба для будущих поколений"
+            },
+            "key_principles": [
+              "Environmental Protection",
+              "Social Equity",
+              "Economic Development",
+              "Intergenerational Justice"
+            ],
+            "sdgs": [
+              "Climate Action",
+              "Clean Water and Sanitation",
+              "Affordable and Clean Energy",
+              "Responsible Consumption and Production"
+            ]
+          },
+          {
+            "id": "renewable_energy",
+            "name": {
+              "en": "Renewable Energy",
+              "zh": "可再生能源",
+              "de": "Erneuerbare Energien",
+              "ja": "再生可能エネルギー",
+              "ru": "Возобновляемые источники энергии"
+            },
+            "description": {
+              "en": "Study of energy sources that are naturally replenished and sustainable",
+              "zh": "研究自然补充且可持续的能源来源",
+              "de": "Studium von Energiequellen, die natürlich erneuert und nachhaltig sind",
+              "ja": "自然に補充され、持続可能なエネルギー源を研究する学問",
+              "ru": "Исследование источников энергии, которые естественно восстанавливаются и являются устойчивыми"
+            },
+            "energy_types": [
+              "Solar Energy",
+              "Wind Energy",
+              "Hydropower",
+              "Biomass Energy",
+              "Geothermal Energy"
+            ],
+            "advantages": [
+              "Reduced Greenhouse Gas Emissions",
+              "Energy Security",
+              "Job Creation",
+              "Long-term Sustainability"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.635731Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

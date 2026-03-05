@@ -1,0 +1,298 @@
+# Self Soul AGI 系统性能优化配置
+# 生产环境性能调优参数
+
+# 内存优化配置
+memory_optimization:
+  # 模型加载策略
+  model_loading:
+    strategy: "lazy"  # lazy | eager | hybrid
+    preload_essential: true
+    essential_models: ["manager", "knowledge", "language"]
+    memory_threshold: 75  # 内存使用阈值百分比（从85降低到75）
+    
+  # 缓存配置
+  caching:
+    enabled: true
+    max_size_mb: 1024
+    ttl_seconds: 3600
+    
+  # 垃圾回收优化
+  garbage_collection:
+    enabled: true
+    threshold: 80
+    interval_seconds: 300
+
+# CPU优化配置
+cpu_optimization:
+  # 线程池配置
+  threading:
+    max_workers: 4
+    thread_pool_size: 8
+    
+  # 异步处理
+  async_processing:
+    enabled: true
+    max_concurrent_tasks: 10
+    
+  # 批处理优化
+  batch_processing:
+    enabled: true
+    batch_size: 32
+    timeout_seconds: 30
+
+# 模型性能配置
+model_performance:
+  # 推理优化
+  inference:
+    precision: "float32"  # float32 | float16 | mixed
+    use_gpu: false
+    batch_inference: true
+    
+  # 训练优化
+  training:
+    gradient_accumulation: 4
+    mixed_precision: true
+    checkpoint_frequency: 1000
+    
+  # 内存管理
+  memory_management:
+    model_swapping: true
+    swap_threshold: 75
+    keep_essential_loaded: true
+
+# API性能配置
+api_performance:
+  # 请求处理
+  request_handling:
+    timeout_seconds: 30
+    max_request_size_mb: 100
+    rate_limit_per_minute: 100
+    
+  # 响应优化
+  response_optimization:
+    compression: true
+    caching: true
+    streaming: true
+    
+  # 连接池
+  connection_pool:
+    enabled: true
+    max_connections: 100
+    pool_recycle: 3600
+
+# 数据库性能配置
+database_performance:
+  # 连接池
+  connection_pool:
+    pool_size: 20
+    max_overflow: 10
+    pool_timeout: 30
+    
+  # 查询优化
+  query_optimization:
+    statement_cache_size: 100
+    echo: false
+    
+  # 缓存配置
+  caching:
+    enabled: true
+    cache_size_mb: 512
+
+# 监控和日志性能
+monitoring_performance:
+  # 指标收集
+  metrics:
+    collection_interval: 30
+    retention_days: 7
+    
+  # 日志优化
+  logging:
+    level: "WARNING"  # DEBUG | INFO | WARNING | ERROR
+    rotation: true
+    max_size_mb: 100
+    backup_count: 5
+    
+  # 健康检查
+  health_check:
+    interval_seconds: 30
+    timeout_seconds: 10
+
+# 硬件优化配置
+hardware_optimization:
+  # GPU配置（如果可用）
+  gpu:
+    enabled: false
+    device_ids: [0]
+    memory_fraction: 0.8
+    
+  # 多核优化
+  multicore:
+    enabled: true
+    affinity: "auto"  # auto | specific
+    cores: []
+    
+  # IO优化
+  io_optimization:
+    async_io: true
+    buffer_size: 8192
+    prefetch: true
+
+# 网络优化配置
+network_optimization:
+  # TCP优化
+  tcp:
+    keepalive: true
+    nodelay: true
+    
+  # WebSocket优化
+  websocket:
+    ping_interval: 30
+    ping_timeout: 10
+    max_message_size: 10485760  # 10MB
+    
+  # 代理优化
+  proxy:
+    enabled: false
+    timeout: 30
+
+# 安全性能配置
+security_performance:
+  # 加密优化
+  encryption:
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 30
+    
+  # 认证优化
+  authentication:
+    jwt_expiry_hours: 24
+    refresh_token_days: 7
+    
+  # 速率限制
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst_limit: 50
+
+# 模型初始化优化配置
+initialization_optimization:
+  # 全局优化设置
+  global:
+    enabled: true
+    default_strategy: "optimized"  # standard | optimized | aggressive
+    enable_lazy_loading: true
+    enable_parallel_init: true
+    max_parallel_workers: 4
+    enable_background_warmup: true
+    enable_profiling: true
+    
+  # 组件初始化策略
+  component_policies:
+    data_processor:
+      lazy: false  # 必需组件，不能懒加载
+      priority: "critical"
+      timeout_seconds: 1.0
+      
+    stream_manager:
+      lazy: true
+      priority: "essential"
+      timeout_seconds: 2.0
+      
+    external_api_service:
+      lazy: true
+      priority: "important"
+      timeout_seconds: 5.0
+      
+    multi_modal_processor:
+      lazy: true
+      priority: "important"
+      timeout_seconds: 3.0
+      
+    context_memory:
+      lazy: true
+      priority: "important"
+      timeout_seconds: 2.0
+      
+    agi_systems:  # AGI自我学习、情感意识等系统
+      lazy: true
+      priority: "background"
+      timeout_seconds: 10.0
+      
+    from_scratch_trainer:
+      lazy: true
+      priority: "optional"
+      timeout_seconds: 15.0
+  
+  # 模型特定优化
+  model_specific_optimizations:
+    language_model:
+      bert_loading:
+        background: true
+        prefetch: false
+        compression: "auto"  # auto | none | quantized
+        timeout_seconds: 30
+        
+    vision_model:
+      cv_libraries:
+        lazy_import: true
+        minimal_import: true
+        timeout_seconds: 10
+        
+    audio_model:
+      audio_libraries:
+        lazy_import: true
+        fallback_on_error: true
+        timeout_seconds: 5
+  
+  # 预热配置
+  warm_up:
+    enabled: true
+    pre_warm_models:
+      - model_class: "core.models.language.unified_language_model.UnifiedLanguageModel"
+        model_id: "default_language_model"
+        config:
+          from_scratch: false
+          test_mode: false
+        priority: "high"
+        
+      - model_class: "core.models.vision.unified_vision_model.UnifiedVisionModel"
+        model_id: "default_vision_model"
+        config:
+          test_mode: false
+        priority: "medium"
+        
+      - model_class: "core.models.audio.unified_audio_model.UnifiedAudioModel"
+        model_id: "default_audio_model"
+        config:
+          test_mode: false
+        priority: "medium"
+        
+    warm_up_timeout_seconds: 30
+    max_concurrent_warm_up: 2
+  
+  # 监控和性能分析
+  monitoring:
+    enabled: true
+    log_slow_initializations: true
+    slow_threshold_ms: 1000
+    generate_reports: true
+    report_path: "logs/initialization_reports"
+    retention_days: 30
+    
+  # 环境特定设置
+  environment_overrides:
+    development:
+      enable_lazy_loading: true
+      enable_profiling: true
+      max_parallel_workers: 2
+      
+    testing:
+      enable_lazy_loading: false  # 测试时禁用懒加载以获得可预测行为
+      enable_parallel_init: false
+      enable_profiling: false
+      
+    production:
+      enable_lazy_loading: true
+      enable_parallel_init: true
+      max_parallel_workers: 8
+      enable_background_warmup: true
+      enable_profiling: false  # 生产环境关闭性能分析以减少开销

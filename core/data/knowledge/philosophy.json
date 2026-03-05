@@ -1,0 +1,453 @@
+{
+  "knowledge_base": {
+    "domain": "philosophy",
+    "name": {
+      "en": "Philosophy",
+      "zh": "哲学",
+      "de": "Philosophie",
+      "ja": "哲学",
+      "ru": "Философия"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for philosophy fundamentals and advanced topics",
+      "zh": "哲学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Philosophie Grundlagen und fortgeschrittene Themen",
+      "ja": "哲学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам философии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "metaphysics",
+        "name": {
+          "en": "Metaphysics",
+          "zh": "形而上学",
+          "de": "Metaphysik",
+          "ja": "形而上学",
+          "ru": "Метфизика"
+        },
+        "concepts": [
+          {
+            "id": "ontology",
+            "name": {
+              "en": "Ontology",
+              "zh": "本体论",
+              "de": "Ontologie",
+              "ja": "存在論",
+              "ru": "Онтология"
+            },
+            "description": {
+              "en": "The study of the nature of being, existence, or reality",
+              "zh": "研究存在、实存或现实本质的哲学分支",
+              "de": "Die Untersuchung der Natur des Seins, der Existenz oder der Realität",
+              "ja": "存在、実存、または現実の本質を研究する哲学の分野",
+              "ru": "Изучение природы бытия, существования или реальности"
+            },
+            "key_concepts": [
+              "Existence",
+              "Being",
+              "Reality",
+              "Substance",
+              "Attribute",
+              "Essence"
+            ],
+            "major_questions": [
+              "What exists?",
+              "What is the nature of existence?",
+              "How are things related?"
+            ],
+            "applications": [
+              "Philosophy of science",
+              "Metaphysics",
+              "Theology",
+              "Logic"
+            ]
+          },
+          {
+            "id": "cosmology",
+            "name": {
+              "en": "Cosmology",
+              "zh": "宇宙论",
+              "de": "Kosmologie",
+              "ja": "宇宙論",
+              "ru": "Космология"
+            },
+            "description": {
+              "en": "The study of the origin, structure, and evolution of the universe",
+              "zh": "研究宇宙的起源、结构和演化的哲学分支",
+              "de": "Die Untersuchung des Ursprungs, der Struktur und der Evolution des Universums",
+              "ja": "宇宙の起源、構造、進化を研究する哲学の分野",
+              "ru": "Изучение происхождения, структуры и эволюции Вселенной"
+            },
+            "key_concepts": [
+              "Origin of the universe",
+              "Space and time",
+              "Cosmic order",
+              "Teleology",
+              "Creation"
+            ],
+            "major_theories": [
+              "Big Bang theory",
+              "Steady state theory",
+              "Cyclic universe theory"
+            ],
+            "applications": [
+              "Philosophy of science",
+              "Astronomy",
+              "Theology",
+              "Metaphysics"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "epistemology",
+        "name": {
+          "en": "Epistemology",
+          "zh": "认识论",
+          "de": "Erkenntnistheorie",
+          "ja": "認識論",
+          "ru": "Эпистемология"
+        },
+        "concepts": [
+          {
+            "id": "knowledge_theory",
+            "name": {
+              "en": "Theory of Knowledge",
+              "zh": "知识论",
+              "de": "Wissenslehre",
+              "ja": "知識論",
+              "ru": "Теория знания"
+            },
+            "description": {
+              "en": "The study of knowledge, belief, and justification",
+              "zh": "研究知识、信念和辩护的哲学分支",
+              "de": "Die Untersuchung von Wissen, Glauben und Rechtfertigung",
+              "ja": "知識、信念、正当化を研究する哲学の分野",
+              "ru": "Изучение знания, веры и обоснования"
+            },
+            "key_concepts": [
+              "Knowledge",
+              "Belief",
+              "Truth",
+              "Justification",
+              "Rationality",
+              "Skepticism"
+            ],
+            "major_questions": [
+              "What is knowledge?",
+              "How do we acquire knowledge?",
+              "How do we justify beliefs?"
+            ],
+            "applications": [
+              "Philosophy of science",
+              "Logic",
+              "Ethics",
+              "Education"
+            ]
+          },
+          {
+            "id": "rationalism_empiricism",
+            "name": {
+              "en": "Rationalism and Empiricism",
+              "zh": "理性主义与经验主义",
+              "de": "Rationalismus und Empirismus",
+              "ja": "合理主義と経験主義",
+              "ru": "Рационализм и эмпиризм"
+            },
+            "description": {
+              "en": "Two main philosophical traditions about the origin of knowledge",
+              "zh": "关于知识起源的两种主要哲学传统",
+              "de": "Zwei Hauptphilosophische Traditionen über den Ursprung des Wissens",
+              "ja": "知識の起源に関する二つの主要な哲学的伝統",
+              "ru": "Две главные философские традиции о происхождении знания"
+            },
+            "rationalism_key_points": [
+              "Reason is the primary source of knowledge",
+              "Innate ideas exist",
+              "Deductive reasoning is fundamental"
+            ],
+            "empiricism_key_points": [
+              "Experience is the primary source of knowledge",
+              "Tabula rasa",
+              "Inductive reasoning is fundamental"
+            ],
+            "key_thinkers": [
+              "René Descartes",
+              "John Locke",
+              "Immanuel Kant",
+              "David Hume",
+              "Leibniz"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ethics",
+        "name": {
+          "en": "Ethics",
+          "zh": "伦理学",
+          "de": "Ethik",
+          "ja": "倫理学",
+          "ru": "Этика"
+        },
+        "concepts": [
+          {
+            "id": "normative_ethics",
+            "name": {
+              "en": "Normative Ethics",
+              "zh": "规范伦理学",
+              "de": "Normative Ethik",
+              "ja": "規範倫理学",
+              "ru": "Нормативная этика"
+            },
+            "description": {
+              "en": "The study of ethical action and moral principles",
+              "zh": "研究道德行为和道德原则的哲学分支",
+              "de": "Die Untersuchung ethischen Handelns und moralischer Prinzipien",
+              "ja": "倫理的行動と道徳的原則を研究する哲学の分野",
+              "ru": "Изучение этического поведения и моральных принципов"
+            },
+            "major_theories": [
+              "Deontology",
+              "Utilitarianism",
+              "Virtue ethics",
+              "Consequentialism",
+              "Contractarianism"
+            ],
+            "key_concepts": [
+              "Right and wrong",
+              "Duty",
+              "Happiness",
+              "Virtue",
+              "Justice"
+            ],
+            "applications": [
+              "Moral philosophy",
+              "Political philosophy",
+              "Bioethics",
+              "Business ethics"
+            ]
+          },
+          {
+            "id": "applied_ethics",
+            "name": {
+              "en": "Applied Ethics",
+              "zh": "应用伦理学",
+              "de": "Angewandte Ethik",
+              "ja": "応用倫理学",
+              "ru": "Прикладная этика"
+            },
+            "description": {
+              "en": "The application of ethical principles to real-world issues",
+              "zh": "将伦理原则应用于现实世界问题的哲学分支",
+              "de": "Die Anwendung ethischer Prinzipien auf reale Probleme",
+              "ja": "倫理的原則を現実世界の問題に応用する哲学の分野",
+              "ru": "Применение этических принципов к реальным проблемам"
+            },
+            "key_areas": [
+              "Bioethics",
+              "Business ethics",
+              "Environmental ethics",
+              "Medical ethics",
+              "Technology ethics"
+            ],
+            "contemporary_issues": [
+              "Genetic engineering",
+              "Artificial intelligence",
+              "Climate change",
+              "Animal rights"
+            ],
+            "applications": [
+              "Policy making",
+              "Professional ethics",
+              "Social justice",
+              "Healthcare"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "political_philosophy",
+        "name": {
+          "en": "Political Philosophy",
+          "zh": "政治哲学",
+          "de": "Politische Philosophie",
+          "ja": "政治哲学",
+          "ru": "Политическая философия"
+        },
+        "concepts": [
+          {
+            "id": "justice_theory",
+            "name": {
+              "en": "Theory of Justice",
+              "zh": "正义论",
+              "de": "Theorie der Gerechtigkeit",
+              "ja": "正義論",
+              "ru": "Теория справедливости"
+            },
+            "description": {
+              "en": "The study of concepts of justice and fairness in society",
+              "zh": "研究社会中正义和公平概念的哲学分支",
+              "de": "Die Untersuchung von Gerechtigkeits- und Fairnesskonzepten in der Gesellschaft",
+              "ja": "社会における正義と公平の概念を研究する哲学の分野",
+              "ru": "Изучение концепций справедливости и fairness в обществе"
+            },
+            "key_theories": [
+              "Distributive justice",
+              "Retributive justice",
+              "Procedural justice",
+              "Social justice"
+            ],
+            "key_thinkers": [
+              "John Rawls",
+              "Robert Nozick",
+              "Aristotle",
+              "Immanuel Kant",
+              "Karl Marx"
+            ],
+            "applications": [
+              "Political theory",
+              "Social policy",
+              "Law",
+              "Economics"
+            ]
+          },
+          {
+            "id": "state_and_government",
+            "name": {
+              "en": "State and Government",
+              "zh": "国家与政府",
+              "de": "Staat und Regierung",
+              "ja": "国家と政府",
+              "ru": "Государство и правительство"
+            },
+            "description": {
+              "en": "The study of the nature, origin, and functions of the state and government",
+              "zh": "研究国家和政府的本质、起源和功能的哲学分支",
+              "de": "Die Untersuchung der Natur, des Ursprungs und der Funktionen des Staates und der Regierung",
+              "ja": "国家と政府の本質、起源、機能を研究する哲学の分野",
+              "ru": "Изучение природы, происхождения и функций государства и правительства"
+            },
+            "key_concepts": [
+              "Sovereignty",
+              "Authority",
+              "Legitimacy",
+              "Democracy",
+              "Liberty",
+              "Equality"
+            ],
+            "major_theories": [
+              "Social contract theory",
+              "Liberalism",
+              "Communism",
+              "Fascism",
+              "Anarchism"
+            ],
+            "applications": [
+              "Political science",
+              "Law",
+              "International relations",
+              "History"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "philosophical_schools",
+        "name": {
+          "en": "Philosophical Schools and Thinkers",
+          "zh": "哲学流派与思想家",
+          "de": "Philosophische Schulen und Denker",
+          "ja": "哲学流派と思想家",
+          "ru": "Философские школы и мыслители"
+        },
+        "concepts": [
+          {
+            "id": "ancient_philosophy",
+            "name": {
+              "en": "Ancient Philosophy",
+              "zh": "古代哲学",
+              "de": "Antike Philosophie",
+              "ja": "古代哲学",
+              "ru": "Древняя философия"
+            },
+            "description": {
+              "en": "Philosophical traditions from ancient Greece, Rome, and other civilizations",
+              "zh": "来自古希腊、罗马和其他文明的哲学传统",
+              "de": "Philosophische Traditionen aus dem antiken Griechenland, Rom und anderen Zivilisationen",
+              "ja": "古代ギリシャ、ローマ、その他の文明からの哲学的伝統",
+              "ru": "Философские традиции из древней Греции, Рима и других цивилизаций"
+            },
+            "key_schools": [
+              "Pre-Socratics",
+              "Socrates and Plato",
+              "Aristotle",
+              "Stoicism",
+              "Epicureanism",
+              "Neoplatonism"
+            ],
+            "key_thinkers": [
+              "Socrates",
+              "Plato",
+              "Aristotle",
+              "Epicurus",
+              "Zeno of Citium",
+              "Plotinus"
+            ],
+            "influence": [
+              "Western philosophy",
+              "Science",
+              "Ethics",
+              "Politics",
+              "Religion"
+            ]
+          },
+          {
+            "id": "modern_philosophy",
+            "name": {
+              "en": "Modern Philosophy",
+              "zh": "近代哲学",
+              "de": "Moderne Philosophie",
+              "ja": "近代哲学",
+              "ru": "Современная философия"
+            },
+            "description": {
+              "en": "Philosophical traditions from the 17th to the 19th centuries",
+              "zh": "从17世纪到19世纪的哲学传统",
+              "de": "Philosophische Traditionen vom 17. bis zum 19. Jahrhundert",
+              "ja": "17世紀から19世紀までの哲学的伝統",
+              "ru": "Философские традиции XVII-XIX веков"
+            },
+            "key_schools": [
+              "Rationalism",
+              "Empiricism",
+              "Kantianism",
+              "German Idealism",
+              "Utilitarianism",
+              "Existentialism"
+            ],
+            "key_thinkers": [
+              "René Descartes",
+              "John Locke",
+              "Immanuel Kant",
+              "Georg Wilhelm Friedrich Hegel",
+              "Friedrich Nietzsche",
+              "John Stuart Mill"
+            ],
+            "influence": [
+              "Science",
+              "Politics",
+              "Ethics",
+              "Literature",
+              "Art"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.601282Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

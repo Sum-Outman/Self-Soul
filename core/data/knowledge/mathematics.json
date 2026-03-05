@@ -1,0 +1,183 @@
+{
+  "knowledge_base": {
+    "domain": "mathematics",
+    "name": {
+      "en": "Mathematics",
+      "zh": "数学",
+      "de": "Mathematik",
+      "ja": "数学",
+      "ru": "Математика"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for mathematics fundamentals and advanced topics",
+      "zh": "数学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Mathematikgrundlagen und fortgeschrittene Themen",
+      "ja": "数学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам математики и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "algebra",
+        "name": {
+          "en": "Algebra",
+          "zh": "代数",
+          "de": "Algebra",
+          "ja": "代数学",
+          "ru": "Алгебра"
+        },
+        "concepts": [
+          {
+            "id": "linear_algebra",
+            "name": {
+              "en": "Linear Algebra",
+              "zh": "线性代数",
+              "de": "Lineare Algebra",
+              "ja": "線形代数",
+              "ru": "Линейная алгебра"
+            },
+            "description": {
+              "en": "Branch of mathematics dealing with linear equations and linear transformations",
+              "zh": "处理线性方程和线性变换的数学分支",
+              "de": "Zweig der Mathematik, der sich mit linearen Gleichungen und linearen Transformationen befasst",
+              "ja": "線形方程式と線形変換を扱う数学の分野",
+              "ru": "Отрасль математики, занимающаяся линейными уравнениями и линейными преобразованиями"
+            },
+            "topics": [
+              "Vectors",
+              "Matrices",
+              "Linear transformations",
+              "Eigenvalues and eigenvectors",
+              "Determinants",
+              "Vector spaces",
+              "Inner products",
+              "Orthogonality"
+            ],
+            "applications": [
+              "Computer graphics",
+              "Machine learning",
+              "Physics",
+              "Engineering",
+              "Statistics"
+            ]
+          },
+          {
+            "id": "abstract_algebra",
+            "name": {
+              "en": "Abstract Algebra",
+              "zh": "抽象代数",
+              "de": "Abstrakte Algebra",
+              "ja": "抽象代数学",
+              "ru": "Абстрактная алгебра"
+            },
+            "description": {
+              "en": "Study of algebraic structures such as groups, rings, and fields",
+              "zh": "研究群、环、域等代数结构的学科",
+              "de": "Studium algebraischer Strukturen wie Gruppen, Ringe und Körper",
+              "ja": "群論、環論、体論などの代数的構造を研究する学問",
+              "ru": "Изучение алгебраических структур, таких как группы, кольца и поля"
+            },
+            "structures": [
+              "Groups",
+              "Rings",
+              "Fields",
+              "Vector spaces",
+              "Modules",
+              "Algebras",
+              "Lattices",
+              "Boolean algebras"
+            ],
+            "applications": [
+              "Cryptography",
+              "Computer science",
+              "Physics",
+              "Number theory"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "calculus",
+        "name": {
+          "en": "Calculus",
+          "zh": "微积分",
+          "de": "Analysis",
+          "ja": "微積分学",
+          "ru": "Математический анализ"
+        },
+        "concepts": [
+          {
+            "id": "differential_calculus",
+            "name": {
+              "en": "Differential Calculus",
+              "zh": "微分学",
+              "de": "Differentialrechnung",
+              "ja": "微分学",
+              "ru": "Дифференциальное исчисление"
+            },
+            "description": {
+              "en": "Study of rates at which quantities change",
+              "zh": "研究数量变化率的学科",
+              "de": "Studium der Geschwindigkeiten, mit denen Größen sich ändern",
+              "ja": "量の変化率を研究する学問",
+              "ru": "Изучение скоростей изменения величин"
+            },
+            "topics": [
+              "Derivatives",
+              "Limits",
+              "Continuity",
+              "Differentiation rules",
+              "Chain rule",
+              "Implicit differentiation",
+              "Higher-order derivatives",
+              "Applications of derivatives"
+            ],
+            "applications": [
+              "Physics",
+              "Engineering",
+              "Economics",
+              "Optimization",
+              "Machine learning"
+            ]
+          },
+          {
+            "id": "integral_calculus",
+            "name": {
+              "en": "Integral Calculus",
+              "zh": "积分学",
+              "de": "Integralrechnung",
+              "ja": "積分学",
+              "ru": "Интегральное исчисление"
+            },
+            "description": {
+              "en": "Study of accumulation of quantities and the areas under and between curves",
+              "zh": "研究数量的积累以及曲线下和曲线间的面积",
+              "de": "Studium der Akkumulation von Größen und der Flächen unter und zwischen Kurven",
+              "ja": "量の蓄積と曲線の下や曲線間の面積を研究する学問",
+              "ru": "Изучение накопления величин и площадей под кривыми и между ними"
+            },
+            "topics": [
+              "Integrals",
+              "Antiderivatives",
+              "Fundamental theorem of calculus",
+              "Integration techniques",
+              "Definite integrals",
+              "Improper integrals",
+              "Applications of integrals"
+            ],
+            "applications": [
+              "Physics",
+              "Engineering",
+              "Economics",
+              "Probability",
+              "Statistics"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.567345Z",
+    "version": "2.0.0",
+    "total_concepts": 4,
+    "total_categories": 2
+  }
+}

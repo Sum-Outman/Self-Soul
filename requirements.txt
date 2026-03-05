@@ -1,0 +1,80 @@
+# AGI Soul System Requirements - Compatible with Python 3.10+
+# Core web server dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+websockets>=12.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
+
+# Basic dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+requests>=2.31.0
+pyyaml>=6.0.1
+loguru>=0.7.2
+psutil>=5.9.6
+
+# Data processing
+pickle-mixin>=1.0.2
+
+# Models and AI
+torch==2.10.0
+torchvision==0.25.0
+transformers>=4.38.2
+opencv-python>=4.9.0
+Pillow>=10.0.0
+
+# Audio processing
+pydub>=0.25.1
+speechrecognition>=3.10.0
+sounddevice>=0.4.6
+librosa>=0.10.0
+
+# UI and visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+dash>=2.15.0
+
+# Remote control and system management
+paramiko>=3.4.0
+pywinrm>=0.4.3
+
+# Utilities
+tqdm>=4.66.0
+python-dotenv>=1.0.0
+json5>=0.9.14
+charset-normalizer>=3.3.2  # 替换chardet，更好的编码检测
+click>=8.1.7
+aiohttp>=3.9.0
+
+# Hardware communication libraries
+python-can>=4.3.1
+pyusb>=1.2.1
+pyserial>=3.5
+smbus2>=0.4.3
+gpiozero>=1.6.2
+
+# Testing dependencies
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+pytest-xdist>=3.5.0
+httpx>=0.25.0
+testcontainers>=3.8.0
+PyJWT==2.8.0
+
+# Database dependencies
+psycopg2-binary>=2.9.9
+redis>=5.0.0
+
+# Knowledge graph and network analysis
+networkx>=3.3.0
+einops>=0.8.0
+pydantic-settings>=2.0.0
+
+# Scientific and mathematical computing
+scipy>=1.10.0
+sympy>=1.12.0

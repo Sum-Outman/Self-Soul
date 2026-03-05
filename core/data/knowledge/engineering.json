@@ -1,0 +1,393 @@
+{
+  "knowledge_base": {
+    "domain": "engineering",
+    "name": {
+      "en": "Engineering",
+      "zh": "工程学",
+      "de": "Ingenieurwissenschaften",
+      "ja": "工学",
+      "ru": "Инженерные науки"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for engineering fundamentals and advanced topics",
+      "zh": "工程学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Ingenieurwissenschaften Grundlagen und fortgeschrittene Themen",
+      "ja": "工学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам инженерных наук и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "mechanical_engineering",
+        "name": {
+          "en": "Mechanical Engineering",
+          "zh": "机械工程",
+          "de": "Maschinenbau",
+          "ja": "機械工学",
+          "ru": "Машинное строительство"
+        },
+        "concepts": [
+          {
+            "id": "thermodynamics",
+            "name": {
+              "en": "Thermodynamics",
+              "zh": "热力学",
+              "de": "Thermodynamik",
+              "ja": "熱力学",
+              "ru": "Термодинамика"
+            },
+            "description": {
+              "en": "The study of heat and its relation to energy and work",
+              "zh": "研究热量及其与能量和功的关系的学科",
+              "de": "Die Untersuchung der Wärme und ihrer Beziehung zu Energie und Arbeit",
+              "ja": "熱とエネルギー及び仕事との関係を研究する学問",
+              "ru": "Изучение тепла и его связи с энергией и работой"
+            },
+            "laws": [
+              "First Law (Conservation of Energy)",
+              "Second Law (Entropy)",
+              "Third Law (Absolute Zero)",
+              "Zeroth Law (Thermal Equilibrium)"
+            ],
+            "applications": [
+              "Heat engines",
+              "Refrigeration systems",
+              "Power generation",
+              "HVAC systems"
+            ]
+          },
+          {
+            "id": "fluid_mechanics",
+            "name": {
+              "en": "Fluid Mechanics",
+              "zh": "流体力学",
+              "de": "Strömungsmechanik",
+              "ja": "流体力学",
+              "ru": "Гидромеханика"
+            },
+            "description": {
+              "en": "The study of fluids (liquids, gases) in motion and at rest",
+              "zh": "研究流体（液体、气体）运动和静止状态的学科",
+              "de": "Die Untersuchung von Fluiden (Flüssigkeiten, Gase) in Bewegung und im Ruhezustand",
+              "ja": "流体（液体、気体）の運動と静止状態を研究する学問",
+              "ru": "Изучение жидкостей и газов в движении и в состоянии покоя"
+            },
+            "key_concepts": [
+              "Bernoulli's principle",
+              "Navier-Stokes equations",
+              "Reynolds number",
+              "Boundary layer"
+            ],
+            "applications": [
+              "Aerodynamics",
+              "Hydraulics",
+              "Pump design",
+              "Wind turbines"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "electrical_engineering",
+        "name": {
+          "en": "Electrical Engineering",
+          "zh": "电气工程",
+          "de": "Elektrotechnik",
+          "ja": "電気工学",
+          "ru": "Электротехника"
+        },
+        "concepts": [
+          {
+            "id": "circuit_theory",
+            "name": {
+              "en": "Circuit Theory",
+              "zh": "电路理论",
+              "de": "Schaltungstheorie",
+              "ja": "回路理論",
+              "ru": "Теория цепей"
+            },
+            "description": {
+              "en": "The study of electrical circuits, components, and their behavior",
+              "zh": "研究电路、组件及其行为的学科",
+              "de": "Die Untersuchung elektrischer Schaltungen, Komponenten und ihres Verhaltens",
+              "ja": "電気回路、部品、およびその動作を研究する学問",
+              "ru": "Изучение электрических цепей, компонентов и их поведения"
+            },
+            "laws": [
+              "Ohm's Law",
+              "Kirchhoff's Current Law",
+              "Kirchhoff's Voltage Law",
+              "Thevenin's Theorem"
+            ],
+            "components": [
+              "Resistors",
+              "Capacitors",
+              "Inductors",
+              "Diodes",
+              "Transistors"
+            ],
+            "applications": [
+              "Electronic devices",
+              "Power distribution",
+              "Telecommunications",
+              "Control systems"
+            ]
+          },
+          {
+            "id": "electronics",
+            "name": {
+              "en": "Electronics",
+              "zh": "电子学",
+              "de": "Elektronik",
+              "ja": "エレクトロニクス",
+              "ru": "Электроника"
+            },
+            "description": {
+              "en": "The study of electronic components, circuits, and systems",
+              "zh": "研究电子组件、电路和系统的学科",
+              "de": "Die Untersuchung elektronischer Komponenten, Schaltungen und Systeme",
+              "ja": "電子部品、回路、およびシステムを研究する学問",
+              "ru": "Изучение электронных компонентов, цепей и систем"
+            },
+            "key_concepts": [
+              "Semiconductors",
+              "Digital logic",
+              "Analog circuits",
+              "Integrated circuits"
+            ],
+            "applications": [
+              "Computers",
+              "Smartphones",
+              "Medical devices",
+              "Consumer electronics"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "civil_engineering",
+        "name": {
+          "en": "Civil Engineering",
+          "zh": "土木工程",
+          "de": "Bauingenieurwesen",
+          "ja": "土木工学",
+          "ru": "Гражданское строительство"
+        },
+        "concepts": [
+          {
+            "id": "structural_engineering",
+            "name": {
+              "en": "Structural Engineering",
+              "zh": "结构工程",
+              "de": "Konstruktiver Ingenieurbau",
+              "ja": "構造工学",
+              "ru": "Строительный механик"
+            },
+            "description": {
+              "en": "The study of the design and analysis of structures that support or resist loads",
+              "zh": "研究支撑或抵抗荷载的结构设计和分析的学科",
+              "de": "Die Untersuchung der Konzeption und Analyse von Strukturen, die Lasten tragen oder widerstehen",
+              "ja": "荷重を支えたり抵抗したりする構造物の設計と解析を研究する学問",
+              "ru": "Изучение проектирования и анализа конструкций, поддерживающих или сопротивляющихся нагрузкам"
+            },
+            "key_concepts": [
+              "Stress analysis",
+              "Load calculation",
+              "Material properties",
+              "Structural stability"
+            ],
+            "materials": [
+              "Concrete",
+              "Steel",
+              "Wood",
+              "Masonry",
+              "Composite materials"
+            ],
+            "applications": [
+              "Buildings",
+              "Bridges",
+              "Dams",
+              "Tunnels",
+              "Airports"
+            ]
+          },
+          {
+            "id": "geotechnical_engineering",
+            "name": {
+              "en": "Geotechnical Engineering",
+              "zh": "岩土工程",
+              "de": "Geotechnik",
+              "ja": "地盤工学",
+              "ru": "Геотехника"
+            },
+            "description": {
+              "en": "The study of the behavior of soil and rock and their application in engineering",
+              "zh": "研究土壤和岩石的行为及其在工程中的应用的学科",
+              "de": "Die Untersuchung des Verhaltens von Boden und Gestein und ihre Anwendung in der Ingenieurwissenschaften",
+              "ja": "土壌と岩石の挙動および工学への応用を研究する学問",
+              "ru": "Изучение поведения почвы и породы и их применения в инженерии"
+            },
+            "key_concepts": [
+              "Soil mechanics",
+              "Foundation design",
+              "Slope stability",
+              "Earthquake engineering"
+            ],
+            "applications": [
+              "Foundations",
+              "Retaining walls",
+              "Embankments",
+              "Underground structures"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "computer_engineering",
+        "name": {
+          "en": "Computer Engineering",
+          "zh": "计算机工程",
+          "de": "Computertechnik",
+          "ja": "コンピュータ工学",
+          "ru": "Компьютерная инженерия"
+        },
+        "concepts": [
+          {
+            "id": "digital_systems",
+            "name": {
+              "en": "Digital Systems",
+              "zh": "数字系统",
+              "de": "Digitale Systeme",
+              "ja": "デジタルシステム",
+              "ru": "Цифровые системы"
+            },
+            "description": {
+              "en": "The study of digital circuits, logic design, and digital signal processing",
+              "zh": "研究数字电路、逻辑设计和数字信号处理的学科",
+              "de": "Die Untersuchung digitaler Schaltungen, Logikdesign und digitaler Signalverarbeitung",
+              "ja": "デジタル回路、論理設計、およびデジタル信号処理を研究する学問",
+              "ru": "Изучение цифровых цепей, логического проектирования и цифровой обработки сигналов"
+            },
+            "key_concepts": [
+              "Boolean logic",
+              "Flip-flops",
+              "Registers",
+              "Counters",
+              "Microprocessors"
+            ],
+            "applications": [
+              "Computers",
+              "Embedded systems",
+              "Digital communication",
+              "Consumer electronics"
+            ]
+          },
+          {
+            "id": "computer_architecture",
+            "name": {
+              "en": "Computer Architecture",
+              "zh": "计算机体系结构",
+              "de": "Rechnerarchitektur",
+              "ja": "コンピュータアーキテクチャ",
+              "ru": "Архитектура компьютеров"
+            },
+            "description": {
+              "en": "The study of the structure and organization of computer systems",
+              "zh": "研究计算机系统的结构和组织的学科",
+              "de": "Die Untersuchung der Struktur und Organisation von Computersystemen",
+              "ja": "コンピュータシステムの構造と組織を研究する学問",
+              "ru": "Изучение структуры и организации компьютерных систем"
+            },
+            "components": [
+              "CPU",
+              "Memory hierarchy",
+              "I/O systems",
+              "Bus architecture",
+              "Parallel processing"
+            ],
+            "applications": [
+              "High-performance computing",
+              "Mobile devices",
+              "Server design",
+              "Embedded systems"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chemical_engineering",
+        "name": {
+          "en": "Chemical Engineering",
+          "zh": "化学工程",
+          "de": "Chemieingenieurwesen",
+          "ja": "化学工学",
+          "ru": "Химическое машиностроение"
+        },
+        "concepts": [
+          {
+            "id": "chemical_reaction_engineering",
+            "name": {
+              "en": "Chemical Reaction Engineering",
+              "zh": "化学反应工程",
+              "de": "Chemische Reaktionstechnik",
+              "ja": "化学反応工学",
+              "ru": "Химико-реакционная инженерия"
+            },
+            "description": {
+              "en": "The study of chemical reactions and their application in industrial processes",
+              "zh": "研究化学反应及其在工业过程中的应用的学科",
+              "de": "Die Untersuchung chemischer Reaktionen und ihre Anwendung in industriellen Prozessen",
+              "ja": "化学反応とその産業プロセスへの応用を研究する学問",
+              "ru": "Изучение химических реакций и их применения в промышленных процессах"
+            },
+            "key_concepts": [
+              "Reaction kinetics",
+              "Reactor design",
+              "Catalysis",
+              "Mass transfer"
+            ],
+            "applications": [
+              "Petrochemical industry",
+              "Pharmaceutical production",
+              "Food processing",
+              "Environmental engineering"
+            ]
+          },
+          {
+            "id": "separation_processes",
+            "name": {
+              "en": "Separation Processes",
+              "zh": "分离过程",
+              "de": "Trennverfahren",
+              "ja": "分離プロセス",
+              "ru": "Процессы разделения"
+            },
+            "description": {
+              "en": "The study of methods to separate components of mixtures",
+              "zh": "研究分离混合物成分的方法的学科",
+              "de": "Die Untersuchung von Methoden zur Trennung von Gemischkomponenten",
+              "ja": "混合物の成分を分離する方法を研究する学問",
+              "ru": "Изучение методов разделения компонентов смесей"
+            },
+            "processes": [
+              "Distillation",
+              "Filtration",
+              "Extraction",
+              "Adsorption",
+              "Membrane separation"
+            ],
+            "applications": [
+              "Water purification",
+              "Petroleum refining",
+              "Pharmaceutical production",
+              "Food processing"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.587291Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

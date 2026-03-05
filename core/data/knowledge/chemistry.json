@@ -1,0 +1,263 @@
+{
+  "knowledge_base": {
+    "domain": "chemistry",
+    "name": {
+      "en": "Chemistry",
+      "zh": "化学",
+      "de": "Chemie",
+      "ja": "化学",
+      "ru": "Химия"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for chemistry fundamentals and advanced topics",
+      "zh": "化学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Chemiegrundlagen und fortgeschrittene Themen",
+      "ja": "化学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам химии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "general_chemistry",
+        "name": {
+          "en": "General Chemistry",
+          "zh": "普通化学",
+          "de": "Allgemeine Chemie",
+          "ja": "一般化学",
+          "ru": "Общая химия"
+        },
+        "concepts": [
+          {
+            "id": "atomic_structure",
+            "name": {
+              "en": "Atomic Structure",
+              "zh": "原子结构",
+              "de": "Atomstruktur",
+              "ja": "原子構造",
+              "ru": "Структура атома"
+            },
+            "description": {
+              "en": "The structure of atoms, including protons, neutrons, electrons, and quantum mechanical models",
+              "zh": "原子的结构，包括质子、中子、电子和量子力学模型",
+              "de": "Die Struktur von Atomen, einschließlich Protonen, Neutronen, Elektronen und quantenmechanischer Modelle",
+              "ja": "原子の構造、陽子、中性子、電子、および量子力学モデルを含む",
+              "ru": "Структура атомов, включая протоны, нейтроны, электроны и квантово-механические модели"
+            },
+            "components": [
+              "Nucleus",
+              "Protons",
+              "Neutrons",
+              "Electrons",
+              "Electron shells",
+              "Orbitals"
+            ],
+            "key_models": [
+              "Bohr model",
+              "Quantum mechanical model",
+              "Schrödinger equation"
+            ],
+            "applications": [
+              "Spectroscopy",
+              "Material science",
+              "Nuclear physics"
+            ]
+          },
+          {
+            "id": "periodic_table",
+            "name": {
+              "en": "Periodic Table",
+              "zh": "元素周期表",
+              "de": "Periodensystem",
+              "ja": "周期表",
+              "ru": "Периодическая система элементов"
+            },
+            "description": {
+              "en": "Tabular arrangement of chemical elements based on their atomic number, electron configuration, and recurring chemical properties",
+              "zh": "根据原子序数、电子构型和重复化学性质排列的化学元素表",
+              "de": "Tabellarische Anordnung chemischer Elemente nach ihrer Ordnungszahl, Elektronenkonfiguration und wiederkehrenden chemischen Eigenschaften",
+              "ja": "原子番号、電子配置、および繰り返す化学的性質に基づいて化学元素を表形式で配置したもの",
+              "ru": "Табличное расположение химических элементов по их атомному номеру, электронной конфигурации и повторяющимся химическим свойствам"
+            },
+            "classification": [
+              "Groups",
+              "Periods",
+              "Blocks",
+              "Metals",
+              "Nonmetals",
+              "Metalloids"
+            ],
+            "key_trends": [
+              "Atomic radius",
+              "Electronegativity",
+              "Ionization energy",
+              "Electron affinity"
+            ],
+            "applications": [
+              "Predicting chemical behavior",
+              "Material design",
+              "Pharmaceutical research"
+            ]
+          },
+          {
+            "id": "chemical_bonds",
+            "name": {
+              "en": "Chemical Bonds",
+              "zh": "化学键",
+              "de": "Chemische Bindungen",
+              "ja": "化学結合",
+              "ru": "Химические связи"
+            },
+            "description": {
+              "en": "Forces that hold atoms together in molecules and compounds",
+              "zh": "将原子结合在分子和化合物中的力",
+              "de": "Kräfte, die Atome in Molekülen und Verbindungen zusammenhalten",
+              "ja": "分子や化合物中の原子を結びつける力",
+              "ru": "Силы, удерживающие атомы в молекулах и соединениях"
+            },
+            "bond_types": [
+              "Ionic bonds",
+              "Covalent bonds",
+              "Metallic bonds",
+              "Hydrogen bonds",
+              "Van der Waals forces"
+            ],
+            "bonding_theories": [
+              "Valence bond theory",
+              "Molecular orbital theory",
+              "VSEPR theory"
+            ],
+            "applications": [
+              "Drug design",
+              "Polymer science",
+              "Crystal engineering"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "organic_chemistry",
+        "name": {
+          "en": "Organic Chemistry",
+          "zh": "有机化学",
+          "de": "Organische Chemie",
+          "ja": "有機化学",
+          "ru": "Органическая химия"
+        },
+        "concepts": [
+          {
+            "id": "carbon_compounds",
+            "name": {
+              "en": "Carbon Compounds",
+              "zh": "碳化合物",
+              "de": "Kohlenstoffverbindungen",
+              "ja": "炭素化合物",
+              "ru": "Углеродные соединения"
+            },
+            "description": {
+              "en": "Compounds containing carbon atoms, typically bonded to hydrogen, oxygen, nitrogen, or other elements",
+              "zh": "含有碳原子的化合物，通常与氢、氧、氮或其他元素结合",
+              "de": "Verbindungen, die Kohlenstoffatome enthalten, typischerweise gebunden an Wasserstoff, Sauerstoff, Stickstoff oder andere Elemente",
+              "ja": "通常、水素、酸素、窒素、または他の元素と結合した炭素原子を含む化合物",
+              "ru": "Соединения, содержащие атомы углерода, обычно связанные с водородом, кислородом, азотом или другими элементами"
+            },
+            "classification": [
+              "Hydrocarbons",
+              "Alcohols",
+              "Aldehydes",
+              "Ketones",
+              "Carboxylic acids",
+              "Amines",
+              "Esters",
+              "Polymers"
+            ],
+            "properties": [
+              "Catenation",
+              "Isomerism",
+              "Functional groups",
+              "Reactivity patterns"
+            ],
+            "applications": [
+              "Pharmaceuticals",
+              "Plastics",
+              "Fuels",
+              "Food additives"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "physical_chemistry",
+        "name": {
+          "en": "Physical Chemistry",
+          "zh": "物理化学",
+          "de": "Physikalische Chemie",
+          "ja": "物理化学",
+          "ru": "Физическая химия"
+        },
+        "concepts": [
+          {
+            "id": "chemical_thermodynamics",
+            "name": {
+              "en": "Chemical Thermodynamics",
+              "zh": "化学热力学",
+              "de": "Chemische Thermodynamik",
+              "ja": "化学熱力学",
+              "ru": "Химическая термодинамика"
+            },
+            "description": {
+              "en": "Study of energy changes in chemical reactions and physical processes",
+              "zh": "研究化学反应和物理过程中的能量变化",
+              "de": "Untersuchung von Energieänderungen bei chemischen Reaktionen und physikalischen Prozessen",
+              "ja": "化学反応や物理的プロセスにおけるエネルギー変化の研究",
+              "ru": "Изучение энергетических изменений при химических реакциях и физических процессах"
+            },
+            "key_concepts": [
+              "Enthalpy",
+              "Entropy",
+              "Gibbs free energy",
+              "Thermodynamic equilibrium",
+              "Laws of thermodynamics"
+            ],
+            "applications": [
+              "Reaction spontaneity prediction",
+              "Industrial process design",
+              "Battery technology"
+            ]
+          },
+          {
+            "id": "chemical_kinetics",
+            "name": {
+              "en": "Chemical Kinetics",
+              "zh": "化学动力学",
+              "de": "Chemische Kinetik",
+              "ja": "化学反応速度論",
+              "ru": "Химическая кинетика"
+            },
+            "description": {
+              "en": "Study of rates and mechanisms of chemical reactions",
+              "zh": "研究化学反应的速率和机理",
+              "de": "Untersuchung von Geschwindigkeiten und Mechanismen chemischer Reaktionen",
+              "ja": "化学反応の速度とメカニズムの研究",
+              "ru": "Изучение скоростей и механизмов химических реакций"
+            },
+            "key_parameters": [
+              "Reaction rate",
+              "Rate law",
+              "Activation energy",
+              "Catalysis",
+              "Reaction mechanisms"
+            ],
+            "applications": [
+              "Industrial catalysis",
+              "Pharmaceutical development",
+              "Environmental chemistry"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.568343Z",
+    "version": "2.0.0",
+    "total_concepts": 6,
+    "total_categories": 3
+  }
+}

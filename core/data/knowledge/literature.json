@@ -1,0 +1,403 @@
+{
+  "knowledge_base": {
+    "domain": "literature",
+    "name": {
+      "en": "Literature",
+      "zh": "文学",
+      "de": "Literatur",
+      "ja": "文学",
+      "ru": "Литература"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for literature fundamentals and advanced topics",
+      "zh": "文学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Literatur Grundlagen und fortgeschrittene Themen",
+      "ja": "文学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам литературы и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "literary_theory_criticism",
+        "name": {
+          "en": "Literary Theory & Criticism",
+          "zh": "文学理论与批评",
+          "de": "Literaturtheorie und Kritik",
+          "ja": "文学理論と批評",
+          "ru": "Литературная теория и критика"
+        },
+        "concepts": [
+          {
+            "id": "literary_theory",
+            "name": {
+              "en": "Literary Theory",
+              "zh": "文学理论",
+              "de": "Literaturtheorie",
+              "ja": "文学理論",
+              "ru": "Литературная теория"
+            },
+            "description": {
+              "en": "The systematic study of the nature, forms, and principles of literature",
+              "zh": "对文学的性质、形式和原则的系统研究",
+              "de": "Die systematische Untersuchung der Natur, Formen und Prinzipien der Literatur",
+              "ja": "文学の性質、形式、原則に関する体系的研究",
+              "ru": "Системное изучение природы, форм и принципов литературы"
+            },
+            "major_schools": [
+              "Formalism",
+              "Structuralism",
+              "Post-structuralism",
+              "Marxist Literary Theory",
+              "Feminist Literary Criticism",
+              "Postcolonial Theory"
+            ],
+            "key_concepts": [
+              "Narratology",
+              "Rhetoric",
+              "Intertextuality",
+              "Aesthetics",
+              "Hermeneutics",
+              "Semiotics"
+            ]
+          },
+          {
+            "id": "literary_criticism",
+            "name": {
+              "en": "Literary Criticism",
+              "zh": "文学批评",
+              "de": "Literaturkritik",
+              "ja": "文学批評",
+              "ru": "Литературная критика"
+            },
+            "description": {
+              "en": "The evaluation, analysis, description, or interpretation of literary works",
+              "zh": "对文学作品的评价、分析、描述或解释",
+              "de": "Die Bewertung, Analyse, Beschreibung oder Interpretation literarischer Werke",
+              "ja": "文学作品の評価、分析、記述または解釈",
+              "ru": "Оценка, анализ, описание или интерпретация литературных произведений"
+            },
+            "approaches": [
+              "Historical Criticism",
+              "Biographical Criticism",
+              "New Criticism",
+              "Reader-Response Criticism",
+              "Psychological Criticism",
+              "Cultural Criticism"
+            ],
+            "purposes": [
+              "Interpretation",
+              "Evaluation",
+              "Cultural Analysis",
+              "Historical Contextualization"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "world_literature",
+        "name": {
+          "en": "World Literature",
+          "zh": "世界文学",
+          "de": "Weltliteratur",
+          "ja": "世界文学",
+          "ru": "Мировая литература"
+        },
+        "concepts": [
+          {
+            "id": "western_classical_literature",
+            "name": {
+              "en": "Western Classical Literature",
+              "zh": "西方古典文学",
+              "de": "Westliche klassische Literatur",
+              "ja": "西洋古典文学",
+              "ru": "Западная классическая литература"
+            },
+            "description": {
+              "en": "Ancient and classical literary works from Western civilizations",
+              "zh": "来自西方文明的古代和古典文学作品",
+              "de": "Antike und klassische literarische Werke aus westlichen Zivilisationen",
+              "ja": "西洋文明に由来する古代・古典文学作品",
+              "ru": "Древние и классические литературные произведения западных цивилизаций"
+            },
+            "key_works": [
+              "Iliad",
+              "Odyssey",
+              "Aeneid",
+              "Divine Comedy",
+              "Hamlet",
+              "Don Quixote"
+            ],
+            "major_authors": [
+              "Homer",
+              "Virgil",
+              "Dante Alighieri",
+              "William Shakespeare",
+              "Miguel de Cervantes"
+            ]
+          },
+          {
+            "id": "world_modern_literature",
+            "name": {
+              "en": "World Modern Literature",
+              "zh": "世界现代文学",
+              "de": "Moderne Weltliteratur",
+              "ja": "世界現代文学",
+              "ru": "Современная мировая литература"
+            },
+            "description": {
+              "en": "Literary works from the late 19th century to the present from around the world",
+              "zh": "19世纪后期至今来自世界各地的文学作品",
+              "de": "Literarische Werke vom späten 19. Jahrhundert bis heute aus der ganzen Welt",
+              "ja": "19世紀後半から現在に至るまでの世界中の文学作品",
+              "ru": "Литературные произведения со второй половины XIX века до настоящего времени со всего мира"
+            },
+            "key_movements": [
+              "Modernism",
+              "Postmodernism",
+              "Magical Realism",
+              "Existentialist Literature",
+              "Harlem Renaissance"
+            ],
+            "major_authors": [
+              "Franz Kafka",
+              "Gabriel García Márquez",
+              "Virginia Woolf",
+              "Albert Camus",
+              "Toni Morrison"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chinese_literature",
+        "name": {
+          "en": "Chinese Literature",
+          "zh": "中国文学",
+          "de": "Chinesische Literatur",
+          "ja": "中国文学",
+          "ru": "Китайская литература"
+        },
+        "concepts": [
+          {
+            "id": "ancient_chinese_literature",
+            "name": {
+              "en": "Ancient Chinese Literature",
+              "zh": "中国古代文学",
+              "de": "Alte chinesische Literatur",
+              "ja": "中国古代文学",
+              "ru": "Древняя китайская литература"
+            },
+            "description": {
+              "en": "Literary works from ancient China, spanning thousands of years",
+              "zh": "中国古代数千年来的文学作品",
+              "de": "Literarische Werke aus dem alten China, die Jahrtausende umfassen",
+              "ja": "中国古代の数千年にわたる文学作品",
+              "ru": "Литературные произведения древнего Китая, охватывающие тысячелетия"
+            },
+            "key_works": [
+              "Classic of Poetry",
+              "Dream of the Red Chamber",
+              "Romance of the Three Kingdoms",
+              "Water Margin",
+              "Journey to the West"
+            ],
+            "literary_forms": [
+              "Shi (Poetry)",
+              "Ci (Lyric Poetry)",
+              "Qu (Opera Libretto)",
+              "Novel",
+              "Prose"
+            ]
+          },
+          {
+            "id": "modern_contemporary_chinese_literature",
+            "name": {
+              "en": "Modern & Contemporary Chinese Literature",
+              "zh": "中国现代当代文学",
+              "de": "Moderne und zeitgenössische chinesische Literatur",
+              "ja": "中国現代・当代文学",
+              "ru": "Современная и современная китайская литература"
+            },
+            "description": {
+              "en": "Chinese literary works from the late Qing Dynasty to the present",
+              "zh": "从晚清至今的中国文学作品",
+              "de": "Chinesische literarische Werke vom späten Qing-Dynastie bis heute",
+              "ja": "清朝末期から現在までの中国文学作品",
+              "ru": "Китайские литературные произведения от позднего периода династии Цинга до настоящего времени"
+            },
+            "key_authors": [
+              "Lu Xun",
+              "Ba Jin",
+              "Mao Dun",
+              "Cao Yu",
+              "Mo Yan"
+            ],
+            "major_themes": [
+              "Social Reform",
+              "Cultural Identity",
+              "Modernization",
+              "Personal Freedom",
+              "Historical Memory"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "literary_genres",
+        "name": {
+          "en": "Literary Genres",
+          "zh": "文学体裁",
+          "de": "Literarische Gattungen",
+          "ja": "文学ジャンル",
+          "ru": "Литературные жанры"
+        },
+        "concepts": [
+          {
+            "id": "fiction",
+            "name": {
+              "en": "Fiction",
+              "zh": "小说",
+              "de": "Fiktion",
+              "ja": "フィクション",
+              "ru": "Художественная проза"
+            },
+            "description": {
+              "en": "Imaginative or invented narrative prose literature",
+              "zh": "富有想象力或虚构的叙事散文文学",
+              "de": "Phantastische oder erfundene narrative Prosaliteratur",
+              "ja": "想像力に富んだまたは発明された叙述散文文学",
+              "ru": "Воображаемая или вымышленная повествовательная проза"
+            },
+            "subgenres": [
+              "Novel",
+              "Novella",
+              "Short Story",
+              "Epic",
+              "Science Fiction",
+              "Fantasy",
+              "Mystery",
+              "Romance"
+            ],
+            "key_elements": [
+              "Plot",
+              "Character",
+              "Setting",
+              "Theme",
+              "Point of View",
+              "Style"
+            ]
+          },
+          {
+            "id": "poetry",
+            "name": {
+              "en": "Poetry",
+              "zh": "诗歌",
+              "de": "Poesie",
+              "ja": "詩",
+              "ru": "Поэзия"
+            },
+            "description": {
+              "en": "Literature in metrical form with a heightened use of language",
+              "zh": "以格律形式呈现，语言高度凝练的文学形式",
+              "de": "Literatur in metrischer Form mit erhöhter Sprachverwendung",
+              "ja": "韻律形式で表現され、言語が高度に凝縮された文学形式",
+              "ru": "Литература в метрической форме с повышенным использованием языка"
+            },
+            "subgenres": [
+              "Lyric Poetry",
+              "Narrative Poetry",
+              "Epic Poetry",
+              "Sonnet",
+              "Haiku",
+              "Free Verse",
+              "Ballad"
+            ],
+            "key_elements": [
+              "Meter",
+              "Rhyme",
+              "Imagery",
+              "Symbolism",
+              "Tone",
+              "Diction"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "literary_histories_schools",
+        "name": {
+          "en": "Literary Histories & Schools",
+          "zh": "文学历史与流派",
+          "de": "Literaturgeschichten und Schulen",
+          "ja": "文学史と流派",
+          "ru": "Литературная история и школы"
+        },
+        "concepts": [
+          {
+            "id": "realism_literature",
+            "name": {
+              "en": "Realism Literature",
+              "zh": "现实主义文学",
+              "de": "Realistische Literatur",
+              "ja": "リアリズム文学",
+              "ru": "Реалистическая литература"
+            },
+            "description": {
+              "en": "Literary movement that depicts contemporary life and society as it is",
+              "zh": "如实描绘当代生活和社会的文学运动",
+              "de": "Literarische Bewegung, die das gegenwärtige Leben und die Gesellschaft so darstellt, wie sie ist",
+              "ja": "現代の生活と社会をそのまま描く文学運動",
+              "ru": "Литературное движение, которое изображяет современную жизнь и общество так, как оно есть"
+            },
+            "major_periods": [
+              "19th Century European Realism",
+              "American Realism",
+              "Socialist Realism"
+            ],
+            "key_authors": [
+              "Gustave Flaubert",
+              "Leo Tolstoy",
+              "Charles Dickens",
+              "Mark Twain",
+              "Maxim Gorky"
+            ]
+          },
+          {
+            "id": "modernism_literature",
+            "name": {
+              "en": "Modernism Literature",
+              "zh": "现代主义文学",
+              "de": "Moderne Literatur",
+              "ja": "モダニズム文学",
+              "ru": "Современизм в литературе"
+            },
+            "description": {
+              "en": "Literary movement characterized by experimental techniques and a rejection of traditional forms",
+              "zh": "以实验性技巧和拒绝传统形式为特征的文学运动",
+              "de": "Literarische Bewegung, die durch experimentelle Techniken und eine Ablehnung traditioneller Formen gekennzeichnet ist",
+              "ja": "実験的な技法と伝統的な形式の拒否を特徴とする文学運動",
+              "ru": "Литературное движение, характеризующееся экспериментальными техниками и отрицанием традиционных форм"
+            },
+            "key_characteristics": [
+              "Stream of Consciousness",
+              "Fragmentation",
+              "Metafiction",
+              "Multiple Narrators",
+              "Symbolism"
+            ],
+            "major_authors": [
+              "James Joyce",
+              "Virginia Woolf",
+              "T.S. Eliot",
+              "Franz Kafka",
+              "William Faulkner"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.630744Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

@@ -1,0 +1,433 @@
+{
+  "knowledge_base": {
+    "domain": "medicine",
+    "name": {
+      "en": "Medicine",
+      "zh": "医学",
+      "de": "Medizin",
+      "ja": "医学",
+      "ru": "Медицина"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for medicine fundamentals and advanced topics",
+      "zh": "医学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Medizingrundlagen und fortgeschrittene Themen",
+      "ja": "医学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам медицины и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "anatomy",
+        "name": {
+          "en": "Anatomy",
+          "zh": "解剖学",
+          "de": "Anatomie",
+          "ja": "解剖学",
+          "ru": "Анатомия"
+        },
+        "concepts": [
+          {
+            "id": "human_anatomy",
+            "name": {
+              "en": "Human Anatomy",
+              "zh": "人体解剖学",
+              "de": "Menschliche Anatomie",
+              "ja": "人体解剖学",
+              "ru": "Человеческая анатомия"
+            },
+            "description": {
+              "en": "The study of the structure of the human body and its parts",
+              "zh": "研究人体结构及其各部分的学科",
+              "de": "Die Untersuchung der Struktur des menschlichen Körpers und seiner Teile",
+              "ja": "人体の構造とその部分の研究",
+              "ru": "Изучение структуры человеческого тела и его частей"
+            },
+            "body_systems": [
+              "Skeletal system",
+              "Muscular system",
+              "Nervous system",
+              "Circulatory system",
+              "Respiratory system",
+              "Digestive system",
+              "Endocrine system",
+              "Immune system"
+            ],
+            "regions": [
+              "Head",
+              "Neck",
+              "Torso",
+              "Upper extremities",
+              "Lower extremities"
+            ],
+            "applications": [
+              "Surgery",
+              "Radiology",
+              "Physical therapy",
+              "Medical education"
+            ]
+          },
+          {
+            "id": "histology",
+            "name": {
+              "en": "Histology",
+              "zh": "组织学",
+              "de": "Histologie",
+              "ja": "組織学",
+              "ru": "Гистология"
+            },
+            "description": {
+              "en": "The study of the microscopic structure of tissues",
+              "zh": "研究组织的微观结构的学科",
+              "de": "Die Untersuchung der mikroskopischen Struktur von Geweben",
+              "ja": "組織の微視的構造の研究",
+              "ru": "Изучение микроскопической структуры тканей"
+            },
+            "tissue_types": [
+              "Epithelial tissue",
+              "Connective tissue",
+              "Muscle tissue",
+              "Nervous tissue"
+            ],
+            "staining_techniques": [
+              "Hematoxylin and eosin",
+              "Immunohistochemistry",
+              "Electron microscopy"
+            ],
+            "applications": [
+              "Pathology",
+              "Cell biology",
+              "Medical research"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "physiology",
+        "name": {
+          "en": "Physiology",
+          "zh": "生理学",
+          "de": "Physiologie",
+          "ja": "生理学",
+          "ru": "Физиология"
+        },
+        "concepts": [
+          {
+            "id": "human_physiology",
+            "name": {
+              "en": "Human Physiology",
+              "zh": "人体生理学",
+              "de": "Menschliche Physiologie",
+              "ja": "人体生理学",
+              "ru": "Человеческая физиология"
+            },
+            "description": {
+              "en": "The study of the functions and mechanisms of the human body",
+              "zh": "研究人体功能和机制的学科",
+              "de": "Die Untersuchung der Funktionen und Mechanismen des menschlichen Körpers",
+              "ja": "人体の機能とメカニズムの研究",
+              "ru": "Изучение функций и механизмов человеческого тела"
+            },
+            "key_processes": [
+              "Homeostasis",
+              "Cellular physiology",
+              "Organ system physiology",
+              "Neurophysiology"
+            ],
+            "regulatory_mechanisms": [
+              "Nervous system regulation",
+              "Endocrine system regulation",
+              "Immune system regulation"
+            ],
+            "applications": [
+              "Medicine",
+              "Pharmacology",
+              "Exercise science",
+              "Biomedical engineering"
+            ]
+          },
+          {
+            "id": "pathophysiology",
+            "name": {
+              "en": "Pathophysiology",
+              "zh": "病理生理学",
+              "de": "Pathophysiologie",
+              "ja": "病理生理学",
+              "ru": "Патофизиология"
+            },
+            "description": {
+              "en": "The study of abnormal physiological processes associated with disease",
+              "zh": "研究与疾病相关的异常生理过程的学科",
+              "de": "Die Untersuchung abnormer physiologischer Prozesse im Zusammenhang mit Krankheiten",
+              "ja": "病気に関連する異常な生理的プロセスの研究",
+              "ru": "Изучение аномальных физиологических процессов, связанных с болезнями"
+            },
+            "disease_mechanisms": [
+              "Inflammation",
+              "Cell injury",
+              "Neoplasia",
+              "Immune dysfunction",
+              "Metabolic disorders"
+            ],
+            "diagnostic_applications": [
+              "Clinical medicine",
+              "Laboratory medicine",
+              "Medical imaging"
+            ],
+            "applications": [
+              "Disease treatment",
+              "Drug development",
+              "Medical research"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pharmacology",
+        "name": {
+          "en": "Pharmacology",
+          "zh": "药理学",
+          "de": "Pharmakologie",
+          "ja": "薬理学",
+          "ru": "Фармакология"
+        },
+        "concepts": [
+          {
+            "id": "drug_action",
+            "name": {
+              "en": "Drug Action",
+              "zh": "药物作用",
+              "de": "Wirkung von Medikamenten",
+              "ja": "薬物作用",
+              "ru": "Действие лекарств"
+            },
+            "description": {
+              "en": "The mechanisms by which drugs produce their effects on the body",
+              "zh": "药物对身体产生作用的机制",
+              "de": "Die Mechanismen, durch die Medikamente ihre Wirkung auf den Körper ausüben",
+              "ja": "薬物が体に作用するメカニズム",
+              "ru": "Механизмы, посредством которых лекарства производят их действие на организм"
+            },
+            "drug_classifications": [
+              "Analgesics",
+              "Antibiotics",
+              "Antidepressants",
+              "Antihypertensives",
+              "Chemotherapeutic agents"
+            ],
+            "pharmacokinetics": [
+              "Absorption",
+              "Distribution",
+              "Metabolism",
+              "Excretion"
+            ],
+            "applications": [
+              "Clinical pharmacy",
+              "Pharmacotherapy",
+              "Drug development"
+            ]
+          },
+          {
+            "id": "toxicology",
+            "name": {
+              "en": "Toxicology",
+              "zh": "毒理学",
+              "de": "Toxikologie",
+              "ja": "毒物学",
+              "ru": "Токсикология"
+            },
+            "description": {
+              "en": "The study of the adverse effects of chemicals on living organisms",
+              "zh": "研究化学物质对生物体的不利影响的学科",
+              "de": "Die Untersuchung der nachteiligen Wirkungen von Chemikalien auf lebende Organismen",
+              "ja": "化学物質が生物に及ぼす有害な影響の研究",
+              "ru": "Изучение неблагоприятных эффектов химических веществ на живые организмы"
+            },
+            "toxic_agents": [
+              "Drugs",
+              "Environmental toxins",
+              "Heavy metals",
+              "Pesticides",
+              "Industrial chemicals"
+            ],
+            "toxicity_mechanisms": [
+              "Cellular injury",
+              "Organ toxicity",
+              "Genotoxicity",
+              "Carcinogenicity"
+            ],
+            "applications": [
+              "Occupational health",
+              "Environmental health",
+              "Forensic medicine"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "clinical_medicine",
+        "name": {
+          "en": "Clinical Medicine",
+          "zh": "临床医学",
+          "de": "Klinische Medizin",
+          "ja": "臨床医学",
+          "ru": "Клиническая медицина"
+        },
+        "concepts": [
+          {
+            "id": "diagnosis",
+            "name": {
+              "en": "Diagnosis",
+              "zh": "诊断学",
+              "de": "Diagnostik",
+              "ja": "診断学",
+              "ru": "Диагностика"
+            },
+            "description": {
+              "en": "The process of identifying diseases based on signs, symptoms, and diagnostic tests",
+              "zh": "基于体征、症状和诊断测试识别疾病的过程",
+              "de": "Der Prozess der Identifizierung von Krankheiten auf der Grundlage von Anzeichen, Symptomen und diagnostischen Tests",
+              "ja": "兆候、症状、および診断検査に基づいて病気を特定するプロセス",
+              "ru": "Процесс выявления заболеваний на основе признаков, симптомов и диагностических тестов"
+            },
+            "diagnostic_methods": [
+              "Physical examination",
+              "Laboratory tests",
+              "Imaging studies",
+              "Biopsy",
+              "Endoscopy"
+            ],
+            "key_concepts": [
+              "Differential diagnosis",
+              "Clinical reasoning",
+              "Evidence-based medicine"
+            ],
+            "applications": [
+              "Primary care",
+              "Specialized medicine",
+              "Emergency medicine"
+            ]
+          },
+          {
+            "id": "treatment",
+            "name": {
+              "en": "Treatment",
+              "zh": "治疗学",
+              "de": "Therapie",
+              "ja": "治療学",
+              "ru": "Терапия"
+            },
+            "description": {
+              "en": "The application of medical interventions to treat diseases and improve patient health",
+              "zh": "应用医疗干预来治疗疾病和改善患者健康的学科",
+              "de": "Die Anwendung medizinischer Interventionen zur Behandlung von Krankheiten und zur Verbesserung der Patientengesundheit",
+              "ja": "病気を治療し、患者の健康を改善するための医療介入の適用",
+              "ru": "Применение медицинских вмешательств для лечения заболеваний и улучшения здоровья пациентов"
+            },
+            "treatment_modalities": [
+              "Pharmacotherapy",
+              "Surgery",
+              "Radiotherapy",
+              "Physical therapy",
+              "Psychotherapy"
+            ],
+            "therapeutic_principles": [
+              "Individualized treatment",
+              "Evidence-based practice",
+              "Patient-centered care"
+            ],
+            "applications": [
+              "Hospital care",
+              "Outpatient care",
+              "Rehabilitation medicine"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "public_health",
+        "name": {
+          "en": "Public Health",
+          "zh": "公共卫生",
+          "de": "Öffentliche Gesundheit",
+          "ja": "公衆衛生",
+          "ru": "Публичное здоровье"
+        },
+        "concepts": [
+          {
+            "id": "epidemiology",
+            "name": {
+              "en": "Epidemiology",
+              "zh": "流行病学",
+              "de": "Epidemiologie",
+              "ja": "疫学",
+              "ru": "Эпидемиология"
+            },
+            "description": {
+              "en": "The study of the distribution and determinants of health-related states or events in specified populations",
+              "zh": "研究特定人群中与健康相关的状态或事件的分布和决定因素的学科",
+              "de": "Die Untersuchung der Verteilung und Determinanten gesundheitsbezogener Zustände oder Ereignisse in bestimmten Bevölkerungsgruppen",
+              "ja": "特定の集団における健康関連の状態またはイベントの分布と決定要因の研究",
+              "ru": "Изучение распределения и детерминант здоровьеобусловленных состояний или событий в определенных популяциях"
+            },
+            "study_designs": [
+              "Cohort studies",
+              "Case-control studies",
+              "Cross-sectional studies",
+              "Randomized controlled trials"
+            ],
+            "key_measures": [
+              "Incidence",
+              "Prevalence",
+              "Mortality rate",
+              "Risk factors",
+              "Odds ratio"
+            ],
+            "applications": [
+              "Disease prevention",
+              "Health policy",
+              "Health promotion"
+            ]
+          },
+          {
+            "id": "health_promotion",
+            "name": {
+              "en": "Health Promotion",
+              "zh": "健康促进",
+              "de": "Gesundheitsförderung",
+              "ja": "健康増進",
+              "ru": "Продвижение здоровья"
+            },
+            "description": {
+              "en": "The process of enabling people to increase control over and improve their health",
+              "zh": "使人们能够增加对健康的控制并改善健康的过程",
+              "de": "Der Prozess, Menschen zu befähigen, die Kontrolle über ihre Gesundheit zu erhöhen und zu verbessern",
+              "ja": "人々が自分の健康に対するコントロールを増やし、健康を改善することを可能にするプロセス",
+              "ru": "Процесс赋能 людей увеличить контроль над своим здоровьем и улучшить его"
+            },
+            "strategies": [
+              "Health education",
+              "Policy development",
+              "Environmental support",
+              "Community participation"
+            ],
+            "priority_areas": [
+              "Chronic disease prevention",
+              "Mental health promotion",
+              "Infectious disease control",
+              "Environmental health"
+            ],
+            "applications": [
+              "Community health",
+              "School health",
+              "Workplace health"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.570338Z",
+    "version": "2.0.0",
+    "total_concepts": 10,
+    "total_categories": 5
+  }
+}

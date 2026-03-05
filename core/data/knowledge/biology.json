@@ -1,0 +1,377 @@
+{
+  "knowledge_base": {
+    "domain": "biology",
+    "name": {
+      "en": "Biology",
+      "zh": "生物学",
+      "de": "Biologie",
+      "ja": "生物学",
+      "ru": "Биология"
+    },
+    "description": {
+      "en": "Comprehensive knowledge base for biology fundamentals and advanced topics",
+      "zh": "生物学基础和高级主题的全面知识库",
+      "de": "Umfassende Wissensdatenbank für Biologiegrundlagen und fortgeschrittene Themen",
+      "ja": "生物学の基礎と高度なトピックに関する包括的な知識ベース",
+      "ru": "Комплексная база знаний по основам биологии и продвинутым темам"
+    },
+    "categories": [
+      {
+        "id": "cell_biology",
+        "name": {
+          "en": "Cell Biology",
+          "zh": "细胞生物学",
+          "de": "Zellbiologie",
+          "ja": "細胞生物学",
+          "ru": "Клеточная биология"
+        },
+        "concepts": [
+          {
+            "id": "cell_structure",
+            "name": {
+              "en": "Cell Structure",
+              "zh": "细胞结构",
+              "de": "Zellstruktur",
+              "ja": "細胞構造",
+              "ru": "Структура клетки"
+            },
+            "description": {
+              "en": "The structural organization of cells, including organelles and their functions",
+              "zh": "细胞的结构组织，包括细胞器及其功能",
+              "de": "Die strukturelle Organisation von Zellen, einschließlich Organellen und ihrer Funktionen",
+              "ja": "細胞の構造的な組織、細胞小器官とその機能を含む",
+              "ru": "Структурная организация клеток, включая органеллы и их функции"
+            },
+            "components": [
+              "Cell membrane",
+              "Nucleus",
+              "Mitochondria",
+              "Endoplasmic reticulum",
+              "Golgi apparatus",
+              "Lysosomes",
+              "Cytoskeleton",
+              "Ribosomes"
+            ],
+            "cell_types": [
+              "Prokaryotic cells",
+              "Eukaryotic cells",
+              "Animal cells",
+              "Plant cells"
+            ],
+            "applications": [
+              "Cell therapy",
+              "Tissue engineering",
+              "Drug delivery",
+              "Cancer research"
+            ]
+          },
+          {
+            "id": "cell_cycle",
+            "name": {
+              "en": "Cell Cycle",
+              "zh": "细胞周期",
+              "de": "Zellzyklus",
+              "ja": "細胞周期",
+              "ru": "Клеточный цикл"
+            },
+            "description": {
+              "en": "The series of events that take place in a cell leading to its division and duplication",
+              "zh": "细胞分裂和复制过程中发生的一系列事件",
+              "de": "Die Abfolge von Ereignissen, die in einer Zelle stattfinden und zu ihrer Teilung und Vervielfältigung führen",
+              "ja": "細胞が分裂し複製するまでに起こる一連の事象",
+              "ru": "Последовательность событий, происходящих в клетке и приводящих к ее делению и дупликации"
+            },
+            "phases": [
+              "G1 phase",
+              "S phase",
+              "G2 phase",
+              "M phase"
+            ],
+            "regulation": [
+              "Checkpoints",
+              "Cyclins",
+              "Cyclin-dependent kinases",
+              "Tumor suppressor genes"
+            ],
+            "applications": [
+              "Cancer treatment",
+              "Stem cell research",
+              "Developmental biology"
+            ]
+          },
+          {
+            "id": "cell_signaling",
+            "name": {
+              "en": "Cell Signaling",
+              "zh": "细胞信号传导",
+              "de": "Zellsignalisierung",
+              "ja": "細胞シグナル伝達",
+              "ru": "Клеточная сигнализация"
+            },
+            "description": {
+              "en": "The process by which cells communicate with each other through chemical signals",
+              "zh": "细胞通过化学信号相互通信的过程",
+              "de": "Der Prozess, durch den Zellen über chemische Signale miteinander kommunizieren",
+              "ja": "細胞が化学的信号を介して相互に通信するプロセス",
+              "ru": "Процесс, посредством которого клетки общаются друг с другом через химические сигналы"
+            },
+            "pathways": [
+              "Receptor tyrosine kinase pathway",
+              "G-protein coupled receptor pathway",
+              "Notch signaling",
+              "Wnt signaling",
+              "Hedgehog signaling"
+            ],
+            "signal_types": [
+              "Hormones",
+              "Neurotransmitters",
+              "Cytokines",
+              "Growth factors"
+            ],
+            "applications": [
+              "Drug development",
+              "Disease diagnosis",
+              "Immunotherapy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "molecular_biology",
+        "name": {
+          "en": "Molecular Biology",
+          "zh": "分子生物学",
+          "de": "Molekulare Biologie",
+          "ja": "分子生物学",
+          "ru": "Молекулярная биология"
+        },
+        "concepts": [
+          {
+            "id": "dna_structure",
+            "name": {
+              "en": "DNA Structure",
+              "zh": "DNA结构",
+              "de": "DNS-Struktur",
+              "ja": "DNA構造",
+              "ru": "Структура ДНК"
+            },
+            "description": {
+              "en": "The double helix structure of deoxyribonucleic acid, the molecule that carries genetic information",
+              "zh": "脱氧核糖核酸的双螺旋结构，携带遗传信息的分子",
+              "de": "Die Doppelhelixstruktur der Desoxyribonukleinsäure, das Molekül, das genetische Information trägt",
+              "ja": "遺伝情報を担う分子であるデオキシリボ核酸の二重らせん構造",
+              "ru": "Двойная спираль деоксирибонуклеиновой кислоты, молекулы, которая несет генетическую информацию"
+            },
+            "components": [
+              "Nucleotides",
+              "Sugar-phosphate backbone",
+              "Base pairs",
+              "Hydrogen bonds"
+            ],
+            "key_features": [
+              "Complementary base pairing",
+              "Antiparallel strands",
+              "Semiconservative replication"
+            ],
+            "applications": [
+              "Genetic engineering",
+              "Forensics",
+              "Biotechnology"
+            ]
+          },
+          {
+            "id": "gene_expression",
+            "name": {
+              "en": "Gene Expression",
+              "zh": "基因表达",
+              "de": "Genexpression",
+              "ja": "遺伝子発現",
+              "ru": "Генная экспрессия"
+            },
+            "description": {
+              "en": "The process by which information from a gene is used to synthesize a functional gene product",
+              "zh": "从基因中获取信息以合成功能性基因产物的过程",
+              "de": "Der Prozess, durch den Information aus einem Gen verwendet wird, um ein funktionelles Genprodukt zu synthetisieren",
+              "ja": "遺伝子から情報を取得し、機能的な遺伝子産物を合成するプロセス",
+              "ru": "Процесс, посредством которого информация из гена используется для синтеза функционального генного продукта"
+            },
+            "steps": [
+              "Transcription",
+              "RNA processing",
+              "Translation",
+              "Post-translational modification"
+            ],
+            "regulation": [
+              "Promoters",
+              "Transcription factors",
+              "Epigenetic modifications",
+              "RNA interference"
+            ],
+            "applications": [
+              "Gene therapy",
+              "Biopharmaceuticals",
+              "Synthetic biology"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "genetics",
+        "name": {
+          "en": "Genetics",
+          "zh": "遗传学",
+          "de": "Genetik",
+          "ja": "遺伝学",
+          "ru": "Генетика"
+        },
+        "concepts": [
+          {
+            "id": "mendelian_genetics",
+            "name": {
+              "en": "Mendelian Genetics",
+              "zh": "孟德尔遗传学",
+              "de": "Mendelsche Genetik",
+              "ja": "メンデル遺伝学",
+              "ru": "Менделевая генетика"
+            },
+            "description": {
+              "en": "The study of inheritance patterns based on Gregor Mendel's laws of heredity",
+              "zh": "基于格雷戈尔·孟德尔遗传定律的遗传模式研究",
+              "de": "Die Untersuchung von Vererbungsmustern auf der Grundlage der Vererbungsgesetze von Gregor Mendel",
+              "ja": "グレゴール・メンデルの遺伝法則に基づく遺伝パターンの研究",
+              "ru": "Изучение закономерностей наследования на основе законов наследственности Грегора Менделя"
+            },
+            "laws": [
+              "Law of Segregation",
+              "Law of Independent Assortment",
+              "Law of Dominance"
+            ],
+            "key_concepts": [
+              "Alleles",
+              "Genotype",
+              "Phenotype",
+              "Homozygous",
+              "Heterozygous"
+            ],
+            "applications": [
+              "Genetic counseling",
+              "Plant breeding",
+              "Animal husbandry"
+            ]
+          },
+          {
+            "id": "population_genetics",
+            "name": {
+              "en": "Population Genetics",
+              "zh": "群体遗传学",
+              "de": "Populationsgenetik",
+              "ja": "集団遺伝学",
+              "ru": "Популяционная генетика"
+            },
+            "description": {
+              "en": "The study of genetic variation within and between populations",
+              "zh": "研究种群内部和种群之间的遗传变异",
+              "de": "Die Untersuchung der genetischen Variation innerhalb und zwischen Populationen",
+              "ja": "集団内および集団間の遺伝的変異の研究",
+              "ru": "Изучение генетической изменчивости внутри и между популяциями"
+            },
+            "key_concepts": [
+              "Hardy-Weinberg equilibrium",
+              "Genetic drift",
+              "Gene flow",
+              "Natural selection",
+              "Mutation"
+            ],
+            "applications": [
+              "Evolutionary biology",
+              "Conservation genetics",
+              "Epidemiology"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ecology",
+        "name": {
+          "en": "Ecology",
+          "zh": "生态学",
+          "de": "Ökologie",
+          "ja": "生態学",
+          "ru": "Экология"
+        },
+        "concepts": [
+          {
+            "id": "ecosystem",
+            "name": {
+              "en": "Ecosystem",
+              "zh": "生态系统",
+              "de": "Ökosystem",
+              "ja": "生態系",
+              "ru": "Экосистема"
+            },
+            "description": {
+              "en": "A community of living organisms and their interactions with the abiotic environment",
+              "zh": "生物群落及其与非生物环境的相互作用",
+              "de": "Eine Gemeinschaft lebender Organismen und ihre Wechselwirkungen mit der abiotischen Umwelt",
+              "ja": "生物群集とその非生物的環境との相互作用",
+              "ru": "Сообщество живых организмов и их взаимодействия с абиотической средой"
+            },
+            "components": [
+              "Producers",
+              "Consumers",
+              "Decomposers",
+              "Abiotic factors"
+            ],
+            "processes": [
+              "Energy flow",
+              "Nutrient cycling",
+              "Trophic levels"
+            ],
+            "applications": [
+              "Environmental management",
+              "Sustainable development",
+              "Conservation biology"
+            ]
+          },
+          {
+            "id": "biodiversity",
+            "name": {
+              "en": "Biodiversity",
+              "zh": "生物多样性",
+              "de": "Bio diversität",
+              "ja": "生物多様性",
+              "ru": "Биологическое разнообразие"
+            },
+            "description": {
+              "en": "The variety of life in all its forms, levels, and combinations",
+              "zh": "各种形式、层次和组合的生命多样性",
+              "de": "Die Vielfalt des Lebens in all seinen Formen, Ebenen und Kombinationen",
+              "ja": "あらゆる形態、レベル、組み合わせにおける生命の多様性",
+              "ru": "Разнообразие жизни во всех ее формах, уровнях и сочетаниях"
+            },
+            "levels": [
+              "Genetic diversity",
+              "Species diversity",
+              "Ecosystem diversity"
+            ],
+            "threats": [
+              "Habitat loss",
+              "Climate change",
+              "Pollution",
+              "Invasive species"
+            ],
+            "applications": [
+              "Conservation planning",
+              "Bioprospecting",
+              "Ecosystem services valuation"
+            ]
+          }
+        ]
+      }
+    ],
+    "timestamp": "2025-12-20T04:14:37.569410Z",
+    "version": "2.0.0",
+    "total_concepts": 9,
+    "total_categories": 4
+  }
+}

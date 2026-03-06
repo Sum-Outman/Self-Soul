@@ -99,7 +99,7 @@ def create_default_config():
     global MODEL_PORTS, MAIN_API_PORT, REALTIME_STREAM_MANAGER_PORT, PERFORMANCE_MONITORING_PORT, SERVICE_SETTINGS
     
     try:
-        # 默认模型端口配置 - 包含所有27个模型
+        # 默认模型端口配置 - 包含所有28个模型（27个标准模型 + translation）
         default_model_ports = {
             'manager': 8001,               # 管理模型端口
             'language': 8002,              # 语言模型端口
@@ -117,18 +117,19 @@ def create_default_config():
             'prediction': 8014,            # 预测模型端口
             'advanced_reasoning': 8015,    # 高级推理模型端口
             'multi_model_collaboration': 8016, # 多模型协同服务端口（根据README要求）
-            'data_fusion': 8028,           # 数据融合模型端口（从8016移到8028）
             'creative_problem_solving': 8017, # 创造性问题解决模型端口
             'meta_cognition': 8018,        # 元认知模型端口
             'value_alignment': 8019,       # 值对齐模型端口
             'vision_image': 8020,          # 图片视觉处理模型端口
-            'vision_video': 8021,          # 视频流视觉处理模型端口（改回8021，解决别名冲突）
+            'vision_video': 8021,          # 视频流视觉处理模型端口
             'finance': 8022,               # 金融模型端口
             'medical': 8023,               # 医疗模型端口
             'collaboration': 8024,         # 协作模型端口
             'optimization': 8025,          # 优化模型端口
             'computer': 8026,              # 计算机控制模型端口
-            'mathematics': 8027            # 数学模型端口
+            'mathematics': 8027,           # 数学模型端口
+            'data_fusion': 8028,           # 数据融合模型端口
+            'translation': 8029            # 翻译模型端口
         }
         
         # 默认配置

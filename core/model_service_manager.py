@@ -66,18 +66,37 @@ class ModelServiceManager:
         except Exception as e:
             error_handler.log_error(f"优雅关闭失败: {str(e)}", "ModelServiceManager")
     
-    def _verify_service_running(self, port: int, timeout: float = 2.0) -> bool:
-        """验证服务是否在指定端口上运行"""
+    def _verify_service_running(self, port: int, timeout: float = 5.0, retries: int = 3) -> bool:
+        """验证服务是否在指定端口上运行，支持重试机制"""
         import socket
-        try:
-            test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            test_socket.settimeout(timeout)
-            result = test_socket.connect_ex(("127.0.0.1", port))
-            test_socket.close()
-            return result == 0  # 0表示连接成功
-        except Exception as e:
-            error_handler.log_warning(f"验证服务端口 {port} 时出错: {str(e)}", "ModelServiceManager")
-            return False
+        import time
+        
+        for attempt in range(retries):
+            try:
+                test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                test_socket.settimeout(timeout)
+                result = test_socket.connect_ex(("127.0.0.1", port))
+                test_socket.close()
+                
+                if result == 0:  # 0表示连接成功
+                    error_handler.log_info(f"端口 {port} 上的服务验证成功（第{attempt+1}次尝试）", "ModelServiceManager")
+                    return True
+                else:
+                    if attempt < retries - 1:  # 不是最后一次尝试
+                        error_handler.log_info(f"端口 {port} 连接失败（第{attempt+1}次尝试），等待重试...", "ModelServiceManager")
+                        time.sleep(1)  # 等待1秒后重试
+                    else:
+                        error_handler.log_warning(f"端口 {port} 连接失败（{retries}次尝试后）", "ModelServiceManager")
+                        return False
+            except Exception as e:
+                if attempt < retries - 1:
+                    error_handler.log_info(f"验证端口 {port} 时出错: {str(e)}，等待重试...", "ModelServiceManager")
+                    time.sleep(1)
+                else:
+                    error_handler.log_warning(f"验证服务端口 {port} 时出错（{retries}次尝试后）: {str(e)}", "ModelServiceManager")
+                    return False
+        
+        return False
     
     def create_model_service(self, model_id: str) -> Dict[str, Any]:
         """为指定模型创建FastAPI服务"""
@@ -355,18 +374,20 @@ class ModelServiceManager:
                             app=service_info["app"],
                             host="0.0.0.0",
                             port=service_info["port"],
-                            log_level="debug",
+                            log_level="info",
                             use_colors=False,
-                            loop="asyncio",
+                            loop="auto",
                             reload=False,
                             workers=1,
-                            lifespan="off"
+                            access_log=True,
+                            timeout_keep_alive=5
                         )
                         
                         # 创建服务器实例并运行
                         server = uvicorn.Server(config)
                         # 存储server实例以便优雅关闭
                         service_info["server"] = server
+                        error_handler.log_info(f"模型 {model_id} 的服务配置完成，开始运行服务器...", "ModelService")
                         server.run()
                         error_handler.log_info(f"模型 {model_id} 的服务已正常停止", "ModelService")
                     except Exception as e:
@@ -382,9 +403,10 @@ class ModelServiceManager:
                 # 启动服务线程
                 thread = threading.Thread(target=run_server, daemon=True)
                 thread.start()
+                error_handler.log_info(f"已启动模型 {model_id} 的服务线程，等待服务器初始化...", "ModelServiceManager")
                 
-                # 等待一小段时间，确保服务器有机会启动
-                time.sleep(2)
+                # 等待足够时间，确保服务器有机会启动（uvicorn启动可能需要几秒钟）
+                time.sleep(5)
                 
                 # 检查线程是否仍然在运行
                 if not thread.is_alive():

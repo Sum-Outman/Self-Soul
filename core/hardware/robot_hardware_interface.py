@@ -44,6 +44,15 @@ except ImportError as e:
     GenericRobotDriver = None
     ROBOT_DRIVER_AVAILABLE = False
 
+# Import robot learning system for AGI-enhanced capabilities
+try:
+    from ..robot_learning_system import RobotLearningSystem
+    ROBOT_LEARNING_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Robot learning system not available: {e}")
+    RobotLearningSystem = None
+    ROBOT_LEARNING_AVAILABLE = False
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RobotHardwareInterface")
@@ -112,6 +121,15 @@ class RobotHardwareInterface:
            "position_limit": True,
            "velocity_limit": True,
        }
+       
+       # Learning system for AGI-enhanced capabilities
+       self.learning_system = None
+       if ROBOT_LEARNING_AVAILABLE and RobotLearningSystem:
+           try:
+               self.learning_system = RobotLearningSystem(self, None)
+               logger.info("Robot learning system initialized")
+           except Exception as e:
+               logger.warning(f"Failed to initialize learning system: {e}")
        
        # Hardware initialization will be done lazily when needed
        # self._initialize_hardware_interfaces() is called via initialize() method
@@ -2287,6 +2305,38 @@ Please ensure:
                     frames[camera_id] = {"error": "Camera not found"}
         
         return frames
+    
+    def get_sensors(self) -> Dict[str, Any]:
+        """Get all sensors
+        
+        Returns:
+            Dictionary of all registered sensors
+        """
+        return self.sensors
+    
+    def get_actuators(self) -> Dict[str, Any]:
+        """Get all actuators (motors and servos)
+        
+        Returns:
+            Dictionary of all registered actuators
+        """
+        actuators = {}
+        actuators.update(self.motors)
+        actuators.update(self.servos)
+        return actuators
+    
+    def get_devices(self) -> Dict[str, Any]:
+        """Get all devices (sensors, motors, servos, cameras)
+        
+        Returns:
+            Dictionary of all registered devices
+        """
+        devices = {}
+        devices.update(self.sensors)
+        devices.update(self.motors)
+        devices.update(self.servos)
+        devices.update(self.cameras)
+        return devices
     
     def pause(self) -> Dict[str, Any]:
         """Pause hardware operations (synchronous version)"""

@@ -17,6 +17,7 @@ export const modelIdToName = {
   'motion': 'Motion Model',
   'prediction': 'Prediction Model',
   'advanced_reasoning': 'Advanced Reasoning Model',
+  'multi_model_collaboration': 'Multi-Model Collaboration Model',
   'data_fusion': 'Data Fusion Model',
   'creative_problem_solving': 'Creative Problem Solving Model',
   'meta_cognition': 'Meta Cognition Model',
@@ -28,7 +29,8 @@ export const modelIdToName = {
   'collaboration': 'Collaboration Model',
   'optimization': 'Optimization Model',
   'computer': 'Computer Model',
-  'mathematics': 'Mathematics Model'
+  'mathematics': 'Mathematics Model',
+  'translation': 'Translation Model'
 };
 
 // Model ID to port mapping
@@ -48,7 +50,7 @@ export const modelIdToPort = {
   'motion': 8013,
   'prediction': 8014,
   'advanced_reasoning': 8015,
-  'data_fusion': 8016,
+  'multi_model_collaboration': 8016,
   'creative_problem_solving': 8017,
   'meta_cognition': 8018,
   'value_alignment': 8019,
@@ -59,7 +61,9 @@ export const modelIdToPort = {
   'collaboration': 8024,
   'optimization': 8025,
   'computer': 8026,
-  'mathematics': 8027
+  'mathematics': 8027,
+  'data_fusion': 8028,
+  'translation': 8029
 };
 
 // Port to model ID mapping
@@ -79,7 +83,7 @@ export const portToModelId = {
   8013: 'motion',
   8014: 'prediction',
   8015: 'advanced_reasoning',
-  8016: 'data_fusion',
+  8016: 'multi_model_collaboration',
   8017: 'creative_problem_solving',
   8018: 'meta_cognition',
   8019: 'value_alignment',
@@ -90,7 +94,9 @@ export const portToModelId = {
   8024: 'collaboration',
   8025: 'optimization',
   8026: 'computer',
-  8027: 'mathematics'
+  8027: 'mathematics',
+  8028: 'data_fusion',
+  8029: 'translation'
 };
 
 // Get model name by ID

@@ -208,7 +208,7 @@ export const AVAILABLE_TRAINING_MODELS = [
   { id: 'motion', name: 'Motion Model', port: 8013, description: 'Motion control and coordination' },
   { id: 'prediction', name: 'Prediction Model', port: 8014, description: 'Predictive analytics and forecasting' },
   { id: 'advanced_reasoning', name: 'Advanced Reasoning Model', port: 8015, description: 'Complex reasoning tasks' },
-  { id: 'data_fusion', name: 'Data Fusion Model', port: 8016, description: 'Multi-source data integration' },
+  { id: 'data_fusion', name: 'Data Fusion Model', port: 8028, description: 'Multi-source data integration' },
   { id: 'creative_problem_solving', name: 'Creative Problem Solving Model', port: 8017, description: 'Creative solution generation' },
   { id: 'meta_cognition', name: 'Meta Cognition Model', port: 8018, description: 'Self-awareness and reflection' },
   { id: 'value_alignment', name: 'Value Alignment Model', port: 8019, description: 'Ethical decision making' },

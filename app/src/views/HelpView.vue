@@ -239,7 +239,7 @@ Self-Soul-B/
 │   │   ├── motion/               # Motion model (port 8013)
 │   │   ├── prediction/           # Prediction model (port 8014)
 │   │   ├── advanced_reasoning/   # Advanced reasoning model (port 8015)
-│   │   ├── data_fusion/          # Data fusion model (port 8016)
+│   │   ├── data_fusion/          # Data fusion model (port 8028)
 │   │   ├── creative_problem_solving/ # Creative problem solving model (port 8017)
 │   │   ├── metacognition/        # Meta cognition model (port 8018)
 │   │   ├── value_alignment/      # Value alignment model (port 8019)
@@ -730,7 +730,7 @@ Self-Soul-B/
             <p class="tip"><small>💡 Beginner Tip: Engages for challenging puzzles, scientific reasoning, complex decision making, and abstract problem solving.</small></p>
           </div>
           <div class="model-card">
-            <h3>Data Fusion Model (Port 8016)</h3>
+            <h3>Data Fusion Model (Port 8028)</h3>
             <p><strong>Multi-Source Data Integration:</strong> Combines information from text, images, audio, sensor data, and other sources into unified representations. Aligns heterogeneous data formats for comprehensive analysis.</p>
             <p class="tip"><small>💡 Beginner Tip: Essential for tasks requiring combined understanding of different data types (e.g., understanding a scene with visual and auditory elements).</small></p>
           </div>
@@ -1071,7 +1071,7 @@ Manager Model Processing:
                   <li><strong>Motion Model (Port 8013)</strong>: Movement planning and control</li>
                   <li><strong>Prediction Model (Port 8014)</strong>: Predictive analytics and forecasting</li>
                   <li><strong>Advanced Reasoning Model (Port 8015)</strong>: Complex logical reasoning</li>
-                  <li><strong>Data Fusion Model (Port 8016)</strong>: Multi-source data integration</li>
+                  <li><strong>Data Fusion Model (Port 8028)</strong>: Multi-source data integration</li>
                 </ul>
               </div>
               

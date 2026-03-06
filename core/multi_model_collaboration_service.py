@@ -582,6 +582,34 @@ class MultiModelCollaborationService:
                 error_handler.handle_error(e, "MultiModelCollaborationService", "获取任务状态失败")
                 raise HTTPException(status_code=500, detail=f"获取任务状态失败: {str(e)}")
         
+        @self.app.delete("/api/v1/tasks/{task_id}")
+        async def cancel_task(task_id: str):
+            """取消任务"""
+            try:
+                # 检查任务是否存在
+                if task_id not in self.scheduler.active_tasks:
+                    raise HTTPException(status_code=404, detail=f"任务 {task_id} 不存在或已完成")
+                
+                # 从活动任务中移除
+                if task_id in self.scheduler.active_tasks:
+                    del self.scheduler.active_tasks[task_id]
+                
+                # 从调度器队列中移除（简化实现）
+                # 注意：实际实现需要遍历所有优先级队列
+                
+                logger.info(f"任务 {task_id} 已取消")
+                return {
+                    "task_id": task_id,
+                    "status": "cancelled",
+                    "message": "任务已成功取消"
+                }
+                
+            except HTTPException:
+                raise
+            except Exception as e:
+                error_handler.handle_error(e, "MultiModelCollaborationService", "取消任务失败")
+                raise HTTPException(status_code=500, detail=f"取消任务失败: {str(e)}")
+        
         @self.app.get("/api/v1/tasks")
         async def list_tasks(status: str = None, limit: int = 50):
             """列出任务"""
@@ -794,6 +822,7 @@ class MultiModelCollaborationService:
             return
         
         try:
+            import time
             self.start_time = time.time()
             self.is_running = True
             
@@ -803,16 +832,43 @@ class MultiModelCollaborationService:
             
             logger.info(f"多模型协同服务启动在端口 {self.port}")
             
-            # 启动FastAPI服务器
-            config = uvicorn.Config(
-                app=self.app,
-                host=SERVICE_HOST,
-                port=self.port,
-                log_level="info"
-            )
-            server = uvicorn.Server(config)
+            # 启动FastAPI服务器（在后台线程中运行以避免阻塞主事件循环）
+            import threading
             
-            await server.serve()
+            def run_server():
+                """在后台线程中运行uvicorn服务器"""
+                try:
+                    import asyncio
+                    import uvicorn
+                    
+                    # 为新线程创建事件循环
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    
+                    config = uvicorn.Config(
+                        app=self.app,
+                        host=SERVICE_HOST,
+                        port=self.port,
+                        log_level="info"
+                    )
+                    server = uvicorn.Server(config)
+                    
+                    logger.info(f"在后台线程中启动uvicorn服务器，端口: {self.port}")
+                    loop.run_until_complete(server.serve())
+                    
+                except Exception as e:
+                    error_msg = f"后台线程中启动协同服务失败: {str(e)}"
+                    logger.error(error_msg)
+                    error_handler.handle_error(e, "MultiModelCollaborationService", "后台启动失败")
+            
+            # 启动后台线程
+            self.server_thread = threading.Thread(target=run_server, daemon=True)
+            self.server_thread.start()
+            
+            # 等待一小段时间让服务器启动
+            time.sleep(0.5)
+            
+            logger.info(f"多模型协同服务启动完成，端口: {self.port}")
             
         except Exception as e:
             error_msg = f"启动协同服务失败: {str(e)}"
@@ -883,10 +939,39 @@ if __name__ == "__main__":
     print(f"API文档: http://localhost:{port}/docs")
     
     try:
-        asyncio.run(start_collaboration_service(port))
+        # 直接运行服务并保持主线程运行
+        import asyncio
+        import time
+        
+        # 创建服务实例
+        service = get_collaboration_service(port)
+        
+        # 启动服务（异步）
+        async def run_service():
+            await service.start()
+            print(f"多模型协同服务已启动在端口 {port}")
+            print("服务正在运行...")
+            
+            # 保持主线程运行，直到收到中断信号
+            try:
+                while True:
+                    await asyncio.sleep(1)
+            except KeyboardInterrupt:
+                print("\n接收到中断信号，正在停止服务...")
+                await service.stop()
+                print("服务已停止")
+        
+        # 运行服务
+        asyncio.run(run_service())
+        
     except KeyboardInterrupt:
         print("\n接收到中断信号，正在停止服务...")
-        asyncio.run(stop_collaboration_service())
+        try:
+            asyncio.run(stop_collaboration_service())
+        except:
+            pass
     except Exception as e:
         print(f"服务启动失败: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)

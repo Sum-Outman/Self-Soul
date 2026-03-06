@@ -207,9 +207,27 @@ class EnhancedModelCollaboration:
                     self.logger.error(f"性能监控失败: {e}")
                     await asyncio.sleep(30)  # 出错后等待30秒
         
-        # 启动监控任务 - Python 3.6兼容版本
-        asyncio.ensure_future(monitor_performance())
-        self.logger.info("性能监控系统已启动")
+        # 启动监控任务 - 仅在事件循环存在时启动
+        try:
+            loop = asyncio.get_event_loop()
+            # 检查事件循环是否正在运行
+            if loop.is_running():
+                asyncio.ensure_future(monitor_performance())
+                self.logger.info("性能监控系统已启动")
+            else:
+                # 事件循环存在但未运行，记录警告
+                self.logger.warning("事件循环存在但未运行，延迟性能监控启动")
+                self._delayed_monitor_start = monitor_performance
+        except RuntimeError as e:
+            # 没有事件循环，记录警告并延迟启动
+            if "no current event loop" in str(e):
+                self.logger.warning("没有当前事件循环，延迟性能监控启动")
+                self._delayed_monitor_start = monitor_performance
+            else:
+                raise
+        
+        # 如果监控未立即启动，将在start方法中启动
+        self.logger.info("性能监控系统初始化完成")
     
     async def _collect_performance_metrics(self):
         """收集性能指标"""

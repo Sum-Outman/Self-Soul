@@ -1190,8 +1190,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                         "audio": {"port": 8005, "type": "audio"},
                         "knowledge": {"port": 8003, "type": "knowledge"},
                         "programming": {"port": 8007, "type": "programming"},
-                        "planning": {"port": 8009, "type": "planning"},
-                        "emotion": {"port": 8009, "type": "emotion"}
+                        "planning": {"port": 8009, "type": "planning"}
                     }
                     
                     # 注册核心模型（创建模拟实例）
@@ -1201,7 +1200,7 @@ class UnifiedManagerModel(UnifiedModelTemplate):
                             self.sub_models[model_id] = type('MockModel', (), {
                                 'model_id': model_id,
                                 'initialize': lambda self=None: {"success": True, "message": f"Mock {model_id} initialized"},
-                                'process': lambda *args, **kwargs: {"success": True, "result": f"Mock {model_id} processed: mock response"},
+                                'process': lambda self=None, task=None: {"success": True, "result": f"Mock {model_id} processed: {task[:50] if task else '无任务'}..."},
                                 'prepare_for_coordination': lambda self=None, task_description=None: {"status": "ready", "model_id": model_id},
                                 'get_status': lambda self=None: {"status": "active", "model_id": model_id, "type": "mock"}
                             })()
@@ -6350,7 +6349,7 @@ class SimplePerformanceTracker:
             "motion": {"port": 8013, "local_model": 1},
             "prediction": {"port": 8014, "local_model": 1},
             "advanced_reasoning": {"port": 8015, "local_model": 1},
-            "data_fusion": {"port": 8028, "local_model": 1},
+            "data_fusion": {"port": 8016, "local_model": 1},
             "creative_problem_solving": {"port": 8017, "local_model": 1},
             "meta_cognition": {"port": 8018, "local_model": 1},
             "value_alignment": {"port": 8019, "local_model": 1},
@@ -6584,33 +6583,13 @@ class SimplePerformanceTracker:
             if not required_models:
                 required_models = self._smart_determine_models(task_description, priority)
             
-            # Check model availability - try to load missing models from registry
-            unavailable_models = []
-            for model in required_models:
-                if model not in self.sub_models or self.sub_models[model] is None:
-                    try:
-                        # Try to load model from registry
-                        from core.model_registry import model_registry
-                        loaded_model = model_registry.load_model(model)
-                        if loaded_model is None:
-                            self.logger.warning(f"模型 {model} 无法从注册表加载")
-                            unavailable_models.append(model)
-                        else:
-                            self.sub_models[model] = loaded_model
-                            self.logger.info(f"模型 {model} 已从注册表加载")
-                    except Exception as e:
-                        self.logger.error(f"加载模型 {model} 时出错: {str(e)}")
-                        unavailable_models.append(model)
-            
-            # If there are unavailable models, return error instead of creating mock models
+            # Check model availability
+            unavailable_models = [model for model in required_models if model not in self.sub_models or self.sub_models[model] is None]
             if unavailable_models:
-                error_msg = f"以下模型不可用且无法加载: {unavailable_models}"
-                self.logger.error(error_msg)
                 return {
                     "status": "failed",
-                    "message": error_msg,
-                    "unavailable_models": unavailable_models,
-                    "task_description": task_description
+                    "message": f"Unavailable models: {unavailable_models}",
+                    "unavailable_models": unavailable_models
                 }
             
             # Select coordination strategy based on collaboration mode
@@ -10686,42 +10665,6 @@ class SimplePerformanceTracker:
                     "output": emotional_response,
                     "emotion_analysis": emotion_result
                 }
-            
-            # Check for coordination request (required_models or models in input_data)
-            required_models = input_data.get('required_models', input_data.get('models', None))
-            if required_models is not None:
-                # This is a coordination request
-                self.logger.info(f"Manager Model: Processing coordination request with models: {required_models}")
-                # Use enhanced_coordinate_task for better coordination
-                coordination_result = self.enhanced_coordinate_task(
-                    task_description=text_input,
-                    required_models=required_models,
-                    priority=5,
-                    collaboration_mode="smart"
-                )
-                # Format the coordination result as response
-                if coordination_result.get('status') == 'success':
-                    result_output = coordination_result.get('result', {}).get('summary', f"Coordinated task: {text_input}")
-                    emotional_response = self._generate_emotional_response(result_output)
-                    return {
-                        "success": 1,
-                        "output": emotional_response,
-                        "coordination_result": coordination_result,
-                        "emotion_analysis": emotion_result,
-                        "manager_emotion": self.current_emotion
-                    }
-                else:
-                    # Coordination failed
-                    error_msg = coordination_result.get('message', 'Coordination failed')
-                    fallback_response = f"I tried to coordinate the models but encountered an issue: {error_msg}. Please try a simpler request."
-                    emotional_fallback = self._generate_emotional_response(fallback_response)
-                    return {
-                        "success": 1,
-                        "output": emotional_fallback,
-                        "coordination_result": coordination_result,
-                        "emotion_analysis": emotion_result,
-                        "manager_emotion": self.current_emotion
-                    }
             
             # First, check if we need to initialize any models
             from core.memory_optimization import memory_optimizer

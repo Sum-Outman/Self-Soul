@@ -549,6 +549,7 @@ print(response.json())
 | 8026 | Computer Model | Computer system management |
 | 8027 | Mathematics Model | Mathematical computation |
 | 8028 | Data Fusion Model | Multi-source data fusion |
+| 8029 | Translation Model | Language translation |
 | 5175 | Frontend Dashboard | Vue.js user interface |
 
 ### Port Customization

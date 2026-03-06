@@ -49,6 +49,7 @@ class Ports(Enum):
     COMPUTER = 8026
     MATHEMATICS = 8027
     DATA_FUSION = 8028
+    TRANSLATION = 8029
     
     # 其他服务端口
     REALTIME_STREAM_MANAGER = 8766

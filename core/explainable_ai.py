@@ -535,6 +535,33 @@ class ExplainableAI:
             "report_timestamp": datetime.now().isoformat(),
         }
 
+    def get_capabilities(self):
+        """获取可解释AI能力"""
+        return {
+            "module": "explainable_ai",
+            "implementation_status": "full",
+            "available_methods": [
+                "explain_decision",
+                "get_system_report",
+                "export_explanations"
+            ],
+            "capabilities": [
+                "Decision transparency and tracing",
+                "Feature importance analysis",
+                "Confidence calibration",
+                "Counterfactual scenario generation",
+                "Comprehensive explanation generation"
+            ],
+            "components": [
+                "DecisionTracer",
+                "ConfidenceCalibrator",
+                "FeatureImportanceAnalyzer",
+                "CounterfactualGenerator"
+            ],
+            "system_status": "active",
+            "timestamp": datetime.now().isoformat()
+        }
+
     def export_explanations(self, file_path):
         """导出解释数据"""
         try:

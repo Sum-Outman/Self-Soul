@@ -527,7 +527,7 @@ class AGIFeatureExtractor:
                     values.append(float(value))
                 elif isinstance(value, str):
                     # Convert string to hash-based feature
-                    values.append((zlib.adler32(value.encode('utf-8')) & 0xffffffff) % 100 / 100.0)
+                    values.append((zlib.adler32(str(value).encode('utf-8')) & 0xffffffff) % 100 / 100.0)
             
             # Pad to fixed size
             features = np.zeros(512, dtype=np.float32)
@@ -539,8 +539,8 @@ class AGIFeatureExtractor:
             values = np.zeros(size, dtype=np.float32)
             for i in range(size):
                 # Use Box-Muller transform with deterministic inputs
-                u1 = ((zlib.adler32(str(i.encode('utf-8')) & 0xffffffff) + "normal_u1") % 10000) / 10000.0
-                u2 = ((zlib.adler32(str(i.encode('utf-8')) & 0xffffffff) + "normal_u2") % 10000) / 10000.0
+                u1 = ((zlib.adler32(str(i).encode('utf-8')) & 0xffffffff) + (zlib.adler32("normal_u1".encode('utf-8')) & 0xffffffff)) % 10000 / 10000.0
+                u2 = ((zlib.adler32(str(i).encode('utf-8')) & 0xffffffff) + (zlib.adler32("normal_u2".encode('utf-8')) & 0xffffffff)) % 10000 / 10000.0
                 # Avoid 0
                 u1 = max(u1, 1e-10)
                 u2 = max(u2, 1e-10)
@@ -1390,8 +1390,8 @@ class AGICore(nn.Module):
             encoding[i * 4 + 1] = feature * 0.8  # Contextual relevance
             encoding[i * 4 + 2] = feature * 1.2 - 0.1  # Creativity factor
             # Deterministic stochastic variation using Box-Muller
-            u1 = ((zlib.adler32(str(feature.encode('utf-8')) & 0xffffffff) + str(i) + "stochastic_u1") % 10000) / 10000.0
-            u2 = ((zlib.adler32(str(feature.encode('utf-8')) & 0xffffffff) + str(i) + "stochastic_u2") % 10000) / 10000.0
+            u1 = ((zlib.adler32(str(feature).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(i).encode('utf-8')) & 0xffffffff) + (zlib.adler32("stochastic_u1".encode('utf-8')) & 0xffffffff)) % 10000 / 10000.0
+            u2 = ((zlib.adler32(str(feature).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(i).encode('utf-8')) & 0xffffffff) + (zlib.adler32("stochastic_u2".encode('utf-8')) & 0xffffffff)) % 10000 / 10000.0
             u1 = max(u1, 1e-10)
             u2 = max(u2, 1e-10)
             z0 = math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2)
@@ -1400,7 +1400,7 @@ class AGICore(nn.Module):
         # Add contextual influence
         if context:
             try:
-                context_hash = (zlib.adler32(str(context.encode('utf-8')) & 0xffffffff)) % 100 / 100.0
+                context_hash = (zlib.adler32(str(context).encode('utf-8')) & 0xffffffff) % 100 / 100.0
                 encoding[-10:] = context_hash * np.ones(10)
             except Exception as e:
                 # 如果context无法hash，使用默认值
@@ -1433,7 +1433,7 @@ class AGICore(nn.Module):
         if creativity_factor > 0.6:
             # Creative, exploratory response
             options = ["analogical", "speculative", "synthetic"]
-            response_type = options[(zlib.adler32(str(options.encode('utf-8')) & 0xffffffff) + "response_type") % len(options)]
+            response_type = options[(zlib.adler32(str(options).encode('utf-8')) & 0xffffffff) % len(options)]
             return self._generate_creative_response(response_type, relevant_concepts, 
                                                   semantic_intensity, creativity_factor)
         elif contextual_relevance > 0.5 and relevant_concepts:
@@ -1479,7 +1479,7 @@ class AGICore(nn.Module):
         if concepts:
             concept = concepts[0]['concept']
             templates = base_templates[response_type]
-            template = templates[(zlib.adler32(str(templates.encode('utf-8')) & 0xffffffff) + str(concept) + str(response_type)) % len(templates)]
+            template = templates[((zlib.adler32(str(templates).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(concept).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(response_type).encode('utf-8')) & 0xffffffff)) % len(templates)]
             insight = self._generate_creative_insight(concept, intensity, creativity)
             return template.format(concept=concept, insight=insight)
         else:
@@ -1494,7 +1494,7 @@ class AGICore(nn.Module):
             "emergent properties reveal deeper understanding",
             "complex interactions create novel possibilities"
         ]
-        return insights[(zlib.adler32(str(insights.encode('utf-8')) & 0xffffffff) + str(concept) + str(intensity) + str(creativity)) % len(insights)]
+        return insights[((zlib.adler32(str(insights).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(concept).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(intensity).encode('utf-8')) & 0xffffffff) + (zlib.adler32(str(creativity).encode('utf-8')) & 0xffffffff)) % len(insights)]
     
     def _generate_knowledge_response(self, concepts: List[Dict[str, Any]], intensity: float) -> str:
         """Generate knowledge-based response"""
@@ -1663,7 +1663,7 @@ class AGICore(nn.Module):
         """Calculate semantic importance of a word based on neural features"""
         # Simple heuristic: words that appear in important feature dimensions
         # For now, use a hash-based approach to simulate semantic relevance
-        word_hash = (zlib.adler32(word.encode('utf-8')) & 0xffffffff) % 100 / 100.0
+        word_hash = (zlib.adler32(str(word).encode('utf-8')) & 0xffffffff) % 100 / 100.0
         feature_mean = np.mean(features)
         feature_std = np.std(features)
         

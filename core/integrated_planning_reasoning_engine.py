@@ -1020,26 +1020,41 @@ class IntegratedPlanningReasoningEngine:
         """优化计划"""
         optimized_plan = plan.copy()
         
+        # 确保计划包含必要的键
+        if "steps" not in optimized_plan:
+            optimized_plan["steps"] = []
+        if "resource_requirements" not in optimized_plan:
+            optimized_plan["resource_requirements"] = {}
+        if "estimated_duration" not in optimized_plan:
+            optimized_plan["estimated_duration"] = 0
+        if "dependencies" not in optimized_plan:
+            # 从步骤中提取依赖关系
+            optimized_plan["dependencies"] = self._identify_step_dependencies(optimized_plan["steps"])
+        
         # 1. 步骤顺序优化
         optimized_plan["steps"] = self._optimize_step_order(plan["steps"])
         
         # 2. 资源优化
         optimized_plan["resource_requirements"] = self._optimize_resources(
-            plan["resource_requirements"], plan["steps"]
+            plan.get("resource_requirements", {}), plan["steps"]
         )
         
         # 3. 时间优化
         optimized_plan["estimated_duration"] = self._optimize_duration(
-            plan["estimated_duration"], plan["steps"]
+            plan.get("estimated_duration", 0), plan["steps"]
         )
         
         # 4. 冗余消除
         optimized_plan["steps"] = self._eliminate_redundant_steps(optimized_plan["steps"])
         
-        # 5. 并行化优化
-        optimized_plan["parallel_opportunities"] = self._identify_parallel_opportunities(
-            optimized_plan["steps"], optimized_plan["dependencies"]
-        )
+        # 5. 并行化优化（仅在依赖关系存在时）
+        dependencies = optimized_plan.get("dependencies", {})
+        if dependencies:
+            optimized_plan["parallel_opportunities"] = self._identify_parallel_opportunities(
+                optimized_plan["steps"], dependencies
+            )
+        else:
+            optimized_plan["parallel_opportunities"] = []
         
         optimized_plan["optimization_status"] = "optimized"
         optimized_plan["optimized_at"] = time.time()
@@ -2083,6 +2098,51 @@ class IntegratedPlanningReasoningEngine:
             return "decisive_reasoning"
         else:
             return "general_reasoning"
+
+    def _generate_basic_plan(self, goal_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """生成基本计划
+        
+        Args:
+            goal_analysis: 目标分析结果
+            
+        Returns:
+            基本计划
+        """
+        # 从目标分析中提取基本信息
+        goal_representation = goal_analysis.get("goal_representation", "未定义目标")
+        complexity = goal_analysis.get("overall_complexity_score", 0.5)
+        
+        # 根据复杂度生成不同数量的步骤
+        if complexity < 0.3:
+            step_count = 3
+        elif complexity < 0.6:
+            step_count = 5
+        else:
+            step_count = 7
+        
+        steps = []
+        for i in range(step_count):
+            steps.append({
+                "type": "basic",
+                "description": f"基本步骤 {i+1}: 处理目标的一部分",
+                "action": "process",
+                "resources": ["basic_capacity"],
+                "estimated_time": 8 * (i + 1),
+                "depends_on": [] if i == 0 else [f"basic_step_{i-1}"]
+            })
+        
+        return {
+            "id": f"basic_plan_{int(time.time())}",
+            "goal": goal_representation,
+            "steps": steps,
+            "estimated_duration": sum(step["estimated_time"] for step in steps),
+            "resource_requirements": {"basic_capacity": step_count},
+            "complexity": complexity,
+            "reasoning_based": False,
+            "confidence": 0.4,
+            "status": "basic",
+            "note": "这是基本计划，建议提供更多上下文信息以获得更好的规划结果"
+        }
 
 
 # 实用函数：创建集成规划推理引擎实例

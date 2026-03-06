@@ -51,6 +51,8 @@ try:
 except Exception as e:
     # 如果gettext初始化失败，使用简单的回退函数
     # If gettext initialization fails, use a simple fallback function
+    def _(text):
+        return text
 
 def _deterministic_randn(size, seed_prefix="default"):
     """Generate deterministic normal distribution using numpy RandomState"""
@@ -79,9 +81,6 @@ def _deterministic_randn(size, seed_prefix="default"):
     result = torch.from_numpy(z0).float()
     
     return result.view(*size)
-
-    def _(text):
-        return text
 
 # 设置日志
 logger = logging.getLogger(__name__)

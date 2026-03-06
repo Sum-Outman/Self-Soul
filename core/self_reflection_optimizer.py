@@ -729,7 +729,7 @@ class SelfReflectionOptimizer:
                                   insights: List[Dict[str, Any]],
                                   suggestions: List[ImprovementSuggestion]) -> ReflectionSession:
         """创建反思会话记录"""
-        session_id = f"reflection_{int(time.time())}_{(zlib.adler32(str(str(analysis_data).encode('utf-8')) & 0xffffffff))}"
+        session_id = f"reflection_{int(time.time())}_{(zlib.adler32(str(analysis_data).encode('utf-8')) & 0xffffffff)}"
         
         session = ReflectionSession(
             session_id=session_id,

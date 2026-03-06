@@ -2233,7 +2233,13 @@ class EnhancedMetaCognition:
         self, recent_data: List[Dict[str, Any]]
     ) -> float:
         """计算监控一致性"""
+        if not recent_data:
+            return 0.5
+            
         quality_scores = [data["thinking_quality"] for data in recent_data]
+        if not quality_scores:
+            return 0.5
+            
         avg_quality = {
             k: sum(q[k] for q in quality_scores) / len(quality_scores)
             for k in quality_scores[0].keys()
@@ -2255,6 +2261,9 @@ class EnhancedMetaCognition:
 
     def _calculate_pattern_stability(self, recent_data: List[Dict[str, Any]]) -> float:
         """计算模式稳定性"""
+        if not recent_data:
+            return 0.5
+            
         bias_patterns = [data["biases_detected"] for data in recent_data]
         if len(bias_patterns) < 2:
             return 0.5
@@ -2470,8 +2479,10 @@ class EnhancedMetaCognition:
         if not self.cognitive_history:
             return 0.5
 
+        # 将deque转换为列表以支持切片
+        recent_history = list(self.cognitive_history)[-5:]
         recent_quality = [
-            data["thinking_quality"] for data in self.cognitive_history[-5:]
+            data["thinking_quality"] for data in recent_history
         ]
         if not recent_quality:
             return 0.5
@@ -2484,8 +2495,10 @@ class EnhancedMetaCognition:
         if not self.cognitive_history:
             return 0.5
 
+        # 将deque转换为列表以支持切片
+        recent_history = list(self.cognitive_history)[-10:]
         recent_detections = [
-            data["biases_detected"] for data in self.cognitive_history[-10:]
+            data["biases_detected"] for data in recent_history
         ]
         if not recent_detections:
             return 0.5
@@ -2515,9 +2528,11 @@ class EnhancedMetaCognition:
         if len(self.cognitive_history) < 3:
             return "stable"
 
+        # 将deque转换为列表以支持切片
+        recent_history = list(self.cognitive_history)[-3:]
         recent_awareness = [
             data["cognitive_state"]["self_awareness"]
-            for data in self.cognitive_history[-3:]
+            for data in recent_history
         ]
         if recent_awareness[-1] > recent_awareness[0] + 0.1:
             return "improving"
@@ -2540,7 +2555,9 @@ class EnhancedMetaCognition:
     def _calculate_improvement_trend(self) -> str:
         """计算改进趋势"""
         effectiveness_history = []
-        for data in self.cognitive_history[-5:]:
+        # 将deque转换为列表以支持切片
+        recent_history = list(self.cognitive_history)[-5:]
+        for data in recent_history:
             effectiveness = self._calculate_overall_effectiveness()
             effectiveness_history.append(effectiveness)
 
@@ -2592,6 +2609,175 @@ class EnhancedMetaCognition:
         confidence = confidence * 0.6 + consistency * 0.4
 
         return max(0.3, min(confidence, 1.0))
+
+    def analyze_system_state(self) -> Dict[str, Any]:
+        """分析系统状态
+        
+        对元认知系统进行深入分析，包括性能评估、问题诊断和改进建议
+        
+        Returns:
+            系统状态分析结果
+        """
+        try:
+            # 获取基本系统状态
+            basic_status = self.get_system_status()
+            
+            # 计算性能指标
+            thinking_quality_avg = self._calculate_avg_thinking_quality()
+            bias_detection_rate = self._calculate_bias_detection_rate()
+            regulation_success_rate = self._calculate_regulation_success_rate()
+            
+            # 评估系统健康状况
+            health_score = self._calculate_health_score()
+            overall_effectiveness = self._calculate_overall_effectiveness()
+            
+            # 识别优势和弱点
+            strengths_weaknesses = self._identify_strengths_weaknesses()
+            
+            # 分析性能趋势
+            improvement_trend = self._calculate_improvement_trend()
+            
+            # 评估认知状态稳定性
+            recent_history = list(self.cognitive_history)[-10:]
+            stability_score = self._calculate_pattern_stability(recent_history) if recent_history else 0.5
+            
+            # 生成改进建议
+            improvement_suggestions = self._generate_improvement_suggestions()
+            
+            # 构建分析报告
+            analysis = {
+                **basic_status,
+                "analysis_type": "deep_system_analysis",
+                "performance_analysis": {
+                    "thinking_quality_average": thinking_quality_avg,
+                    "bias_detection_rate": bias_detection_rate,
+                    "regulation_success_rate": regulation_success_rate,
+                    "performance_trend": improvement_trend,
+                    "stability_score": stability_score
+                },
+                "health_assessment": {
+                    "health_score": health_score,
+                    "overall_effectiveness": overall_effectiveness,
+                    "cognitive_state_balance": {
+                        dimension: score for dimension, score in self.cognitive_state.items()
+                        if score > 0.7 or score < 0.3
+                    }
+                },
+                "strengths_and_weaknesses": strengths_weaknesses,
+                "improvement_suggestions": improvement_suggestions,
+                "diagnostic_findings": self._generate_diagnostic_findings(),
+                "recommended_actions": self._generate_recommended_actions(),
+                "analysis_timestamp": time.time(),
+                "analysis_confidence": self._calculate_report_confidence()
+            }
+            
+            return analysis
+            
+        except Exception as e:
+            error_handler.handle_error(e, "EnhancedMetaCognition", "系统状态分析失败")
+            return {
+                "status": "error",
+                "error": str(e),
+                "analysis_type": "failed_analysis",
+                "timestamp": time.time()
+            }
+
+    def _generate_improvement_suggestions(self) -> List[str]:
+        """生成改进建议"""
+        suggestions = []
+        
+        # 基于认知状态生成建议
+        for dimension, score in self.cognitive_state.items():
+            if score < 0.4:
+                suggestions.append(f"提高{dimension}能力（当前得分: {score:.2f}）")
+            elif score > 0.8:
+                suggestions.append(f"利用{dimension}优势（当前得分: {score:.2f}）")
+        
+        # 基于性能指标生成建议
+        if self._calculate_bias_detection_rate() < 0.5:
+            suggestions.append("加强认知偏差检测能力")
+        
+        if self._calculate_regulation_success_rate() < 0.6:
+            suggestions.append("提高认知调节成功率")
+        
+        # 添加通用建议
+        if not suggestions:
+            suggestions.append("系统表现良好，继续保持当前状态")
+            suggestions.append("考虑尝试更复杂的认知任务以进一步提高能力")
+        
+        return suggestions[:5]  # 返回最多5条建议
+
+    def _generate_diagnostic_findings(self) -> List[Dict[str, Any]]:
+        """生成诊断发现"""
+        findings = []
+        
+        # 检查认知状态平衡
+        extreme_scores = [(dim, score) for dim, score in self.cognitive_state.items() 
+                         if score < 0.3 or score > 0.8]
+        
+        for dimension, score in extreme_scores:
+            if score < 0.3:
+                findings.append({
+                    "type": "low_performance",
+                    "dimension": dimension,
+                    "score": score,
+                    "severity": "medium",
+                    "description": f"{dimension}能力较低，可能影响系统整体性能",
+                    "recommendation": f"通过特定训练提高{dimension}能力"
+                })
+            else:
+                findings.append({
+                    "type": "high_performance",
+                    "dimension": dimension,
+                    "score": score,
+                    "severity": "info",
+                    "description": f"{dimension}能力较强，是系统的优势领域",
+                    "recommendation": f"利用{dimension}优势解决复杂问题"
+                })
+        
+        # 检查数据量
+        if len(self.cognitive_history) < 10:
+            findings.append({
+                "type": "insufficient_data",
+                "dimension": "experience",
+                "severity": "low",
+                "description": "认知历史数据不足，可能影响分析准确性",
+                "recommendation": "继续使用系统以积累更多数据"
+            })
+        
+        return findings
+
+    def _generate_recommended_actions(self) -> List[Dict[str, Any]]:
+        """生成推荐行动"""
+        actions = []
+        
+        # 基于诊断发现生成行动
+        findings = self._generate_diagnostic_findings()
+        
+        for finding in findings:
+            if finding["severity"] in ["medium", "high"]:
+                actions.append({
+                    "action": finding.get("recommendation", "进行系统优化"),
+                    "priority": "high" if finding["severity"] == "high" else "medium",
+                    "related_finding": finding["description"]
+                })
+        
+        # 添加常规优化行动
+        if not actions:
+            actions.extend([
+                {
+                    "action": "进行定期系统性能审查",
+                    "priority": "low",
+                    "related_finding": "系统运行正常"
+                },
+                {
+                    "action": "尝试更复杂的认知任务以测试系统极限",
+                    "priority": "medium",
+                    "related_finding": "系统当前状态良好"
+                }
+            ])
+        
+        return actions[:3]  # 返回最多3个推荐行动
 
 
 # 简化版本用于测试和兼容性

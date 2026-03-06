@@ -44,10 +44,18 @@ class EngineeringKnowledgeService:
             if json_file.name == "engineering.json":
                 # Skip the generic engineering.json if exists
                 continue
+                
+            # Skip schema and non-knowledge files
+            if json_file.name in ["knowledge_schema.json", "self_learning_knowledge.json"]:
+                # These are not knowledge base files
+                continue
 
             try:
                 with open(json_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                
+                # Convert legacy format if needed
+                data = self._convert_legacy_format(data, json_file.name)
                 
                 # Validate the loaded data
                 if not self._validate_knowledge_data(data, json_file.name):
@@ -188,6 +196,89 @@ class EngineeringKnowledgeService:
         except Exception as e:
             print(f"Validation error in {filename}: Unexpected error during validation: {e}")
             return False
+
+    def _convert_legacy_format(self, data: Dict[str, Any], filename: str) -> Dict[str, Any]:
+        """
+        Convert legacy knowledge base format to new format
+        
+        Args:
+            data: Loaded JSON data
+            filename: Source filename for logging
+            
+        Returns:
+            Converted data in new format
+        """
+        # If already in new format (has knowledge_base key), return as-is
+        if "knowledge_base" in data:
+            return data
+            
+        # Check if this is legacy format (has domain but no knowledge_base)
+        if "domain" not in data:
+            # Not a valid knowledge base file
+            return data
+            
+        print(f"Converting legacy format: {filename}")
+        
+        # Create knowledge_base structure
+        knowledge_base = {
+            "domain": data.get("domain"),
+            "name": data.get("name", {}),
+            "description": data.get("description", {}),
+            "categories": [],
+            "timestamp": data.get("timestamp"),
+            "version": data.get("version", "1.0"),
+        }
+        
+        # Convert concepts to a category if present
+        if "concepts" in data and isinstance(data["concepts"], list):
+            concepts_category = {
+                "id": "general_concepts",
+                "name": {
+                    "en": "General Concepts",
+                    "zh": "通用概念",
+                    "de": "Allgemeine Konzepte",
+                    "ja": "一般概念",
+                    "ru": "Общие понятия"
+                },
+                "description": {
+                    "en": "General concepts in this domain",
+                    "zh": "本领域的一般概念",
+                    "de": "Allgemeine Konzepte in diesem Bereich",
+                    "ja": "この分野の一般概念",
+                    "ru": "Общие понятия в этой области"
+                },
+                "concepts": data["concepts"]
+            }
+            knowledge_base["categories"].append(concepts_category)
+        
+        # Convert principles to a category if present
+        if "principles" in data and isinstance(data["principles"], list):
+            principles_category = {
+                "id": "principles",
+                "name": {
+                    "en": "Principles",
+                    "zh": "原则",
+                    "de": "Prinzipien",
+                    "ja": "原則",
+                    "ru": "Принципы"
+                },
+                "description": {
+                    "en": "Fundamental principles in this domain",
+                    "zh": "本领域的基本原则",
+                    "de": "Grundlegende Prinzipien in diesem Bereich",
+                    "ja": "この分野の基本原理",
+                    "ru": "Основные принципы в этой области"
+                },
+                "concepts": data["principles"]
+            }
+            knowledge_base["categories"].append(principles_category)
+        
+        # If no categories were created, create an empty categories list
+        if len(knowledge_base["categories"]) == 0:
+            knowledge_base["categories"] = []
+        
+        # Return new format data
+        return {"knowledge_base": knowledge_base}
 
     def get_domains(self) -> List[str]:
         """Get list of available knowledge domains"""

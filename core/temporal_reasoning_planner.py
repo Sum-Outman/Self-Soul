@@ -46,6 +46,7 @@ class TemporalRelation(Enum):
     FINISHES = "finishes"        # A与B同时结束
     EQUALS = "equals"            # A与B时间相等
     CONTAINS = "contains"        # A包含B
+    NON_OVERLAP = "non_overlap"  # A与B不重叠
 
 class TimeUnit(Enum):
     """时间单位枚举"""
@@ -1415,6 +1416,216 @@ class TemporalReasoningPlanner:
         
         return opportunities
     
+    def _prepare_scheduling_tasks(self, plan: Dict[str, Any], temporal_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """准备调度任务
+        
+        Args:
+            plan: 原始计划
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            调度任务列表
+        """
+        tasks = []
+        steps = plan.get("steps", [])
+        
+        for i, step in enumerate(steps):
+            task = {
+                "id": f"task_{i}",
+                "step_id": step.get("id", f"step_{i}"),
+                "description": step.get("description", f"Step {i}"),
+                "estimated_duration": step.get("estimated_time", 0),
+                "required_resources": step.get("resources", []),
+                "dependencies": step.get("dependencies", []),
+                "constraints": [],
+                "priority": step.get("priority", 1),
+                "flexibility": step.get("flexibility", 0.5)
+            }
+            
+            # 添加时间约束
+            temporal_constraints = temporal_analysis.get("temporal_constraints", [])
+            for constraint in temporal_constraints:
+                if constraint.get("targets") and task["step_id"] in constraint["targets"]:
+                    task["constraints"].append(constraint)
+            
+            tasks.append(task)
+        
+        return tasks
+    
+    def _apply_temporal_constraints(self, tasks: List[Dict[str, Any]], temporal_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """应用时间约束到任务
+        
+        Args:
+            tasks: 调度任务列表
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            应用了约束的任务列表
+        """
+        constrained_tasks = []
+        constraints = temporal_analysis.get("temporal_constraints", [])
+        
+        for task in tasks:
+            constrained_task = task.copy()
+            task_constraints = []
+            
+            # 找到适用于此任务的约束
+            for constraint in constraints:
+                targets = constraint.get("targets", [])
+                if task["step_id"] in targets:
+                    task_constraints.append(constraint)
+            
+            constrained_task["constraints"] = task_constraints
+            constrained_tasks.append(constrained_task)
+        
+        return constrained_tasks
+    
+    def _generate_initial_schedule(self, tasks: List[Dict[str, Any]], temporal_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """生成初始调度
+        
+        Args:
+            tasks: 应用了约束的任务列表
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            初始调度
+        """
+        # 简单调度：按顺序安排任务
+        current_time = 0
+        scheduled_tasks = []
+        
+        for task in tasks:
+            duration = task.get("estimated_duration", 0)
+            scheduled_task = {
+                "task_id": task["id"],
+                "step_id": task["step_id"],
+                "start_time": current_time,
+                "end_time": current_time + duration,
+                "duration": duration,
+                "buffer_time": duration * 0.1,  # 10%缓冲
+                "critical_path": False
+            }
+            scheduled_tasks.append(scheduled_task)
+            current_time += duration
+        
+        total_duration = current_time
+        
+        schedule = {
+            "scheduled_tasks": scheduled_tasks,
+            "total_duration": total_duration,
+            "makespan": total_duration,
+            "efficiency_score": 0.7,
+            "robustness_score": 0.6,
+            "resource_utilization": 0.8
+        }
+        
+        return schedule
+    
+    def _optimize_schedule(self, schedule: Dict[str, Any], temporal_analysis: Dict[str, Any], context: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """优化调度
+        
+        Args:
+            schedule: 初始调度
+            temporal_analysis: 时间分析结果
+            context: 上下文信息
+            
+        Returns:
+            优化后的调度
+        """
+        # 简单优化：调整缓冲时间
+        optimized_schedule = schedule.copy()
+        scheduled_tasks = schedule.get("scheduled_tasks", [])
+        
+        for task in scheduled_tasks:
+            # 增加缓冲时间以提高鲁棒性
+            task["buffer_time"] = task.get("buffer_time", 0) * 1.2
+        
+        optimized_schedule["optimization_applied"] = True
+        optimized_schedule["optimization_time"] = time.time()
+        
+        return optimized_schedule
+    
+    def _handle_temporal_uncertainty(self, schedule: Dict[str, Any], temporal_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """处理时间不确定性
+        
+        Args:
+            schedule: 优化后的调度
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            鲁棒的调度
+        """
+        # 增加缓冲时间以处理不确定性
+        robust_schedule = schedule.copy()
+        scheduled_tasks = schedule.get("scheduled_tasks", [])
+        
+        uncertainty_level = temporal_analysis.get("temporal_uncertainty", {}).get("overall_uncertainty", 0.5)
+        
+        for task in scheduled_tasks:
+            # 根据不确定性水平调整缓冲
+            additional_buffer = task.get("buffer_time", 0) * uncertainty_level
+            task["buffer_time"] += additional_buffer
+        
+        robust_schedule["robustness_score"] = 0.8
+        robust_schedule["handles_uncertainty"] = True
+        
+        return robust_schedule
+    
+    def _assess_schedule_quality(self, schedule: Dict[str, Any]) -> float:
+        """评估调度质量
+        
+        Args:
+            schedule: 调度
+            
+        Returns:
+            质量分数 (0-1)
+        """
+        # 简单质量评估
+        efficiency = schedule.get("efficiency_score", 0.7)
+        robustness = schedule.get("robustness_score", 0.6)
+        utilization = schedule.get("resource_utilization", 0.8)
+        
+        quality = (efficiency + robustness + utilization) / 3.0
+        return max(0.0, min(1.0, quality))
+    
+    def _calculate_schedule_improvement(self, optimized_schedule: Dict[str, Any], initial_schedule: Dict[str, Any]) -> float:
+        """计算调度改进
+        
+        Args:
+            optimized_schedule: 优化后的调度
+            initial_schedule: 初始调度
+            
+        Returns:
+            改进分数 (0-1)
+        """
+        # 简单改进计算
+        initial_makespan = initial_schedule.get("makespan", 100)
+        optimized_makespan = optimized_schedule.get("makespan", 80)
+        
+        if initial_makespan <= 0:
+            return 0.0
+        
+        improvement = (initial_makespan - optimized_makespan) / initial_makespan
+        return max(0.0, min(1.0, improvement))
+    
+    def _assess_schedule_robustness(self, schedule: Dict[str, Any], temporal_analysis: Dict[str, Any]) -> float:
+        """评估调度鲁棒性
+        
+        Args:
+            schedule: 调度
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            鲁棒性分数 (0-1)
+        """
+        # 简单鲁棒性评估
+        robustness = schedule.get("robustness_score", 0.6)
+        uncertainty = temporal_analysis.get("temporal_uncertainty", {}).get("overall_uncertainty", 0.5)
+        
+        # 考虑不确定性
+        adjusted_robustness = robustness * (1.0 - uncertainty * 0.3)
+        return max(0.0, min(1.0, adjusted_robustness))
+    
     def generate_temporal_plan(self, plan: Dict[str, Any],
                               temporal_analysis: Dict[str, Any],
                               context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -1586,6 +1797,64 @@ class TemporalReasoningPlanner:
             })
         
         return steps
+
+    def _create_temporal_plan(self, plan: Dict[str, Any], robust_schedule: Dict[str, Any], temporal_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """创建时间计划
+        
+        Args:
+            plan: 原始计划
+            robust_schedule: 健壮的时间调度
+            temporal_analysis: 时间分析结果
+            
+        Returns:
+            时间计划
+        """
+        # 从原始计划中提取基本信息
+        temporal_plan = {
+            "id": f"temporal_{plan.get('id', 'unknown')}_{int(time.time())}",
+            "original_plan_id": plan.get("id", "unknown"),
+            "goal": plan.get("goal", "未知目标"),
+            "original_steps": plan.get("steps", []),
+            "temporal_optimized_steps": [],
+            "schedule": robust_schedule,
+            "temporal_analysis_summary": {
+                "constraints_count": len(temporal_analysis.get("temporal_constraints", [])),
+                "complexity_score": temporal_analysis.get("temporal_complexity", {}).get("overall_complexity", 0.0),
+                "challenges_count": len(temporal_analysis.get("temporal_challenges", [])),
+                "optimization_opportunities_count": len(temporal_analysis.get("optimization_opportunities", []))
+            },
+            "temporal_constraints": temporal_analysis.get("temporal_constraints", []),
+            "optimization_applied": True,
+            "robustness_level": "high" if robust_schedule.get("robustness_score", 0) > 0.7 else "medium" if robust_schedule.get("robustness_score", 0) > 0.4 else "low",
+            "estimated_total_duration": robust_schedule.get("total_duration", 0),
+            "schedule_efficiency": robust_schedule.get("efficiency_score", 0.0),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # 将原始步骤与调度信息合并
+        original_steps = plan.get("steps", [])
+        schedule_tasks = robust_schedule.get("scheduled_tasks", [])
+        
+        temporal_steps = []
+        for i, step in enumerate(original_steps):
+            schedule_info = {}
+            if i < len(schedule_tasks):
+                schedule_info = schedule_tasks[i]
+            
+            temporal_step = {
+                **step,
+                "scheduled_start": schedule_info.get("start_time", 0),
+                "scheduled_end": schedule_info.get("end_time", 0),
+                "scheduled_duration": schedule_info.get("duration", step.get("estimated_time", 0)),
+                "buffer_time": schedule_info.get("buffer_time", 0),
+                "flexibility_score": schedule_info.get("flexibility_score", 0.0),
+                "critical_path": schedule_info.get("critical_path", False)
+            }
+            temporal_steps.append(temporal_step)
+        
+        temporal_plan["temporal_optimized_steps"] = temporal_steps
+        
+        return temporal_plan
 
 
 # 实用函数：创建时间推理规划器实例

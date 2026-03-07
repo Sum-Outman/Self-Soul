@@ -1,0 +1,32 @@
+# 统一认知架构的依赖要求
+# 核心依赖
+
+# PyTorch (根据系统指定合适的版本)
+torch>=2.4.0
+
+# FastAPI和网络服务器
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+
+# 异步工具
+asyncio>=3.4.3
+
+# 测试
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# 开发工具
+numpy>=1.24.0
+pytest-xdist>=3.5.0  # 用于并行测试
+
+# 系统监控和配置
+psutil>=5.9.0
+jsonschema>=4.20.0
+pyyaml>=6.0.0
+
+# 可选 (用于完整功能)
+# Pillow>=10.0.0  # 用于图像处理
+# librosa>=0.10.0  # 用于音频处理
+# opencv-python>=4.8.0  # 用于计算机视觉

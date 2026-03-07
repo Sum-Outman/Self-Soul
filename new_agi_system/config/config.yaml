@@ -1,0 +1,125 @@
+# 统一认知架构配置
+# 环境: development
+
+system:
+  name: "统一认知架构"
+  version: "1.0.0"
+  environment: "development"
+  log_level: "INFO"
+  debug: true
+
+server:
+  host: "0.0.0.0"
+  port: 9000
+  workers: 2
+  reload: true
+  timeout: 30
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:5175"
+
+cognitive:
+  embedding_dim: 1024
+  max_shared_memory_mb: 2048
+  enable_cache: true
+  cache_size: 5000
+  processing_mode: "parallel"
+  max_cognitive_cycles: 100
+  
+  # 组件配置
+  components:
+    perception:
+      enabled: true
+      max_input_size: 10000
+    attention:
+      enabled: true
+      attention_heads: 8
+    memory:
+      enabled: true
+      max_memory_items: 10000
+    reasoning:
+      enabled: true
+      reasoning_depth: 3
+    planning:
+      enabled: true
+      max_planning_steps: 10
+    decision:
+      enabled: true
+      decision_threshold: 0.7
+    action:
+      enabled: true
+      action_timeout: 10.0
+    learning:
+      enabled: true
+      learning_rate: 0.001
+
+neural:
+  communication_timeout: 10.0
+  max_queue_size: 5000
+  enable_monitoring: true
+  monitoring_interval: 5.0
+  shared_tensor_format: "float32"
+  
+  networks:
+    text_encoder:
+      hidden_size: 512
+      num_layers: 3
+    image_encoder:
+      hidden_size: 512
+      num_layers: 2
+
+security:
+  max_input_length: 10000
+  enable_validation: true
+  enable_sanitization: true
+  rate_limit_enabled: true
+  rate_limit_requests: 200
+  rate_limit_window: 60
+  
+  threat_detection:
+    enabled: true
+    detection_level: "medium"
+
+database:
+  type: "memory"
+  path: "data/cognitive.db"
+  max_connections: 20
+  
+  # SQLite特定配置
+  sqlite:
+    journal_mode: "WAL"
+    synchronous: "NORMAL"
+    cache_size: -2000
+
+monitoring:
+  enable_metrics: true
+  enable_tracing: true
+  export_interval: 30
+  metrics_port: 9090
+  
+  metrics:
+    - name: "cognitive_cycles"
+      type: "counter"
+    - name: "component_performance"
+      type: "histogram"
+    - name: "memory_usage"
+      type: "gauge"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/agi_system.log"
+  
+  handlers:
+    console:
+      enabled: true
+    file:
+      enabled: true
+      max_bytes: 10485760  # 10MB
+      backup_count: 5
+
+paths:
+  data: "data/"
+  logs: "logs/"
+  cache: "cache/"
+  models: "models/"

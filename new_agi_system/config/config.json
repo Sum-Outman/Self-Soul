@@ -1,0 +1,52 @@
+{
+  "system": {
+    "name": "统一认知架构",
+    "version": "1.0.0",
+    "environment": "development",
+    "log_level": "INFO",
+    "debug": true
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 9000,
+    "workers": 1,
+    "reload": true,
+    "timeout": 30,
+    "cors_origins": [
+      "http://localhost:5173",
+      "http://localhost:5175"
+    ]
+  },
+  "cognitive": {
+    "embedding_dim": 1024,
+    "max_shared_memory_mb": 1024,
+    "enable_cache": true,
+    "cache_size": 1000,
+    "processing_mode": "parallel"
+  },
+  "neural": {
+    "communication_timeout": 5.0,
+    "max_queue_size": 1000,
+    "enable_monitoring": true,
+    "monitoring_interval": 5.0
+  },
+  "security": {
+    "max_input_length": 10000,
+    "enable_validation": true,
+    "enable_sanitization": true,
+    "rate_limit_enabled": true,
+    "rate_limit_requests": 100,
+    "rate_limit_window": 60
+  },
+  "database": {
+    "type": "memory",
+    "path": "data/cognitive.db",
+    "max_connections": 10
+  },
+  "monitoring": {
+    "enable_metrics": true,
+    "enable_tracing": true,
+    "export_interval": 30,
+    "metrics_port": 9090
+  }
+}
